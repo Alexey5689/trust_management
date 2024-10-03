@@ -18,5 +18,15 @@ class RoleSeeder extends Seeder
             'title' => 'admin',
             'description' => 'Administrator role',
         ]);
+        Role::create([
+            'id' => 2, // Убедись, что роль администратора имеет id = 1
+            'title' => 'manager',
+            'description' => 'Manager role',
+        ]);
+        Role::create([
+            'id' => 3, // Убедись, что роль администратора имеет id = 1
+            'title' => 'client',
+            'description' => 'Client role',
+        ]);
     }
 }

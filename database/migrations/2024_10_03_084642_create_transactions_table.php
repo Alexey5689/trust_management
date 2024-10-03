@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('transactions', function (Blueprint $table) {
+            $table->id();
+
+            // Внешний ключ на таблицу contracts
+            $table->foreignId('contract_id')->constrained('contracts')->onDelete('cascade');
+
+            // Внешний ключ на таблицу users для менеджера
+            $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
+
+            $table->date('date_transition');
+            $table->boolean('status_transition');
+
+            // Денежные суммы лучше хранить в формате decimal
+            $table->decimal('sum_transition', 10, 2);
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('transactions');
+    }
+};
