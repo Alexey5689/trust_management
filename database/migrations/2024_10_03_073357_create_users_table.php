@@ -13,10 +13,17 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('last_name')->comment('Фамилия');
+            $table->string('first_name')->comment('Имя');
+            $table->string('middle_name')->comment('Отчество');
+            $table->string('email')->unique()->comment('Email');
+            $table->char('phone_number', 20)->unique()->comment('Номер телефона');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('token');
+            $table->string('refresh_token');
+            $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('set null'); // Внешний ключ на таблицу ролей
+            $table->decimal('avaliable_balance', 10, 2)->nullable()->comment('Доступный баланс');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -29,7 +36,7 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
@@ -42,8 +49,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };
