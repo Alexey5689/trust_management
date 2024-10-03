@@ -30,8 +30,8 @@ class AdminSeeder extends Seeder
             'first_name' => 'Денис',
             'last_name' => 'Ефимов',
             'middle_name' => 'Васильевич',
-            'email' => 'admin@example.com',
-            'phone_number' => '+79999999999',
+            'email' => 'denisefremoff@mail.ru',
+            'phone_number' => '+79228671761',
             'password' => bcrypt('password'), // Устанавливаем пароль для администратора
             'token' => Str::random(60),
             'refresh_token' => Str::random(60),
