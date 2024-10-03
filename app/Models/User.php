@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,37 +10,57 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
+        'middle_name',
+        'first_name',
+        'last_name',
         'email',
+        'phone_number',
         'password',
+        'token',
+        'refresh_token',
+        'avaliable_balance',
+        'role_id'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'avaliable_balance' => 'decimal:2',
+    ];
+
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Связь с моделью Role
      */
-    protected function casts(): array
+    public function role()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Связь с менеджерами (пользователи могут иметь менеджеров)
+     */
+    public function managers()
+    {
+        return $this->belongsToMany(User::class, 'user_manager', 'user_id', 'manager_id');
+    }
+
+    /**
+     * Связь с пользователями, которыми управляет данный пользователь (если он менеджер)5
+     */
+    public function managedUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_manager', 'manager_id', 'user_id');
+    }
+
+    public function contracts()
+    {
+        return $this->belongsToMany(User::class, 'contracts', 'user_id', 'manager_id');
     }
 }
+

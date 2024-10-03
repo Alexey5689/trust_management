@@ -24,14 +24,17 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'middle_name' => fake()->firstName(),
+            'phone_number' => "8" . rand(1000000000, 9999999999),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'token' => Str::random(60), // Генерация случайного токена
+            'refresh_token' => Str::random(60),
+            'role_id' => null, // Добавляем role_id, если это используется
         ];
     }
-
     /**
      * Indicate that the model's email address should be unverified.
      */
@@ -39,6 +42,12 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => 1, // Предположим, что роль администратора имеет ID = 1
         ]);
     }
 }
