@@ -58,9 +58,14 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'user_manager', 'manager_id', 'user_id');
     }
 
-    public function contracts()
+    public function userContracts()
     {
-        return $this->belongsToMany(User::class, 'contracts', 'user_id', 'manager_id');
+        return $this->hasMany(Contract::class, 'user_id', );
     }
+    public function managerContracts()
+    {
+        return $this->hasMany(Contract::class, 'manager_id');
+    }
+
 }
 
