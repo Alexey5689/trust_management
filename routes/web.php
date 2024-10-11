@@ -23,4 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/registration-manager', function (){
+    return Inertia::render('Messages/RegistrationManager');
+})->name('registration-manager');
+
 require __DIR__.'/auth.php';

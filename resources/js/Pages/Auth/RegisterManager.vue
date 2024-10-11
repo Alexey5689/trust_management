@@ -8,15 +8,17 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const form = useForm({
-    name: '',
+    last_name: '',
+    first_name: '',
+    middle_name: '',
     email: '',
-    password: '',
-    password_confirmation: '',
+    phone_number: '',
+    role_id: 2
 });
 
 const submit = () => {
     form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
+        // onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
 </script>
@@ -33,48 +35,45 @@ const submit = () => {
                     <div class="p-6 text-gray-900">
                         <form @submit.prevent="submit">
                             <div>
-                                <InputLabel for="name" value="Фамилия" />
+                                <InputLabel for="last_name" value="Фамилия" />
 
                                 <TextInput
-                                    id="name"
+                                    id="last_name"
                                     type="text"
                                     class="mt-1 block w-full"
-                                    v-model="form.name"
+                                    v-model="form.last_name"
                                     required
                                     autofocus
-                                    autocomplete="name"
                                 />
 
                                 <InputError class="mt-2" :message="form.errors.name" />
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="name" value="Имя" />
+                                <InputLabel for="first_name" value="Имя" />
 
                                 <TextInput
-                                    id="name"
+                                    id="first_name"
                                     type="text"
                                     class="mt-1 block w-full"
-                                    v-model="form.name"
+                                    v-model="form.first_name"
                                     required
                                     autofocus
-                                    autocomplete="name"
                                 />
 
                                 <InputError class="mt-2" :message="form.errors.name" />
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="name" value="Отчество" />
+                                <InputLabel for="middle_name" value="Отчество" />
 
                                 <TextInput
-                                    id="name"
+                                    id="middle_name"
                                     type="text"
                                     class="mt-1 block w-full"
-                                    v-model="form.name"
+                                    v-model="form.middle_name"
                                     required
                                     autofocus
-                                    autocomplete="name"
                                 />
 
                                 <InputError class="mt-2" :message="form.errors.name" />
@@ -89,7 +88,20 @@ const submit = () => {
                                     class="mt-1 block w-full"
                                     v-model="form.email"
                                     required
-                                    autocomplete="username"
+                                />
+
+                                <InputError class="mt-2" :message="form.errors.email" />
+                            </div>
+
+                            <div class="mt-4">
+                                <InputLabel for="phone_number" value="Телефон" />
+
+                                <TextInput
+                                    id="phone_number"
+                                    type="tel"
+                                    class="mt-1 block w-full"
+                                    v-model="form.phone_number"
+                                    required
                                 />
 
                                 <InputError class="mt-2" :message="form.errors.email" />
