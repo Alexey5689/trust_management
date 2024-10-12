@@ -6,7 +6,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-
+import { usePage } from '@inertiajs/vue3';
+const page = usePage();
 defineProps({
     canResetPassword: {
         type: Boolean,
@@ -17,13 +18,17 @@ defineProps({
 });
 
 const form = useForm({
-    email: '',
+    email: page.props.email,
+    token: page.props.token,
     password: '',
+    password_confirmation: '',
     remember: false,
 });
 
 const submit = () => {
-    form.patch(route('reset-password'), {
+
+
+    form.patch(route('password.create'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
@@ -41,19 +46,7 @@ const submit = () => {
 
         <form @submit.prevent="submit">
             <div>
-                <!-- <InputLabel for="email" value="Email" />
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" /> -->
                 <p>Тест почты</p>
             </div>
 
@@ -76,18 +69,32 @@ const submit = () => {
             </div>
 
 
+
+            <div class="flex items-center justify-end mt-4">
+                <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    Создать пароль
+                </PrimaryButton>
+            </div>
+        </form>
+    </GuestLayout>
+</template>
+
             <!-- <div class="block mt-4">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
                     <span class="ms-2 text-sm text-gray-600">Remember me</span>
                 </label>
             </div> -->
+             <!-- <InputLabel for="email" value="Email" />
 
-            <div class="flex items-center justify-end mt-4">
-                <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
-                </PrimaryButton>
-            </div>
-        </form>
-    </GuestLayout>
-</template>
+                <TextInput
+                    id="email"
+                    type="email"
+                    class="mt-1 block w-full"
+                    v-model="form.email"
+                    required
+                    autofocus
+                    autocomplete="username"
+                />
+
+                <InputError class="mt-2" :message="form.errors.email" /> -->

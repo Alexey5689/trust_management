@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Password;
-
+use App\Notifications\PasswordEmail;
 class RegisteredManagerController extends Controller
 {
     public function create(): Response
@@ -40,10 +40,19 @@ class RegisteredManagerController extends Controller
             'refresh_token' => Str::random(60),
         ]);
 
-        Password::sendResetLink(['email' => $user->email]);
+        // Password::sendResetLink(['email' => $user->email]);
+        $token = Password::createToken($user);
+        $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        session()->flash('success', 'Менеджер успешно зарегистрирован. Письмо для создания пароля отправлено на указанный адрес.');
         return redirect(route('registration-manager'));
+
+        // $status = Password::sendResetLink(['email' => $user->email]);
+
+        // if ($status === Password::RESET_LINK_SENT) {
+        //     session()->flash('success', 'Письмо для создания пароля отправлено.');
+        // } else {
+        //     session()->flash('error', 'Не удалось отправить письмо для создания пароля.');
+        // }
     }
 }

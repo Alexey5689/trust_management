@@ -1,12 +1,12 @@
 <x-mail::message>
-# Introduction
+# Задание пароля
 
-The body of your message.
+Для того чтобы задать пароль для вашей учетной записи, перейдите по следующей ссылке:
 
-<x-mail::button :url="''">
-Button Text
+<x-mail::button :url="$url">
+Задать пароль
 </x-mail::button>
 
-Thanks,<br>
+Спасибо,<br>
 {{ config('app.name') }}
 </x-mail::message>
