@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Transactions;
+use App\Models\Transaction;
 
 class Contract extends Model
 {
@@ -30,7 +30,7 @@ class Contract extends Model
      */
     public function transactions()
     {
-        return $this->hasMany(Transactions::class, 'contract_id');
+        return $this->hasMany(Transaction::class, 'contract_id');
     }
 
     /**

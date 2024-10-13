@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title')->nullable();
             // Связь с самим собой (контракты могут быть связаны друг с другом)
             $table->foreignId('contract_id')->nullable()->constrained('contracts')->onDelete('set null');
             // Связь с таблицей пользователей (user_id и manager_id)
@@ -21,11 +21,11 @@ return new class extends Migration
             $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
             $table->integer('contract_number')->unsigned();
             $table->date('create_date');
-            $table->date('deadline');
+            $table->date('deadline')->nullable();
             $table->integer('sum')->unsigned();
-            $table->integer('procent')->unsigned();
-            $table->boolean('contract_status');
-            $table->integer('doc_number')->unsigned();
+            $table->integer('procent')->unsigned()->nullable();
+            $table->boolean('contract_status')->nullable();
+            $table->integer('doc_number')->unsigned()->nullable();
             $table->timestamps();
         });
     }

@@ -67,5 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(Contract::class, 'manager_id');
     }
 
+    public function isAdmin()
+    {
+        return $this->role_id === 1 && $this->role->title === 'admin'; // Предполагается, что в модели Role есть поле 'title'
+    }
+
+
 }
 

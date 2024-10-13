@@ -13,11 +13,14 @@ const form = useForm({
     middle_name: '',
     email: '',
     phone_number: '',
-    role_id: 2
+    role_id: 3,
+    contract_number:null,
+    create_date:new Date(),
+    sum:null
 });
 
 const submit = () => {
-    form.post(route('registration.manager'), {
+    form.post(route('registration.client'), {
         // onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
@@ -27,7 +30,7 @@ const submit = () => {
     <Head title="Register" />
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Регитсрация менеджера</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Регитсрация клиента</h2>
         </template>
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -101,6 +104,32 @@ const submit = () => {
                                     type="tel"
                                     class="mt-1 block w-full"
                                     v-model="form.phone_number"
+                                    required
+                                />
+
+                                <InputError class="mt-2" :message="form.errors.email" />
+                            </div>
+                            <div class="mt-4">
+                                <InputLabel for="contract_number" value="Номер договора" />
+
+                                <TextInput
+                                    id="contract_number"
+                                    type="tel"
+                                    class="mt-1 block w-full"
+                                    v-model="form.contract_number"
+                                    required
+                                />
+
+                                <InputError class="mt-2" :message="form.errors.email" />
+                            </div>
+                            <div class="mt-4">
+                                <InputLabel for="sum" value="Сумма" />
+
+                                <TextInput
+                                    id="sum"
+                                    type="tel"
+                                    class="mt-1 block w-full"
+                                    v-model="form.sum"
                                     required
                                 />
 

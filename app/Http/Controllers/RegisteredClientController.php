@@ -11,34 +11,56 @@ use Illuminate\Support\Str;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Password;
 use App\Notifications\PasswordEmail;
-class RegisteredManagerController extends Controller
-{
-    public function create(): Response
-    {
-        return Inertia::render('Auth/RegisterManager');
-    }
+use Illuminate\Support\Facades\Auth;
 
+class RegisteredClientController extends Controller
+{
+    public function create()
+    {
+        return Inertia::render('Auth/RegisterClient');
+    }
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'middle_name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'phone_number' => 'required|string|max:20',
-            'role_id' => 'required|integer'
+            'contract_number' => 'required|integer',
+            'create_date'=> 'required|date',
+            'sum'=> 'required|integer',
         ]);
 
         $user = User::create([
-            'last_name' => $request->last_name,
             'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'middle_name' => $request->middle_name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
-            'role_id' => $request->role_id,
+            'role_id' => $request->role_id, // Предполагаем, что 3 — это ID роли клиента
             'token' => Str::random(60),
             'refresh_token' => Str::random(60),
         ]);
+
+        $loggedInUser = Auth::user();
+
+        if ($loggedInUser->isAdmin()) {
+            // Если админ — берем менеджера из запроса
+            $manager_id = $request->manager_id;
+        } else {
+            // Если менеджер — его ID
+            $manager_id = $loggedInUser->id;
+        }
+
+         // Создание контракта с user_id и manager_id
+         $user->userContracts()->create([
+             'manager_id' => $manager_id,
+             'contract_number' => $request->contract_number,
+             'create_date' => $request->create_date,
+             'sum' => $request->sum,
+         ]);
+
 
 
         $token = Password::createToken($user);
@@ -46,15 +68,5 @@ class RegisteredManagerController extends Controller
 
         event(new Registered($user));
         return redirect(route('success-registration'));
-
-
     }
 }
- // Password::sendResetLink(['email' => $user->email]);
- // $status = Password::sendResetLink(['email' => $user->email]);
-
-// if ($status === Password::RESET_LINK_SENT) {
-//     session()->flash('success', 'Письмо для создания пароля отправлено.');
-// } else {
-//     session()->flash('error', 'Не удалось отправить письмо для создания пароля.');
-// }

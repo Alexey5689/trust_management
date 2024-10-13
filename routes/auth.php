@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisteredManagerController;
+use App\Http\Controllers\RegisteredClientController;
 use App\Http\Controllers\CreatingPasswordController;
 
 Route::middleware('guest')->group(function () {
@@ -66,7 +67,11 @@ Route::middleware('auth')->group(function () {
 
     // Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('register', [RegisteredManagerController::class, 'create'])->name('register');
 
-    Route::post('register', [RegisteredManagerController::class, 'store']);
+    //рег клиент
+    Route::get('registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
+    Route::post('registration-client', [RegisteredClientController::class, 'store']);
+    //рег менеджер
+    Route::get('registration-manager', [RegisteredManagerController::class, 'create'])->name('registration.manager');
+    Route::post('registration-manager', [RegisteredManagerController::class, 'store']);
 });
