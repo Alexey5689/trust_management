@@ -60,7 +60,7 @@ class User extends Authenticatable
 
     public function userContracts()
     {
-        return $this->hasMany(Contract::class, 'user_id', );
+        return $this->hasMany(Contract::class, 'user_id',);
     }
     public function managerContracts()
     {
@@ -69,9 +69,8 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role_id === 1 && $this->role->title === 'admin'; // Предполагается, что в модели Role есть поле 'title'
+        // return $this->role_id === 1 && $this->role->title === 'admin'; // Предполагается, что в модели Role есть поле 'title'
+        $role = $this->role()->first(); // Явная загрузка связи с ролью
+        return $this->role_id === 1 && $role && $role->title === 'admin';
     }
-
-
 }
-

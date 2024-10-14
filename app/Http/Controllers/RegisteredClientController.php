@@ -43,7 +43,8 @@ class RegisteredClientController extends Controller
             'refresh_token' => Str::random(60),
         ]);
 
-        $loggedInUser = Auth::user();
+        // $loggedInUser = Auth::user();
+        $loggedInUser = User::with('role')->find(Auth::id());
 
         if ($loggedInUser->isAdmin()) {
             // Если админ — берем менеджера из запроса
