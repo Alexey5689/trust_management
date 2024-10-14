@@ -54,6 +54,9 @@ class RegisteredClientController extends Controller
             $manager_id = $loggedInUser->id;
         }
 
+        // Записываем менеджера в таблицу user_manager
+        $user->managers()->attach($manager_id);
+
          // Создание контракта с user_id и manager_id
          $user->userContracts()->create([
              'manager_id' => $manager_id,
@@ -61,6 +64,7 @@ class RegisteredClientController extends Controller
              'create_date' => $request->create_date,
              'sum' => $request->sum,
          ]);
+
 
 
 
