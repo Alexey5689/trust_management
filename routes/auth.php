@@ -13,11 +13,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisteredManagerController;
 use App\Http\Controllers\RegisteredClientController;
 use App\Http\Controllers\CreatingPasswordController;
+use App\Http\Controllers\ManagerController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AdminController;
 
 Route::middleware('guest')->group(function () {
-
-    Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('/', [AuthenticatedSessionController::class, 'store']);
+// вход
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
@@ -31,6 +35,8 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+
 // создание пароля
     Route::get('create-password/{token}', [CreatingPasswordController::class, 'create'])
     ->name('password.set');
@@ -69,9 +75,26 @@ Route::middleware('auth')->group(function () {
 
 
     //рег клиент
-    Route::get('registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
-    Route::post('registration-client', [RegisteredClientController::class, 'store']);
+    Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
+    Route::post('/registration-client', [RegisteredClientController::class, 'store']);
     //рег менеджер
-    Route::get('registration-manager', [RegisteredManagerController::class, 'create'])->name('registration.manager');
-    Route::post('registration-manager', [RegisteredManagerController::class, 'store']);
+    Route::get('/registration-manager', [RegisteredManagerController::class, 'create'])->name('registration.manager');
+    Route::post('/registration-manager', [RegisteredManagerController::class, 'store']);
+
+
+    // Route::get('/client',[ManagerController::class, 'showClients'])->name('manager.clients');
+
+    Route::prefix(('admin'))->group(function () {
+        Route::get('/',[DashboardController::class, 'create'])->name('dashboard');
+        Route::get('/profile', [ProfileController::class, 'create'])->name('profile');
+        Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients');
+        Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers');
+    });
+
+    Route::get('/manager',[DashboardController::class, 'create'])->name('dashboard');
+    Route::get('/client',[DashboardController::class, 'create'])->name('dashboard');
+
+
+    // Route::get('profile', [ProfileController::class, 'create'])->name('profile');
+
 });

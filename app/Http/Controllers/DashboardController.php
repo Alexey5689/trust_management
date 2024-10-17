@@ -8,9 +8,9 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     public function create (){
-        $user = Auth::user();
+        // $user = Auth::user();
         return Inertia::render('Dashboard', [
-            'user' => $user
+            // 'user' => $user
         ]);
     }
 }
