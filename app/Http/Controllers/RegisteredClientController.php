@@ -17,7 +17,13 @@ class RegisteredClientController extends Controller
 {
     public function create()
     {
-        return Inertia::render('Auth/RegisterClient');
+        // Получаем всех пользователей с ролью менеджера (role_id = 2)
+        $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
+
+        // Передаем менеджеров на страницу регистрации
+        return Inertia::render('Auth/RegisterClient',[
+            'managers' => $managers,
+        ]);
     }
     public function store(Request $request): RedirectResponse
     {
@@ -28,8 +34,8 @@ class RegisteredClientController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'phone_number' => 'required|string|max:20',
             'contract_number' => 'required|integer',
-            'create_date'=> 'required|date',
-            'sum'=> 'required|integer',
+            'create_date' => 'required|date',
+            'sum' => 'required|integer',
         ]);
 
         $user = User::create([
@@ -57,13 +63,13 @@ class RegisteredClientController extends Controller
         // Записываем менеджера в таблицу user_manager
         $user->managers()->attach($manager_id);
 
-         // Создание контракта с user_id и manager_id
-         $user->userContracts()->create([
-             'manager_id' => $manager_id,
-             'contract_number' => $request->contract_number,
-             'create_date' => $request->create_date,
-             'sum' => $request->sum,
-         ]);
+        // Создание контракта с user_id и manager_id
+        $user->userContracts()->create([
+            'manager_id' => $manager_id,
+            'contract_number' => $request->contract_number,
+            'create_date' => $request->create_date,
+            'sum' => $request->sum,
+        ]);
 
 
 

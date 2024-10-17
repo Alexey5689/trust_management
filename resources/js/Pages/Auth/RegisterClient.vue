@@ -6,17 +6,27 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { defineProps } from 'vue';
+
+const props = defineProps({
+    managers: Array // Менеджеры, которые переданы из контроллера
+});
 
 const form = useForm({
     last_name: '',
     first_name: '',
     middle_name: '',
-    email: '',
     phone_number: '',
+    email: '',
+    contract_number: null,
+    contract_term: '', // Срок договора
+    interest_rate: '', // Процентная ставка
+    agree_with_terms: false, // Для чекбокса
+    create_date: new Date().toISOString().substr(0, 10), // Дата заключения
+    payments: '', // Выплаты
     role_id: 3,
-    contract_number:null,
-    create_date:new Date(),
-    sum:null
+    manager_id: '', // Новое поле для выбора менеджера
+    // sum: null
 });
 
 const submit = () => {
@@ -27,6 +37,7 @@ const submit = () => {
 </script>
 
 <template>
+
     <Head title="Register" />
     <AuthenticatedLayout>
         <template #header>
@@ -37,144 +48,119 @@ const submit = () => {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         <form @submit.prevent="submit">
+
                             <div>
-                                <InputLabel for="last_name" value="Фамилия" />
-
-                                <TextInput
-                                    id="last_name"
-                                    type="text"
-                                    class="mt-1 block w-full"
-                                    v-model="form.last_name"
-                                    required
-                                    autofocus
-                                />
-
-                                <InputError class="mt-2" :message="form.errors.name" />
+                                <InputLabel for="last_name" value="Фамилия*" />
+                                <TextInput id="last_name" type="text" class="mt-1 block w-full" v-model="form.last_name"
+                                    required autofocus />
+                                <InputError class="mt-2" :message="form.errors.last_name" />
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="first_name" value="Имя" />
-
-                                <TextInput
-                                    id="first_name"
-                                    type="text"
-                                    class="mt-1 block w-full"
-                                    v-model="form.first_name"
-                                    required
-                                    autofocus
-                                />
-
-                                <InputError class="mt-2" :message="form.errors.name" />
+                                <InputLabel for="first_name" value="Имя*" />
+                                <TextInput id="first_name" type="text" class="mt-1 block w-full"
+                                    v-model="form.first_name" required autofocus />
+                                <InputError class="mt-2" :message="form.errors.first_name" />
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="middle_name" value="Отчество" />
-
-                                <TextInput
-                                    id="middle_name"
-                                    type="text"
-                                    class="mt-1 block w-full"
-                                    v-model="form.middle_name"
-                                    required
-                                    autofocus
-                                />
-
-                                <InputError class="mt-2" :message="form.errors.name" />
+                                <InputLabel for="middle_name" value="Отчество*" />
+                                <TextInput id="middle_name" type="text" class="mt-1 block w-full"
+                                    v-model="form.middle_name" required autofocus />
+                                <InputError class="mt-2" :message="form.errors.middle_name" />
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="email" value="Email" />
+                                <InputLabel for="phone_number" value="Номер телефона*" />
+                                <TextInput id="phone_number" type="tel" class="mt-1 block w-full"
+                                    v-model="form.phone_number" required />
+                                <InputError class="mt-2" :message="form.errors.phone_number" />
+                            </div>
 
-                                <TextInput
-                                    id="email"
-                                    type="email"
-                                    class="mt-1 block w-full"
-                                    v-model="form.email"
-                                    required
-                                />
-
+                            <div class="mt-4">
+                                <InputLabel for="email" value="Email*" />
+                                <TextInput id="email" type="email" class="mt-1 block w-full" v-model="form.email"
+                                    required />
                                 <InputError class="mt-2" :message="form.errors.email" />
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="phone_number" value="Телефон" />
-
-                                <TextInput
-                                    id="phone_number"
-                                    type="tel"
-                                    class="mt-1 block w-full"
-                                    v-model="form.phone_number"
-                                    required
-                                />
-
-                                <InputError class="mt-2" :message="form.errors.email" />
+                                <InputLabel for="contract_number" value="Номер договора*" />
+                                <TextInput id="contract_number" type="text" class="mt-1 block w-full"
+                                    v-model="form.contract_number" required />
+                                <InputError class="mt-2" :message="form.errors.contract_number" />
                             </div>
+
                             <div class="mt-4">
-                                <InputLabel for="contract_number" value="Номер договора" />
-
-                                <TextInput
-                                    id="contract_number"
-                                    type="tel"
-                                    class="mt-1 block w-full"
-                                    v-model="form.contract_number"
-                                    required
-                                />
-
-                                <InputError class="mt-2" :message="form.errors.email" />
+                                <InputLabel for="contract_term" value="Срок договора*" />
+                                <select id="contract_term" v-model="form.contract_term" required
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="" disabled>Выберите срок договора</option>
+                                    <option value="1">1 год</option>
+                                    <option value="2">2 года</option>
+                                    <option value="3">3 года</option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.contract_term" />
                             </div>
+
                             <div class="mt-4">
-                                <InputLabel for="sum" value="Сумма" />
+                                <InputLabel for="interest_rate" value="Ставка, %*" />
+                                <TextInput id="interest_rate" type="number" class="mt-1 block w-full"
+                                    v-model="form.interest_rate" required autofocus />
+                                <InputError class="mt-2" :message="form.errors.interest_rate" />
+                            </div>
 
-                                <TextInput
-                                    id="sum"
-                                    type="tel"
-                                    class="mt-1 block w-full"
-                                    v-model="form.sum"
-                                    required
-                                />
+                            <div class="mt-4">
+                                <label class="inline-flex items-center">
+                                    <input id="agree_with_terms" type="checkbox" v-model="form.agree_with_terms"
+                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                    <span class="ml-2 text-sm text-gray-600">Вычислить дивиденды по истечению
+                                        срока</span>
+                                </label>
+                                <InputError class="mt-2" :message="form.errors.agree_with_terms" />
+                            </div>
 
-                                <InputError class="mt-2" :message="form.errors.email" />
+                            <div class="mt-4">
+                                <InputLabel for="create_date" value="Дата заключения договора*" />
+                                <input id="create_date" type="date" v-model="form.create_date" required
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <InputError class="mt-2" :message="form.errors.create_date" />
+                            </div>
+
+                            <div class="mt-4">
+                                <InputLabel for="payments" value="Выплаты*" />
+                                <select id="payments" v-model="form.payments" required
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="" disabled>Выберите интервал выплат</option>
+                                    <option value="1">Ежемесячно</option>
+                                    <option value="2">Ежеквартально</option>
+                                    <option value="3">Ежегодно</option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.payments" />
+                            </div>
+
+                            <div class="mt-4">
+                                <InputLabel for="manager" value="Выберите менеджера*" />
+                                <select id="manager" v-model="form.manager_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="" disabled>Выберите менеджера</option>
+                                    <!-- Выводим список менеджеров -->
+                                    <option v-for="manager in managers" :key="manager.id" :value="manager.id">
+                                        {{ manager.last_name }} {{ manager.first_name }} {{ manager.middle_name }}
+                                    </option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.manager_id" />
                             </div>
 
                             <!-- <div class="mt-4">
-                                <InputLabel for="password" value="Password" />
-
-                                <TextInput
-                                    id="password"
-                                    type="password"
-                                    class="mt-1 block w-full"
-                                    v-model="form.password"
-                                    required
-                                    autocomplete="new-password"
-                                />
-
-                                <InputError class="mt-2" :message="form.errors.password" />
-                            </div>
-
-                            <div class="mt-4">
-                                <InputLabel for="password_confirmation" value="Confirm Password" />
-
-                                <TextInput
-                                    id="password_confirmation"
-                                    type="password"
-                                    class="mt-1 block w-full"
-                                    v-model="form.password_confirmation"
-                                    required
-                                    autocomplete="new-password"
-                                />
-
-                                <InputError class="mt-2" :message="form.errors.password_confirmation" />
+                                <InputLabel for="sum" value="Сумма" />
+                                <TextInput id="sum" type="tel" class="mt-1 block w-full" v-model="form.sum" required />
+                                <InputError class="mt-2" :message="form.errors.email" />
                             </div> -->
 
-                            <div class="flex items-center justify-end mt-4">
-                                <!-- <Link
-                                    :href="route('login')"
-                                    class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                >
-                                    Already registered?
-                                </Link> -->
 
-                                <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                            <div class="flex items-center justify-end mt-4">
+                                <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }"
+                                    :disabled="form.processing">
                                     Register
                                 </PrimaryButton>
                             </div>
