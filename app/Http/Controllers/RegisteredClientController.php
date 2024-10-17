@@ -25,8 +25,11 @@ class RegisteredClientController extends Controller
             'managers' => $managers,
         ]);
     }
+
     public function store(Request $request): RedirectResponse
     {
+        dd($request->all());
+
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -34,7 +37,8 @@ class RegisteredClientController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'phone_number' => 'required|string|max:20',
             'contract_number' => 'required|integer',
-            'create_date' => 'required|date',
+            // 'deadline' =>
+            'create_date' => 'required|date_format:Y-m-d',
             'sum' => 'required|integer',
         ]);
 
@@ -69,6 +73,8 @@ class RegisteredClientController extends Controller
             'contract_number' => $request->contract_number,
             'create_date' => $request->create_date,
             'sum' => $request->sum,
+            'deadline' => $request->deadline,
+            'procent' => $request->procent
         ]);
 
 

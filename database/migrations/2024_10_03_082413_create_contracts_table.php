@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
-            // Связь с самим собой (контракты могут быть связаны друг с другом)
-            $table->foreignId('contract_id')->nullable()->constrained('contracts')->onDelete('set null');
             // Связь с таблицей пользователей (user_id и manager_id)
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
@@ -25,7 +23,6 @@ return new class extends Migration
             $table->integer('sum')->unsigned();
             $table->integer('procent')->unsigned()->nullable();
             $table->boolean('contract_status')->nullable();
-            $table->integer('doc_number')->unsigned()->nullable();
             $table->timestamps();
         });
     }

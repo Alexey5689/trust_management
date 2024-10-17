@@ -13,7 +13,6 @@ class Contract extends Model
     // Разрешённые для массового заполнения поля
     protected $fillable = [
         'title',
-        'contract_id',
         'user_id',
         'manager_id',
         'contract_number',
@@ -22,7 +21,6 @@ class Contract extends Model
         'sum',
         'procent',
         'contract_status',
-        'doc_number',
     ];
 
     /**
@@ -31,14 +29,6 @@ class Contract extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class, 'contract_id');
-    }
-
-    /**
-     * Связь с другим контрактом (многие к одному)
-     */
-    public function contract()
-    {
-        return $this->belongsTo(Contract::class, 'contract_id');
     }
 
     /**

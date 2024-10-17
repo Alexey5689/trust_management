@@ -19,20 +19,23 @@ const form = useForm({
     phone_number: '',
     email: '',
     contract_number: null,
-    contract_term: '', // Срок договора
-    interest_rate: '', // Процентная ставка
+    sum: null,
+    deadline: '', // Срок договора
+    procent: '', // Процентная ставка
     agree_with_terms: false, // Для чекбокса
     create_date: new Date().toISOString().substr(0, 10), // Дата заключения
     payments: '', // Выплаты
     role_id: 3,
     manager_id: '', // Новое поле для выбора менеджера
-    // sum: null
+    
 });
 
 const submit = () => {
     form.post(route('registration.client'), {
         // onFinish: () => form.reset('password', 'password_confirmation'),
-    });
+    });  
+
+    console.log(form);
 };
 </script>
 
@@ -92,22 +95,28 @@ const submit = () => {
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="contract_term" value="Срок договора*" />
-                                <select id="contract_term" v-model="form.contract_term" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="" disabled>Выберите срок договора</option>
-                                    <option value="1">1 год</option>
-                                    <option value="2">2 года</option>
-                                    <option value="3">3 года</option>
-                                </select>
-                                <InputError class="mt-2" :message="form.errors.contract_term" />
+                                <InputLabel for="sum" value="Сумма*" />
+                                <TextInput id="sum" type="tel" class="mt-1 block w-full" v-model="form.sum" required />
+                                <InputError class="mt-2" :message="form.errors.sum" />
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="interest_rate" value="Ставка, %*" />
-                                <TextInput id="interest_rate" type="number" class="mt-1 block w-full"
-                                    v-model="form.interest_rate" required autofocus />
-                                <InputError class="mt-2" :message="form.errors.interest_rate" />
+                                <InputLabel for="deadline" value="Срок договора*" />
+                                <select id="deadline" v-model="form.deadline" required
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="" disabled>Выберите срок договора</option>
+                                    <option value="1 год">1 год</option>
+                                    <option value="2 года">2 года</option>
+                                    <option value="3 года">3 года</option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.deadline" />
+                            </div>
+
+                            <div class="mt-4">
+                                <InputLabel for="procent" value="Ставка, %*" />
+                                <TextInput id="procent" type="number" class="mt-1 block w-full"
+                                    v-model="form.procent" required autofocus />
+                                <InputError class="mt-2" :message="form.errors.procent" />
                             </div>
 
                             <div class="mt-4">
@@ -150,13 +159,6 @@ const submit = () => {
                                 </select>
                                 <InputError class="mt-2" :message="form.errors.manager_id" />
                             </div>
-
-                            <!-- <div class="mt-4">
-                                <InputLabel for="sum" value="Сумма" />
-                                <TextInput id="sum" type="tel" class="mt-1 block w-full" v-model="form.sum" required />
-                                <InputError class="mt-2" :message="form.errors.email" />
-                            </div> -->
-
 
                             <div class="flex items-center justify-end mt-4">
                                 <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }"
