@@ -6,7 +6,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { defineProps } from 'vue';
+import { defineProps, watch } from 'vue';
 
 const props = defineProps({
     managers: Array // Менеджеры, которые переданы из контроллера
@@ -29,6 +29,41 @@ const form = useForm({
     manager_id: '', // Новое поле для выбора менеджера
     
 });
+
+// Функция для вычисления даты окончания договора на основе даты подписания
+const calculateDeadlineDate = (years, createDate) => {
+    const date = new Date(createDate);
+    console.log('Дата ебать', date);
+    
+    // Сохраняем день и месяц из даты подписания
+    const day = date.getDate();
+    const month = date.getMonth();
+    
+    // Прибавляем годы
+    date.setFullYear(date.getFullYear() + years);
+    
+    // Проверяем, чтобы месяц и день совпадали после изменения года
+    // Если дата сместилась (например, 29 февраля в невисокосном году), мы устанавливаем исходный день
+    if (date.getMonth() !== month) {
+        date.setDate(0); // Устанавливаем последний день предыдущего месяца
+    } else {
+        date.setDate(day); // Восстанавливаем день
+    }
+
+    return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
+};
+
+// Обработчик изменения срока договора
+const handleDeadlineChange = (event) => {
+    const selectedDuration = event.target.value;
+    if (selectedDuration === "1 год") {
+        form.deadline = calculateDeadlineDate(1, form.create_date);
+    } else if (selectedDuration === "2 года") {
+        form.deadline = calculateDeadlineDate(2, form.create_date);
+    } else if (selectedDuration === "3 года") {
+        form.deadline = calculateDeadlineDate(3, form.create_date);
+    }
+};
 
 const submit = () => {
     form.post(route('registration.client'), {
@@ -101,8 +136,15 @@ const submit = () => {
                             </div>
 
                             <div class="mt-4">
+                                <InputLabel for="create_date" value="Дата заключения договора*" />
+                                <input id="create_date" type="date" v-model="form.create_date" required
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <InputError class="mt-2" :message="form.errors.create_date" />
+                            </div>
+
+                            <div class="mt-4">
                                 <InputLabel for="deadline" value="Срок договора*" />
-                                <select id="deadline" v-model="form.deadline" required
+                                <select id="deadline" @change="handleDeadlineChange" required
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="" disabled>Выберите срок договора</option>
                                     <option value="1 год">1 год</option>
@@ -127,13 +169,6 @@ const submit = () => {
                                         срока</span>
                                 </label>
                                 <InputError class="mt-2" :message="form.errors.agree_with_terms" />
-                            </div>
-
-                            <div class="mt-4">
-                                <InputLabel for="create_date" value="Дата заключения договора*" />
-                                <input id="create_date" type="date" v-model="form.create_date" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-                                <InputError class="mt-2" :message="form.errors.create_date" />
                             </div>
 
                             <div class="mt-4">
