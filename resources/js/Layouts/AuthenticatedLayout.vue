@@ -29,27 +29,19 @@ const showingNavigationDropdown = ref(false);
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <!-- <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Profile
-                                </NavLink> -->
-                                <!-- <NavLink :href="route('registration.manager')" >
-                                    Регистрация менеджера
-                                </NavLink>
-                                <NavLink  :href="route('registration.client')">
-                                    Регистрация клиента
-                                </NavLink>
-                                <NavLink :href="route('manager.clients')">
-                                    Клиенты
-                                </NavLink> -->
                                 <NavLink :href="route('profile')" :active="route().current('profile')">
                                     Личный кабинет
                                 </NavLink>
-                                <NavLink :href="route('admin.clients') " :active="route().current('admin.clients')">
+                                <NavLink :href="route('contracts')" :active="route().current('contracts')">
+                                    Контракты
+                                </NavLink>
+                                <!-- <NavLink :href="route('clients')" :active="route().current('clients')">
                                     Клиенты
-                                </NavLink>
-                                <NavLink :href="route('admin.managers') " :active="route().current('admin.managers')">
+                                </NavLink> -->
+                                <!-- <NavLink :href="route('admin.managers')" :active="route().current('admin.managers')">
                                     Менеджеры
-                                </NavLink>
+                                </NavLink> -->
+
                             </div>
                         </div>
 

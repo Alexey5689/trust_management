@@ -41,10 +41,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended('/admin/profile');
         }
         if ($loggedInUser->isManager()) {
-            return redirect()->intended('/manager');
+            return redirect()->intended('/manager/profile');
         }
         if ($loggedInUser->isClient()) {
-            return redirect()->intended('/client');
+            return redirect()->intended('/client/profile');
         }
     // Если роль не определена или по какой-то причине не подходит, можно вернуть на основной маршрут
         return redirect()->intended('/login');

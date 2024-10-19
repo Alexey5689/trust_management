@@ -4,6 +4,7 @@ import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head } from '@inertiajs/vue3';
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 defineProps({
     user:{
         type: Object,
@@ -49,11 +50,12 @@ defineProps({
 
                     </div>
                     <div class="flex items-center gap-4 p-6">
-                            <PrimaryButton>Изменить пароль</PrimaryButton>
-                            <PrimaryButton>Изменить контактные данные</PrimaryButton>
+                            <!-- <PrimaryButton>Изменить пароль</PrimaryButton> -->
+                            <!-- <PrimaryButton>Изменить контактные данные</PrimaryButton> -->
+                            <ResponsiveNavLink :href="route('profile.edit')"> Изменить контактные данные </ResponsiveNavLink>
                     </div>
                 </div>
-
+                <!-- edit-data -->
             </div>
         </div>
     </AuthenticatedLayout>

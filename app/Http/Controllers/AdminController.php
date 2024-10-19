@@ -17,6 +17,7 @@ class AdminController extends Controller
             'clients' => $clients,
         ]);
     }
+
     public function showManagers(){
         $managers = User::whereHas('role', function($query) {
             $query->where('title', 'manager');

@@ -17,6 +17,7 @@ use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ClientController;
 
 Route::middleware('guest')->group(function () {
 // вход
@@ -68,33 +69,35 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 
 
-
-    // Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-
-    // Route::post('register', [RegisteredUserController::class, 'store']);
-
-
-    //рег клиент
-    Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
-    Route::post('/registration-client', [RegisteredClientController::class, 'store']);
-    //рег менеджер
-    Route::get('/registration-manager', [RegisteredManagerController::class, 'create'])->name('registration.manager');
-    Route::post('/registration-manager', [RegisteredManagerController::class, 'store']);
-
-
-    // Route::get('/client',[ManagerController::class, 'showClients'])->name('manager.clients');
-
     Route::prefix(('admin'))->group(function () {
         Route::get('/',[DashboardController::class, 'create'])->name('dashboard');
         Route::get('/profile', [ProfileController::class, 'create'])->name('profile');
-        Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients');
+        Route::get('/clients',[AdminController::class, 'showClients'])->name('clients');
         Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers');
+        //рег менеджер
+        Route::get('/registration-manager', [RegisteredManagerController::class, 'create'])->name('registration.manager');
+        Route::post('/registration-manager', [RegisteredManagerController::class, 'store']);
+        //рег клиент
+        Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
+        Route::post('/registration-client', [RegisteredClientController::class, 'store']);
     });
 
-    Route::get('/manager',[DashboardController::class, 'create'])->name('dashboard');
-    Route::get('/client',[DashboardController::class, 'create'])->name('dashboard');
+    Route::prefix(('manager'))->group(function () {
+        Route::get('/',[DashboardController::class, 'create'])->name('dashboard');
+        Route::get('/profile', [ProfileController::class, 'create'])->name('profile');
+        Route::get('/clients',[ManagerController::class, 'showClients'])->name('clients');
+        //рег клиент
+        Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
+        Route::post('/registration-client', [RegisteredClientController::class, 'store']);
+    });
 
+    Route::prefix(('client'))->group(function () {
+        Route::get('/',[DashboardController::class, 'create'])->name('dashboard');
+        Route::get('/profile', [ProfileController::class, 'create'])->name('profile');
+        Route::get('/contracts',[ClientController::class, 'showContracts'])->name('contracts');
 
-    // Route::get('profile', [ProfileController::class, 'create'])->name('profile');
+        Route::get('/edit',[ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/edit', [ProfileController::class, 'update'])->name('profile.update');
+    });
 
 });
