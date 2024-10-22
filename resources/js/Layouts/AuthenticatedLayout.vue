@@ -32,16 +32,15 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('profile')" :active="route().current('profile')">
                                     Личный кабинет
                                 </NavLink>
-                                <NavLink :href="route('contracts')" :active="route().current('contracts')">
+                                <!-- <NavLink :href="route('contracts')" :active="route().current('contracts')">
                                     Контракты
-                                </NavLink>
-                                <!-- <NavLink :href="route('clients')" :active="route().current('clients')">
+                                </NavLink> -->
+                                <NavLink :href="route('admin.clients')" :active="route().current('admin.clients')">
                                     Клиенты
-                                </NavLink> -->
-                                <!-- <NavLink :href="route('admin.managers')" :active="route().current('admin.managers')">
+                                </NavLink>
+                                <NavLink :href="route('admin.managers')" :active="route().current('admin.managers')">
                                     Менеджеры
-                                </NavLink> -->
-
+                                </NavLink>
                             </div>
                         </div>
 

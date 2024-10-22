@@ -1,6 +1,6 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
+import Dashboard from './Dashboard.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 
 import { Head } from '@inertiajs/vue3';
@@ -10,13 +10,17 @@ const props = defineProps({
     clients:{
         type: Array,
         required: true
+    },
+    role:{
+        type: Object,
+        required: true
     }
 });
 
 </script>
 <template>
     <Head title="Clients" />
-    <AuthenticatedLayout>
+    <Dashboard :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Клиенты</h2>
             <ResponsiveNavLink :href="route('registration.client')"> Добавить клиента </ResponsiveNavLink>
@@ -54,11 +58,12 @@ const props = defineProps({
 
                         </div>
 
+
                     </div>
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </Dashboard>
 </template>
 <style scoped>
 .client{

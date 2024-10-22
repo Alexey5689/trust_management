@@ -8,12 +8,7 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     public function create (){
-        $user = Auth::user();
-        $role = [
-            'role_id' => $user->role_id,
-        ];
-        return Inertia::render('Dashboard', [
-            'user' => $role
-        ]);
+
+        return Inertia::render('Dashboard');
     }
 }

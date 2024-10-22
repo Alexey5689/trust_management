@@ -70,10 +70,11 @@ Route::middleware('auth')->group(function () {
 
 
     Route::prefix(('admin'))->group(function () {
-        Route::get('/',[DashboardController::class, 'create'])->name('dashboard');
-        Route::get('/profile', [ProfileController::class, 'create'])->name('profile');
-        Route::get('/clients',[AdminController::class, 'showClients'])->name('clients');
+        Route::get('/',[DashboardController::class, 'create'])->name('admin.dashboard');
+        Route::get('/profile', [ProfileController::class, 'create'])->name('admin.profile');
+        Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients');
         Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers');
+        Route::get('contracts',[AdminController::class, 'showContracts'])->name('admin.contracts');
         //рег менеджер
         Route::get('/registration-manager', [RegisteredManagerController::class, 'create'])->name('registration.manager');
         Route::post('/registration-manager', [RegisteredManagerController::class, 'store']);
@@ -83,18 +84,18 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix(('manager'))->group(function () {
-        Route::get('/',[DashboardController::class, 'create'])->name('dashboard');
-        Route::get('/profile', [ProfileController::class, 'create'])->name('profile');
-        Route::get('/clients',[ManagerController::class, 'showClients'])->name('clients');
+        Route::get('/',[DashboardController::class, 'create'])->name('manager.dashboard');
+        Route::get('/profile', [ProfileController::class, 'create'])->name('manager.profile');
+        Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
         //рег клиент
         Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
         Route::post('/registration-client', [RegisteredClientController::class, 'store']);
     });
 
     Route::prefix(('client'))->group(function () {
-        Route::get('/',[DashboardController::class, 'create'])->name('dashboard');
-        Route::get('/profile', [ProfileController::class, 'create'])->name('profile');
-        Route::get('/contracts',[ClientController::class, 'showContracts'])->name('contracts');
+        Route::get('/',[DashboardController::class, 'create'])->name('client.dashboard');
+        Route::get('/profile', [ProfileController::class, 'create'])->name('client.profile');
+        Route::get('/contracts', [ClientController::class, 'showContracts'])->name('contracts');
 
         Route::get('/edit',[ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/edit', [ProfileController::class, 'update'])->name('profile.update');

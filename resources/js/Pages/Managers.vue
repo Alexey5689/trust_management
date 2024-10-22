@@ -1,22 +1,26 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-
+import Dashboard from './Dashboard.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 
 import { Head } from '@inertiajs/vue3';
 
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-const props = defineProps({
+defineProps({
     managers:{
         type: Array,
         required: true
+    },
+    role:{
+        type: Object,
+        required: true
     }
+
 });
 
 </script>
 <template>
     <Head title="Managers" />
-    <AuthenticatedLayout>
+    <Dashboard :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Менеджеры</h2>
             <ResponsiveNavLink :href="route('registration.manager')"> Добавить менеджера </ResponsiveNavLink>
@@ -59,7 +63,7 @@ const props = defineProps({
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </Dashboard>
 </template>
 <style scoped>
 .client{

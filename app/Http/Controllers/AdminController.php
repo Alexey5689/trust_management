@@ -6,38 +6,39 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    public function showClients(){
+    public function showClients()
+    {
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+
+        // Фильтрация клиентов
         $clients = User::whereHas('role', function($query) {
             $query->where('title', 'client'); // Фильтрация по роли 'client'
         })->with('userContracts')->get();
+        // dd($clients);
         return Inertia::render('Clients', [
             'clients' => $clients,
+            'role' => $role, // Передаем роль пользователя в Vue-компонент
         ]);
     }
 
-    public function showManagers(){
+    public function showManagers()
+    {
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+        // dd($user, $role);
+        // Фильтрация менеджеров
         $managers = User::whereHas('role', function($query) {
             $query->where('title', 'manager');
         })->with('managerContracts')->get();
+
         return Inertia::render('Managers', [
             'managers' => $managers,
+            'role' => $role, // Передаем роль пользователя в Vue-компонент
         ]);
     }
-
 }
-// $manager = Auth::user()->load(['managedUsers.userContracts']);
-
-//         // Преобразуем коллекцию клиентов и их контрактов в массив для отправки во Vue компонент
-//         $clients = $manager->managedUsers->map(function ($client) {
-//             return [
-//                 'id' => $client->id,
-//                 'first_name' => $client->first_name,
-//                 'last_name' => $client->last_name,
-//                 'email' => $client->email,
-//                 'phone_number' => $client->phone_number,
-//                 'contracts' => $client->userContracts->toArray(), // Загружаем контракты
-//             ];
-//         });

@@ -9,8 +9,11 @@ class ProfileController extends Controller
 {
     public function create (){
         $user = Auth::user();
+        $role = $user->role->title;
+        // dd($user, $role);
         return Inertia::render('Profile', [
-            'user' => $user
+            'user' => $user,
+            'role' => $role,
         ]);
     }
 
