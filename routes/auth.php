@@ -87,11 +87,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/',[DashboardController::class, 'create'])->name('manager.dashboard');
         Route::get('/profile', [ProfileController::class, 'create'])->name('manager.profile');
         Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
-        //
-        Route::get('/managers', [ManagerController::class, 'showManagers'])->name('manager.managers');
         //рег клиент
-        // Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
-        // Route::post('/registration-client', [RegisteredClientController::class, 'store']);
+        Route::get('/registration-client', [ManagerController::class, 'create'])->name('manager.registration.client');
+        Route::post('/registration-client', [ManagerController::class, 'store']);
     });
 
     Route::prefix(('client'))->group(function () {

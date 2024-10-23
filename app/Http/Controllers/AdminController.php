@@ -134,6 +134,8 @@ class AdminController extends Controller
     {
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
+
+        // dd($user, $role);
         return Inertia::render('RegisterManager', [
             'role' => $role,
         ]);

@@ -35,15 +35,15 @@ defineProps({
                                 <NavLink :href="route(`${userRole}.profile`)" :active="route().current(`${userRole}.profile`)">
                                     Личный кабинет
                                 </NavLink>
-                                <NavLink :href="route(`${userRole}.contracts`)" :active="route().current(`${userRole}.contracts`)">
+                                <!-- <NavLink :href="route(`${userRole}.contracts`)" :active="route().current(`${userRole}.contracts`)">
                                     Договоры
-                                </NavLink>
+                                </NavLink> -->
                                 <NavLink v-if="userRole === 'admin' || userRole === 'manager'" :href="route(`${userRole}.clients`)" :active="route().current(`${userRole}.clients`)">
                                     Клиенты
                                 </NavLink>
-                                <NavLink v-if="userRole === 'admin'" :href="route(`${userRole}.managers`)" :active="route().current(`${userRole}.managers`)">
+                                <!-- <NavLink v-if="userRole === 'admin'" :href="route(`${userRole}.managers`)" :active="route().current(`${userRole}.managers`)">
                                     Менеджеры
-                                </NavLink>
+                                </NavLink> -->
 
                                 {{ userRole}}
 
