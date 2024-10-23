@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Contract;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -14,7 +15,6 @@ class AdminController extends Controller
     {
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
-
         // Фильтрация клиентов
         $clients = User::whereHas('role', function($query) {
             $query->where('title', 'client'); // Фильтрация по роли 'client'
@@ -39,6 +39,15 @@ class AdminController extends Controller
         return Inertia::render('Managers', [
             'managers' => $managers,
             'role' => $role, // Передаем роль пользователя в Vue-компонент
+        ]);
+    }
+    public function showAllContracts(){
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+        $contracts = Contract::all();
+        return Inertia::render('Contracts', [
+            'role' => $role, // Передаем роль пользователя в Vue-компонент
+            'contracts'=> $contracts
         ]);
     }
 }

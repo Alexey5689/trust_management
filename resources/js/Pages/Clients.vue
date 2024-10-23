@@ -30,9 +30,8 @@ const props = defineProps({
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
-                                <h2 class="text-lg font-medium text-gray-900">Клиенты</h2>
-                                <div class="flex items-center gap-4 p-6">
-                            </div>
+                            <h2 class="text-lg font-medium text-gray-900">Клиенты</h2>
+                            <div class="flex items-center gap-4 p-6"></div>
                             <div class="client" v-for ="client in clients" :key="client.id">
                                 <div>
                                     <InputLabel for="last_name" value="ID" />
@@ -56,7 +55,6 @@ const props = defineProps({
                                     <InputLabel for="last_name" value="Договор" />
                                     <div v-for ="contract in client.user_contracts" :key="contract.id">{{ contract.contract_number }}</div>
                                 </div>
-
                             </div>
                         </div>
                     </div>

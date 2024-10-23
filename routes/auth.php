@@ -74,7 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'create'])->name('admin.profile');
         Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients');
         Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers');
-        Route::get('contracts',[AdminController::class, 'showContracts'])->name('admin.contracts');
+        Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts');
         //рег менеджер
         Route::get('/registration-manager', [RegisteredManagerController::class, 'create'])->name('registration.manager');
         Route::post('/registration-manager', [RegisteredManagerController::class, 'store']);

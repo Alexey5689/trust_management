@@ -1,11 +1,10 @@
 <script setup>
 import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+
 const showingNavigationDropdown = ref(false);
 defineProps({
     'userRole': {
@@ -36,18 +35,18 @@ defineProps({
                                 <NavLink :href="route(`${userRole}.profile`)" :active="route().current(`${userRole}.profile`)">
                                     Личный кабинет
                                 </NavLink>
-                                <!-- <NavLink :href="route(`${userRole}.contracts`)" :active="route().current(`${userRole}.contracts`)">
-                                    Договры
-                                </NavLink> -->
-                                <NavLink :href="route(`${userRole}.clients`)" :active="route().current(`${userRole}.clients`)">
+                                <NavLink :href="route(`${userRole}.contracts`)" :active="route().current(`${userRole}.contracts`)">
+                                    Договоры
+                                </NavLink>
+                                <NavLink v-if="userRole === 'admin' || userRole === 'manager'" :href="route(`${userRole}.clients`)" :active="route().current(`${userRole}.clients`)">
                                     Клиенты
                                 </NavLink>
-                                <NavLink :href="route(`${userRole}.managers`)" :active="route().current(`${userRole}.managers`)">
+                                <NavLink v-if="userRole === 'admin'" :href="route(`${userRole}.managers`)" :active="route().current(`${userRole}.managers`)">
                                     Менеджеры
                                 </NavLink>
-                                <NavLink>
-                                    {{ userRole}}
-                                </NavLink>
+
+                                {{ userRole}}
+
                             </div>
                         </div>
 
