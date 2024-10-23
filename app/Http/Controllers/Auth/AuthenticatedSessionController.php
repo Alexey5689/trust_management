@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -33,7 +34,20 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Получаем аутентифицированного пользователя
+        $loggedInUser = User::with('role')->find(Auth::id());
+    // Проверяем роль пользователя и перенаправляем на соответствующий маршрут
+        if ($loggedInUser->isAdmin()) {
+            return redirect()->intended('/admin/profile');
+        }
+        if ($loggedInUser->isManager()) {
+            return redirect()->intended('/manager/profile');
+        }
+        if ($loggedInUser->isClient()) {
+            return redirect()->intended('/client/profile');
+        }
+    // Если роль не определена или по какой-то причине не подходит, можно вернуть на основной маршрут
+        return redirect()->intended('/login');
     }
 
     /**
@@ -47,6 +61,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/login');
     }
 }

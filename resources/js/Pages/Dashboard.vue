@@ -1,92 +1,142 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import TextInput from '@/Components/TextInput.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
+import NavLink from '@/Components/NavLink.vue';
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+
+const showingNavigationDropdown = ref(false);
 defineProps({
-    user:{
-        type: Object,
+    'userRole': {
+        type: String,
         required: true
     }
-});
+})
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <div>
+        <div class="min-h-screen bg-gray-100">
+            <nav class="bg-white border-b border-gray-100">
+                <!-- Primary Navigation Menu -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex">
+                            <!-- Logo -->
+                            <div class="shrink-0 flex items-center">
+                                <!-- <Link :href="route(`${userRole.role}.dashboard`)">
+                                    <ApplicationLogo
+                                        class="block h-9 w-auto fill-current text-gray-800"
+                                    />
+                                </Link> -->
+                            </div>
+                            <!-- Navigation Links -->
+                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink :href="route(`${userRole}.profile`)" :active="route().current(`${userRole}.profile`)">
+                                    Личный кабинет
+                                </NavLink>
+                                <NavLink :href="route(`${userRole}.contracts`)" :active="route().current(`${userRole}.contracts`)">
+                                    Договоры
+                                </NavLink>
+                                <NavLink v-if="userRole === 'admin' || userRole === 'manager'" :href="route(`${userRole}.clients`)" :active="route().current(`${userRole}.clients`)">
+                                    Клиенты
+                                </NavLink>
+                                <NavLink v-if="userRole === 'admin'" :href="route(`${userRole}.managers`)" :active="route().current(`${userRole}.managers`)">
+                                    Менеджеры
+                                </NavLink>
 
-    <AuthenticatedLayout>
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Profile</h2>
-        </template>
+                                {{ userRole}}
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">
-                        <header>
-                                <h2 class="text-lg font-medium text-gray-900">Profile Information</h2>
-                        </header>
-                        <div>
-                            <InputLabel for="last_name" value="Фамилия" />
-                            <TextInput
-                                id="last_name"
-                                type="text"
-                                class="mt-1 block w-md"
-                                v-model="user.last_name"
-                                required
-                                autofocus
-                                autocomplete="name"
-                                :placeholder="user.last_name"
-                            />
-                        </div>
-                        <div>
-                            <InputLabel for="first_name" value="Имя" />
-                            <TextInput
-                                id="first_name"
-                                type="text"
-                                class="mt-1 block w-md"
-                                v-model="user.first_name"
-                                required
-                                autofocus
-                                autocomplete="name"
-                                :placeholder="user.first_name"
-                            />
-                        </div>
-                        <div>
-                            <InputLabel for="middle_name" value="Отчество" />
-                            <TextInput
-                                id="middle_name"
-                                type="text"
-                                class="mt-1 block w-md"
-                                v-model="user.middle_name"
-                                required
-                                autofocus
-                                autocomplete="name"
-                                :placeholder="user.middle_name"
-                            />
-                        </div>
-                        <!-- <div>
-                            <InputLabel for="password" value="Пароль" />
-                            <TextInput
-                                id="password"
-                                type="password"
-                                class="mt-1 block w-md"
-                                v-model="user.password"
-                                :placeholder="user.password"
-                            />
-                        </div> -->
-                        <div>
-                            {{ user }}
+                            </div>
                         </div>
 
-                    </div>
-                    <div class="flex items-center gap-4 p-6">
-                            <PrimaryButton >Сменить пароль</PrimaryButton>
+                        <div class="hidden sm:flex sm:items-center sm:ms-6">
+                            <!-- Settings Dropdown -->
+                            <div class="ms-3 relative">
+                                <Dropdown align="right" width="48">
+                                    <template #trigger>
+                                        <span class="inline-flex rounded-md">
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                            >
+                                                {{ $page.props.auth.user.name }}
+
+                                                <svg
+                                                    class="ms-2 -me-0.5 h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        clip-rule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </template>
+
+                                    <template #content>
+                                        <!-- <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink> -->
+                                        <DropdownLink :href="route('logout')" method="post" as="button">
+                                            Log Out
+                                        </DropdownLink>
+                                    </template>
+                                </Dropdown>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
-            </div>
+                <!-- Responsive Navigation Menu -->
+                <div
+                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
+                    class="sm:hidden"
+                >
+                    <div class="pt-2 pb-3 space-y-1">
+                        <!-- <ResponsiveNavLink :href="route(`${userRole.role}.dashboard`)" :active="route().current(`${userRole.role}.dashboard`)">
+                            Dashboard
+                        </ResponsiveNavLink> -->
+                    </div>
+
+                    <!-- Responsive Settings Options -->
+                    <div class="pt-4 pb-1 border-t border-gray-200">
+                        <div class="px-4">
+                            <div class="font-medium text-base text-gray-800">
+                                <!-- {{ $page.props.auth.user.name }} -->
+                                  asdas
+                            </div>
+                            <div class="font-medium text-sm text-gray-500">
+                                <!-- {{ $page.props.auth.user.email }} -->
+                                  sadas
+                            </div>
+                        </div>
+
+                        <div class="mt-3 space-y-1">
+                            <!-- <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink> -->
+                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
+                                Log Out
+                            </ResponsiveNavLink>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Page Heading -->
+            <header class="bg-white shadow" v-if="$slots.header">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <slot name="header" />
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main>
+                <slot name="main" />
+            </main>
         </div>
-    </AuthenticatedLayout>
+    </div>
 </template>
+

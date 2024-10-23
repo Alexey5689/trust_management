@@ -8,9 +8,6 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     public function create (){
-        $user = Auth::user();
-        return Inertia::render('Dashboard', [
-            'user' => $user
-        ]);
+        return Inertia::render('Dashboard');
     }
 }

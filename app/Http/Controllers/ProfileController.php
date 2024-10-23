@@ -2,62 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use Inertia\Response;
-
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): Response
-    {
-        return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
+    public function create (){
+        $user = Auth::user();
+        $role = $user->role->title;
+        // dd($user, $role);
+        return Inertia::render('Profile', [
+            'user' => $user,
+            'role' => $role,
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit');
+    public function edit(){
+        $user = Auth::user();
+        $userInfo = [
+            'last_name' => $user->last_name,
+            'first_name' => $user->first_name,
+            'middle_name' => $user->middle_name,
+        ];
+        return Inertia::render('Edit', [
+            'user' => $userInfo
+        ]);
     }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
+    public function update(Request $request){
         $request->validate([
-            'password' => ['required', 'current_password'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['required', 'string', 'max:255'],
         ]);
 
-        $user = $request->user();
+        // Явно указываем тип переменной $user
+        /** @var User $user */
 
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        $user = Auth::user();
+        $user->last_name = $request->last_name;
+        $user->first_name = $request->first_name;
+        $user->middle_name = $request->middle_name;
+        $user->save();
+        return redirect()->back()->with('success', 'Ваши данные успешно изменены.');
     }
+
 }

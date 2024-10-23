@@ -15,7 +15,7 @@ class RegisteredManagerController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Auth/RegisterManager');
+        return Inertia::render('RegisterManager');
     }
 
     public function store(Request $request): RedirectResponse
@@ -46,15 +46,5 @@ class RegisteredManagerController extends Controller
 
         event(new Registered($user));
         return redirect(route('success-registration'));
-
-
     }
 }
- // Password::sendResetLink(['email' => $user->email]);
- // $status = Password::sendResetLink(['email' => $user->email]);
-
-// if ($status === Password::RESET_LINK_SENT) {
-//     session()->flash('success', 'Письмо для создания пароля отправлено.');
-// } else {
-//     session()->flash('error', 'Не удалось отправить письмо для создания пароля.');
-// }
