@@ -10,7 +10,7 @@ defineProps({
         required: true
     },
     role:{
-        type: Object,
+        type: String,
         required: true
     }
 });

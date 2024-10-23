@@ -8,7 +8,6 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     public function create (){
-
         return Inertia::render('Dashboard');
     }
 }
