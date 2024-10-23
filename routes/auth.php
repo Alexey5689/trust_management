@@ -87,6 +87,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/',[DashboardController::class, 'create'])->name('manager.dashboard');
         Route::get('/profile', [ProfileController::class, 'create'])->name('manager.profile');
         Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
+        //
+        Route::get('/managers', [ManagerController::class, 'showManagers'])->name('manager.managers');
         //рег клиент
         Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
         Route::post('/registration-client', [RegisteredClientController::class, 'store']);
@@ -99,6 +101,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/edit',[ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/edit', [ProfileController::class, 'update'])->name('profile.update');
+        //
+        Route::get('/clients', [ClientController::class, 'showClients'])->name('client.clients');
+        Route::get('/managers', [ClientController::class, 'showManagers'])->name('client.managers');
     });
 
 });

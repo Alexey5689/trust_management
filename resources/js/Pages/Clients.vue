@@ -1,6 +1,6 @@
 <script setup>
 
-import Dashboard from './Dashboard.vue';
+import Dashboard from '@/Pages/Dashboard.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 
 import { Head } from '@inertiajs/vue3';
