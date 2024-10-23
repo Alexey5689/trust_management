@@ -76,11 +76,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers');
         Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts');
         //рег менеджер
-        Route::get('/registration-manager', [RegisteredManagerController::class, 'create'])->name('registration.manager');
-        Route::post('/registration-manager', [RegisteredManagerController::class, 'store']);
+        Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager');
+        Route::post('/registration-manager', [AdminController::class, 'storeManagersByAdmin']);
         //рег клиент
-        Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
-        Route::post('/registration-client', [RegisteredClientController::class, 'store']);
+        Route::get('/registration-client', [AdminController::class, 'createClientsByAdmin'])->name('admin.registration.client');
+        Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);
     });
 
     Route::prefix(('manager'))->group(function () {
@@ -90,8 +90,8 @@ Route::middleware('auth')->group(function () {
         //
         Route::get('/managers', [ManagerController::class, 'showManagers'])->name('manager.managers');
         //рег клиент
-        Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
-        Route::post('/registration-client', [RegisteredClientController::class, 'store']);
+        // Route::get('/registration-client', [RegisteredClientController::class, 'create'])->name('registration.client');
+        // Route::post('/registration-client', [RegisteredClientController::class, 'store']);
     });
 
     Route::prefix(('client'))->group(function () {

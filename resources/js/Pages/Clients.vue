@@ -12,7 +12,7 @@ const props = defineProps({
         required: true
     },
     role:{
-        type: Object,
+        type: String,
         required: true
     }
 });
@@ -23,7 +23,7 @@ const props = defineProps({
     <Dashboard :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Клиенты</h2>
-            <ResponsiveNavLink :href="route('registration.client')"> Добавить клиента </ResponsiveNavLink>
+            <ResponsiveNavLink :href="route(`${role}.registration.client`)"> Добавить клиента </ResponsiveNavLink>
         </template>
         <template #main>
             <div class="py-12">

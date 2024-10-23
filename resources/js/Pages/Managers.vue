@@ -23,7 +23,7 @@ defineProps({
     <Dashboard :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Менеджеры</h2>
-            <ResponsiveNavLink :href="route('registration.manager')"> Добавить менеджера </ResponsiveNavLink>
+            <ResponsiveNavLink :href="route('admin.registration.manager')"> Добавить менеджера </ResponsiveNavLink>
         </template>
         <template #main>
             <div class="py-12">
