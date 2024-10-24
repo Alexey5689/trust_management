@@ -26,6 +26,7 @@ const form = useForm({
     contract_number: null,
     sum: null,
     deadline: '', // Срок договора
+    selectedDuration: '',  // новое поле для хранения выбранного срока
     procent: '', // Процентная ставка
     agree_with_terms: false, // Для чекбокса
     create_date: new Date().toISOString().substr(0, 10), // Дата заключения
@@ -61,6 +62,7 @@ const calculateDeadlineDate = (years, createDate) => {
 // Обработчик изменения срока договора
 const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;
+    form.selectedDuration = selectedDuration;
     if (selectedDuration === "1 год") {
         form.deadline = calculateDeadlineDate(1, form.create_date);
     } else if (selectedDuration === "2 года") {
@@ -71,7 +73,13 @@ const handleDeadlineChange = (event) => {
 };
 
 const submit = () => {
-    form.post(route('registration.client'), {
+    let routeName;
+    if (props.role === 'admin') {
+        routeName = 'admin.registration.client';
+    } else if (props.role === 'manager') {
+        routeName = 'manager.registration.client';
+    }
+    form.post(route(routeName), {
         // onFinish: () => form.reset('password', 'password_confirmation'),
     });
 
@@ -151,13 +159,31 @@ const submit = () => {
 
                                 <div class="mt-4">
                                     <InputLabel for="deadline" value="Срок договора*" />
-                                    <select id="deadline" @change="handleDeadlineChange" required
+
+
+                                    <!-- <select id="deadline" v-model="form.deadline" @change="handleDeadlineChange" required
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <option value="" disabled>Выберите срок договора</option>
+                                        <option value="1 год">1 год</option>
+                                        <option value="2 года">2 года</option>
+                                        <option value="3 года">3 года</option>
+                                    </select> -->
+
+
+                                    <select id="deadline" v-model="form.selectedDuration" @change="handleDeadlineChange" required
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                         <option value="" disabled>Выберите срок договора</option>
                                         <option value="1 год">1 год</option>
                                         <option value="2 года">2 года</option>
                                         <option value="3 года">3 года</option>
                                     </select>
+
+
+
+
+
+
+
                                     <InputError class="mt-2" :message="form.errors.deadline" />
                                 </div>
 

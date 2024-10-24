@@ -6,7 +6,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import { Head } from '@inertiajs/vue3';
 
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-const props = defineProps({
+
+defineProps({
     clients:{
         type: Array,
         required: true

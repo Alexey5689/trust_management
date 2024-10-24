@@ -25,6 +25,7 @@ class AdminController extends Controller
             $query->where('title', 'client'); // Фильтрация по роли 'client'
         })->with('userContracts')->get();
         // dd($clients);
+        
         return Inertia::render('Clients', [
             'clients' => $clients,
             'role' => $role, // Передаем роль пользователя в Vue-компонент
@@ -73,7 +74,7 @@ class AdminController extends Controller
 
     public function storeClientsByAdmin(Request $request): RedirectResponse
     {
-        //dd($request->all());
+        // dd($request->all());
 
         $request->validate([
             'first_name' => 'required|string|max:255',

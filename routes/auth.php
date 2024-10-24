@@ -19,32 +19,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClientController;
 
-Route::middleware('guest')->group(function () {
-// вход
-    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
-
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
-
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
-
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
-
-
-// создание пароля
-    Route::get('create-password/{token}', [CreatingPasswordController::class, 'create'])
-    ->name('password.set');
-
-    Route::patch('create-password', [CreatingPasswordController::class, 'update'])
-        ->name('password.create');
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
@@ -69,7 +44,7 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 
 
-    Route::prefix(('admin'))->group(function () {
+    Route::prefix('admin')->group(function () {
         Route::get('/',[DashboardController::class, 'create'])->name('admin.dashboard');
         Route::get('/profile', [ProfileController::class, 'create'])->name('admin.profile');
         Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients');
@@ -83,16 +58,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);
     });
 
-    Route::prefix(('manager'))->group(function () {
+    Route::prefix('manager')->group(function () {
         Route::get('/',[DashboardController::class, 'create'])->name('manager.dashboard');
         Route::get('/profile', [ProfileController::class, 'create'])->name('manager.profile');
         Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
         //рег клиент
-        Route::get('/registration-client', [ManagerController::class, 'create'])->name('manager.registration.client');
-        Route::post('/registration-client', [ManagerController::class, 'store']);
+        Route::get('/registration-client', [ManagerController::class, 'createClientsByManager'])->name('manager.registration.client');
+        Route::post('/registration-client', [ManagerController::class, 'storeClientsByManager']);
     });
 
-    Route::prefix(('client'))->group(function () {
+    Route::prefix('client')->group(function () {
         Route::get('/',[DashboardController::class, 'create'])->name('client.dashboard');
         Route::get('/profile', [ProfileController::class, 'create'])->name('client.profile');
         Route::get('/contracts', [ClientController::class, 'showContracts'])->name('contracts');

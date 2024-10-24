@@ -47,7 +47,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended('/client/profile');
         }
     // Если роль не определена или по какой-то причине не подходит, можно вернуть на основной маршрут
-        return redirect()->intended('/login');
+        return redirect()->intended('/');
     }
 
     /**
@@ -61,6 +61,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/');
     }
 }
