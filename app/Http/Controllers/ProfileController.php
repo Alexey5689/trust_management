@@ -17,15 +17,19 @@ class ProfileController extends Controller
         ]);
     }
 
+
     public function edit(){
         $user = Auth::user();
+        $role = $user->role->title;
         $userInfo = [
             'last_name' => $user->last_name,
             'first_name' => $user->first_name,
             'middle_name' => $user->middle_name,
         ];
+        // dd($userInfo);
         return Inertia::render('Edit', [
-            'user' => $userInfo
+            'user' => $userInfo,
+            'role' => $role,
         ]);
     }
     public function update(Request $request){
@@ -43,7 +47,7 @@ class ProfileController extends Controller
         $user->first_name = $request->first_name;
         $user->middle_name = $request->middle_name;
         $user->save();
-        return redirect()->back()->with('success', 'Ваши данные успешно изменены.');
+        return redirect()->route('login')->with('success', 'Ваши данные успешно изменены.');
     }
 
 }

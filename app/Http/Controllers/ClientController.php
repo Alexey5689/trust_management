@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Auth;
 class ClientController extends Controller
 {
     public function showContracts(){
-        $client = Auth::user();
-        $contracts = $client->userContracts->toArray();
+        $user = Auth::user();
+        $contracts = $user->userContracts->toArray();
         return Inertia::render('Contracts', [
             'contracts' => $contracts
         ]);

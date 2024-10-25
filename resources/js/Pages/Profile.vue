@@ -54,10 +54,9 @@ defineProps({
                         <div class="flex items-center gap-4 p-6">
                                 <!-- <PrimaryButton>Изменить пароль</PrimaryButton> -->
                                 <!-- <PrimaryButton>Изменить контактные данные</PrimaryButton> -->
-                                <!-- <ResponsiveNavLink :href="route('profile.edit')"> Изменить контактные данные </ResponsiveNavLink> -->
+                                <ResponsiveNavLink :href="route(`profile.edit`)"> Изменить контактные данные </ResponsiveNavLink>
                         </div>
                     </div>
-                    <!-- edit-data -->
                 </div>
             </div>
         </template>

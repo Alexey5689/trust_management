@@ -17,7 +17,6 @@ class ManagerController extends Controller
 {
     public function showClients(): Response
     {
-
         // Получаем его роль
         $user = Auth::user();
         $role = $user->role->title; // Получаем его роль
@@ -32,10 +31,18 @@ class ManagerController extends Controller
                 'contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
             ];
         });
-
-        // $role = $user->role->title;
         return Inertia::render('Clients', [
             'clients' => $clients,
+            'role' => $role,
+        ]);
+    }
+
+    public function showContracts(){
+        $user = Auth::user();
+        $role = $user->role->title; // Получаем его роль
+        $contracts = $user->managerContracts->toArray();
+        return Inertia::render('Contracts', [
+            'contracts' => $contracts,
             'role' => $role,
         ]);
     }
