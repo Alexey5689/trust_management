@@ -26,8 +26,6 @@ const form = useForm({
 });
 
 const submit = () => {
-
-
     form.patch(route('password.create'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
@@ -47,7 +45,7 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div>
 
-                <p>Тест почты</p>
+                <p>Создание пароля</p>
             </div>
 
             <div class="mt-4">
@@ -79,22 +77,3 @@ const submit = () => {
     </GuestLayout>
 </template>
 
-            <!-- <div class="block mt-4">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
-                </label>
-            </div> -->
-             <!-- <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" /> -->

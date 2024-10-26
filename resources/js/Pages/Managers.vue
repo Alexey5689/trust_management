@@ -1,7 +1,7 @@
 <script setup>
 import Dashboard from '@/Pages/Dashboard.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
@@ -20,7 +20,7 @@ defineProps({
 </script>
 <template>
     <Head title="Managers" />
-    <Dashboard :userRole="role">
+    <AuthenticatedLayout :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Менеджеры</h2>
             <ResponsiveNavLink :href="route('admin.registration.manager')"> Добавить менеджера </ResponsiveNavLink>
@@ -60,7 +60,7 @@ defineProps({
                 </div>
             </div>
         </template>
-    </Dashboard>
+    </AuthenticatedLayout>
 </template>
 <style scoped>
     .client{

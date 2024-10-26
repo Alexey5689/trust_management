@@ -4,6 +4,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+
 defineProps({
     user:{
         type: Object,
@@ -18,7 +20,7 @@ defineProps({
 
 <template>
     <Head title="Profile" />
-    <Dashboard :userRole="role">
+    <AuthenticatedLayout :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Личный кабинет</h2>
         </template>
@@ -54,11 +56,13 @@ defineProps({
                         <div class="flex items-center gap-4 p-6">
                                 <!-- <PrimaryButton>Изменить пароль</PrimaryButton> -->
                                 <!-- <PrimaryButton>Изменить контактные данные</PrimaryButton> -->
+                                <ResponsiveNavLink :href="route(`password.edit`)"> Изменить пароль </ResponsiveNavLink>
                                 <ResponsiveNavLink :href="route(`profile.edit`)"> Изменить контактные данные </ResponsiveNavLink>
+                                <ResponsiveNavLink :href="route(`email.edit`)"> Изменить почту </ResponsiveNavLink>
                         </div>
                     </div>
                 </div>
             </div>
         </template>
-    </Dashboard>
+    </AuthenticatedLayout>
 </template>

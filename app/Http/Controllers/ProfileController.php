@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+
 class ProfileController extends Controller
 {
     public function create (){
@@ -47,7 +51,61 @@ class ProfileController extends Controller
         $user->first_name = $request->first_name;
         $user->middle_name = $request->middle_name;
         $user->save();
-        return redirect()->route('login')->with('success', 'Ваши данные успешно изменены.');
+        return redirect('/');
+    }
+
+    public function editPassword(){
+        $user = Auth::user();
+        $role = $user->role->title;
+        // dd($userInfo);
+        return Inertia::render('EditPassword', [
+            'role' => $role,
+        ]);
+    }
+    public function updatePassword(Request $request){
+        $request->validate([
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        // Явно указываем тип переменной $user
+        /** @var User $user */
+
+        $user = Auth::user();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
+    }
+
+    public function editEmail(){
+        $user = Auth::user();
+        $role = $user->role->title;
+        $userEmail = $user->email;
+        //dd($userEmail);
+        return Inertia::render('EditEmail', [
+            'role' => $role,
+            'userEmail' => $userEmail
+        ]);
+    }
+    public function updateEmail(Request $request){
+        $request->validate([
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+        ]);
+
+        // Явно указываем тип переменной $user
+        /** @var User $user */
+
+        $user = Auth::user();
+        $user->email = $request->email;
+        $user->save();
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
     }
 
 }

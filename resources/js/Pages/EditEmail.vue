@@ -7,9 +7,9 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-const props = defineProps({
-    user:{
-        type: Array,
+const props =  defineProps({
+    userEmail:{
+        type: String,
         required: true
     },
     role:{
@@ -20,13 +20,11 @@ const props = defineProps({
 const page = usePage();
 
 const form = useForm({
-    last_name: props.user.last_name,
-    first_name: props.user.first_name,
-    middle_name:props.user.middle_name,
+    email: props.userEmail,
 });
 
 const save = () => {
-    form.patch(route('profile.update'), {
+    form.patch(route('email.update'), {
         // onFinish: () => form.reset('password', 'password_confirmation'),
     });
 
@@ -37,7 +35,7 @@ const save = () => {
     <Head title="Edit" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Изменение контактных данных</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Изменение почты</h2>
         </template>
         <template #main>
             <div class="py-12">
@@ -50,45 +48,15 @@ const save = () => {
                             <div class="p-6 text-gray-900">
                                 {{ user }}
                             <form @submit.prevent="save">
-                                <div>
-                                    <InputLabel for="last_name" value="Фамилия" />
-                                    <TextInput
-                                        id="last_name"
-                                        type="text"
-                                        class="mt-1 block w-full"
-                                        v-model="form.last_name"
-
-                                        required
-                                        autofocus
-                                    />
-                                    <InputError class="mt-2" :message="form.errors.name" />
-                                </div>
                                 <div class="mt-4">
-                                    <InputLabel for="first_name" value="Имя" />
-                                    <TextInput
-                                        id="first_name"
-                                        type="text"
-                                        class="mt-1 block w-full"
-                                        v-model="form.first_name"
+                                    <InputLabel for="email" value="Email" />
 
-                                        required
-                                        autofocus
-                                    />
-                                    <InputError class="mt-2" :message="form.errors.name" />
-                                </div>
-                                <div class="mt-4">
-                                    <InputLabel for="middle_name" value="Отчество" />
-                                    <TextInput
-                                        id="middle_name"
-                                        type="text"
-                                        class="mt-1 block w-full"
-                                        v-model="form.middle_name"
+                                    <TextInput id="email" type="email" class="mt-1 block w-full" v-model="form.email"
+                                        required />
 
-                                        required
-                                        autofocus
-                                    />
-                                    <InputError class="mt-2" :message="form.errors.name" />
+                                    <InputError class="mt-2" :message="form.errors.email" />
                                 </div>
+
                                 <div class="flex items-center justify-end mt-4">
                                     <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }" >
                                         Сохранить

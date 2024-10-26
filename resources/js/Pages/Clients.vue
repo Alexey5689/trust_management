@@ -2,7 +2,7 @@
 
 import Dashboard from '@/Pages/Dashboard.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
@@ -21,7 +21,7 @@ defineProps({
 </script>
 <template>
     <Head title="Clients" />
-    <Dashboard :userRole="role">
+    <AuthenticatedLayout :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Клиенты</h2>
             <ResponsiveNavLink :href="route(`${role}.registration.client`)"> Добавить клиента </ResponsiveNavLink>
@@ -62,7 +62,7 @@ defineProps({
                 </div>
             </div>
         </template>
-    </Dashboard>
+    </AuthenticatedLayout>
 </template>
 <style scoped>
 .client{

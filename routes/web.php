@@ -1,12 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\ManagerController;
 
 
 Route::get('/', function () {
@@ -29,6 +25,10 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('profile/edit',[ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('profile//edit', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('password/edit', [ProfileController::class, 'editPassword'])->name('password.edit');
+    Route::patch('password/edit', [ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::get('email/edit', [ProfileController::class, 'editEmail'])->name('email.edit');
+    Route::patch('email/edit', [ProfileController::class, 'updateEmail'])->name('email.update');
 });
 
 

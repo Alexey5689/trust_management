@@ -34,7 +34,7 @@ const submit = () => {
 <template>
 
     <Head title="Register" />
-    <Dashboard :userRole="role">
+    <AuthenticatedLayout :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Регитсрация менеджера</h2>
         </template>
@@ -100,5 +100,5 @@ const submit = () => {
                 </div>
             </div>
         </template>
-    </Dashboard>
+    </AuthenticatedLayout>
 </template>
