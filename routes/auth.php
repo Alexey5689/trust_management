@@ -85,9 +85,15 @@ Route::middleware('auth')->group(function () {
         //рег менеджер
         Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager');
         Route::post('/registration-manager', [AdminController::class, 'storeManagersByAdmin']);
+        //изменение менеджера
+        Route::get('/edit-manager/{manager}', [AdminController::class, 'editManagersByAdmin'])->name('admin.edit.manager');
+        Route::patch('/edit-manager/{manager}', [AdminController::class, 'updateManagersByAdmin']);
+        //Удаление менеджера
+        Route::delete('/delete-manager/{manager}', [AdminController::class, 'deleteManagersByAdmin'])->name('admin.delete.manager');
         //рег клиент
         Route::get('/registration-client', [AdminController::class, 'createClientsByAdmin'])->name('admin.registration.client');
         Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);
+
 
     });
 

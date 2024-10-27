@@ -171,4 +171,43 @@ class AdminController extends Controller
         event(new Registered($user));
         return redirect(route('success-registration'));
     }
+
+    public function editManagersByAdmin(User $manager): Response
+    {
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+
+        // dd($user, $role);
+        return Inertia::render('EditManager', [
+            'role' => $role,
+            'manager' => $manager
+        ]);
+    }
+
+    public function updateManagersByAdmin(Request $request, User $manager): RedirectResponse
+    {
+        $request->validate([
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $manager->id,
+            'phone_number' => 'required|string|max:20',
+        ]);
+
+
+        $manager->last_name = $request->last_name;
+        $manager->first_name = $request->first_name;
+        $manager->middle_name = $request->middle_name;
+        $manager->email = $request->email;
+        $manager->phone_number = $request->phone_number;
+        $manager->save();
+        return redirect('/');
+    }
+
+    public function deleteManagersByAdmin(User $manager): RedirectResponse
+    {
+        // dd('Удаление менеджера', $manager);
+        $manager->delete();
+        return redirect('/');
+    }
 }
