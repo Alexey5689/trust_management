@@ -90,6 +90,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/edit-manager/{manager}', [AdminController::class, 'updateManagersByAdmin']);
         //Удаление менеджера
         Route::delete('/delete-manager/{manager}', [AdminController::class, 'deleteManagersByAdmin'])->name('admin.delete.manager');
+        //сброс пароля
+        Route::post('/reset-password/{manager}', [AdminController::class, 'resetPassword'])->name('admin.reset.password');
         //рег клиент
         Route::get('/registration-client', [AdminController::class, 'createClientsByAdmin'])->name('admin.registration.client');
         Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);

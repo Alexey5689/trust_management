@@ -73,14 +73,29 @@ const handleDeadlineChange = (event) => {
 };
 
 const submit = () => {
-    let routeName;
-    if (props.role === 'admin') {
-        routeName = 'admin.registration.client';
-    } else if (props.role === 'manager') {
-        routeName = 'manager.registration.client';
-    }
-    form.post(route(routeName), {
-        // onFinish: () => form.reset('password', 'password_confirmation'),
+    // let routeName;
+    // if (props.role === 'admin') {
+    //     routeName = 'admin.registration.client';
+    // } else if (props.role === 'manager') {
+    //     routeName = 'manager.registration.client';
+    // }
+    form.post(route(`${props.role}.registration.client`), {
+        onFinish: () => form.reset(
+            'last_name',
+            'first_name',
+            'middle_name',
+            'phone_number',
+            'email',
+            'contract_number',
+            'sum',
+            'deadline',
+            'selectedDuration',
+            'procent',
+            'agree_with_terms',
+            'create_date',
+            'payments', 'role_id',
+            'manager_id'
+        ),
     });
 
     console.log(form);
@@ -90,7 +105,7 @@ const submit = () => {
 <template>
 
     <Head title="Register" />
-    <Dashboard :userRole="role">
+    <AuthenticatedLayout :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Регитсрация клиента</h2>
         </template>
@@ -215,7 +230,7 @@ const submit = () => {
                                     </select>
                                     <InputError class="mt-2" :message="form.errors.payments" />
                                 </div>
-                                
+
                                 <div class="mt-4" v-if="role === 'admin'">
                                     <InputLabel for="manager" value="Выберите менеджера*" />
                                     <select id="manager" v-model="form.manager_id" required
@@ -241,5 +256,5 @@ const submit = () => {
                 </div>
             </div>
         </template>
-    </Dashboard>
+    </AuthenticatedLayout>
 </template>

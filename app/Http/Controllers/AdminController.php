@@ -29,6 +29,7 @@ class AdminController extends Controller
         return Inertia::render('Clients', [
             'clients' => $clients,
             'role' => $role, // Передаем роль пользователя в Vue-компонент
+
         ]);
     }
 
@@ -66,13 +67,13 @@ class AdminController extends Controller
         $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
 
         // Передаем менеджеров на страницу регистрации
-        return Inertia::render('Auth/RegisterClient',[
+        return Inertia::render('RegisterClient',[
             'managers' => $managers,
             'role' => $role,
         ]);
     }
 
-    public function storeClientsByAdmin(Request $request): RedirectResponse
+    public function storeClientsByAdmin(Request $request ):RedirectResponse
     {
         // dd($request->all());
 
@@ -100,15 +101,16 @@ class AdminController extends Controller
         ]);
 
         // $loggedInUser = Auth::user();
-        $loggedInUser = User::with('role')->find(Auth::id());
+        // $loggedInUser = User::with('role')->find(Auth::id());
 
-        if ($loggedInUser->isAdmin()) {
-            // Если админ — берем менеджера из запроса
-            $manager_id = $request->manager_id;
-        } else {
-            // Если менеджер — его ID
-            $manager_id = $loggedInUser->id;
-        }
+        // if ($loggedInUser->isAdmin()) {
+        //     // Если админ — берем менеджера из запроса
+
+        // } else {
+        //     // Если менеджер — его ID
+        //     $manager_id = $loggedInUser->id;
+        // }
+        $manager_id = $request->manager_id;
 
         // Записываем менеджера в таблицу user_manager
         $user->managers()->attach($manager_id);
@@ -128,7 +130,7 @@ class AdminController extends Controller
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect(route('success-registration'));
+        return redirect(route('admin.clients'))->with('status', 'Клиент успешно зарегистрирован!');
     }
 
     public function createManagersByAdmin(): Response
@@ -169,7 +171,7 @@ class AdminController extends Controller
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect(route('success-registration'));
+        return redirect(route('admin.managers'))->with('success', 'Менеджер успешно зарегистрирован!');
     }
 
     public function editManagersByAdmin(User $manager): Response
@@ -209,5 +211,16 @@ class AdminController extends Controller
         // dd('Удаление менеджера', $manager);
         $manager->delete();
         return redirect('/');
+    }
+
+    public function resetPassword(User $manager){
+         // Генерация токена сброса пароля
+        $token = Password::createToken($manager);
+
+        // Отправка уведомления с токеном на email менеджера
+        $manager->notify(new PasswordEmail($token, $manager->email));
+
+        // Flash-сообщение об успешной отправке
+        return redirect()->back()->with('success', 'Ссылка для сброса пароля отправлена менеджеру на email.');
     }
 }

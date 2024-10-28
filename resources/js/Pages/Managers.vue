@@ -25,6 +25,12 @@ const deleteManager = (managerId) => {
     }
 };
 
+const resetPassword =(managerId) =>{
+        if (confirm("Вы уверены, что хотите сбросить пароль?")) {
+            Inertia.post(route('admin.reset.password', { manager: managerId }));
+        }
+    }
+
 </script>
 <template>
     <Head title="Managers" />
@@ -62,7 +68,7 @@ const deleteManager = (managerId) => {
                                     <InputLabel for="last_name" value="Договор" />
                                     <div v-for ="contract in manager.manager_contracts" :key="contract.id">{{ contract.contract_number }}</div>
                                 </div>
-                                <Dropdown align="right" width="48">
+                                <Dropdown  align="right" width="48" class="absolute z-50">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button
@@ -91,7 +97,7 @@ const deleteManager = (managerId) => {
                                         <DropdownLink :href="route('admin.edit.manager',{ manager: manager.id })"   as="button">
                                             Изменить
                                         </DropdownLink>
-                                        <DropdownLink   as="button">
+                                        <DropdownLink @click="resetPassword(manager.id)"   as="button">
                                             Сбросить пароль
                                         </DropdownLink>
                                         <DropdownLink  @click="deleteManager(manager.id)"  as="button">

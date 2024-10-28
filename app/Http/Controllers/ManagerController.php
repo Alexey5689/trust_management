@@ -52,11 +52,10 @@ class ManagerController extends Controller
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
         // Получаем всех пользователей с ролью менеджера (role_id = 2)
-        $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
 
         // Передаем менеджеров на страницу регистрации
-        return Inertia::render('Auth/RegisterClient', [
-            'managers' => $managers,
+        return Inertia::render('RegisterClient', [
+            'managers' => [],
             'role' => $role,
         ]);
     }
