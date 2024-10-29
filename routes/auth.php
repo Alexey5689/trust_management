@@ -88,13 +88,19 @@ Route::middleware('auth')->group(function () {
         //изменение менеджера
         Route::get('/edit-manager/{manager}', [AdminController::class, 'editManagersByAdmin'])->name('admin.edit.manager');
         Route::patch('/edit-manager/{manager}', [AdminController::class, 'updateManagersByAdmin']);
+
         //Удаление менеджера
-        Route::delete('/delete-manager/{manager}', [AdminController::class, 'deleteManagersByAdmin'])->name('admin.delete.manager');
-        //сброс пароля
-        Route::post('/reset-password/{manager}', [AdminController::class, 'resetPassword'])->name('admin.reset.password');
+        Route::delete('/delete-user/{user}', [AdminController::class, 'deleteUserByAdmin'])->name('admin.delete.user');
         //рег клиент
         Route::get('/registration-client', [AdminController::class, 'createClientsByAdmin'])->name('admin.registration.client');
         Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);
+        //изменение менеджера
+        Route::get('/edit-client/{client}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client');
+        Route::patch('/edit-client/{client}', [AdminController::class, 'updateClientByAdmin']);
+
+
+         //сброс пароля
+         Route::post('/reset-password/{user}', [AdminController::class, 'resetPassword'])->name('admin.reset.password');
 
 
     });

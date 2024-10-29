@@ -16,6 +16,7 @@ use Illuminate\Auth\Events\Registered;
 
 class AdminController extends Controller
 {
+    // всеклиенты
     public function showClients()
     {
         $user = Auth::user(); // Получаем текущего пользователя
@@ -32,7 +33,7 @@ class AdminController extends Controller
 
         ]);
     }
-
+    //все менеджеры
     public function showManagers()
     {
         $user = Auth::user(); // Получаем текущего пользователя
@@ -48,7 +49,7 @@ class AdminController extends Controller
             'role' => $role, // Передаем роль пользователя в Vue-компонент
         ]);
     }
-
+    // все договоры
     public function showAllContracts(){
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
@@ -59,6 +60,7 @@ class AdminController extends Controller
         ]);
     }
 
+    // регистрация user как клиент
     public function createClientsByAdmin()
     {
         $user = Auth::user(); // Получаем текущего пользователя
@@ -72,11 +74,9 @@ class AdminController extends Controller
             'role' => $role,
         ]);
     }
-
     public function storeClientsByAdmin(Request $request ):RedirectResponse
     {
         // dd($request->all());
-
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -133,6 +133,9 @@ class AdminController extends Controller
         return redirect(route('admin.clients'))->with('status', 'Клиент успешно зарегистрирован!');
     }
 
+
+
+    // регистрация user как менеджера
     public function createManagersByAdmin(): Response
     {
         $user = Auth::user(); // Получаем текущего пользователя
@@ -143,7 +146,6 @@ class AdminController extends Controller
             'role' => $role,
         ]);
     }
-
     public function storeManagersByAdmin(Request $request): RedirectResponse
     {
         $request->validate([
@@ -174,6 +176,8 @@ class AdminController extends Controller
         return redirect(route('admin.managers'))->with('success', 'Менеджер успешно зарегистрирован!');
     }
 
+
+     // изменение контактных данных user менеджер
     public function editManagersByAdmin(User $manager): Response
     {
         $user = Auth::user(); // Получаем текущего пользователя
@@ -185,7 +189,6 @@ class AdminController extends Controller
             'manager' => $manager
         ]);
     }
-
     public function updateManagersByAdmin(Request $request, User $manager): RedirectResponse
     {
         $request->validate([
@@ -203,24 +206,73 @@ class AdminController extends Controller
         $manager->email = $request->email;
         $manager->phone_number = $request->phone_number;
         $manager->save();
-        return redirect('/');
+        return redirect(route('admin.managers'))->with('success', 'Данные обновлены');
     }
 
-    public function deleteManagersByAdmin(User $manager): RedirectResponse
-    {
-        // dd('Удаление менеджера', $manager);
-        $manager->delete();
-        return redirect('/');
-    }
 
-    public function resetPassword(User $manager){
+
+
+
+      // изменение контактных данных user клиент
+      public function editClientByAdmin(User $client): Response
+      {
+          $user = Auth::user(); // Получаем текущего пользователя
+          $role = $user->role->title; // Получаем его роль
+          $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
+          $assignedManagerId = $client->userContracts()->first()->manager_id;
+          //dd($user, $role, $assignedManager);
+          return Inertia::render('EditClient', [
+              'role' => $role,
+              'client' => $client,
+              'managers'=>$managers,
+              'assignedManager' => $assignedManagerId
+          ]);
+      }
+      public function updateClientByAdmin(Request $request, User $client): RedirectResponse
+      {
+        // dd($request->all());
+          $request->validate([
+              'last_name' => 'required|string|max:255',
+              'first_name' => 'required|string|max:255',
+              'middle_name' => 'required|string|max:255',
+              'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $client->id,
+              'phone_number' => 'required|string|max:20',
+          ]);
+          $client->last_name = $request->last_name;
+          $client->first_name = $request->first_name;
+          $client->middle_name = $request->middle_name;
+          $client->email = $request->email;
+          $client->phone_number = $request->phone_number;
+
+
+          $client->userContracts()->update([
+            'manager_id' => $request->manager_id,
+          ]);
+          $client->save();
+          return redirect(route('admin.clients'))->with('success', 'Данные обновлены');
+      }
+
+
+
+
+    // сброс пароля
+    public function resetPassword(User $user){
          // Генерация токена сброса пароля
-        $token = Password::createToken($manager);
+        $token = Password::createToken($user);
 
         // Отправка уведомления с токеном на email менеджера
-        $manager->notify(new PasswordEmail($token, $manager->email));
+        $user->notify(new PasswordEmail($token, $user->email));
 
         // Flash-сообщение об успешной отправке
         return redirect()->back()->with('success', 'Ссылка для сброса пароля отправлена менеджеру на email.');
     }
+
+
+      // Удаление user
+      public function deleteUserByAdmin(User $user): RedirectResponse
+      {
+        // dd($user);
+          $user->delete();
+          return redirect('/')->with('success', 'User удален');
+      }
 }

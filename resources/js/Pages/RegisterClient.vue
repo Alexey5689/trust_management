@@ -7,7 +7,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { defineProps, watch } from 'vue';
+
 
 const props = defineProps({
     managers: Array, // Менеджеры, которые переданы из контроллера
@@ -115,7 +115,6 @@ const submit = () => {
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <form @submit.prevent="submit">
-
                                 <div>
                                     <InputLabel for="last_name" value="Фамилия*" />
                                     <TextInput id="last_name" type="text" class="mt-1 block w-full"

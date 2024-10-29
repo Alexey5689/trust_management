@@ -19,15 +19,15 @@ defineProps({
 
 });
 
-const deleteManager = (managerId) => {
+const deleteUser = (managerId) => {
     if(confirm("Вы точно хотите удалить менеджера?")){
-        Inertia.delete(route('admin.delete.manager', { manager: managerId }));
+        Inertia.delete(route('admin.delete.user', { user: managerId }));
     }
 };
 
 const resetPassword =(managerId) =>{
         if (confirm("Вы уверены, что хотите сбросить пароль?")) {
-            Inertia.post(route('admin.reset.password', { manager: managerId }));
+            Inertia.post(route('admin.reset.password', { user: managerId }));
         }
     }
 
@@ -42,7 +42,7 @@ const resetPassword =(managerId) =>{
         <template #main>
             <div class="py-12">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="bg-white shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <h2 class="text-lg font-medium text-gray-900">Менеджеры</h2>
                             <div class="flex items-center gap-4 p-6"></div>
@@ -66,9 +66,9 @@ const resetPassword =(managerId) =>{
                                 </div>
                                 <div>
                                     <InputLabel for="last_name" value="Договор" />
-                                    <div v-for ="contract in manager.manager_contracts" :key="contract.id">{{ contract.contract_number }}</div>
+                                    <div >{{  manager.manager_contracts.length }}</div>
                                 </div>
-                                <Dropdown  align="right" width="48" class="absolute z-50">
+                                <Dropdown  align="right" width="48" >
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button
@@ -100,7 +100,7 @@ const resetPassword =(managerId) =>{
                                         <DropdownLink @click="resetPassword(manager.id)"   as="button">
                                             Сбросить пароль
                                         </DropdownLink>
-                                        <DropdownLink  @click="deleteManager(manager.id)"  as="button">
+                                        <DropdownLink  @click="deleteUser(manager.id)"  as="button">
                                             Удалить
                                         </DropdownLink>
                                     </template>
