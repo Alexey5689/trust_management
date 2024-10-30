@@ -98,7 +98,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit-client/{client}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client');
         Route::patch('/edit-client/{client}', [AdminController::class, 'updateClientByAdmin']);
 
-
          //сброс пароля
          Route::post('/reset-password/{user}', [AdminController::class, 'resetPassword'])->name('admin.reset.password');
 
@@ -112,6 +111,12 @@ Route::middleware('auth')->group(function () {
         //рег клиент
         Route::get('/registration-client', [ManagerController::class, 'createClientsByManager'])->name('manager.registration.client');
         Route::post('/registration-client', [ManagerController::class, 'storeClientsByManager']);
+        //изменение клиента
+        Route::get('/edit-client/{client}', [ManagerController::class, 'editClientByManager'])->name('manager.edit.client');
+        Route::patch('/edit-client/{client}', [ManagerController::class, 'updateClientByManager']);
+
+        //сброс пароля
+        Route::post('/reset-password/{user}', [AdminController::class, 'resetPassword'])->name('manager.reset.password');
     });
 
     Route::prefix('client')->group(function () {

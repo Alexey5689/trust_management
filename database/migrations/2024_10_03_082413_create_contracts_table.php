@@ -19,9 +19,10 @@ return new class extends Migration
             $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
             $table->integer('contract_number')->unsigned();
             $table->date('create_date');
-            $table->date('deadline')->nullable();
+            $table->date('deadline');
             $table->integer('sum')->unsigned();
-            $table->integer('procent')->unsigned()->nullable();
+            $table->integer('procent')->unsigned();
+            $table->string('payments');
             $table->boolean('contract_status')->nullable();
             $table->timestamps();
         });

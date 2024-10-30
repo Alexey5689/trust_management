@@ -35,7 +35,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.patch(route('admin.edit.client', { client: props.client.id }), {
+    form.patch(route(`${props.role}.edit.client`, { client: props.client.id }), {
         // onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };

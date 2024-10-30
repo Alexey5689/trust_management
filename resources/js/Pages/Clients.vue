@@ -29,7 +29,7 @@ const deleteUser = (clientId) => {
 
 const resetPassword = (clientId) =>{
         if (confirm("Вы уверены, что хотите сбросить пароль?")) {
-            Inertia.post(route('admin.reset.password', { user: clientId }));
+            Inertia.post(route(`${props.role}.reset.password`, { user: clientId }));
         }
     }
 
@@ -49,6 +49,7 @@ const resetPassword = (clientId) =>{
                         <div class="p-6 text-gray-900">
                             <h2 class="text-lg font-medium text-gray-900">Клиенты</h2>
                             <div class="flex items-center gap-4 p-6"></div>
+                            {{ clients }}
                             <div class="client" v-for ="client in clients" :key="client.id">
                                 <div>
                                     <InputLabel for="last_name" value="ID" />
@@ -70,7 +71,7 @@ const resetPassword = (clientId) =>{
                                 </div>
                                 <div>
                                     <InputLabel for="last_name" value="Договор" />
-                                    <div>{{ client.user_contracts.length }}</div>
+                                    <div>{{ client.contracts.length }}</div>
                                 </div>
                                 <Dropdown  align="right" width="48">
                                     <template #trigger>
@@ -97,14 +98,13 @@ const resetPassword = (clientId) =>{
                                         </span>
                                     </template>
                                     <template #content>
-                                        <!-- <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink> -->
-                                        <DropdownLink :href="route('admin.edit.client',{ client: client.id })"   as="button">
+                                        <DropdownLink :href="route(`${props.role}.edit.client`,{ client: client.id })"   as="button">
                                             Изменить
                                         </DropdownLink>
                                         <DropdownLink @click="resetPassword(client.id)"   as="button">
                                             Сбросить пароль
                                         </DropdownLink>
-                                        <DropdownLink  @click="deleteUser(client.id)"  as="button">
+                                        <DropdownLink v-if="role === 'admin'"  @click="deleteUser(client.id)"  as="button">
                                             Удалить
                                         </DropdownLink>
                                     </template>

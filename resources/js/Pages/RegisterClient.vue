@@ -223,9 +223,9 @@ const submit = () => {
                                     <select id="payments" v-model="form.payments" required
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                         <option value="" disabled>Выберите интервал выплат</option>
-                                        <option value="1">Ежемесячно</option>
-                                        <option value="2">Ежеквартально</option>
-                                        <option value="3">Ежегодно</option>
+                                        <option value="Ежемесячно">Ежемесячно</option>
+                                        <option value="Ежеквартально">Ежеквартально</option>
+                                        <option value="Ежегодно">Ежегодно</option>
                                     </select>
                                     <InputError class="mt-2" :message="form.errors.payments" />
                                 </div>

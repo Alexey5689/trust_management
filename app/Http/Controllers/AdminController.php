@@ -53,7 +53,7 @@ class AdminController extends Controller
     public function showAllContracts(){
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
-        $contracts = Contract::all();
+        $contracts = Contract::with(['user'])->get();
         return Inertia::render('Contracts', [
             'role' => $role, // Передаем роль пользователя в Vue-компонент
             'contracts'=> $contracts
@@ -111,20 +111,18 @@ class AdminController extends Controller
         //     $manager_id = $loggedInUser->id;
         // }
         $manager_id = $request->manager_id;
-
         // Записываем менеджера в таблицу user_manager
         $user->managers()->attach($manager_id);
-
         // Создание контракта с user_id и manager_id
         $user->userContracts()->create([
-            'manager_id' => $manager_id,
+            'manager_id' => $request->manager_id,
             'contract_number' => $request->contract_number,
             'create_date' => $request->create_date,
             'sum' => $request->sum,
             'deadline' => $request->deadline,
-            'procent' => $request->procent
+            'procent' => $request->procent,
+            'payments' => $request->payments,
         ]);
-
 
         $token = Password::createToken($user);
         $user->notify(new PasswordEmail($token, $user->email));

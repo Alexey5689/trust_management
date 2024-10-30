@@ -58,7 +58,7 @@ defineProps({
                                 <!-- <PrimaryButton>Изменить контактные данные</PrimaryButton> -->
                                 <ResponsiveNavLink :href="route(`password.edit`)"> Изменить пароль </ResponsiveNavLink>
                                 <ResponsiveNavLink :href="route(`profile.edit`)"> Изменить контактные данные </ResponsiveNavLink>
-                                <ResponsiveNavLink :href="route(`email.edit`)"> Изменить почту </ResponsiveNavLink>
+                                <ResponsiveNavLink v-if ="role === 'admin'" :href="route(`email.edit`)"> Изменить почту </ResponsiveNavLink>
                         </div>
                     </div>
                 </div>

@@ -20,6 +20,7 @@ class Contract extends Model
         'deadline',
         'sum',
         'procent',
+        'payments',
         'contract_status',
     ];
 
