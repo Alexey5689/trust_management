@@ -22,6 +22,7 @@ class Contract extends Model
         'procent',
         'payments',
         'contract_status',
+        'agree_with_terms'
     ];
 
     /**

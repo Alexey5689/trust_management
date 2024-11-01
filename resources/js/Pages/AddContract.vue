@@ -10,6 +10,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const props = defineProps({
+    clients: Array, // Менеджеры, которые переданы из контроллера
     managers: Array, // Менеджеры, которые переданы из контроллера
     role: {
         type: String,
@@ -20,11 +21,7 @@ const props = defineProps({
 const  selectedDuration = ref('');
 
 const form = useForm({
-    last_name: '',
-    first_name: '',
-    middle_name: '',
-    phone_number: '',
-    email: '',
+    user_id: '',
     contract_number: null,
     sum: null,
     deadline: '', // Срок договора
@@ -33,8 +30,6 @@ const form = useForm({
     create_date: new Date().toISOString().substr(0, 10), // Дата заключения
     contract_status:true,
     payments:'', // Выплаты
-    role_id: 3,
-    manager_id: '', // Новое поле для выбора менеджера
 
 });
 
@@ -80,13 +75,8 @@ const submit = () => {
     // } else if (props.role === 'manager') {
     //     routeName = 'manager.registration.client';
     // }
-    form.post(route(`${props.role}.registration.client`), {
+    form.post(route(`${props.role}.add.contract`), {
         onFinish: () => form.reset(
-            'last_name',
-            'first_name',
-            'middle_name',
-            'phone_number',
-            'email',
             'contract_number',
             'sum',
             'deadline',
@@ -95,8 +85,6 @@ const submit = () => {
             'agree_with_terms',
             'create_date',
             'payments',
-            'role_id',
-            'manager_id'
         ),
     });
 
@@ -117,41 +105,32 @@ const submit = () => {
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <form @submit.prevent="submit">
-                                <div>
-                                    <InputLabel for="last_name" value="Фамилия*" />
-                                    <TextInput id="last_name" type="text" class="mt-1 block w-full"
-                                        v-model="form.last_name" required autofocus />
-                                    <InputError class="mt-2" :message="form.errors.last_name" />
+                                <div class="mt-4" >
+                                    <!-- {{ clients }} -->
+                                    <InputLabel for="manager" value="Выберите менеджера*" />
+                                    <select id="manager" v-model="form.user_id" required
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <option value="" disabled>Выберите клиента</option>
+                                        <!-- Выводим список менеджеров -->
+                                        <option v-for="client in clients" :key="client.id" :value="client.id">
+                                             {{ client.full_name }}
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="form.errors.manager_id" />
                                 </div>
-
-                                <div class="mt-4">
-                                    <InputLabel for="first_name" value="Имя*" />
-                                    <TextInput id="first_name" type="text" class="mt-1 block w-full"
-                                        v-model="form.first_name" required autofocus />
-                                    <InputError class="mt-2" :message="form.errors.first_name" />
+                                {{ managers }}
+                                <div class="mt-4" v-if="role === 'admin'">
+                                    <InputLabel for="manager" value="Выберите менеджера*" />
+                                    <select id="manager" v-model="form.manager_id" required
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <option value="" disabled>Выберите менеджера</option>
+                                        <!-- Выводим список менеджеров -->
+                                        <option v-for="manager in managers" :key="manager.id" :value="manager.id">
+                                            {{ manager.last_name }} {{ manager.first_name }} {{ manager.middle_name }}
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="form.errors.manager_id" />
                                 </div>
-
-                                <div class="mt-4">
-                                    <InputLabel for="middle_name" value="Отчество*" />
-                                    <TextInput id="middle_name" type="text" class="mt-1 block w-full"
-                                        v-model="form.middle_name" required autofocus />
-                                    <InputError class="mt-2" :message="form.errors.middle_name" />
-                                </div>
-
-                                <div class="mt-4">
-                                    <InputLabel for="phone_number" value="Номер телефона*" />
-                                    <TextInput id="phone_number" type="tel" class="mt-1 block w-full"
-                                        v-model="form.phone_number" required />
-                                    <InputError class="mt-2" :message="form.errors.phone_number" />
-                                </div>
-
-                                <div class="mt-4">
-                                    <InputLabel for="email" value="Email*" />
-                                    <TextInput id="email" type="email" class="mt-1 block w-full" v-model="form.email"
-                                        required />
-                                    <InputError class="mt-2" :message="form.errors.email" />
-                                </div>
-
                                 <div class="mt-4">
                                     <InputLabel for="contract_number" value="Номер договора*" />
                                     <TextInput id="contract_number" type="text" class="mt-1 block w-full"
@@ -185,7 +164,6 @@ const submit = () => {
                                         <option value="3 года">3 года</option>
                                     </select> -->
 
-
                                     <select id="deadline" v-model="selectedDuration" @change="handleDeadlineChange" required
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                         <option value="" disabled>Выберите срок договора</option>
@@ -193,13 +171,6 @@ const submit = () => {
                                         <option value="2 года">2 года</option>
                                         <option value="3 года">3 года</option>
                                     </select>
-
-
-
-
-
-
-
                                     <InputError class="mt-2" :message="form.errors.deadline" />
                                 </div>
 
@@ -232,7 +203,7 @@ const submit = () => {
                                     <InputError class="mt-2" :message="form.errors.payments" />
                                 </div>
 
-                                <div class="mt-4" v-if="role === 'admin'">
+                                <div v-if="role === 'admin'" class="mt-4">
                                     <InputLabel for="manager" value="Выберите менеджера*" />
                                     <select id="manager" v-model="form.manager_id" required
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -248,7 +219,7 @@ const submit = () => {
                                 <div class="flex items-center justify-end mt-4">
                                     <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }"
                                         :disabled="form.processing">
-                                        Register
+                                        Создать
                                     </PrimaryButton>
                                 </div>
                             </form>

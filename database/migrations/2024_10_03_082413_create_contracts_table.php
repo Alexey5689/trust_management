@@ -22,8 +22,9 @@ return new class extends Migration
             $table->date('deadline');
             $table->integer('sum')->unsigned();
             $table->integer('procent')->unsigned();
-            $table->string('payments');
-            $table->boolean('contract_status')->nullable();
+            $table->string('payments')->nullable();
+            $table->boolean('contract_status');
+            $table->boolean('agree_with_terms');
             $table->timestamps();
         });
     }

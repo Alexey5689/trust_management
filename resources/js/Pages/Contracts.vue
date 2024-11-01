@@ -30,15 +30,16 @@ const getYearDifference =(startDate, endDate)=> {
     <AuthenticatedLayout :userRole="role">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Договоры</h2>
+            <ResponsiveNavLink v-if="role === 'Admin'|| role === 'Manager'" :href="route(`${role}.add.contract`)"> Добавить договор </ResponsiveNavLink>
         </template>
         <template #main>
                 <div class="py-12">
                     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                         <div class="bg-white shadow-sm sm:rounded-lg">
                             <div class="p-6 text-gray-900">
-                                {{ contracts }}
-                                <div class="client" v-for ="contract in contracts" :key="contract.id">
-                                    <div>
+                                <div v-if="contracts.length == 0">Договоров нет</div>
+                                <div v-else class="client" v-for ="contract in contracts" :key="contract.id">
+                                    <div v-if="role === 'Admin'|| role === 'Manager' ">
                                         <InputLabel for="contract_number" value="Клиент" />
                                         <p>{{ contract.user.last_name}} {{contract.user.first_name}} {{contract.user.middle_name }}</p>
                                     </div>
@@ -58,15 +59,15 @@ const getYearDifference =(startDate, endDate)=> {
                                         <InputLabel for="contract_number" value="Срок договора" />
                                         <p> {{getYearDifference(contract.create_date,contract.deadline) === 1 ? getYearDifference(contract.create_date,contract.deadline) + ' год' : getYearDifference(contract.create_date,contract.deadline) + ' года'}} </p>
                                     </div>
-                                    <div>
-                                        <InputLabel for="contract_number" value="Срок договора" />
+                                    <div v-if="(role === 'Admin'|| role === 'Manager') && contract.payments ">
+                                        <InputLabel for="contract_number" value="Выплаты" />
                                         <p>{{ contract.payments }}</p>
                                     </div>
                                     <div>
                                         <InputLabel for="contract_number" value="Сумма" />
                                         <p>{{ contract.sum }}</p>
                                     </div>
-                                    <Dropdown  align="right" width="48">
+                                    <Dropdown v-if="role === 'Admin'|| role === 'Manager' "  align="right" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button

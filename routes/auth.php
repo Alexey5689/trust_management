@@ -114,6 +114,9 @@ Route::middleware('auth')->group(function () {
         //изменение клиента
         Route::get('/edit-client/{client}', [ManagerController::class, 'editClientByManager'])->name('manager.edit.client');
         Route::patch('/edit-client/{client}', [ManagerController::class, 'updateClientByManager']);
+        //Добавление договора
+        Route::get('/add-contract', [ManagerController::class, 'createAddContractByManager'])->name('manager.add.contract');
+        Route::post('/add-contract', [ManagerController::class, 'storeAddContractByManager']);
 
         //сброс пароля
         Route::post('/reset-password/{user}', [AdminController::class, 'resetPassword'])->name('manager.reset.password');

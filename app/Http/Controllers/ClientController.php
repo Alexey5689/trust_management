@@ -12,8 +12,11 @@ class ClientController extends Controller
 {
     public function showContracts(){
         $user = Auth::user();
-        $contracts = $user->userContracts->toArray();
+        $role = $user->role->title;
+         /** @var User $user */
+        $contracts = $user->userContracts()->with('user')->get();
         return Inertia::render('Contracts', [
+            'role' => $role,
             'contracts' => $contracts
         ]);
     }

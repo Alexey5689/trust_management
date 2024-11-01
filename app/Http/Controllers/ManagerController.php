@@ -28,7 +28,7 @@ class ManagerController extends Controller
                 'middle_name' => $client->middle_name,
                 'email' => $client->email,
                 'phone_number' => $client->phone_number,
-                'contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
             ];
         });
         return Inertia::render('Clients', [
@@ -54,7 +54,6 @@ class ManagerController extends Controller
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
         // Получаем всех пользователей с ролью менеджера (role_id = 2)
-
         // Передаем менеджеров на страницу регистрации
         return Inertia::render('RegisterClient', [
             'managers' => [],
@@ -64,7 +63,7 @@ class ManagerController extends Controller
 
     public function storeClientsByManager(Request $request): RedirectResponse
     {
-        // dd($request->all());
+        //dd($request->all());
 
         $request->validate([
             'first_name' => 'required|string|max:255',
@@ -112,7 +111,9 @@ class ManagerController extends Controller
             'sum' => $request->sum,
             'deadline' => $request->deadline,
             'procent' => $request->procent,
-            'payments' => $request->payments
+            'payments' => $request->payments,
+            'agree_with_terms' => $request->agree_with_terms,
+            'contract_status' => $request->contract_status,
         ]);
 
 
@@ -160,6 +161,53 @@ class ManagerController extends Controller
           $client->save();
           return redirect(route('manager.clients'))->with('success', 'Данные обновлены');
       }
+
+      public function createAddContractByManager()
+      {
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+        $clients = $user->managedUsers->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'full_name' => $client->first_name. ' ' .$client->last_name. ' ' .$client->middle_name,
+            ];
+        });
+        return Inertia::render('AddContract', [
+            'role' => $role,
+            'clients' => $clients,
+            'managers'=>[],
+        ]);
+      }
+      public function storeAddContractByManager(Request $request)
+      {
+        // dd($request->all());
+        $request->validate([
+            'contract_number' => 'required|integer',
+            'procent' => 'required|integer',
+            'deadline' => 'required|date_format:Y-m-d',
+            'create_date' => 'required|date_format:Y-m-d',
+            'sum' => 'required|integer',
+        ]);
+
+        $user = Auth::user();
+        /** @var User $user */
+        $user->managerContracts()->create([
+            'user_id' => $request->user_id,
+            'manager_id' => $user->id,
+            'contract_number' => $request->contract_number,
+            'create_date' => $request->create_date,
+            'sum' => $request->sum,
+            'deadline' => $request->deadline,
+            'procent' => $request->procent,
+            'payments' => $request->payments,
+            'agree_with_terms' => $request->agree_with_terms,
+            'contract_status' => $request->contract_status,
+        ]);
+        return redirect(route('manager.contracts'))->with('success', 'Контракт успешно создан!');
+      }
+
+
+      // Сброс пароля
       public function resetPassword(User $user){
         // Генерация токена сброса пароля
        $token = Password::createToken($user);
