@@ -30,7 +30,6 @@ const form = useForm({
     create_date: new Date().toISOString().substr(0, 10), // Дата заключения
     contract_status:true,
     payments:'', // Выплаты
-
 });
 
 // Функция для вычисления даты окончания договора на основе даты подписания
@@ -67,6 +66,11 @@ const handleDeadlineChange = (event) => {
         form.deadline = calculateDeadlineDate(3, form.create_date);
     }
 };
+
+const handleGetManagers = (event) => {
+    console.log(event);
+
+}
 
 const submit = () => {
     // let routeName;
@@ -106,9 +110,10 @@ const submit = () => {
                         <div class="p-6 text-gray-900">
                             <form @submit.prevent="submit">
                                 <div class="mt-4" >
-                                    <!-- {{ clients }} -->
-                                    <InputLabel for="manager" value="Выберите менеджера*" />
+                                    {{ clients }}
+                                    <InputLabel for="manager" value="Выберите клиента*" />
                                     <select id="manager" v-model="form.user_id" required
+                                        @change="handleGetManagers"
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                         <option value="" disabled>Выберите клиента</option>
                                         <!-- Выводим список менеджеров -->
@@ -116,20 +121,7 @@ const submit = () => {
                                              {{ client.full_name }}
                                         </option>
                                     </select>
-                                    <InputError class="mt-2" :message="form.errors.manager_id" />
-                                </div>
-                                {{ managers }}
-                                <div class="mt-4" v-if="role === 'admin'">
-                                    <InputLabel for="manager" value="Выберите менеджера*" />
-                                    <select id="manager" v-model="form.manager_id" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                        <option value="" disabled>Выберите менеджера</option>
-                                        <!-- Выводим список менеджеров -->
-                                        <option v-for="manager in managers" :key="manager.id" :value="manager.id">
-                                            {{ manager.last_name }} {{ manager.first_name }} {{ manager.middle_name }}
-                                        </option>
-                                    </select>
-                                    <InputError class="mt-2" :message="form.errors.manager_id" />
+                                    <InputError class="mt-2" :message="form.errors.user_id" />
                                 </div>
                                 <div class="mt-4">
                                     <InputLabel for="contract_number" value="Номер договора*" />
@@ -203,18 +195,18 @@ const submit = () => {
                                     <InputError class="mt-2" :message="form.errors.payments" />
                                 </div>
 
-                                <div v-if="role === 'admin'" class="mt-4">
+                                <!-- <div v-if="role === 'admin'" class="mt-4">
                                     <InputLabel for="manager" value="Выберите менеджера*" />
                                     <select id="manager" v-model="form.manager_id" required
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                        <option value="" disabled>Выберите менеджера</option>
+                                        <option value="" disabled>Выберите менеджера</option> -->
                                         <!-- Выводим список менеджеров -->
-                                        <option v-for="manager in managers" :key="manager.id" :value="manager.id">
+                                        <!-- <option v-for="manager in managers" :key="manager.id" :value="manager.id">
                                             {{ manager.last_name }} {{ manager.first_name }} {{ manager.middle_name }}
                                         </option>
                                     </select>
                                     <InputError class="mt-2" :message="form.errors.manager_id" />
-                                </div>
+                                </div> -->
 
                                 <div class="flex items-center justify-end mt-4">
                                     <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }"

@@ -122,7 +122,11 @@ class AdminController extends Controller
             'deadline' => $request->deadline,
             'procent' => $request->procent,
             'payments' => $request->payments,
+            'agree_with_terms' => $request->agree_with_terms,
+            'contract_status' => $request->contract_status,
         ]);
+
+
 
         $token = Password::createToken($user);
         $user->notify(new PasswordEmail($token, $user->email));
@@ -249,6 +253,60 @@ class AdminController extends Controller
           $client->save();
           return redirect(route('admin.clients'))->with('success', 'Данные обновлены');
       }
+
+      public function createAddContractByAdmin()
+      {
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+        $clients = User::whereHas('role', function ($query) {
+            $query->where('title', 'client'); // Фильтрация по роли 'client'
+        })->with('userContracts') // Загружаем контракты для клиентов
+        ->get() // Получаем коллекцию пользователей
+        ->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+            ];
+        });
+        // dd($clients);
+        return Inertia::render('AddContract', [
+            'role' => $role,
+            'clients' => $clients,
+        ]);
+      }
+
+
+      public function storeAddContractByAdmin(Request $request)
+      {
+        // dd($request->all());
+        $request->validate([
+            'contract_number' => 'required|integer',
+            'procent' => 'required|integer',
+            'deadline' => 'required|date_format:Y-m-d',
+            'create_date' => 'required|date_format:Y-m-d',
+            'sum' => 'required|integer',
+        ]);
+
+         // Находим клиента по user_id из запроса
+        $client = User::findOrFail($request->user_id);
+        // Получаем ID первого менеджера, закрепленного за клиентом
+        $manager_id = optional($client->managers->first())->id;
+        // dd($manager_id);
+        Contract::create([
+            'user_id' => $request->user_id,
+            'manager_id' => $manager_id,
+            'contract_number' => $request->contract_number,
+            'create_date' => $request->create_date,
+            'sum' => $request->sum,
+            'deadline' => $request->deadline,
+            'procent' => $request->procent,
+            'payments' => $request->payments,
+            'agree_with_terms' => $request->agree_with_terms,
+            'contract_status' => $request->contract_status,
+        ]);
+        return redirect(route('admin.contracts'))->with('success', 'Контракт успешно создан!');
+      }
+
 
 
 

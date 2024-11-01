@@ -98,6 +98,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit-client/{client}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client');
         Route::patch('/edit-client/{client}', [AdminController::class, 'updateClientByAdmin']);
 
+         //Добавление договора
+         Route::get('/add-contract', [AdminController::class, 'createAddContractByAdmin'])->name('admin.add.contract');
+         Route::post('/add-contract', [AdminController::class, 'storeAddContractByAdmin']);
+
          //сброс пароля
          Route::post('/reset-password/{user}', [AdminController::class, 'resetPassword'])->name('admin.reset.password');
 
