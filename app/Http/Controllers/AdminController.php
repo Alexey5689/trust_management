@@ -60,6 +60,8 @@ class AdminController extends Controller
         ]);
     }
 
+
+
     // регистрация user как клиент
     public function createClientsByAdmin()
     {
@@ -67,7 +69,6 @@ class AdminController extends Controller
         $role = $user->role->title; // Получаем его роль
         // Получаем всех пользователей с ролью менеджера (role_id = 2)
         $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
-
         // Передаем менеджеров на страницу регистрации
         return Inertia::render('RegisterClient',[
             'managers' => $managers,
@@ -100,6 +101,7 @@ class AdminController extends Controller
             'refresh_token' => Str::random(60),
         ]);
 
+
         // $loggedInUser = Auth::user();
         // $loggedInUser = User::with('role')->find(Auth::id());
 
@@ -110,6 +112,8 @@ class AdminController extends Controller
         //     // Если менеджер — его ID
         //     $manager_id = $loggedInUser->id;
         // }
+
+
         $manager_id = $request->manager_id;
         // Записываем менеджера в таблицу user_manager
         $user->managers()->attach($manager_id);
@@ -127,7 +131,6 @@ class AdminController extends Controller
         ]);
 
 
-
         $token = Password::createToken($user);
         $user->notify(new PasswordEmail($token, $user->email));
 
@@ -142,7 +145,6 @@ class AdminController extends Controller
     {
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
-
         // dd($user, $role);
         return Inertia::render('RegisterManager', [
             'role' => $role,
@@ -201,7 +203,6 @@ class AdminController extends Controller
             'phone_number' => 'required|string|max:20',
         ]);
 
-
         $manager->last_name = $request->last_name;
         $manager->first_name = $request->first_name;
         $manager->middle_name = $request->middle_name;
@@ -210,9 +211,6 @@ class AdminController extends Controller
         $manager->save();
         return redirect(route('admin.managers'))->with('success', 'Данные обновлены');
     }
-
-
-
 
 
       // изменение контактных данных user клиент
@@ -310,25 +308,70 @@ class AdminController extends Controller
 
 
 
+      public function editContractByAdmin(Contract $contract): Response
+      {
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+        $clients = User::whereHas('role', function ($query) {
+            $query->where('title', 'client'); // Фильтрация по роли 'client'
+        })->with('userContracts') // Загружаем контракты для клиентов
+        ->get() // Получаем коллекцию пользователей
+        ->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+            ];
+        });
+        // dd($contract);
+        return Inertia::render('EditContract', [
+            'role' => $role,
+            'contract' => $contract,
+            'clients' => $clients,
+        ]);
+      }
 
-    // сброс пароля
-    public function resetPassword(User $user){
-         // Генерация токена сброса пароля
-        $token = Password::createToken($user);
+      public function updateContractByAdmin(Request $request, Contract $contract)
+      {
+        // dd($request->all());
+        $request->validate([
+            'contract_number' => 'required|integer',
+            'procent' => 'required|integer',
+            'deadline' => 'required|date_format:Y-m-d',
+            'create_date' => 'required|date_format:Y-m-d',
+            'sum' => 'required|integer',
+        ]);
 
-        // Отправка уведомления с токеном на email менеджера
-        $user->notify(new PasswordEmail($token, $user->email));
-
-        // Flash-сообщение об успешной отправке
-        return redirect()->back()->with('success', 'Ссылка для сброса пароля отправлена менеджеру на email.');
-    }
+         // Находим клиента по user_id из запроса
+        $client = User::findOrFail($request->user_id);
+        // Получаем ID первого менеджера, закрепленного за клиентом
+        $manager_id = optional($client->managers->first())->id;
+        // dd($manager_id);
+        $contract->update([
+            'user_id' => $request->user_id,
+            'manager_id' => $manager_id,
+            'contract_number' => $request->contract_number,
+            'create_date' => $request->create_date,
+            'sum' => $request->sum,
+            'deadline' => $request->deadline,
+            'procent' => $request->procent,
+            'payments' => $request->payments,
+            'agree_with_terms' => $request->agree_with_terms,
+            'contract_status' => $request->contract_status,
+        ]);
+        return redirect(route('admin.contracts'))->with('success', 'Контракт успешно обновлен!');
+      }
 
 
       // Удаление user
-      public function deleteUserByAdmin(User $user): RedirectResponse
-      {
+    public function deleteUserByAdmin(User $user): RedirectResponse
+    {
         // dd($user);
           $user->delete();
           return redirect('/')->with('success', 'User удален');
-      }
+    }
+    public function deleteContractByAdmin(Contract $contract): RedirectResponse
+    {
+        $contract->delete();
+        return redirect(route('admin.contracts'))->with('success', 'Контракт удален');
+    }
 }

@@ -11,18 +11,19 @@ use App\Models\User;
 
 class ProfileController extends Controller
 {
-    public function create (){
+    public function createProfile (){
         $user = Auth::user();
         $role = $user->role->title;
         // dd($user, $role);
         return Inertia::render('Profile', [
             'user' => $user,
             'role' => $role,
+            'status' => session('status'),
         ]);
     }
 
 
-    public function edit(){
+    public function editProfile(){
         $user = Auth::user();
         $role = $user->role->title;
         $userInfo = [
@@ -36,7 +37,7 @@ class ProfileController extends Controller
             'role' => $role,
         ]);
     }
-    public function update(Request $request){
+    public function updateProfile(Request $request){
         $request->validate([
             'last_name' => ['required', 'string', 'max:255'],
             'first_name' => ['required', 'string', 'max:255'],
@@ -47,12 +48,14 @@ class ProfileController extends Controller
         /** @var User $user */
 
         $user = Auth::user();
+        $role = $user->role->title;
         $user->last_name = $request->last_name;
         $user->first_name = $request->first_name;
         $user->middle_name = $request->middle_name;
         $user->save();
-        return redirect('/');
+        return redirect()->route($role . '.profile')->with('status', 'Данные обновлены');
     }
+
 
     public function editPassword(){
         $user = Auth::user();
@@ -99,6 +102,7 @@ class ProfileController extends Controller
         /** @var User $user */
 
         $user = Auth::user();
+
         $user->email = $request->email;
         $user->save();
 

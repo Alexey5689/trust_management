@@ -6,7 +6,6 @@ import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 const props = defineProps({
     user:{
         type: Array,
@@ -27,11 +26,12 @@ const form = useForm({
 
 const save = () => {
     form.patch(route('profile.update'), {
-        // onFinish: () => form.reset('password', 'password_confirmation'),
+        onFinish: () => form.reset('last_name', 'first_name', 'middle_name'),
     });
-
-
 };
+const cancel = () => {
+    window.history.back()
+}
 </script>
 <template>
     <Head title="Edit" />
@@ -49,7 +49,7 @@ const save = () => {
                         <div class="p-6 text-gray-900">
                             <div class="p-6 text-gray-900">
                                 {{ user }}
-                            <form @submit.prevent="save">
+                            <form @submit.prevent>
                                 <div>
                                     <InputLabel for="last_name" value="Фамилия" />
                                     <TextInput
@@ -57,7 +57,6 @@ const save = () => {
                                         type="text"
                                         class="mt-1 block w-full"
                                         v-model="form.last_name"
-
                                         required
                                         autofocus
                                     />
@@ -89,15 +88,17 @@ const save = () => {
                                     />
                                     <InputError class="mt-2" :message="form.errors.name" />
                                 </div>
-                                <div class="flex items-center justify-end mt-4">
-                                    <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }" >
+
+                            </form>
+                            <div class="flex items-center justify-end mt-4">
+                                    <PrimaryButton  @click="save" class="mt-4" :class="{ 'opacity-25': form.processing }" >
                                         Сохранить
                                     </PrimaryButton>
-                                    <PrimaryButton class="mt-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                                    <PrimaryButton @click="cancel" class="mt-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                                         Отмена
                                     </PrimaryButton>
                                 </div>
-                            </form>
+                                <!-- @submit.prevent="save"? -->
                         </div>
                         </div>
                     </div>

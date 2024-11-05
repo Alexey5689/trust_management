@@ -27,20 +27,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
-
-    // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-    //     ->name('password.request');
-
-    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-    //     ->name('password.email');
-
-    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-    //     ->name('password.reset');
-
-    // Route::post('reset-password', [NewPasswordController::class, 'store'])
-    //     ->name('password.store');
-
-
     // создание пароля
     Route::get('create-password/{token}', [CreatingPasswordController::class, 'create'])
         ->name('password.set');
@@ -55,61 +41,46 @@ Route::middleware('guest')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-    // Route::get('verify-email', EmailVerificationPromptController::class)
-    //     ->name('verification.notice');
-
-    // Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-    //     ->middleware(['signed', 'throttle:6,1'])
-    //     ->name('verification.verify');
-
-    // Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-    //     ->middleware('throttle:6,1')
-    //     ->name('verification.send');
-
-    // Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-    //     ->name('password.confirm');
-
-    // Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
-
-    // Route::put('password', [PasswordController::class, 'update'])->name('password.update');
-
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 
-
     Route::prefix('admin')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'create'])->name('admin.profile');
-        Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients');
-        Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers');
-        Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts');
+        Route::get('/profile', [ProfileController::class, 'createProfile'])->name('admin.profile')->middleware(['role:admin']);
+        Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients')->middleware(['role:admin']);
+        Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers')->middleware(['role:admin']);
+        Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts')->middleware(['role:admin']);
         //рег менеджер
-        Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager');
-        Route::post('/registration-manager', [AdminController::class, 'storeManagersByAdmin']);
+        Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager')->middleware(['role:admin']);
+        Route::post('/registration-manager', [AdminController::class, 'storeManagersByAdmin'])->middleware(['role:admin']);
         //изменение менеджера
-        Route::get('/edit-manager/{manager}', [AdminController::class, 'editManagersByAdmin'])->name('admin.edit.manager');
-        Route::patch('/edit-manager/{manager}', [AdminController::class, 'updateManagersByAdmin']);
+        Route::get('/edit-manager/{manager}', [AdminController::class, 'editManagersByAdmin'])->name('admin.edit.manager')->middleware(['role:admin']);
+        Route::patch('/edit-manager/{manager}', [AdminController::class, 'updateManagersByAdmin'])->middleware(['role:admin']);
+        //изменение клиента
+        Route::get('/edit-client/{client}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client')->middleware(['role:admin']);
+        Route::patch('/edit-client/{client}', [AdminController::class, 'updateClientByAdmin'])->middleware(['role:admin']);
 
-        //Удаление менеджера
-        Route::delete('/delete-user/{user}', [AdminController::class, 'deleteUserByAdmin'])->name('admin.delete.user');
+
+
         //рег клиент
         Route::get('/registration-client', [AdminController::class, 'createClientsByAdmin'])->name('admin.registration.client');
         Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);
-        //изменение менеджера
-        Route::get('/edit-client/{client}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client');
-        Route::patch('/edit-client/{client}', [AdminController::class, 'updateClientByAdmin']);
+
 
          //Добавление договора
          Route::get('/add-contract', [AdminController::class, 'createAddContractByAdmin'])->name('admin.add.contract');
          Route::post('/add-contract', [AdminController::class, 'storeAddContractByAdmin']);
 
-         //сброс пароля
-         Route::post('/reset-password/{user}', [AdminController::class, 'resetPassword'])->name('admin.reset.password');
+         //редактирование договора
+         Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('admin.edit.contract');
+         Route::patch('/edit-contract/{contract}', [AdminController::class, 'updateContractByAdmin']);
 
-
+        //Удаление user
+        Route::delete('/delete-user/{user}', [AdminController::class, 'deleteUserByAdmin'])->name('admin.delete.user')->middleware(['role:admin']);
+        Route::delete('/delete-contract/{contract}', [AdminController::class, 'deleteContractByAdmin'])->name('admin.delete.contract')->middleware(['role:admin']);
     });
 
     Route::prefix('manager')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'create'])->name('manager.profile');
+        Route::get('/profile', [ProfileController::class, 'createProfile'])->name('manager.profile')->middleware(['role:manager']);
         Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
         Route::get('/contracts', [ManagerController::class, 'showContracts'])->name('manager.contracts');
         //рег клиент
@@ -127,7 +98,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('client')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'create'])->name('client.profile');
+        Route::get('/profile', [ProfileController::class, 'createProfile'])->name('client.profile');
         Route::get('/contracts', [ClientController::class, 'showContracts'])->name('client.contracts');
     });
 

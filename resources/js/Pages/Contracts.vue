@@ -7,6 +7,7 @@ import { parseISO, differenceInYears, format } from 'date-fns';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+import { Inertia } from '@inertiajs/inertia';
 defineProps({
     contracts:{
         type: Array,
@@ -24,6 +25,11 @@ const formatDate = (date) => {
 const getYearDifference =(startDate, endDate)=> {
       return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
 }
+const deleteContract = (contractId) => {
+    if(confirm("Вы точно хотите удалить договор?")){
+        Inertia.delete(route('admin.delete.contract', { contract: contractId }));
+    }
+};
 </script>
 <template>
     <Head title="Contracts" />
@@ -92,10 +98,10 @@ const getYearDifference =(startDate, endDate)=> {
                                         </span>
                                     </template>
                                     <template #content>
-                                        <DropdownLink    as="button">
+                                        <DropdownLink :href="route(`${role}.edit.contract`,{ contract: contract.id })"    as="button">
                                             Изменить
                                         </DropdownLink>
-                                        <DropdownLink  as="button">
+                                        <DropdownLink v-if="role === 'admin'"  @click="deleteContract(contract.id)"  as="button">
                                             Удалить
                                         </DropdownLink>
                                     </template>
