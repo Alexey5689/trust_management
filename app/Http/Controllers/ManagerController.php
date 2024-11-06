@@ -19,8 +19,12 @@ class ManagerController extends Controller
     {
         // Получаем его роль
         $user = Auth::user();
+          /** @var User $user */
         $role = $user->role->title; // Получаем его роль
-        $clients = $user->managedUsers->load('userContracts')->map(function ($client) {
+        $clients = $user->managedUsers()
+        ->with('userContracts')
+        ->get()
+        ->map(function ($client) {
             return [
                 'id' => $client->id,
                 'first_name' => $client->first_name,
@@ -28,9 +32,10 @@ class ManagerController extends Controller
                 'middle_name' => $client->middle_name,
                 'email' => $client->email,
                 'phone_number' => $client->phone_number,
-                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                'user_contracts' => $client->userContracts->toArray(),
             ];
         });
+
         return Inertia::render('Clients', [
             'clients' => $clients,
             'role' => $role,
@@ -91,6 +96,13 @@ class ManagerController extends Controller
         // $loggedInUser = Auth::user();
         $loggedInUser = User::with('role')->find(Auth::id());
         $manager_id = $loggedInUser->id;
+
+
+        //  // Получение ID менеджера
+        //  $manager_id = Auth::id();
+
+        //  // Связь с менеджером
+        //  $user->managers()->attach($manager_id);
 
         // if ($loggedInUser->isAdmin()) {
         //     // Если админ — берем менеджера из запроса
@@ -204,6 +216,54 @@ class ManagerController extends Controller
             'contract_status' => $request->contract_status,
         ]);
         return redirect(route('manager.contracts'))->with('success', 'Контракт успешно создан!');
+      }
+
+
+    //   public function editContractByManager(){
+    //     $user = Auth::user();
+    //     $role = $user->role->title;
+    //     $contracts = $user->managerContracts->map(function ($contract) {
+    //         return [
+    //             'id' => $contract->id,
+    //             'full_name' => $contract->user->first_name. ' ' .$contract->user->last_name. ' ' .$contract->user->middle_name,
+    //             'contract_number' => $contract->contract_number,
+    //             'create_date' => $contract->create_date,
+    //             'sum' => $contract->sum,
+    //             'deadline' => $contract->deadline,
+    //             'procent' => $contract->procent,
+    //             'payments' => $contract->payments,
+    //             'agree_with_terms' => $contract->agree_with_terms,
+    //             'contract_status' => $contract->contract_status,
+    //         ];
+    //     });
+    //     return Inertia::render('EditContract', [
+    //         'role' => $role,
+    //         'contracts' => $contracts,
+    //     ]);
+    //   }
+
+      public function createApplications(){
+        $user = Auth::user();
+        $role = $user->role->title;
+        return Inertia::render('Applications', [
+            'role' => $role,
+            'applications' => [],
+        ]);
+      }
+      public function createAddApplication(){
+        $user = Auth::user();
+        $role = $user->role->title;
+        $clients = $user->managedUsers->load('userContracts')->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'full_name' => $client->first_name. ' ' .$client->last_name. ' ' .$client->middle_name,
+                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+            ];
+        });
+        return Inertia::render('AddApplication', [
+            'role' => $role,
+            'clients' => $clients,
+        ]);
       }
 
 

@@ -46,6 +46,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink v-if="userRole === 'admin'" :href="route(`${userRole}.managers`)" :active="route().current(`${userRole}.managers`)">
                                     Менеджеры
                                 </NavLink>
+                                <NavLink :href="route('manager.applications')">
+                                    Заявки
+                                </NavLink>
 
                                 {{ userRole}}
 

@@ -245,6 +245,9 @@ class AdminController extends Controller
           $client->phone_number = $request->phone_number;
 
 
+          // Обновление менеджера в промежуточной таблице user_manager
+            $client->managers()->sync([$request->manager_id]);
+
           $client->userContracts()->update([
             'manager_id' => $request->manager_id,
           ]);

@@ -98,7 +98,7 @@ const deleteContract = (contractId) => {
                                         </span>
                                     </template>
                                     <template #content>
-                                        <DropdownLink :href="route(`${role}.edit.contract`,{ contract: contract.id })"    as="button">
+                                        <DropdownLink :href="route(`admin.edit.contract`,{ contract: contract.id })"    as="button">
                                             Изменить
                                         </DropdownLink>
                                         <DropdownLink v-if="role === 'admin'"  @click="deleteContract(contract.id)"  as="button">
