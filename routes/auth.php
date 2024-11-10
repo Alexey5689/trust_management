@@ -105,6 +105,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('client')->group(function () {
         Route::get('/profile', [ProfileController::class, 'createProfile'])->name('client.profile');
         Route::get('/contracts', [ClientController::class, 'showContracts'])->name('client.contracts');
+        Route::get ('/balance-transactions', [ClientController::class, 'showBalanceTransactions'])->name('client.balanceTransactions');
     });
 
 });

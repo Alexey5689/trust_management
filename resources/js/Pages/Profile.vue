@@ -50,7 +50,6 @@ onMounted(() => {
                             <header>
                                     <h2 class="text-lg font-medium text-gray-900">Контактные данные</h2>
                             </header>
-
                             <div>
                                 <p v-if="showStatusMessage" class="text-red-600">{{ status }}</p>
                             </div>

@@ -7,7 +7,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Radio from '@/Components/Radio.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { parseISO, differenceInYears, format } from 'date-fns';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     role:{
@@ -22,18 +22,6 @@ const props = defineProps({
 
 
 const selectedValue = ref('');
-
-const form = useForm({
-    user_id: '',
-    contract_number: null,
-    condition: selectedValue.value,
-    // deadline: '', // Срок договора
-    // procent: '', // Процентная ставка
-    // agree_with_terms: false, // Для чекбокса
-    // create_date: new Date().toISOString().substr(0, 10), // Дата заключения
-    // contract_status:true,
-    // payments:'', // Выплаты
-});
 const userContract = ref({});
 const sum = ref(null);
 const dividends = ref(null);
@@ -60,6 +48,35 @@ const handleGetContract = (contract_number) => {
 
     create_date.value = format(parseISO(tmpCreate), 'MM/dd/yyyy');
     term.value = getYearDifference(tmpCreate, tmpDeadline) === 1 ? getYearDifference(tmpCreate, tmpDeadline) + ' год' : getYearDifference(tmpCreate, tmpDeadline) + ' года';
+}
+
+
+const getInfo = (tmp) =>{
+    form.condition = tmp;
+    if(tmp === 'Раньше срока'){
+        form.type_of_processing = 'Основная сумма';
+    }
+}
+
+
+
+const form = useForm({
+    user_id: '',
+    contract_number: null,
+    condition: '',
+    status: 'В обработке',
+    type_of_processing:'',
+    // deadline: '', // Срок договора
+    // procent: '', // Процентная ставка
+    // agree_with_terms: false, // Для чекбокса
+    // create_date: new Date().toISOString().substr(0, 10), // Дата заключения
+    // contract_status:true,
+    // payments:'', // Выплаты
+});
+
+const submit =()=>{
+    console.log(form);
+
 }
 </script>
 <template>
@@ -121,10 +138,16 @@ const handleGetContract = (contract_number) => {
                             </div>
                             <div class="mt-4">
                                 <p>Условия списания</p>
-                                <Radio :checked="selectedValue" value="Раньше срока" @update:checked="selectedValue = $event" /> Раньше срока
-                                <Radio :checked="selectedValue" value="В срок" @update:checked="selectedValue = $event" /> В срок
+                                <!-- <Radio  :checked="selectedValue" @click="getInfo(value)" value="Раньше срока" @update:checked="selectedValue = $event" /> Раньше срока
+                                <Radio  :checked="selectedValue" @click="getInfo(value)" value="В срок" @update:checked="selectedValue = $event" /> В срок -->
+                                <PrimaryButton  @click="getInfo('Раньше срока')"   class="mt-4" :class="{ 'opacity-25': form.processing }" >
+                                    Раньше срока
+                                </PrimaryButton>
+                                <PrimaryButton @click="getInfo('В срок')" class="mt-4" :class="{ 'opacity-25': form.processing }" >
+                                        В срок
+                                </PrimaryButton>
                             </div>
-                            <div v-if="selectedValue === 'Раньше срока'" class="mt-4">
+                            <div v-if="form.condition === 'Раньше срока'" class="mt-4">
                                 <p>Вывод средств</p>
                                 <div class="mt-4">
                                     <InputLabel for="sum" value="Сумма списания" />
@@ -136,8 +159,21 @@ const handleGetContract = (contract_number) => {
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                                     <InputError class="mt-2" :message="form.errors.create_date" />
                                 </div>
+                                <p>Сомиссия за вывод раньше срока 30% {{ sum * 0.3 }}</p>
                             </div>
+                            <div v-if="form.condition === 'В срок'" class="mt-4">
+                                <p>Вывод средств</p>
 
+                            </div>
+                            {{ selectedValue }}
+                            <div class="flex items-center justify-end mt-4">
+                                <PrimaryButton  @click="save" class="mt-4" :class="{ 'opacity-25': form.processing }" >
+                                    Сохранить
+                                </PrimaryButton>
+                                <PrimaryButton @click="cancel" class="mt-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                                    Отмена
+                                </PrimaryButton>
+                            </div>
                         </form>
                     </div>
                 </div>

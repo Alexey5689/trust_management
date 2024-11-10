@@ -94,7 +94,7 @@ const resetPassword =(managerId) =>{
                                     </template>
                                     <template #content>
                                         <!-- <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink> -->
-                                        <DropdownLink :href="route('admin.edit.manager',{ manager: manager.id })"   as="button">
+                                        <DropdownLink :href="route('admin.edit.manager',{ manager: manager.id })"  :disabled="manager.active === false"  as="button">
                                             Изменить
                                         </DropdownLink>
                                         <DropdownLink @click="resetPassword(manager.id)"   as="button">

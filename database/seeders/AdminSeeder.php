@@ -22,6 +22,7 @@ class AdminSeeder extends Seeder
             'phone_number' => '+79991052972',
             'password' => bcrypt('password'), // Устанавливаем пароль для администратора
             'token' => Str::random(60),
+            'active'=>true,
             'refresh_token' => Str::random(60),
             'avaliable_balance' => null,
             'role_id' => 1, // ID роли администратора
@@ -34,6 +35,7 @@ class AdminSeeder extends Seeder
             'phone_number' => '+79228671761',
             'password' => bcrypt('password'), // Устанавливаем пароль для администратора
             'token' => Str::random(60),
+            'active'=>true,
             'refresh_token' => Str::random(60),
             'avaliable_balance' =>null,
             'role_id' => 1, // ID роли администратора

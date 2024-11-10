@@ -39,7 +39,7 @@ class PasswordEmail extends Notification
         $url = url(config('app.url') . route('password.set', ['token' => $this->token, 'email' => $this->email], false));
 
         return (new MailMessage)
-            ->subject('Задание пароля')
+            ->subject('Создание пароля')
             ->markdown('mail.password-email', [
                 'url' => $url,
             ]);

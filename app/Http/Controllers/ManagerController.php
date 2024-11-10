@@ -116,7 +116,7 @@ class ManagerController extends Controller
         $user->managers()->attach($manager_id);
 
         // Создание контракта с user_id и manager_id
-        $user->userContracts()->create([
+        $contract = $user->userContracts()->create([
             'manager_id' => $manager_id,
             'contract_number' => $request->contract_number,
             'create_date' => $request->create_date,
@@ -126,6 +126,15 @@ class ManagerController extends Controller
             'payments' => $request->payments,
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
+        ]);
+
+        $user->userTransactions()->create([
+            'contract_id'=>$contract->id,
+            'manager_id' => $manager_id,
+            'date_transition' => $request->create_date,
+            'status' => $request->contract_status,
+            'sum_transition' => $request->sum,
+            'sourse' =>'Договор'
         ]);
 
 
@@ -265,17 +274,4 @@ class ManagerController extends Controller
             'clients' => $clients,
         ]);
       }
-
-
-      // Сброс пароля
-      public function resetPassword(User $user){
-        // Генерация токена сброса пароля
-       $token = Password::createToken($user);
-
-       // Отправка уведомления с токеном на email менеджера
-       $user->notify(new PasswordEmail($token, $user->email));
-
-       // Flash-сообщение об успешной отправке
-       return redirect()->back()->with('success', 'Ссылка для сброса пароля отправлена менеджеру на email.');
-   }
 }

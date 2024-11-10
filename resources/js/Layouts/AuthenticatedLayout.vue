@@ -49,6 +49,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('manager.applications')">
                                     Заявки
                                 </NavLink>
+                                <NavLink v-if="userRole === 'client'" :href="route('client.balanceTransactions')">
+                                    Баланс и транзакции
+                                </NavLink>
 
                                 {{ userRole}}
 

@@ -11,9 +11,11 @@ class Transaction extends Model
 
     protected $fillable = [
         'contract_id',
+        'user_id',
         'manager_id',
         'date_transition',
         'status_transition',
+        'sourse',
         'sum_transition',
     ];
 
@@ -24,12 +26,15 @@ class Transaction extends Model
     {
         return $this->belongsTo(Contract::class, 'contract_id');
     }
-
     /**
      * Связь с моделью User (менеджер)
      */
     public function manager()
     {
         return $this->belongsTo(User::class, 'manager_id');
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

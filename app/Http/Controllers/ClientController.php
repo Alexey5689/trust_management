@@ -20,4 +20,18 @@ class ClientController extends Controller
             'contracts' => $contracts
         ]);
     }
+    public function showBalanceTransactions(){
+        $user = Auth::user();
+        $role = $user->role->title;
+
+        /** @var User $user */
+        $transactions = $user->userTransactions()->with('user')->get();
+        $contracts = $user->userContracts()->with('user')->get();
+        // dd($transactions);
+        return Inertia::render('BalanceTransactions', [
+            'role' => $role,
+            'transactions' => $transactions,
+            'contracts' => $contracts
+        ]);
+    }
 }

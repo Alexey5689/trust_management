@@ -19,7 +19,7 @@ class ManagerSeeder extends Seeder
 
         for ($i = 0; $i < 5; $i++) {
             $firstNameCyr = $faker->firstName;
-            $lastNameCyr = $faker->lastName; 
+            $lastNameCyr = $faker->lastName;
             $firstNameLat = $this->transliterate($firstNameCyr);
             $lastNameLat = $this->transliterate($lastNameCyr);
 
@@ -32,6 +32,7 @@ class ManagerSeeder extends Seeder
                 'email' => $email,
                 'phone_number' => '+7' . $faker->numberBetween(9000000000, 9999999999),
                 'password' => bcrypt('password'), // Хеширование пароля
+                'active' => true,
                 'token' => Str::random(60),
                 'refresh_token' => Str::random(60),
                 'role_id' => 2, // Менеджерская роль
@@ -46,7 +47,7 @@ class ManagerSeeder extends Seeder
     private function transliterate($text)
     {
         $cyr = [
-            'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 
+            'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П',
             'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я',
             'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п',
             'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'

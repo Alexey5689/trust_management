@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 255)->nullable();
             $table->string('token');
+            $table->boolean('active')->default(false);
             $table->string('refresh_token');
             $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('set null'); // Внешний ключ на таблицу ролей
             $table->decimal('avaliable_balance', 10, 2)->nullable()->comment('Доступный баланс');

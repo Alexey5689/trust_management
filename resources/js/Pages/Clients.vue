@@ -29,7 +29,7 @@ const deleteUser = (clientId) => {
 
 const resetPassword = (clientId) =>{
         if (confirm("Вы уверены, что хотите сбросить пароль?")) {
-            Inertia.post(route(`${props.role}.reset.password`, { user: clientId }));
+            Inertia.post(route('reset.password', { user: clientId }));
         }
     }
 
@@ -50,6 +50,7 @@ const resetPassword = (clientId) =>{
                             <!-- {{ clients }} -->
                             <div v-if="clients.length == 0">Клиентов нет</div>
                             <div v-else class="client" v-for ="client in clients" :key="client.id">
+
                                 <div>
                                     <InputLabel for="last_name" value="ID" />
                                     {{ client.id }}
@@ -71,6 +72,9 @@ const resetPassword = (clientId) =>{
                                 <div>
                                     <InputLabel for="last_name" value="Договор" />
                                     <div>{{ client.user_contracts.length }}</div>
+                                </div>
+                                <div v-if="client.active === false">
+                                    Клиент не активен
                                 </div>
                                 <Dropdown  align="right" width="48">
                                     <template #trigger>
@@ -97,7 +101,7 @@ const resetPassword = (clientId) =>{
                                         </span>
                                     </template>
                                     <template #content>
-                                        <DropdownLink :href="route(`${props.role}.edit.client`,{ client: client.id })"   as="button">
+                                        <DropdownLink :href="route(`${props.role}.edit.client`,{ client: client.id })"  :disabled="client.active === false"   as="button">
                                             Изменить
                                         </DropdownLink>
                                         <DropdownLink @click="resetPassword(client.id)"   as="button">

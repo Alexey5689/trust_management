@@ -15,6 +15,7 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'active',
         'phone_number',
         'password',
         'token',
@@ -58,6 +59,14 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'user_manager', 'manager_id', 'user_id');
     }
 
+    public function userTransactions(){
+        return $this->hasMany(Transaction::class, 'user_id');
+    }
+    public function managerTransactions()
+{
+    return $this->hasMany(Transaction::class, 'manager_id');
+}
+
     public function userContracts()
     {
         return $this->hasMany(Contract::class, 'user_id',);
@@ -66,6 +75,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Contract::class, 'manager_id');
     }
+
 
     // public function isAdmin()
     // {
