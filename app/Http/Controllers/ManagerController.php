@@ -256,8 +256,23 @@ class ManagerController extends Controller
         $user = Auth::user();
         $role = $user->role->title;
          /** @var User $user */
-        $applications = $user->managerApplications()->with('user')->get();
-
+        $applications = $user ->managerApplications()
+                        ->with('user')
+                        ->get()
+                        ->map(function ($application) {
+                            return [
+                                'id' => $application->id,
+                                'user_id' => $application->user_id,
+                                'full_name' => $application->user->first_name. ' ' .$application->user->last_name. ' ' .$application->user->middle_name,
+                                'contract_number' => $application->contract_number,
+                                'condition' => $application->condition,
+                                'status' => $application->status,
+                                'type_of_processing' => $application->type_of_processing,
+                                'date_of_payments' => $application->date_of_payments,
+                                'create_date' => $application->create_date,
+                            ];
+                        });;
+        //dd($applications);
         return Inertia::render('Applications', [
             'role' => $role,
             'applications' => $applications,
