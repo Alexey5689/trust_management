@@ -32,6 +32,7 @@ class ManagerController extends Controller
                 'middle_name' => $client->middle_name,
                 'email' => $client->email,
                 'phone_number' => $client->phone_number,
+                'active' => $client->active,
                 'user_contracts' => $client->userContracts->toArray(),
             ];
         });
@@ -254,9 +255,12 @@ class ManagerController extends Controller
       public function createApplications(){
         $user = Auth::user();
         $role = $user->role->title;
+         /** @var User $user */
+        $applications = $user->managerApplications()->with('user')->get();
+
         return Inertia::render('Applications', [
             'role' => $role,
-            'applications' => [],
+            'applications' => $applications,
         ]);
       }
       public function createAddApplication(){
@@ -273,5 +277,29 @@ class ManagerController extends Controller
             'role' => $role,
             'clients' => $clients,
         ]);
+      }
+      public function storeAddApplication(Request $request){
+       //dd($request->all());
+        // $request->validate([
+        //     'contract_number' => 'required|integer',
+        //     'condition'=>'required|string',
+        //     'status'=>'required|string',
+        //     'type_of_processing'=>'required|string',
+        //     'create_date' => 'required|date_format:Y-m-d',
+        //     'date_of_payments'=>'required|date_format:Y-m-d',
+        // ]);
+        $user = Auth::user();
+        /** @var User $user */
+        $user->managerApplications()->create([
+            'create_date'=> $request->create_date,
+            'user_id'=> $request->user_id,
+            'manager_id'=> $user->id,
+            'contract_number'=> $request->contract_number,
+            'condition'=>$request->condition,
+            'status'=>$request->status,
+            'type_of_processing'=>$request->type_of_processing,
+            'date_of_payments'=>$request->date_of_payments,
+        ]);
+        return redirect(route('manager.applications'))->with('success', 'Заявка успешно создана!');
       }
 }

@@ -51,12 +51,12 @@ const resetPassword = (clientId) =>{
                             <div v-if="clients.length == 0">Клиентов нет</div>
                             <div v-else class="client" v-for ="client in clients" :key="client.id">
 
-                                <div>
+                                <div >
                                     <InputLabel for="last_name" value="ID" />
                                     {{ client.id }}
 
                                 </div>
-                                <div>
+                                <div :class="!client.active ? 'text-red-900' : 'text-gray-900'">
                                     <InputLabel for="last_name" value="ФИО" />
                                     {{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}
 
@@ -72,9 +72,6 @@ const resetPassword = (clientId) =>{
                                 <div>
                                     <InputLabel for="last_name" value="Договор" />
                                     <div>{{ client.user_contracts.length }}</div>
-                                </div>
-                                <div v-if="client.active === false">
-                                    Клиент не активен
                                 </div>
                                 <Dropdown  align="right" width="48">
                                     <template #trigger>

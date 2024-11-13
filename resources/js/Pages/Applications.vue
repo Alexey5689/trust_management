@@ -35,6 +35,7 @@ import { Inertia } from '@inertiajs/inertia';
                         <div class="bg-white shadow-sm sm:rounded-lg">
                             <div class="p-6 text-gray-900">
                                 <div v-if="props.applications.length === 0">Заявок нет</div>
+                                {{ props.applications }}
                             </div>
                         </div>
                     </div>

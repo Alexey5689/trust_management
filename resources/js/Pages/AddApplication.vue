@@ -46,7 +46,7 @@ const handleGetContract = (contract_number) => {
     else if (getYearDifference(tmpCreate, tmpDeadline) === 1) {dividends.value = ((sum.value*(procent.value/100))/12)*12}
     else{ dividends.value = ((sum.value*(procent.value/100))/12)*36}
 
-    create_date.value = format(parseISO(tmpCreate), 'MM/dd/yyyy');
+    create_date.value = format(parseISO(tmpCreate), 'dd/MM/yyyy');
     term.value = getYearDifference(tmpCreate, tmpDeadline) === 1 ? getYearDifference(tmpCreate, tmpDeadline) + ' год' : getYearDifference(tmpCreate, tmpDeadline) + ' года';
 }
 
@@ -61,23 +61,19 @@ const getInfo = (tmp) =>{
 
 
 const form = useForm({
+    create_date: new Date().toISOString().substr(0, 10),
     user_id: '',
     contract_number: null,
     condition: '',
     status: 'В обработке',
     type_of_processing:'',
-    // deadline: '', // Срок договора
-    // procent: '', // Процентная ставка
-    // agree_with_terms: false, // Для чекбокса
-    // create_date: new Date().toISOString().substr(0, 10), // Дата заключения
-    // contract_status:true,
-    // payments:'', // Выплаты
+    date_of_payments: '',
 });
 
 const submit =()=>{
-    console.log(form);
-
+    form.post(route(`${props.role}.add.application`));
 }
+
 </script>
 <template>
     <Head title="newApplication" />
@@ -93,9 +89,9 @@ const submit =()=>{
                             <div class="mt-4" >
                                     {{ props.clients }}
                                     <InputLabel for="manager" value="Выберите клиента*" />
-                                    <select id="manager" v-model="form.user_id" required
+                                    <select id="manager" v-model="form.user_id"
                                         @change="handleGetClient(form.user_id)"
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"required>
                                         <option value="" disabled>Выберите клиента</option>
                                         <!-- Выводим список менеджеров -->
                                         <option v-for="client in props.clients" :key="client.id" :value="client.id" >
@@ -143,7 +139,7 @@ const submit =()=>{
                                 <PrimaryButton  @click="getInfo('Раньше срока')"   class="mt-4" :class="{ 'opacity-25': form.processing }" >
                                     Раньше срока
                                 </PrimaryButton>
-                                <PrimaryButton @click="getInfo('В срок')" class="mt-4" :class="{ 'opacity-25': form.processing }" >
+                                <PrimaryButton @click="getInfo('В срок')" class="mt-4" :class="{ 'opacity-25': form.processing }">
                                         В срок
                                 </PrimaryButton>
                             </div>
@@ -155,15 +151,14 @@ const submit =()=>{
                                 </div>
                                 <div class="mt-4">
                                     <InputLabel for="create_date" value="Дата планируемой выплаты" />
-                                    <input id="create_date" type="date" v-model="form.create_date" required
+                                    <input id="create_date" type="date" v-model="form.date_of_payments" required
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-                                    <InputError class="mt-2" :message="form.errors.create_date" />
+                                    <InputError class="mt-2" :message="form.errors.date_of_payments" />
                                 </div>
-                                <p>Сомиссия за вывод раньше срока 30% {{ sum * 0.3 }}</p>
+                                <p>Комиссия за вывод раньше срока 30% {{ sum * 0.3 }}</p>
                             </div>
                             <div v-if="form.condition === 'В срок'" class="mt-4">
                                 <p>Вывод средств</p>
-
                             </div>
                             {{ selectedValue }}
                             <div class="flex items-center justify-end mt-4">

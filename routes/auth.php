@@ -86,6 +86,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/applications', [ManagerController::class, 'createApplications'])->name('manager.applications');
 
         Route::get('/add-applications', [ManagerController::class, 'createAddApplication'])->name('manager.add.application');
+        Route::post('/add-applications', [ManagerController::class, 'storeAddApplication']);
         //рег клиент
         Route::get('/registration-client', [ManagerController::class, 'createClientsByManager'])->name('manager.registration.client');
         Route::post('/registration-client', [ManagerController::class, 'storeClientsByManager']);
@@ -97,9 +98,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/add-contract', [ManagerController::class, 'storeAddContractByManager']);
 
 
-
-        //сброс пароля
-        Route::post('/reset-password/{user}', [AdminController::class, 'resetPassword'])->name('manager.reset.password');
     });
 
     Route::prefix('client')->group(function () {

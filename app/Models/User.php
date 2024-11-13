@@ -76,36 +76,24 @@ class User extends Authenticatable
         return $this->hasMany(Contract::class, 'manager_id');
     }
 
+    public function userApplications()
+    {
+        return $this->hasMany(Application::class, 'user_id');
+    }
+    public function managerApplications()
+    {
+        return $this->hasMany(Application::class, 'manager_id');
+    }
 
-    // public function isAdmin()
-    // {
-    //     // return $this->role_id === 1 && $this->role->title === 'admin'; // Предполагается, что в модели Role есть поле 'title'
-    //     $role = $this->role()->first(); // Явная загрузка связи с ролью
-    //     return $this->role_id === 1 && $role && $role->title === 'admin';
-    // }
 
     public function isAdmin()
     {
         return $this->role && $this->role->title === 'admin';
     }
-
-    // public function isManager()
-    // {
-    //     $role = $this->role()->first(); // Явная загрузка связи с ролью
-    //     return $this->role_id === 2 && $role && $role->title === 'manager';
-    // }
-
     public function isManager()
     {
         return $this->role && $this->role->title === 'manager';
     }
-
-    // public function isClient()
-    // {
-    //     $role = $this->role()->first(); // Явная загрузка связи с ролью
-    //     return $this->role_id === 3 && $role && $role->title === 'client';
-    // }
-
     public function isClient()
     {
         return $this->role && $this->role->title === 'client';
