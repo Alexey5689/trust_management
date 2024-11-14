@@ -4,7 +4,6 @@ import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import Radio from '@/Components/Radio.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { parseISO, differenceInYears, format } from 'date-fns';
 import { ref, computed } from 'vue';
@@ -21,13 +20,28 @@ const props = defineProps({
 })
 
 
-const selectedValue = ref('');
+const procent = ref('');
 const userContract = ref({});
 const sum = ref(null);
 const dividends = ref(null);
 const create_date = ref('');
 const term = ref('');
-const procent = ref(null);
+const condition = ref('');
+const processing = ref('');
+const conditionsType = ref([{type: 'Раньше срока', value: false},{type: 'В срок', value: true}]);
+const typeOfProcessing = ref([{type: 'Забрать дивиденды частично', value: 0},{type:'Забрать дивиденды полностью', value: 1},{type:'Забрать дивиденды и сумму', value: 2}]);
+
+const conditionRadio = (tmp) => {
+    if(tmp === false) {
+        form.type_of_processing = 'Основная сумма';
+        condition.value = false;
+    }
+    else condition.value = true;
+};
+
+const processingRadio = (tmp) => {
+    processing.value = tmp;
+};
 
 
 const handleGetClient = (id) => {
@@ -41,6 +55,8 @@ const handleGetContract = (contract_number) => {
     let tmpCreate = userContract.value.user_contracts.find((contract) => contract.contract_number === contract_number).create_date;
     let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.contract_number === contract_number).deadline;
     procent.value = userContract.value.user_contracts.find((contract) => contract.contract_number === contract_number).procent;
+    console.log(procent.value);
+
 
     if (getYearDifference(tmpCreate, tmpDeadline) === 2){ dividends.value = ((sum.value*(procent.value/100))/12)*24}
     else if (getYearDifference(tmpCreate, tmpDeadline) === 1) {dividends.value = ((sum.value*(procent.value/100))/12)*12}
@@ -50,16 +66,6 @@ const handleGetContract = (contract_number) => {
     term.value = getYearDifference(tmpCreate, tmpDeadline) === 1 ? getYearDifference(tmpCreate, tmpDeadline) + ' год' : getYearDifference(tmpCreate, tmpDeadline) + ' года';
 }
 
-
-const getInfo = (tmp) =>{
-    form.condition = tmp;
-    if(tmp === 'Раньше срока'){
-        form.type_of_processing = 'Основная сумма';
-    }
-}
-
-
-
 const form = useForm({
     create_date: new Date().toISOString().substr(0, 10),
     user_id: '',
@@ -68,6 +74,7 @@ const form = useForm({
     status: 'В обработке',
     type_of_processing:'',
     date_of_payments: '',
+    sum_of_processing: 0,
 });
 
 const submit =()=>{
@@ -89,15 +96,15 @@ const submit =()=>{
                             <div class="mt-4" >
                                     {{ props.clients }}
                                     <InputLabel for="manager" value="Выберите клиента*" />
-                                    <select id="manager" v-model="form.user_id"
-                                        @change="handleGetClient(form.user_id)"
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"required>
-                                        <option value="" disabled>Выберите клиента</option>
-                                        <!-- Выводим список менеджеров -->
-                                        <option v-for="client in props.clients" :key="client.id" :value="client.id" >
-                                             {{ client.full_name }}
-                                        </option>
-                                    </select>
+                                        <select id="manager" v-model="form.user_id"
+                                            @change="handleGetClient(form.user_id)"
+                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"required>
+                                            <option value="" disabled>Выберите клиента</option>
+                                            <!-- Выводим список менеджеров -->
+                                            <option v-for="client in props.clients" :key="client.id" :value="client.id" >
+                                                {{ client.full_name }}
+                                            </option>
+                                        </select>
                                     <InputError class="mt-2" :message="form.errors.user_id" />
                             </div>
                             <div class="mt-4" >
@@ -134,16 +141,13 @@ const submit =()=>{
                             </div>
                             <div class="mt-4">
                                 <p>Условия списания</p>
-                                <!-- <Radio  :checked="selectedValue" @click="getInfo(value)" value="Раньше срока" @update:checked="selectedValue = $event" /> Раньше срока
-                                <Radio  :checked="selectedValue" @click="getInfo(value)" value="В срок" @update:checked="selectedValue = $event" /> В срок -->
-                                <PrimaryButton  @click="getInfo('Раньше срока')"   class="mt-4" :class="{ 'opacity-25': form.processing }" >
-                                    Раньше срока
-                                </PrimaryButton>
-                                <PrimaryButton @click="getInfo('В срок')" class="mt-4" :class="{ 'opacity-25': form.processing }">
-                                        В срок
-                                </PrimaryButton>
+                                <div v-for ="(condition,index) in conditionsType" :key="index">
+                                    <input type="radio" id="dewey" name="drone" v-model="form.condition" :value="condition.type"  @click="conditionRadio(condition.value)"/>
+                                    <label for="dewey">{{ condition.type }}</label>
+                                </div>
                             </div>
-                            <div v-if="form.condition === 'Раньше срока'" class="mt-4">
+
+                            <div v-if="condition === false" class="mt-4">
                                 <p>Вывод средств</p>
                                 <div class="mt-4">
                                     <InputLabel for="sum" value="Сумма списания" />
@@ -157,10 +161,29 @@ const submit =()=>{
                                 </div>
                                 <p>Комиссия за вывод раньше срока 30% {{ sum * 0.3 }}</p>
                             </div>
-                            <div v-if="form.condition === 'В срок'" class="mt-4">
+                            <div v-if ="condition === true" class="mt-4">
+                                <div class="mt-4">
+                                <h1>Варианты списания</h1>
+                                <div v-for="(processing,index) in typeOfProcessing" :key="index">
+                                    <input type="radio" :id="'test'+`${index}`" :name="'test'+`${index}`" v-model="form.type_of_processing" :value="processing.type" @click="processingRadio(processing.value)"/>
+                                    <label :for="'test'+`${index}`">{{ processing.type }}</label>
+                                </div>
                                 <p>Вывод средств</p>
+                                <div></div>
+                                <div class="mt-4">
+                                    <InputLabel for="dividends" value="Дивиденды" />
+                                    <input id="dividends" v-model="form.sum_of_processing" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ dividends }}</input>
+                                </div>
+                                <div class="mt-4">
+                                    <InputLabel for="create_date" value="Дата планируемой выплаты" />
+                                    <input id="create_date" type="date" v-model="form.date_of_payments" required
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                    <InputError class="mt-2" :message="form.errors.date_of_payments" />
+                                </div>
+
                             </div>
-                            {{ selectedValue }}
+
+                            </div>
                             <div class="flex items-center justify-end mt-4">
                                 <PrimaryButton  @click="save" class="mt-4" :class="{ 'opacity-25': form.processing }" >
                                     Сохранить

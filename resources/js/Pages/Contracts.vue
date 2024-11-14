@@ -7,7 +7,6 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Inertia } from '@inertiajs/inertia';
-import AccrualScheduleLayout from '@/Layouts/AccrualScheduleLayout.vue';
 import { parseISO, differenceInYears, format, differenceInDays } from 'date-fns';
 import { computed, ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -124,7 +123,7 @@ const getDividends = (rate) => {
                                         </span>
                                     </template>
                                     <template  #content  >
-                                        <DropdownLink :href="route(`admin.edit.contract`,{ contract: contract.id })"    as="button">
+                                        <DropdownLink :href="route(`admin.edit.contract`,{ contract: contract.id })"as="button">
                                             Изменить
                                         </DropdownLink>
                                         <DropdownLink  @click="deleteContract(contract.id)"  as="button">

@@ -23,6 +23,7 @@ Route::get('/', function () {
 
 
 Route::middleware('auth')->group(function () {
+    //редакция профиль пользователя. смена пароля.емена почты
     Route::get('profile/edit',[ProfileController::class, 'editProfile'])->name('profile.edit');
     Route::patch('profile/edit', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::get('password/edit', [ProfileController::class, 'editPassword'])->name('password.edit');
@@ -37,5 +38,5 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
-// asdas
+
 

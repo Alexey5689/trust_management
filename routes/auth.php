@@ -1,20 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RegisteredManagerController;
-use App\Http\Controllers\RegisteredClientController;
 use App\Http\Controllers\CreatingPasswordController;
 use App\Http\Controllers\ManagerController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClientController;
@@ -84,7 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
         Route::get('/contracts', [ManagerController::class, 'showContracts'])->name('manager.contracts');
         Route::get('/applications', [ManagerController::class, 'createApplications'])->name('manager.applications');
-
+        // Добавление заявки
         Route::get('/add-applications', [ManagerController::class, 'createAddApplication'])->name('manager.add.application');
         Route::post('/add-applications', [ManagerController::class, 'storeAddApplication']);
         //рег клиент
