@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
-            $table->integer('contract_number');
+            $table->integer('contract_id')->constrained('contracts')->onDelete('cascade');
             $table->string('condition');
             $table->string('status');
             $table->string('type_of_processing');

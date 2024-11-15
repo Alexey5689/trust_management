@@ -1,63 +1,75 @@
 <script setup>
-import InputLabel from '@/Components/InputLabel.vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import {  Head } from '@inertiajs/vue3';
-import { Inertia } from '@inertiajs/inertia';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
+import InputLabel from '@/Components/InputLabel.vue'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Head } from '@inertiajs/vue3'
+import { Inertia } from '@inertiajs/inertia'
+import Dropdown from '@/Components/Dropdown.vue'
+import DropdownLink from '@/Components/DropdownLink.vue'
 
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
 defineProps({
-    managers:{
+    managers: {
         type: Array,
-        required: true
+        required: true,
     },
-    role:{
+    role: {
         type: Object,
-        required: true
-    }
-
-});
+        required: true,
+    },
+})
 
 const deleteUser = (managerId) => {
-    if(confirm("Вы точно хотите удалить менеджера?")){
-        Inertia.delete(route('admin.delete.user', { user: managerId }));
+    if (confirm('Вы точно хотите удалить менеджера?')) {
+        Inertia.delete(route('admin.delete.user', { user: managerId }))
     }
-};
+}
 
-const resetPassword =(managerId) =>{
-        if (confirm("Вы уверены, что хотите сбросить пароль?")) {
-            Inertia.post(route('admin.reset.password', { user: managerId }));
-        }
+const resetPassword = (managerId) => {
+    if (confirm('Вы уверены, что хотите сбросить пароль?')) {
+        Inertia.post(route('admin.reset.password', { user: managerId }))
     }
-
+}
 </script>
 <template>
     <Head title="Managers" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Менеджеры</h2>
-            <ResponsiveNavLink :href="route('admin.registration.manager')"> Добавить менеджера </ResponsiveNavLink>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Менеджеры
+            </h2>
+            <ResponsiveNavLink :href="route('admin.registration.manager')">
+                Добавить менеджера
+            </ResponsiveNavLink>
         </template>
         <template #main>
             <div class="py-12">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
-                            <h2 class="text-lg font-medium text-gray-900">Менеджеры</h2>
+                            <h2 class="text-lg font-medium text-gray-900">
+                                Менеджеры
+                            </h2>
                             <div class="flex items-center gap-4 p-6"></div>
-                            <div class="client" v-for =" manager in  managers" :key="manager.id">
+                            <div
+                                class="client"
+                                v-for="manager in managers"
+                                :key="manager.id"
+                            >
                                 <div>
                                     <InputLabel for="last_name" value="ID" />
                                     {{ manager.id }}
                                 </div>
                                 <div>
                                     <InputLabel for="last_name" value="ФИО" />
-                                    {{ manager.last_name }} {{ manager.first_name }} {{ manager.middle_name }}
-
+                                    {{ manager.last_name }}
+                                    {{ manager.first_name }}
+                                    {{ manager.middle_name }}
                                 </div>
                                 <div>
-                                    <InputLabel for="last_name" value="Номер телефона" />
+                                    <InputLabel
+                                        for="last_name"
+                                        value="Номер телефона"
+                                    />
                                     {{ manager.phone_number }}
                                 </div>
                                 <div>
@@ -65,10 +77,15 @@ const resetPassword =(managerId) =>{
                                     {{ manager.email }}
                                 </div>
                                 <div>
-                                    <InputLabel for="last_name" value="Договор" />
-                                    <div >{{  manager.manager_contracts.length }}</div>
+                                    <InputLabel
+                                        for="last_name"
+                                        value="Договор"
+                                    />
+                                    <div>
+                                        {{ manager.manager_contracts.length }}
+                                    </div>
                                 </div>
-                                <Dropdown  align="right" width="48" >
+                                <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button
@@ -94,13 +111,27 @@ const resetPassword =(managerId) =>{
                                     </template>
                                     <template #content>
                                         <!-- <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink> -->
-                                        <DropdownLink :href="route('admin.edit.manager',{ manager: manager.id })"  :disabled="manager.active === false"  as="button">
+                                        <DropdownLink
+                                            :href="
+                                                route('admin.edit.manager', {
+                                                    manager: manager.id,
+                                                })
+                                            "
+                                            :disabled="manager.active === false"
+                                            as="button"
+                                        >
                                             Изменить
                                         </DropdownLink>
-                                        <DropdownLink @click="resetPassword(manager.id)"   as="button">
+                                        <DropdownLink
+                                            @click="resetPassword(manager.id)"
+                                            as="button"
+                                        >
                                             Сбросить пароль
                                         </DropdownLink>
-                                        <DropdownLink  @click="deleteUser(manager.id)"  as="button">
+                                        <DropdownLink
+                                            @click="deleteUser(manager.id)"
+                                            as="button"
+                                        >
                                             Удалить
                                         </DropdownLink>
                                     </template>
@@ -114,9 +145,9 @@ const resetPassword =(managerId) =>{
     </AuthenticatedLayout>
 </template>
 <style scoped>
-    .client{
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-    }
+.client {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
 </style>

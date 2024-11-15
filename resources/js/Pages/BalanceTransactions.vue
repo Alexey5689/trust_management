@@ -1,69 +1,74 @@
-
 <script setup>
-import InputLabel from '@/Components/InputLabel.vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
-import { parseISO, differenceInYears, format, differenceInDays } from 'date-fns';
-import { computed, ref } from 'vue';
+import InputLabel from '@/Components/InputLabel.vue'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Head } from '@inertiajs/vue3'
+import { parseISO, differenceInYears, format, differenceInDays } from 'date-fns'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
     role: {
         type: Object,
-        required: true
+        required: true,
     },
     transactions: {
         type: Array,
-        required: true
+        required: true,
     },
     contracts: {
         type: Array,
-        required: true
-    }
-});
+        required: true,
+    },
+})
 
-const nowDate = format(new Date(), 'yyyy-MM-dd');
-const currentDate = format(new Date(), 'dd/MM/yyyy');
+const nowDate = format(new Date(), 'yyyy-MM-dd')
+const currentDate = format(new Date(), 'dd/MM/yyyy')
 
 // Функция для форматирования дат
-const formatDate = date => format(parseISO(date), 'dd/MM/yyyy');
+const formatDate = (date) => format(parseISO(date), 'dd/MM/yyyy')
 
 // Вычисление основной суммы
 const sum = computed(() => {
-    return props.contracts.reduce((total, contract) => total + contract.sum, 0);
-});
+    return props.contracts.reduce((total, contract) => total + contract.sum, 0)
+})
 
 // Вычисление дивидендов
 const dividends = computed(() => {
-    let totalDividends = 0;
+    let totalDividends = 0
 
-    props.contracts.forEach(contract => {
-        const termYears = differenceInYears(parseISO(contract.deadline), parseISO(contract.create_date));
+    props.contracts.forEach((contract) => {
+        const termYears = differenceInYears(
+            parseISO(contract.deadline),
+            parseISO(contract.create_date)
+        )
         //console.log(termYears);
 
-        const dailyRate = (contract.sum * (contract.procent / 100)) / 365;
+        const dailyRate = (contract.sum * (contract.procent / 100)) / 365
         //console.log(dailyRate);
 
+        const daysSinceStart = differenceInDays(
+            parseISO(nowDate),
+            parseISO(contract.create_date)
+        )
+        //console.log(daysSinceStart);
 
-        const daysSinceStart = differenceInDays(parseISO(nowDate), parseISO(contract.create_date));
-       //console.log(daysSinceStart);
-
-
-        const dividendsForContract = dailyRate * Math.min(daysSinceStart, termYears * 365);
+        const dividendsForContract =
+            dailyRate * Math.min(daysSinceStart, termYears * 365)
         //console.log(dividendsForContract);
 
+        totalDividends += dividendsForContract
+    })
 
-        totalDividends += dividendsForContract;
-    });
-
-    return Math.round(totalDividends);
-});
+    return Math.round(totalDividends)
+})
 </script>
 
 <template>
-    <Head title="Transaction"/>
+    <Head title="Transaction" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Баланс и транзакции</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Баланс и транзакции
+            </h2>
         </template>
         <template #main>
             <div class="py-12">
@@ -89,18 +94,41 @@ const dividends = computed(() => {
                                 :key="transaction.id"
                             >
                                 <div>
-                                    {{ transaction.sourse === 'Договор' ? '->' : '<-' }}
+                                    {{
+                                        transaction.sourse === 'Договор'
+                                            ? '->'
+                                            : '<-'
+                                    }}
                                 </div>
                                 <div>
-                                    <InputLabel for="contract_number" value="Дата" />
-                                    <p>{{ formatDate(transaction.date_transition) }}</p>
+                                    <InputLabel
+                                        for="contract_number"
+                                        value="Дата"
+                                    />
+                                    <p>
+                                        {{
+                                            formatDate(
+                                                transaction.date_transition
+                                            )
+                                        }}
+                                    </p>
                                 </div>
                                 <div>
-                                    <InputLabel for="sourse"  value="Источник"/>
+                                    <InputLabel for="sourse" value="Источник" />
                                     {{ transaction.sourse }}
                                 </div>
-                                <div :class="transaction.sourse === 'Договор' ? 'text-green-600' : 'text-red-600'">
-                                    {{ transaction.sourse === 'Договор' ? 'Пополнение' : 'Списание' }}
+                                <div
+                                    :class="
+                                        transaction.sourse === 'Договор'
+                                            ? 'text-green-600'
+                                            : 'text-red-600'
+                                    "
+                                >
+                                    {{
+                                        transaction.sourse === 'Договор'
+                                            ? 'Пополнение'
+                                            : 'Списание'
+                                    }}
                                 </div>
                             </div>
                         </div>
@@ -112,9 +140,9 @@ const dividends = computed(() => {
 </template>
 
 <style scoped>
-.client{
+.client {
     display: flex;
     flex-direction: row;
-    gap:20px;
+    gap: 20px;
 }
 </style>

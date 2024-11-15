@@ -12,7 +12,7 @@ class Application extends Model
         'create_date',
         'user_id',
         'manager_id',
-        'contract_number',
+        'contract_id',
         'condition',
         'status',
         'type_of_processing',
@@ -33,5 +33,10 @@ class Application extends Model
     public function manager()
     {
         return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    public function contract()
+    {
+        return $this->belongsTo(Contract::class, 'contract_id');
     }
 }

@@ -73,9 +73,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
         Route::get('/contracts', [ManagerController::class, 'showContracts'])->name('manager.contracts');
         Route::get('/applications', [ManagerController::class, 'createApplications'])->name('manager.applications');
-        // Добавление заявки
-        Route::get('/add-applications', [ManagerController::class, 'createAddApplication'])->name('manager.add.application');
-        Route::post('/add-applications', [ManagerController::class, 'storeAddApplication']);
         //рег клиент
         Route::get('/registration-client', [ManagerController::class, 'createClientsByManager'])->name('manager.registration.client');
         Route::post('/registration-client', [ManagerController::class, 'storeClientsByManager']);

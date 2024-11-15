@@ -33,6 +33,11 @@ class Contract extends Model
         return $this->hasMany(Transaction::class, 'contract_id');
     }
 
+    public function application()
+    {
+        return $this->hasMany(Application::class, 'contract_id');
+    }
+
     /**
      * Связь с пользователем (многие к одному)
      */

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\ApplicationController;
+use Illuminate\Support\Facades\App;
 
 Route::get('/', function () {
     if (!Auth::check()) {
@@ -34,6 +36,13 @@ Route::middleware('auth')->group(function () {
 
     //сброс пароля
     Route::post('/reset-password/{user}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password');
+
+
+     // Добавление заявки
+    Route::get('/add-applications', [ApplicationController::class, 'createAddApplication'])->name('add.application');
+    Route::post('/add-applications', [ApplicationController::class, 'storeAddApplication']);
+      //просмотр заявок
+    Route::get('/show-application/{application}', [ApplicationController::class, 'showApplication'])->name('show.application');
 
 });
 

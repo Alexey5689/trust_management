@@ -1,194 +1,419 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import TextInput from '@/Components/TextInput.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { parseISO, differenceInYears, format } from 'date-fns';
-import { ref, computed } from 'vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import TextInput from '@/Components/TextInput.vue'
+import InputLabel from '@/Components/InputLabel.vue'
+import InputError from '@/Components/InputError.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { Head, Link, useForm } from '@inertiajs/vue3'
+import { parseISO, differenceInYears, format } from 'date-fns'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
-    role:{
+    role: {
         type: String,
-        required: true
+        required: true,
     },
-    clients:{
+    clients: {
         type: Array,
-        required: true
+        required: true,
     },
 })
 
-
-const procent = ref('');
-const userContract = ref({});
-const sum = ref(null);
-const dividends = ref(null);
-const create_date = ref('');
-const term = ref('');
-const condition = ref('');
-const processing = ref('');
-const conditionsType = ref([{type: 'Раньше срока', value: false},{type: 'В срок', value: true}]);
-const typeOfProcessing = ref([{type: 'Забрать дивиденды частично', value: 0},{type:'Забрать дивиденды полностью', value: 1},{type:'Забрать дивиденды и сумму', value: 2}]);
+const procent = ref('')
+const userContract = ref({})
+const sum = ref(null)
+const dividends = ref(null)
+const create_date = ref('')
+const term = ref('')
+const condition = ref('')
+const processing = ref('')
+const conditionsType = ref([
+    { type: 'Раньше срока', value: false },
+    { type: 'В срок', value: true },
+])
+const typeOfProcessing = ref([
+    { type: 'Забрать дивиденды частично', value: 0 },
+    { type: 'Забрать дивиденды целиком', value: 1 },
+    { type: 'Забрать дивиденды и сумму', value: 2 },
+])
 
 const conditionRadio = (tmp) => {
-    if(tmp === false) {
-        form.type_of_processing = 'Основная сумма';
-        condition.value = false;
-    }
-    else condition.value = true;
-};
+    if (tmp === false) {
+        form.type_of_processing = 'Основная сумма'
+        condition.value = false
+    } else condition.value = true
+}
 
 const processingRadio = (tmp) => {
-    processing.value = tmp;
-};
-
+    processing.value = tmp
+}
 
 const handleGetClient = (id) => {
-    userContract.value = props.clients.find((client) => client.id === id);
+    userContract.value = props.clients.find((client) => client.id === id)
 }
-const getYearDifference =(startDate, endDate)=> {
-      return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
+const getYearDifference = (startDate, endDate) => {
+    return differenceInYears(parseISO(endDate), parseISO(startDate)) // Разница в годах
 }
-const handleGetContract = (contract_number) => {
-    sum.value = userContract.value.user_contracts.find((contract) => contract.contract_number === contract_number).sum;
-    let tmpCreate = userContract.value.user_contracts.find((contract) => contract.contract_number === contract_number).create_date;
-    let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.contract_number === contract_number).deadline;
-    procent.value = userContract.value.user_contracts.find((contract) => contract.contract_number === contract_number).procent;
-    console.log(procent.value);
+const handleGetContract = (contract_id) => {
+    sum.value = userContract.value.user_contracts.find(
+        (contract) => contract.id === contract_id
+    ).sum
+    let tmpCreate = userContract.value.user_contracts.find(
+        (contract) => contract.id === contract_id
+    ).create_date
+    let tmpDeadline = userContract.value.user_contracts.find(
+        (contract) => contract.id === contract_id
+    ).deadline
+    procent.value = userContract.value.user_contracts.find(
+        (contract) => contract.id === contract_id
+    ).procent
+    //console.log(procent.value)
 
+    if (getYearDifference(tmpCreate, tmpDeadline) === 2) {
+        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 24
+    } else if (getYearDifference(tmpCreate, tmpDeadline) === 1) {
+        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 12
+    } else {
+        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 36
+    }
 
-    if (getYearDifference(tmpCreate, tmpDeadline) === 2){ dividends.value = ((sum.value*(procent.value/100))/12)*24}
-    else if (getYearDifference(tmpCreate, tmpDeadline) === 1) {dividends.value = ((sum.value*(procent.value/100))/12)*12}
-    else{ dividends.value = ((sum.value*(procent.value/100))/12)*36}
-
-    create_date.value = format(parseISO(tmpCreate), 'dd/MM/yyyy');
-    term.value = getYearDifference(tmpCreate, tmpDeadline) === 1 ? getYearDifference(tmpCreate, tmpDeadline) + ' год' : getYearDifference(tmpCreate, tmpDeadline) + ' года';
+    create_date.value = format(parseISO(tmpCreate), 'dd/MM/yyyy')
+    term.value =
+        getYearDifference(tmpCreate, tmpDeadline) === 1
+            ? getYearDifference(tmpCreate, tmpDeadline) + ' год'
+            : getYearDifference(tmpCreate, tmpDeadline) + ' года'
 }
 
 const form = useForm({
     create_date: new Date().toISOString().substr(0, 10),
     user_id: '',
-    contract_number: null,
+    contract_id: '',
     condition: '',
     status: 'В обработке',
-    type_of_processing:'',
+    type_of_processing: '',
     date_of_payments: '',
-    sum_of_processing: 0,
-});
+    sum_of_processing: null,
+})
 
-const submit =()=>{
-    form.post(route(`${props.role}.add.application`));
+const submit = () => {
+    form.post(route('add.application'))
 }
-
 </script>
 <template>
     <Head title="newApplication" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Новая заявка</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Новая заявка
+            </h2>
         </template>
         <template #main>
             <div class="py-12">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         <form @submit.prevent="submit">
-                            <div class="mt-4" >
-                                    {{ props.clients }}
-                                    <InputLabel for="manager" value="Выберите клиента*" />
-                                        <select id="manager" v-model="form.user_id"
-                                            @change="handleGetClient(form.user_id)"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"required>
-                                            <option value="" disabled>Выберите клиента</option>
-                                            <!-- Выводим список менеджеров -->
-                                            <option v-for="client in props.clients" :key="client.id" :value="client.id" >
-                                                {{ client.full_name }}
-                                            </option>
-                                        </select>
-                                    <InputError class="mt-2" :message="form.errors.user_id" />
-                            </div>
-                            <div class="mt-4" >
-                                    <InputLabel for="contract_number" value="Выберите номер договора*" />
-                                    <select id="contract_number" v-model="form.contract_number"
-                                        @change="handleGetContract(form.contract_number)"
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                                        <option value="" disabled> Выберите номер договора</option>
-                                        <option v-for="contract in userContract.user_contracts" :key="contract.id" :value="contract.contract_number">
-                                             {{ contract.contract_number }}
-                                        </option>
-                                    </select>
-                                    <InputError class="mt-2" :message="form.errors.contract_number" />
+                            <div class="mt-4">
+                                {{ props.clients }}
+                                <InputLabel
+                                    for="manager"
+                                    value="Выберите клиента*"
+                                />
+                                <select
+                                    id="manager"
+                                    v-model="form.user_id"
+                                    @change="handleGetClient(form.user_id)"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    required
+                                >
+                                    <option value="" disabled>
+                                        Выберите клиента
+                                    </option>
+                                    <!-- Выводим список менеджеров -->
+                                    <option
+                                        v-for="client in props.clients"
+                                        :key="client.id"
+                                        :value="client.id"
+                                    >
+                                        {{ client.full_name }}
+                                    </option>
+                                </select>
+                                <InputError
+                                    class="mt-2"
+                                    :message="form.errors.user_id"
+                                />
                             </div>
                             <div class="mt-4">
-                                <InputLabel for="sum" value="Дата заключения*" />
-                                <p id="sum" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ create_date }}</p>
+                                <InputLabel
+                                    for="contract_number"
+                                    value="Выберите номер договора*"
+                                />
+                                <select
+                                    id="contract_number"
+                                    v-model="form.contract_id"
+                                    @change="
+                                        handleGetContract(form.contract_id)
+                                    "
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    required
+                                >
+                                    <option value="" disabled>
+                                        Выберите номер договора
+                                    </option>
+                                    <option
+                                        v-for="contract in userContract.user_contracts"
+                                        :key="contract.id"
+                                        :value="contract.id"
+                                    >
+                                        {{ contract.contract_number }}
+                                    </option>
+                                </select>
+                                <InputError
+                                    class="mt-2"
+                                    :message="form.errors.contract_number"
+                                />
+                            </div>
+                            <div class="mt-4">
+                                <InputLabel
+                                    for="sum"
+                                    value="Дата заключения*"
+                                />
+                                <p
+                                    id="sum"
+                                    type="text"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                >
+                                    {{ create_date }}
+                                </p>
                             </div>
                             <div class="mt-4">
                                 <InputLabel for="sum" value="Срок договора" />
-                                <p id="sum" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ term }}</p>
+                                <p
+                                    id="sum"
+                                    type="text"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                >
+                                    {{ term }}
+                                </p>
                             </div>
                             <div class="mt-4">
                                 <InputLabel for="sum" value="Ставка" />
-                                <p id="sum" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ procent }}%</p>
+                                <p
+                                    id="sum"
+                                    type="text"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                >
+                                    {{ procent }}%
+                                </p>
                             </div>
                             <div class="mt-4">
                                 <InputLabel for="sum" value="Основная сумма*" />
-                                <p id="sum" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ sum }}</p>
+                                <p
+                                    id="sum"
+                                    type="text"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                >
+                                    {{ sum }}
+                                </p>
                             </div>
                             <div class="mt-4">
-                                <InputLabel for="dividends" value="Дивиденды*" />
-                                <p id="dividends" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ dividends }}</p>
+                                <InputLabel
+                                    for="dividends"
+                                    value="Дивиденды*"
+                                />
+                                <p
+                                    id="dividends"
+                                    type="text"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                >
+                                    {{ dividends }}
+                                </p>
                             </div>
                             <div class="mt-4">
                                 <p>Условия списания</p>
-                                <div v-for ="(condition,index) in conditionsType" :key="index">
-                                    <input type="radio" id="dewey" name="drone" v-model="form.condition" :value="condition.type"  @click="conditionRadio(condition.value)"/>
-                                    <label for="dewey">{{ condition.type }}</label>
+                                <div
+                                    v-for="(condition, index) in conditionsType"
+                                    :key="index"
+                                >
+                                    <input
+                                        type="radio"
+                                        id="dewey"
+                                        name="drone"
+                                        v-model="form.condition"
+                                        :value="condition.type"
+                                        @click="conditionRadio(condition.value)"
+                                    />
+                                    <label for="dewey">{{
+                                        condition.type
+                                    }}</label>
                                 </div>
                             </div>
 
                             <div v-if="condition === false" class="mt-4">
                                 <p>Вывод средств</p>
                                 <div class="mt-4">
-                                    <InputLabel for="sum" value="Сумма списания" />
-                                    <p id="sum" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ sum }}</p>
+                                    <InputLabel
+                                        for="sum"
+                                        value="Сумма списания"
+                                    />
+                                    <p
+                                        id="sum"
+                                        type="text"
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    >
+                                        {{ sum }}
+                                    </p>
                                 </div>
                                 <div class="mt-4">
-                                    <InputLabel for="create_date" value="Дата планируемой выплаты" />
-                                    <input id="create_date" type="date" v-model="form.date_of_payments" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-                                    <InputError class="mt-2" :message="form.errors.date_of_payments" />
+                                    <InputLabel
+                                        for="create_date"
+                                        value="Дата планируемой выплаты"
+                                    />
+                                    <input
+                                        id="create_date"
+                                        type="date"
+                                        v-model="form.date_of_payments"
+                                        required
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    />
+                                    <InputError
+                                        class="mt-2"
+                                        :message="form.errors.date_of_payments"
+                                    />
                                 </div>
-                                <p>Комиссия за вывод раньше срока 30% {{ sum * 0.3 }}</p>
+                                <p>
+                                    Комиссия за вывод раньше срока 30%
+                                    {{ sum * 0.3 }}
+                                </p>
                             </div>
-                            <div v-if ="condition === true" class="mt-4">
+                            <div v-if="condition === true" class="mt-4">
                                 <div class="mt-4">
-                                <h1>Варианты списания</h1>
-                                <div v-for="(processing,index) in typeOfProcessing" :key="index">
-                                    <input type="radio" :id="'test'+`${index}`" :name="'test'+`${index}`" v-model="form.type_of_processing" :value="processing.type" @click="processingRadio(processing.value)"/>
-                                    <label :for="'test'+`${index}`">{{ processing.type }}</label>
+                                    <h1>Варианты списания</h1>
+                                    <div
+                                        v-for="(
+                                            processing, index
+                                        ) in typeOfProcessing"
+                                        :key="index"
+                                    >
+                                        <input
+                                            type="radio"
+                                            :id="'test' + `${index}`"
+                                            :name="'test' + `${index}`"
+                                            v-model="form.type_of_processing"
+                                            :value="processing.type"
+                                            @click="
+                                                processingRadio(
+                                                    processing.value
+                                                )
+                                            "
+                                        />
+                                        <label :for="'test' + `${index}`">{{
+                                            processing.type
+                                        }}</label>
+                                    </div>
+                                    <p>Вывод средств</p>
+                                    <div
+                                        v-if="
+                                            processing === 0 || processing === 1
+                                        "
+                                    >
+                                        <div class="mt-4">
+                                            <InputLabel
+                                                for="dividends"
+                                                value="Дивиденды"
+                                            />
+                                            <TextInput
+                                                id="dividends"
+                                                :disabled="processing === 1"
+                                                v-model="form.sum_of_processing"
+                                                :placeholder="dividends"
+                                                :value="form.sum_of_processing"
+                                                type="text"
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            />
+                                        </div>
+                                        <div class="mt-4">
+                                            <InputLabel
+                                                for="create_date"
+                                                value="Дата планируемой выплаты"
+                                            />
+                                            <TextInput
+                                                id="create_date"
+                                                type="date"
+                                                v-model="form.date_of_payments"
+                                                required
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            />
+                                            <InputError
+                                                class="mt-2"
+                                                :message="
+                                                    form.errors.date_of_payments
+                                                "
+                                            />
+                                        </div>
+                                    </div>
+                                    <div v-if="processing === 2">
+                                        <div class="mt-4">
+                                            <InputLabel
+                                                for="sum"
+                                                value="Основная сумма*"
+                                            />
+                                            <TextInput
+                                                id="sum"
+                                                type="text"
+                                                disabled
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                :placeholder="sum"
+                                            />
+                                        </div>
+                                        <div class="mt-4">
+                                            <InputLabel
+                                                for="dividends"
+                                                value="Дивиденды*"
+                                            />
+                                            <TextInput
+                                                id="dividends"
+                                                type="text"
+                                                disabled
+                                                :placeholder="dividends"
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            />
+                                        </div>
+                                        <div class="mt-4">
+                                            <InputLabel
+                                                for="create_date"
+                                                value="Дата планируемой выплаты"
+                                            />
+                                            <TextInput
+                                                id="create_date"
+                                                type="date"
+                                                v-model="form.date_of_payments"
+                                                required
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            />
+                                            <InputError
+                                                class="mt-2"
+                                                :message="
+                                                    form.errors.date_of_payments
+                                                "
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <p>Вывод средств</p>
-                                <div></div>
-                                <div class="mt-4">
-                                    <InputLabel for="dividends" value="Дивиденды" />
-                                    <input id="dividends" v-model="form.sum_of_processing" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ dividends }}</input>
-                                </div>
-                                <div class="mt-4">
-                                    <InputLabel for="create_date" value="Дата планируемой выплаты" />
-                                    <input id="create_date" type="date" v-model="form.date_of_payments" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-                                    <InputError class="mt-2" :message="form.errors.date_of_payments" />
-                                </div>
-
-                            </div>
-
                             </div>
                             <div class="flex items-center justify-end mt-4">
-                                <PrimaryButton  @click="save" class="mt-4" :class="{ 'opacity-25': form.processing }" >
+                                <PrimaryButton
+                                    @click="save"
+                                    class="mt-4"
+                                    :class="{ 'opacity-25': form.processing }"
+                                >
                                     Сохранить
                                 </PrimaryButton>
-                                <PrimaryButton @click="cancel" class="mt-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                                <PrimaryButton
+                                    @click="cancel"
+                                    class="mt-4"
+                                    :class="{ 'opacity-25': form.processing }"
+                                    :disabled="form.processing"
+                                >
                                     Отмена
                                 </PrimaryButton>
                             </div>

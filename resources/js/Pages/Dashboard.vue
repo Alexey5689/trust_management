@@ -1,16 +1,16 @@
 <script setup>
-import { ref } from 'vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import { ref } from 'vue'
+import Dropdown from '@/Components/Dropdown.vue'
+import DropdownLink from '@/Components/DropdownLink.vue'
+import NavLink from '@/Components/NavLink.vue'
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
 
-const showingNavigationDropdown = ref(false);
+const showingNavigationDropdown = ref(false)
 defineProps({
-    'userRole': {
+    userRole: {
         type: String,
-        required: true
-    }
+        required: true,
+    },
 })
 </script>
 
@@ -31,22 +31,48 @@ defineProps({
                                 </Link> -->
                             </div>
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route(`${userRole}.profile`)" :active="route().current(`${userRole}.profile`)">
+                            <div
+                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
+                            >
+                                <NavLink
+                                    :href="route(`${userRole}.profile`)"
+                                    :active="
+                                        route().current(`${userRole}.profile`)
+                                    "
+                                >
                                     Личный кабинет
                                 </NavLink>
-                                <NavLink :href="route(`${userRole}.contracts`)" :active="route().current(`${userRole}.contracts`)">
+                                <NavLink
+                                    :href="route(`${userRole}.contracts`)"
+                                    :active="
+                                        route().current(`${userRole}.contracts`)
+                                    "
+                                >
                                     Договоры
                                 </NavLink>
-                                <NavLink v-if="userRole === 'admin' || userRole === 'manager'" :href="route(`${userRole}.clients`)" :active="route().current(`${userRole}.clients`)">
+                                <NavLink
+                                    v-if="
+                                        userRole === 'admin' ||
+                                        userRole === 'manager'
+                                    "
+                                    :href="route(`${userRole}.clients`)"
+                                    :active="
+                                        route().current(`${userRole}.clients`)
+                                    "
+                                >
                                     Клиенты
                                 </NavLink>
-                                <NavLink v-if="userRole === 'admin'" :href="route(`${userRole}.managers`)" :active="route().current(`${userRole}.managers`)">
+                                <NavLink
+                                    v-if="userRole === 'admin'"
+                                    :href="route(`${userRole}.managers`)"
+                                    :active="
+                                        route().current(`${userRole}.managers`)
+                                    "
+                                >
                                     Менеджеры
                                 </NavLink>
 
-                                {{ userRole}}
-
+                                {{ userRole }}
                             </div>
                         </div>
 
@@ -80,20 +106,26 @@ defineProps({
 
                                     <template #content>
                                         <!-- <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink> -->
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
+                                        <DropdownLink
+                                            :href="route('logout')"
+                                            method="post"
+                                            as="button"
+                                        >
                                             Log Out
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
                 <!-- Responsive Navigation Menu -->
                 <div
-                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
+                    :class="{
+                        block: showingNavigationDropdown,
+                        hidden: !showingNavigationDropdown,
+                    }"
                     class="sm:hidden"
                 >
                     <div class="pt-2 pb-3 space-y-1">
@@ -107,17 +139,21 @@ defineProps({
                         <div class="px-4">
                             <div class="font-medium text-base text-gray-800">
                                 <!-- {{ $page.props.auth.user.name }} -->
-                                  asdas
+                                asdas
                             </div>
                             <div class="font-medium text-sm text-gray-500">
                                 <!-- {{ $page.props.auth.user.email }} -->
-                                  sadas
+                                sadas
                             </div>
                         </div>
 
                         <div class="mt-3 space-y-1">
                             <!-- <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink> -->
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
+                            <ResponsiveNavLink
+                                :href="route('logout')"
+                                method="post"
+                                as="button"
+                            >
                                 Log Out
                             </ResponsiveNavLink>
                         </div>
@@ -139,4 +175,3 @@ defineProps({
         </div>
     </div>
 </template>
-

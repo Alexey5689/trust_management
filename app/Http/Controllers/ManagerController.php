@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Application;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -257,14 +258,14 @@ class ManagerController extends Controller
         $role = $user->role->title;
          /** @var User $user */
         $applications = $user ->managerApplications()
-                        ->with('user')
+                        ->with('user',  'contract')
                         ->get()
                         ->map(function ($application) {
                             return [
                                 'id' => $application->id,
                                 'user_id' => $application->user_id,
                                 'full_name' => $application->user->first_name. ' ' .$application->user->last_name. ' ' .$application->user->middle_name,
-                                'contract_number' => $application->contract_number,
+                                'contract_number' => $application->contract->contract_number,
                                 'condition' => $application->condition,
                                 'status' => $application->status,
                                 'type_of_processing' => $application->type_of_processing,
@@ -278,43 +279,8 @@ class ManagerController extends Controller
             'applications' => $applications,
         ]);
       }
-      public function createAddApplication(){
-        $user = Auth::user();
-        $role = $user->role->title;
-        $clients = $user->managedUsers->load('userContracts')->map(function ($client) {
-            return [
-                'id' => $client->id,
-                'full_name' => $client->first_name. ' ' .$client->last_name. ' ' .$client->middle_name,
-                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
-            ];
-        });
-        return Inertia::render('AddApplication', [
-            'role' => $role,
-            'clients' => $clients,
-        ]);
-      }
-      public function storeAddApplication(Request $request){
-       //dd($request->all());
-        // $request->validate([
-        //     'contract_number' => 'required|integer',
-        //     'condition'=>'required|string',
-        //     'status'=>'required|string',
-        //     'type_of_processing'=>'required|string',
-        //     'create_date' => 'required|date_format:Y-m-d',
-        //     'date_of_payments'=>'required|date_format:Y-m-d',
-        // ]);
-        $user = Auth::user();
-        /** @var User $user */
-        $user->managerApplications()->create([
-            'create_date'=> $request->create_date,
-            'user_id'=> $request->user_id,
-            'manager_id'=> $user->id,
-            'contract_number'=> $request->contract_number,
-            'condition'=>$request->condition,
-            'status'=>$request->status,
-            'type_of_processing'=>$request->type_of_processing,
-            'date_of_payments'=>$request->date_of_payments,
-        ]);
-        return redirect(route('manager.applications'))->with('success', 'Заявка успешно создана!');
-      }
+
+
+
 }
+
