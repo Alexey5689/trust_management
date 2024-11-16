@@ -18,8 +18,7 @@ const props = defineProps({
         type: String,
         required: true
     }
-})
-
+});
 </script>
 
 <template>
@@ -64,11 +63,12 @@ const props = defineProps({
 
         <div class="flex flex-column content_box">
             <header class="" v-if="$slots.header">
-                <div class="flex align-center">
+                <div class="flex align-center justify-end">
+                    {{ props.userRole }}
                     <Icon_notifications />
-                    <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="flex align-center">
+                    <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="flex align-center justify-center btn">
                         <Icon_exit />
-                        Выйти {{ props.userRole }}
+                        Выйти 
                     </ResponsiveNavLink>
                 </div>
                 <div class="">
@@ -89,12 +89,14 @@ const props = defineProps({
     background: #fff;
     width: 332px;
     height: 100vh;
+    padding: 16px;
 }
 
 .content_box {
     background: #F3F5F6;
     width: calc(100vw - 332px);
     height: 100vh;
+    padding: 22px 32px;
 }
 
 .nav_box {
@@ -128,5 +130,16 @@ const props = defineProps({
 
 .nav_box .active svg {
     fill: #4E9F7D
+}
+
+.btn {
+    width: 111px;
+    height: 48px;
+    background: none;
+    margin-left: 16px;
+}
+
+.btn svg {
+    margin-right: 4px;
 }
 </style>

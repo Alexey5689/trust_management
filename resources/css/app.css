@@ -40,8 +40,9 @@ body {
     height: 100%;
     width: 100%;
     font-family: "Onest", sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 400;
+    line-height: 21px;
     color: #242424;
 }
 
@@ -118,4 +119,10 @@ h6 {
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
+}
+
+.justify-end {
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
+    justify-content: end;
 }
