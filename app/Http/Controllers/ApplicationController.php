@@ -81,6 +81,7 @@ class ApplicationController extends Controller
                     'sum' => $application->contract->sum,
                     'create_date' => $application->contract->create_date,
                     'deadline' => $application->contract->deadline,
+                    'procent' => $application->contract->procent,
                 ]
             ],
         ]);
