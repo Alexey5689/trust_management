@@ -86,4 +86,17 @@ class ApplicationController extends Controller
             ],
         ]);
     }
+    public function changeStatusApplication(Application $application){
+        $user = Auth::user();
+        $role = $user->role->title;
+        return Inertia::render('ChangeStatusApplication', [
+            'role' => $role,
+            'application' => [
+                'status' => $application->status,
+            ],
+        ]);
+    }
+    // public function updateApplication(Request $request, Application $application){
+
+    // }
 }

@@ -55,18 +55,10 @@ const getYearDifference = (startDate, endDate) => {
     return differenceInYears(parseISO(endDate), parseISO(startDate)) // Разница в годах
 }
 const handleGetContract = (contract_id) => {
-    sum.value = userContract.value.user_contracts.find(
-        (contract) => contract.id === contract_id
-    ).sum
-    let tmpCreate = userContract.value.user_contracts.find(
-        (contract) => contract.id === contract_id
-    ).create_date
-    let tmpDeadline = userContract.value.user_contracts.find(
-        (contract) => contract.id === contract_id
-    ).deadline
-    procent.value = userContract.value.user_contracts.find(
-        (contract) => contract.id === contract_id
-    ).procent
+    sum.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).sum
+    let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date
+    let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline
+    procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent
     //console.log(procent.value)
 
     if (getYearDifference(tmpCreate, tmpDeadline) === 2) {
@@ -103,9 +95,7 @@ const submit = () => {
     <Head title="newApplication" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Новая заявка
-            </h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Новая заявка</h2>
         </template>
         <template #main>
             <div class="py-12">
@@ -114,10 +104,7 @@ const submit = () => {
                         <form @submit.prevent="submit">
                             <div class="mt-4">
                                 {{ props.clients }}
-                                <InputLabel
-                                    for="manager"
-                                    value="Выберите клиента*"
-                                />
+                                <InputLabel for="manager" value="Выберите клиента*" />
                                 <select
                                     id="manager"
                                     v-model="form.user_id"
@@ -125,40 +112,24 @@ const submit = () => {
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     required
                                 >
-                                    <option value="" disabled>
-                                        Выберите клиента
-                                    </option>
+                                    <option value="" disabled>Выберите клиента</option>
                                     <!-- Выводим список менеджеров -->
-                                    <option
-                                        v-for="client in props.clients"
-                                        :key="client.id"
-                                        :value="client.id"
-                                    >
+                                    <option v-for="client in props.clients" :key="client.id" :value="client.id">
                                         {{ client.full_name }}
                                     </option>
                                 </select>
-                                <InputError
-                                    class="mt-2"
-                                    :message="form.errors.user_id"
-                                />
+                                <InputError class="mt-2" :message="form.errors.user_id" />
                             </div>
                             <div class="mt-4">
-                                <InputLabel
-                                    for="contract_number"
-                                    value="Выберите номер договора*"
-                                />
+                                <InputLabel for="contract_number" value="Выберите номер договора*" />
                                 <select
                                     id="contract_number"
                                     v-model="form.contract_id"
-                                    @change="
-                                        handleGetContract(form.contract_id)
-                                    "
+                                    @change="handleGetContract(form.contract_id)"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     required
                                 >
-                                    <option value="" disabled>
-                                        Выберите номер договора
-                                    </option>
+                                    <option value="" disabled>Выберите номер договора</option>
                                     <option
                                         v-for="contract in userContract.user_contracts"
                                         :key="contract.id"
@@ -167,16 +138,10 @@ const submit = () => {
                                         {{ contract.contract_number }}
                                     </option>
                                 </select>
-                                <InputError
-                                    class="mt-2"
-                                    :message="form.errors.contract_number"
-                                />
+                                <InputError class="mt-2" :message="form.errors.contract_number" />
                             </div>
                             <div class="mt-4">
-                                <InputLabel
-                                    for="sum"
-                                    value="Дата заключения*"
-                                />
+                                <InputLabel for="sum" value="Дата заключения*" />
                                 <p
                                     id="sum"
                                     type="text"
@@ -216,10 +181,7 @@ const submit = () => {
                                 </p>
                             </div>
                             <div class="mt-4">
-                                <InputLabel
-                                    for="dividends"
-                                    value="Дивиденды*"
-                                />
+                                <InputLabel for="dividends" value="Дивиденды*" />
                                 <p
                                     id="dividends"
                                     type="text"
@@ -230,10 +192,7 @@ const submit = () => {
                             </div>
                             <div class="mt-4">
                                 <p>Условия списания</p>
-                                <div
-                                    v-for="(condition, index) in conditionsType"
-                                    :key="index"
-                                >
+                                <div v-for="(condition, index) in conditionsType" :key="index">
                                     <input
                                         type="radio"
                                         id="dewey"
@@ -242,19 +201,14 @@ const submit = () => {
                                         :value="condition.type"
                                         @click="conditionRadio(condition.value)"
                                     />
-                                    <label for="dewey">{{
-                                        condition.type
-                                    }}</label>
+                                    <label for="dewey">{{ condition.type }}</label>
                                 </div>
                             </div>
 
                             <div v-if="condition === false" class="mt-4">
                                 <p>Вывод средств</p>
                                 <div class="mt-4">
-                                    <InputLabel
-                                        for="sum"
-                                        value="Сумма списания"
-                                    />
+                                    <InputLabel for="sum" value="Сумма списания" />
                                     <p
                                         id="sum"
                                         type="text"
@@ -264,10 +218,7 @@ const submit = () => {
                                     </p>
                                 </div>
                                 <div class="mt-4">
-                                    <InputLabel
-                                        for="create_date"
-                                        value="Дата планируемой выплаты"
-                                    />
+                                    <InputLabel for="create_date" value="Дата планируемой выплаты" />
                                     <input
                                         id="create_date"
                                         type="date"
@@ -275,10 +226,7 @@ const submit = () => {
                                         required
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     />
-                                    <InputError
-                                        class="mt-2"
-                                        :message="form.errors.date_of_payments"
-                                    />
+                                    <InputError class="mt-2" :message="form.errors.date_of_payments" />
                                 </div>
                                 <p>
                                     Комиссия за вывод раньше срока 30%
@@ -288,39 +236,21 @@ const submit = () => {
                             <div v-if="condition === true" class="mt-4">
                                 <div class="mt-4">
                                     <h1>Варианты списания</h1>
-                                    <div
-                                        v-for="(
-                                            processing, index
-                                        ) in typeOfProcessing"
-                                        :key="index"
-                                    >
+                                    <div v-for="(processing, index) in typeOfProcessing" :key="index">
                                         <input
                                             type="radio"
                                             :id="'test' + `${index}`"
                                             :name="'test' + `${index}`"
                                             v-model="form.type_of_processing"
                                             :value="processing.type"
-                                            @click="
-                                                processingRadio(
-                                                    processing.value
-                                                )
-                                            "
+                                            @click="processingRadio(processing.value)"
                                         />
-                                        <label :for="'test' + `${index}`">{{
-                                            processing.type
-                                        }}</label>
+                                        <label :for="'test' + `${index}`">{{ processing.type }}</label>
                                     </div>
                                     <p>Вывод средств</p>
-                                    <div
-                                        v-if="
-                                            processing === 0 || processing === 1
-                                        "
-                                    >
+                                    <div v-if="processing === 0 || processing === 1">
                                         <div class="mt-4">
-                                            <InputLabel
-                                                for="dividends"
-                                                value="Дивиденды"
-                                            />
+                                            <InputLabel for="dividends" value="Дивиденды" />
                                             <TextInput
                                                 id="dividends"
                                                 :disabled="processing === 1"
@@ -332,10 +262,7 @@ const submit = () => {
                                             />
                                         </div>
                                         <div class="mt-4">
-                                            <InputLabel
-                                                for="create_date"
-                                                value="Дата планируемой выплаты"
-                                            />
+                                            <InputLabel for="create_date" value="Дата планируемой выплаты" />
                                             <TextInput
                                                 id="create_date"
                                                 type="date"
@@ -343,20 +270,12 @@ const submit = () => {
                                                 required
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             />
-                                            <InputError
-                                                class="mt-2"
-                                                :message="
-                                                    form.errors.date_of_payments
-                                                "
-                                            />
+                                            <InputError class="mt-2" :message="form.errors.date_of_payments" />
                                         </div>
                                     </div>
                                     <div v-if="processing === 2">
                                         <div class="mt-4">
-                                            <InputLabel
-                                                for="sum"
-                                                value="Основная сумма*"
-                                            />
+                                            <InputLabel for="sum" value="Основная сумма*" />
                                             <TextInput
                                                 id="sum"
                                                 type="text"
@@ -366,10 +285,7 @@ const submit = () => {
                                             />
                                         </div>
                                         <div class="mt-4">
-                                            <InputLabel
-                                                for="dividends"
-                                                value="Дивиденды*"
-                                            />
+                                            <InputLabel for="dividends" value="Дивиденды*" />
                                             <TextInput
                                                 id="dividends"
                                                 type="text"
@@ -379,10 +295,7 @@ const submit = () => {
                                             />
                                         </div>
                                         <div class="mt-4">
-                                            <InputLabel
-                                                for="create_date"
-                                                value="Дата планируемой выплаты"
-                                            />
+                                            <InputLabel for="create_date" value="Дата планируемой выплаты" />
                                             <TextInput
                                                 id="create_date"
                                                 type="date"
@@ -390,22 +303,13 @@ const submit = () => {
                                                 required
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             />
-                                            <InputError
-                                                class="mt-2"
-                                                :message="
-                                                    form.errors.date_of_payments
-                                                "
-                                            />
+                                            <InputError class="mt-2" :message="form.errors.date_of_payments" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="flex items-center justify-end mt-4">
-                                <PrimaryButton
-                                    @click="save"
-                                    class="mt-4"
-                                    :class="{ 'opacity-25': form.processing }"
-                                >
+                                <PrimaryButton @click="save" class="mt-4" :class="{ 'opacity-25': form.processing }">
                                     Сохранить
                                 </PrimaryButton>
                                 <PrimaryButton

@@ -23,13 +23,8 @@ const props = defineProps({
     <Head title="Applications" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Заявки
-            </h2>
-            <ResponsiveNavLink
-                v-if="role === 'admin' || role === 'manager'"
-                :href="route('add.application')"
-            >
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Заявки</h2>
+            <ResponsiveNavLink v-if="role === 'admin' || role === 'manager'" :href="route('add.application')">
                 Добавить заявку
             </ResponsiveNavLink>
         </template>
@@ -38,20 +33,10 @@ const props = defineProps({
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
-                            <div v-if="props.applications.length === 0">
-                                Заявок нет
-                            </div>
-                            <div
-                                v-else
-                                class="client"
-                                v-for="application in props.applications"
-                                :key="application.id"
-                            >
+                            <div v-if="props.applications.length === 0">Заявок нет</div>
+                            <div v-else class="client" v-for="application in props.applications" :key="application.id">
                                 <div>
-                                    <InputLabel
-                                        for="create_date"
-                                        value="Дата заявки"
-                                    />
+                                    <InputLabel for="create_date" value="Дата заявки" />
                                     <p>{{ application.create_date }}</p>
                                 </div>
                                 <div>
@@ -59,17 +44,11 @@ const props = defineProps({
                                     <p>{{ application.full_name }}</p>
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        for="contract"
-                                        value="Договор"
-                                    />
+                                    <InputLabel for="contract" value="Договор" />
                                     <p>{{ application.contract_number }}</p>
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        for="condition"
-                                        value="Условие"
-                                    />
+                                    <InputLabel for="condition" value="Условие" />
                                     <p>{{ application.condition }}</p>
                                 </div>
                                 <div>
@@ -77,17 +56,11 @@ const props = defineProps({
                                     <p>{{ application.status }}</p>
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        for="type_of_processing"
-                                        value="Вид списания"
-                                    />
+                                    <InputLabel for="type_of_processing" value="Вид списания" />
                                     <p>{{ application.type_of_processing }}</p>
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        for="date_of_payments"
-                                        value="Дата выплаты"
-                                    />
+                                    <InputLabel for="date_of_payments" value="Дата выплаты" />
                                     <p>{{ application.date_of_payments }}</p>
                                 </div>
                                 <Dropdown align="right" width="48">
@@ -125,7 +98,14 @@ const props = defineProps({
                                         >
                                             Подробная информация
                                         </DropdownLink>
-                                        <DropdownLink as="button">
+                                        <DropdownLink
+                                            :href="
+                                                route('change.status.application', {
+                                                    application: application.id,
+                                                })
+                                            "
+                                            as="button"
+                                        >
                                             Изменмть статус
                                         </DropdownLink>
                                     </template>
