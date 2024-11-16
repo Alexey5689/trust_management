@@ -34,27 +34,17 @@ const resetPassword = (managerId) => {
     <Head title="Managers" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Менеджеры
-            </h2>
-            <ResponsiveNavLink :href="route('admin.registration.manager')">
-                Добавить менеджера
-            </ResponsiveNavLink>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Менеджеры</h2>
+            <ResponsiveNavLink :href="route('admin.registration.manager')"> Добавить менеджера </ResponsiveNavLink>
         </template>
         <template #main>
             <div class="py-12">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
-                            <h2 class="text-lg font-medium text-gray-900">
-                                Менеджеры
-                            </h2>
+                            <h2 class="text-lg font-medium text-gray-900">Менеджеры</h2>
                             <div class="flex items-center gap-4 p-6"></div>
-                            <div
-                                class="client"
-                                v-for="manager in managers"
-                                :key="manager.id"
-                            >
+                            <div class="client" v-for="manager in managers" :key="manager.id">
                                 <div>
                                     <InputLabel for="last_name" value="ID" />
                                     {{ manager.id }}
@@ -66,10 +56,7 @@ const resetPassword = (managerId) => {
                                     {{ manager.middle_name }}
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        for="last_name"
-                                        value="Номер телефона"
-                                    />
+                                    <InputLabel for="last_name" value="Номер телефона" />
                                     {{ manager.phone_number }}
                                 </div>
                                 <div>
@@ -77,10 +64,7 @@ const resetPassword = (managerId) => {
                                     {{ manager.email }}
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        for="last_name"
-                                        value="Договор"
-                                    />
+                                    <InputLabel for="last_name" value="Договор" />
                                     <div>
                                         {{ manager.manager_contracts.length }}
                                     </div>
@@ -122,16 +106,10 @@ const resetPassword = (managerId) => {
                                         >
                                             Изменить
                                         </DropdownLink>
-                                        <DropdownLink
-                                            @click="resetPassword(manager.id)"
-                                            as="button"
-                                        >
+                                        <DropdownLink @click="resetPassword(manager.id)" as="button">
                                             Сбросить пароль
                                         </DropdownLink>
-                                        <DropdownLink
-                                            @click="deleteUser(manager.id)"
-                                            as="button"
-                                        >
+                                        <DropdownLink @click="deleteUser(manager.id)" as="button">
                                             Удалить
                                         </DropdownLink>
                                     </template>

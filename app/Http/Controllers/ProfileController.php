@@ -16,24 +16,27 @@ class ProfileController extends Controller
         $role = $user->role->title;
         // dd($user, $role);
         return Inertia::render('Profile', [
-            'user' => $user,
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+                'password' => $user->password = Hash::make($user->password),
+            ],
             'role' => $role,
             'status' => session('status'),
         ]);
     }
 
-
     public function editProfile(){
         $user = Auth::user();
         $role = $user->role->title;
-        $userInfo = [
-            'last_name' => $user->last_name,
-            'first_name' => $user->first_name,
-            'middle_name' => $user->middle_name,
-        ];
         // dd($userInfo);
         return Inertia::render('Edit', [
-            'user' => $userInfo,
+            'user' => [
+                'last_name' => $user->last_name,
+                'first_name' => $user->first_name,
+                'middle_name' => $user->middle_name,
+            ],
             'role' => $role,
         ]);
     }
