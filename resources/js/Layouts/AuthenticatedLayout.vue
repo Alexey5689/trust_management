@@ -6,144 +6,127 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
-defineProps({
+import Icon_exit from '@/Components/Icon/Exit.vue';
+import Icon_notifications from '@/Components/Icon/Notifications.vue';
+import Icon_personal_account from '@/Components/Icon/PersonalAccount.vue';
+import Icon_users from '@/Components/Icon/Users.vue';
+import Icon_contract from '@/Components/Icon/Contract.vue';
+import Icon_applications from '@/Components/Icon/Applications.vue';
+
+const props = defineProps({
     'userRole': {
         type: String,
         required: true
     }
 })
 
-const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
-    <div>
-        <div class="min-h-screen bg-gray-100">
-            <nav class="bg-white border-b border-gray-100">
-                <!-- Primary Navigation Menu -->
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between h-16">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="shrink-0 flex items-center">
-                                <!-- <Link :href="route(`${userRole.role}.dashboard`)">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
-                                </Link> -->
-                            </div>
-                            <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route(`${userRole}.profile`)" :active="route().current(`${userRole}.profile`)">
-                                    Личный кабинет
-                                </NavLink>
-                                <NavLink :href="route(`${userRole}.contracts`)" :active="route().current(`${userRole}.contracts`)">
-                                    Договоры
-                                </NavLink>
-                                <NavLink v-if="userRole === 'admin' || userRole === 'manager'" :href="route(`${userRole}.clients`)" :active="route().current(`${userRole}.clients`)">
-                                    Клиенты
-                                </NavLink>
-                                <NavLink v-if="userRole === 'admin'" :href="route(`${userRole}.managers`)" :active="route().current(`${userRole}.managers`)">
-                                    Менеджеры
-                                </NavLink>
-                                <NavLink :href="route('manager.applications')">
-                                    Заявки
-                                </NavLink>
-                                <NavLink v-if="userRole === 'client'" :href="route('client.balanceTransactions')">
-                                    Баланс и транзакции
-                                </NavLink>
+    <div class="flex">
+        <div class="sidebar_box">
+            <div>
 
-                                {{ userRole}}
-
-                            </div>
-                        </div>
-
-                        <div class="hidden sm:flex sm:items-center sm:ms-6">
-                            <!-- Settings Dropdown -->
-                            <div class="ms-3 relative">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
-                                            >
-                                                {{ $page.props.auth.user.name }}
-
-                                                <svg
-                                                    class="ms-2 -me-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
-
-                                    <template #content>
-                                        <!-- <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink> -->
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
-                                        </DropdownLink>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Responsive Navigation Menu -->
-                <div
-                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
-                    class="sm:hidden"
-                >
-                    <div class="pt-2 pb-3 space-y-1">
-                        <!-- <ResponsiveNavLink :href="route(`${userRole.role}.dashboard`)" :active="route().current(`${userRole.role}.dashboard`)">
-                            Dashboard
-                        </ResponsiveNavLink> -->
-                    </div>
-
-                    <!-- Responsive Settings Options -->
-                    <div class="pt-4 pb-1 border-t border-gray-200">
-                        <div class="px-4">
-                            <div class="font-medium text-base text-gray-800">
-                                <!-- {{ $page.props.auth.user.name }} -->
-                                  asdas
-                            </div>
-                            <div class="font-medium text-sm text-gray-500">
-                                <!-- {{ $page.props.auth.user.email }} -->
-                                  sadas
-                            </div>
-                        </div>
-
-                        <div class="mt-3 space-y-1">
-                            <!-- <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink> -->
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
+            </div>
+            <nav class="flex flex-column nav_box">
+                <NavLink :href="route(`${props.userRole}.profile`)"
+                    :active="route().current(`${props.userRole}.profile`)">
+                    <Icon_personal_account />
+                    Личный кабинет
+                </NavLink>
+                <NavLink v-if="props.userRole === 'admin' || props.userRole === 'manager'"
+                    :href="route(`${props.userRole}.clients`)" :active="route().current(`${props.userRole}.clients`)">
+                    <Icon_users />
+                    Клиенты
+                </NavLink>
+                <NavLink v-if="props.userRole === 'admin'" :href="route(`${props.userRole}.managers`)"
+                    :active="route().current(`${props.userRole}.managers`)">
+                    <Icon_users />
+                    Менеджеры
+                </NavLink>
+                <NavLink :href="route(`${props.userRole}.contracts`)"
+                    :active="route().current(`${props.userRole}.contracts`)">
+                    <Icon_contract />
+                    Договоры
+                </NavLink>
+                <NavLink :href="route('manager.applications')" :active="route().current('manager.applications')">
+                    <Icon_applications />
+                    Заявки
+                </NavLink>
+                <NavLink v-if="props.userRole === 'client'" :href="route('client.balanceTransactions')">
+                    Баланс и транзакции
+                </NavLink>
             </nav>
+        </div>
 
-            <!-- Page Heading -->
-            <header class="bg-white shadow" v-if="$slots.header">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+
+
+
+        <div class="flex flex-column content_box">
+            <header class="" v-if="$slots.header">
+                <div class="flex align-center">
+                    <Icon_notifications />
+                    <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="flex align-center">
+                        <Icon_exit />
+                        Выйти {{ props.userRole }}
+                    </ResponsiveNavLink>
+                </div>
+                <div class="">
                     <slot name="header" />
                 </div>
             </header>
 
-            <!-- Page Content -->
+
             <main>
                 <slot name="main" />
             </main>
         </div>
     </div>
 </template>
+
+<style scoped>
+.sidebar_box {
+    background: #fff;
+    width: 332px;
+    height: 100vh;
+}
+
+.content_box {
+    background: #F3F5F6;
+    width: calc(100vw - 332px);
+    height: 100vh;
+}
+
+.nav_box {
+    margin: 0 auto;
+    width: 300px;
+    row-gap: 4px;
+}
+
+.nav_box a {
+    height: 68px;
+    width: 100%;
+    padding-left: 32px;
+    -webkit-column-gap: 20px;
+    -moz-column-gap: 20px;
+    column-gap: 20px;
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s;
+}
+
+.nav_box a svg {
+    fill: #242424
+}
+
+.nav_box .active,
+.nav_box a:hover {
+    background: #4E9F7D1A;
+    color: #4E9F7D;
+    border-radius: 24px;
+}
+
+.nav_box .active svg {
+    fill: #4E9F7D
+}
+</style>
