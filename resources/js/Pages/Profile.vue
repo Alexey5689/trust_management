@@ -6,6 +6,9 @@ import { Head } from '@inertiajs/vue3'
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { onMounted, ref } from 'vue'
+import Modal from '@/Components/Modal/ModelTest.vue'
+
+
 const props = defineProps({
     user: {
         type: Object,
@@ -93,6 +96,9 @@ onMounted(() => {
 
 
     </AuthenticatedLayout>
+
+    
+<Modal />
 </template>
 
 <style scoped>

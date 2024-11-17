@@ -11,7 +11,8 @@ use App\Models\User;
 
 class ProfileController extends Controller
 {
-    public function createProfile (){
+    public function createProfile()
+    {
         $user = Auth::user();
         $role = $user->role->title;
         // dd($user, $role);
@@ -27,20 +28,30 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function editProfile(){
+    public function editProfile()
+    {
         $user = Auth::user();
         $role = $user->role->title;
         // dd($userInfo);
-        return Inertia::render('Edit', [
+        // return Inertia::render('Edit', [
+        //     'user' => [
+        //         'last_name' => $user->last_name,
+        //         'first_name' => $user->first_name,
+        //         'middle_name' => $user->middle_name,
+        //     ],
+        //     'role' => $role,
+        // ]);
+        return response()->json([
             'user' => [
                 'last_name' => $user->last_name,
                 'first_name' => $user->first_name,
                 'middle_name' => $user->middle_name,
             ],
-            'role' => $role,
         ]);
     }
-    public function updateProfile(Request $request){
+
+    public function updateProfile(Request $request)
+    {
         $request->validate([
             'last_name' => ['required', 'string', 'max:255'],
             'first_name' => ['required', 'string', 'max:255'],
@@ -60,7 +71,8 @@ class ProfileController extends Controller
     }
 
 
-    public function editPassword(){
+    public function editPassword()
+    {
         $user = Auth::user();
         $role = $user->role->title;
         // dd($userInfo);
@@ -68,7 +80,9 @@ class ProfileController extends Controller
             'role' => $role,
         ]);
     }
-    public function updatePassword(Request $request){
+
+    public function updatePassword(Request $request)
+    {
         $request->validate([
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
@@ -86,7 +100,8 @@ class ProfileController extends Controller
         return redirect('/');
     }
 
-    public function editEmail(){
+    public function editEmail()
+    {
         $user = Auth::user();
         $role = $user->role->title;
         $userEmail = $user->email;
@@ -96,7 +111,8 @@ class ProfileController extends Controller
             'userEmail' => $userEmail
         ]);
     }
-    public function updateEmail(Request $request){
+    public function updateEmail(Request $request)
+    {
         $request->validate([
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
         ]);
@@ -114,5 +130,4 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
         return redirect('/');
     }
-
 }

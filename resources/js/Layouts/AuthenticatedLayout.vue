@@ -16,15 +16,9 @@ import Icon_applications from '@/Components/Icon/Applications.vue'
 const props = defineProps({
     userRole: {
         type: String,
-<<<<<<< HEAD
-        required: true,
-    },
-})
-=======
         required: true
     }
 });
->>>>>>> 870e17e295d55a078aa4403c702e576c7d815fd0
 </script>
 
 <template>
