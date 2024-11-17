@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Contract;
+use App\Models\Application;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -60,8 +61,28 @@ class AdminController extends Controller
         ]);
     }
 
+    public function showApplications(){
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+        $applications = Application::with(['user', 'contract'])->get()->map(function ($application) {
+            return [
+                'id' => $application->id,
+                'user_id' => $application->user_id,
+                'full_name' => $application->user->first_name. ' ' .$application->user->last_name. ' ' .$application->user->middle_name,
+                'contract_number' => $application->contract->contract_number,
+                'condition' => $application->condition,
+                'status' => $application->status,
+                'type_of_processing' => $application->type_of_processing,
+                'date_of_payments' => $application->date_of_payments,
+                'create_date' => $application->create_date,
+            ];
+        });
+        return Inertia::render('Applications', [
+            'role' => $role, // Передаем роль пользователя в Vue-компонент
+            'applications'=> $applications
+        ]);
 
-
+    }
     // регистрация user как клиент
     public function createClientsByAdmin()
     {
@@ -363,6 +384,8 @@ class AdminController extends Controller
         ]);
         return redirect(route('admin.contracts'))->with('success', 'Контракт успешно обновлен!');
       }
+
+   
 
 
       // Удаление user

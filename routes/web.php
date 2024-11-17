@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
       //просмотр заявок
     Route::get('/show-application/{application}', [ApplicationController::class, 'showApplication'])->name('show.application');
     Route::get('/change-status-application/{application}', [ApplicationController::class, 'changeStatusApplication'])->name('change.status.application');
+    Route::patch('/change-status-application/{application}', [ApplicationController::class, 'updateStatusApplication']);
 
 });
 

@@ -1,23 +1,23 @@
 <script setup>
-import { ref } from 'vue'
-import ApplicationLogo from '@/Components/ApplicationLogo.vue'
-import Dropdown from '@/Components/Dropdown.vue'
-import DropdownLink from '@/Components/DropdownLink.vue'
-import NavLink from '@/Components/NavLink.vue'
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
-import { Link } from '@inertiajs/vue3'
-import Icon_exit from '@/Components/Icon/Exit.vue'
-import Icon_notifications from '@/Components/Icon/Notifications.vue'
-import Icon_personal_account from '@/Components/Icon/PersonalAccount.vue'
-import Icon_users from '@/Components/Icon/Users.vue'
-import Icon_contract from '@/Components/Icon/Contract.vue'
-import Icon_applications from '@/Components/Icon/Applications.vue'
+import { ref } from 'vue';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
+import NavLink from '@/Components/NavLink.vue';
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import { Link } from '@inertiajs/vue3';
+import Icon_exit from '@/Components/Icon/Exit.vue';
+import Icon_notifications from '@/Components/Icon/Notifications.vue';
+import Icon_personal_account from '@/Components/Icon/PersonalAccount.vue';
+import Icon_users from '@/Components/Icon/Users.vue';
+import Icon_contract from '@/Components/Icon/Contract.vue';
+import Icon_applications from '@/Components/Icon/Applications.vue';
 
 const props = defineProps({
     userRole: {
         type: String,
-        required: true
-    }
+        required: true,
+    },
 });
 </script>
 
@@ -56,7 +56,10 @@ const props = defineProps({
                     <Icon_contract />
                     Договоры
                 </NavLink>
-                <NavLink :href="route('manager.applications')" :active="route().current('manager.applications')">
+                <NavLink
+                    :href="route(`${props.userRole}.applications`)"
+                    :active="route().current(`${props.userRole}.applications`)"
+                >
                     <Icon_applications />
                     Заявки
                 </NavLink>
@@ -71,9 +74,14 @@ const props = defineProps({
                 <div class="flex align-center justify-end">
                     {{ props.userRole }}
                     <Icon_notifications />
-                    <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="flex align-center justify-center btn">
+                    <ResponsiveNavLink
+                        :href="route('logout')"
+                        method="post"
+                        as="button"
+                        class="flex align-center justify-center btn"
+                    >
                         <Icon_exit />
-                        Выйти 
+                        Выйти
                     </ResponsiveNavLink>
                 </div>
                 <div class="">

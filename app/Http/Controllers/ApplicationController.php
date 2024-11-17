@@ -92,11 +92,17 @@ class ApplicationController extends Controller
         return Inertia::render('ChangeStatusApplication', [
             'role' => $role,
             'application' => [
+                'id' => $application->id,
                 'status' => $application->status,
             ],
         ]);
     }
-    // public function updateApplication(Request $request, Application $application){
-
-    // }
+    public function updateStatusApplication(Request $request, Application $application){
+        // dd($request->all());
+        $user = Auth::user();
+        $role = $user->role->title;
+        $application->status = $request->status;
+        $application->save();
+        return redirect(route($role . '.applications'))->with('success', 'Статус заявки успешно изменен!');
+    }
 }

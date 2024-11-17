@@ -272,7 +272,7 @@ class ManagerController extends Controller
                                 'date_of_payments' => $application->date_of_payments,
                                 'create_date' => $application->create_date,
                             ];
-                        });;
+                        });
         //dd($applications);
         return Inertia::render('Applications', [
             'role' => $role,

@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients')->middleware(['role:admin']);
         Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers')->middleware(['role:admin']);
         Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts')->middleware(['role:admin']);
+        Route::get('/applications', [AdminController::class, 'showApplications'])->name('admin.applications')->middleware(['role:admin']);
         //рег менеджер
         Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager')->middleware(['role:admin']);
         Route::post('/registration-manager', [AdminController::class, 'storeManagersByAdmin'])->middleware(['role:admin']);
