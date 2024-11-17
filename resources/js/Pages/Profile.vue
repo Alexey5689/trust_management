@@ -1,13 +1,12 @@
 <script setup>
-import Dashboard from './Dashboard.vue'
-import InputLabel from '@/Components/InputLabel.vue'
-import PrimaryButton from '@/Components/PrimaryButton.vue'
-import { Head } from '@inertiajs/vue3'
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { onMounted, ref } from 'vue'
-import Modal from '@/Components/Modal/ModelTest.vue'
-
+import Dashboard from './Dashboard.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { Head } from '@inertiajs/vue3';
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { onMounted, ref } from 'vue';
+import Modal from '@/Components/Modal/ModelTest.vue';
 
 const props = defineProps({
     user: {
@@ -22,25 +21,24 @@ const props = defineProps({
         type: String,
         required: false,
     },
-})
+});
 
-const showStatusMessage = ref(false)
+const showStatusMessage = ref(false);
 
-const status = ref('')
+const status = ref('');
 
 onMounted(() => {
     if (props.status) {
-        status.value = props.status
-        showStatusMessage.value = true
+        status.value = props.status;
+        showStatusMessage.value = true;
         setTimeout(() => {
-            showStatusMessage.value = false
-        }, 3000) // 10000 мс = 10 секунд
+            showStatusMessage.value = false;
+        }, 3000); // 10000 мс = 10 секунд
     }
-})
+});
 </script>
 
 <template>
-
     <Head title="Profile" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
@@ -58,7 +56,6 @@ onMounted(() => {
                         </p>
                     </div> -->
 
-
                     <div class="card-item">
                         <InputLabel for="last_name" value="ФИО" />
                         <p class="text">{{ props.user.full_name }}</p>
@@ -70,9 +67,7 @@ onMounted(() => {
                     <div class="card-item">
                         <InputLabel for="last_name" value="Пароль" />
                         <p class="text">********</p>
-                        <ResponsiveNavLink :href="route(`password.edit`)">
-                            Изменить пароль
-                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route(`password.edit`)"> Изменить пароль </ResponsiveNavLink>
                     </div>
 
                     <div class="card-item">
@@ -83,22 +78,15 @@ onMounted(() => {
                         </ResponsiveNavLink>
                     </div>
 
-
                     <!-- <div>
                         {{ props.user }}
                     </div> -->
                 </div>
-
             </div>
-
         </template>
-
-
-
     </AuthenticatedLayout>
 
-    
-<Modal />
+    <Modal />
 </template>
 
 <style scoped>
@@ -115,12 +103,12 @@ onMounted(() => {
     background: #fff;
     padding: 32px;
     border-radius: 32px;
-    -webkit-box-shadow: 0px 0px 4px 0px #5C5C5C0A;
-    box-shadow: 0px 0px 4px 0px #5C5C5C0A;
-    -webkit-box-shadow: 0px 0px 8px 0px #5C5C5C14;
-    box-shadow: 0px 0px 8px 0px #5C5C5C14;
-    -webkit-box-shadow: 0px 4px 12px 0px #5C5C5C14;
-    box-shadow: 0px 4px 12px 0px #5C5C5C14;
+    -webkit-box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    -webkit-box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    -webkit-box-shadow: 0px 4px 12px 0px #5c5c5c14;
+    box-shadow: 0px 4px 12px 0px #5c5c5c14;
 }
 
 .title-card {

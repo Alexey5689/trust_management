@@ -1,13 +1,13 @@
 <script setup>
-import Dashboard from '@/Pages/Dashboard.vue'
-import InputLabel from '@/Components/InputLabel.vue'
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { Head } from '@inertiajs/vue3'
-import Dropdown from '@/Components/Dropdown.vue'
-import DropdownLink from '@/Components/DropdownLink.vue'
-import { Inertia } from '@inertiajs/inertia'
+import Dashboard from '@/Pages/Dashboard.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head } from '@inertiajs/vue3';
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
+import { Inertia } from '@inertiajs/inertia';
 
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 
 const props = defineProps({
     clients: {
@@ -18,32 +18,26 @@ const props = defineProps({
         type: String,
         required: true,
     },
-})
+});
 
 const deleteUser = (clientId) => {
     if (confirm('Вы точно хотите удалить менеджера?')) {
-        Inertia.delete(route('admin.delete.user', { user: clientId }))
+        Inertia.delete(route('admin.delete.user', { user: clientId }));
     }
-}
+};
 
 const resetPassword = (clientId) => {
     if (confirm('Вы уверены, что хотите сбросить пароль?')) {
-        Inertia.post(route('reset.password', { user: clientId }))
+        Inertia.post(route('reset.password', { user: clientId }));
     }
-}
+};
 </script>
 <template>
     <Head title="Clients" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Клиенты
-            </h2>
-            <ResponsiveNavLink
-                :href="route(`${props.role}.registration.client`)"
-            >
-                Добавить клиента
-            </ResponsiveNavLink>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Клиенты</h2>
+            <ResponsiveNavLink :href="route(`${props.role}.registration.client`)"> Добавить клиента </ResponsiveNavLink>
         </template>
         <template #main>
             <div class="py-12">
@@ -52,33 +46,19 @@ const resetPassword = (clientId) => {
                         <div class="p-6 text-gray-900">
                             <!-- {{ clients }} -->
                             <div v-if="clients.length == 0">Клиентов нет</div>
-                            <div
-                                v-else
-                                class="client"
-                                v-for="client in clients"
-                                :key="client.id"
-                            >
+                            <div v-else class="client" v-for="client in clients" :key="client.id">
                                 <div>
                                     <InputLabel for="last_name" value="ID" />
                                     {{ client.id }}
                                 </div>
-                                <div
-                                    :class="
-                                        !client.active
-                                            ? 'text-red-900'
-                                            : 'text-gray-900'
-                                    "
-                                >
+                                <div :class="!client.active ? 'text-red-900' : 'text-gray-900'">
                                     <InputLabel for="last_name" value="ФИО" />
                                     {{ client.last_name }}
                                     {{ client.first_name }}
                                     {{ client.middle_name }}
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        for="last_name"
-                                        value="Номер телефона"
-                                    />
+                                    <InputLabel for="last_name" value="Номер телефона" />
                                     {{ client.phone_number }}
                                 </div>
                                 <div>
@@ -86,10 +66,7 @@ const resetPassword = (clientId) => {
                                     {{ client.email }}
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        for="last_name"
-                                        value="Договор"
-                                    />
+                                    <InputLabel for="last_name" value="Договор" />
                                     <div>
                                         {{ client.user_contracts.length }}
                                     </div>
@@ -120,21 +97,13 @@ const resetPassword = (clientId) => {
                                     </template>
                                     <template #content>
                                         <DropdownLink
-                                            :href="
-                                                route(
-                                                    `${props.role}.edit.client`,
-                                                    { client: client.id }
-                                                )
-                                            "
+                                            :href="route(`${props.role}.edit.client`, { client: client.id })"
                                             :disabled="client.active === false"
                                             as="button"
                                         >
                                             Изменить
                                         </DropdownLink>
-                                        <DropdownLink
-                                            @click="resetPassword(client.id)"
-                                            as="button"
-                                        >
+                                        <DropdownLink @click="resetPassword(client.id)" as="button">
                                             Сбросить пароль
                                         </DropdownLink>
                                         <DropdownLink

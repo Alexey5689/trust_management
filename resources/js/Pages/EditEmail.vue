@@ -1,12 +1,12 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import TextInput from '@/Components/TextInput.vue'
-import InputLabel from '@/Components/InputLabel.vue'
-import InputError from '@/Components/InputError.vue'
-import PrimaryButton from '@/Components/PrimaryButton.vue'
-import { Head, Link, useForm } from '@inertiajs/vue3'
-import { usePage } from '@inertiajs/vue3'
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import TextInput from '@/Components/TextInput.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import InputError from '@/Components/InputError.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 const props = defineProps({
     userEmail: {
         type: String,
@@ -16,39 +16,32 @@ const props = defineProps({
         type: String,
         required: true,
     },
-})
-const page = usePage()
+});
+const page = usePage();
 
 const form = useForm({
     email: props.userEmail,
-})
+});
 
 const save = () => {
     form.patch(route('email.update'), {
         // onFinish: () => form.reset('password', 'password_confirmation'),
-    })
-}
+    });
+};
 </script>
 <template>
     <Head title="Edit" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Изменение почты
-            </h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Изменение почты</h2>
         </template>
         <template #main>
             <div class="py-12">
-                <div
-                    v-if="page.props.flash && page.props.flash.success"
-                    class="alert alert-success"
-                >
+                <div v-if="page.props.flash && page.props.flash.success" class="alert alert-success">
                     {{ page.props.flash.success }}
                 </div>
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div
-                        class="bg-white overflow-hidden shadow-sm sm:rounded-lg"
-                    >
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <div class="p-6 text-gray-900">
                                 {{ user }}
@@ -64,15 +57,10 @@ const save = () => {
                                             required
                                         />
 
-                                        <InputError
-                                            class="mt-2"
-                                            :message="form.errors.email"
-                                        />
+                                        <InputError class="mt-2" :message="form.errors.email" />
                                     </div>
 
-                                    <div
-                                        class="flex items-center justify-end mt-4"
-                                    >
+                                    <div class="flex items-center justify-end mt-4">
                                         <PrimaryButton
                                             class="mt-4"
                                             :class="{

@@ -1,12 +1,12 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import TextInput from '@/Components/TextInput.vue'
-import InputLabel from '@/Components/InputLabel.vue'
-import InputError from '@/Components/InputError.vue'
-import PrimaryButton from '@/Components/PrimaryButton.vue'
-import { Head, Link, useForm } from '@inertiajs/vue3'
-import { parseISO, differenceInYears, format } from 'date-fns'
-import { ref, computed } from 'vue'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import TextInput from '@/Components/TextInput.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import InputError from '@/Components/InputError.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { parseISO, differenceInYears, format } from 'date-fns';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     role: {
@@ -17,64 +17,64 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-})
+});
 
-const procent = ref('')
-const userContract = ref({})
-const sum = ref(null)
-const dividends = ref(null)
-const create_date = ref('')
-const term = ref('')
-const condition = ref('')
-const processing = ref('')
+const procent = ref('');
+const userContract = ref({});
+const sum = ref(null);
+const dividends = ref(null);
+const create_date = ref('');
+const term = ref('');
+const condition = ref('');
+const processing = ref('');
 const conditionsType = ref([
     { type: 'Раньше срока', value: false },
     { type: 'В срок', value: true },
-])
+]);
 const typeOfProcessing = ref([
     { type: 'Забрать дивиденды частично', value: 0 },
     { type: 'Забрать дивиденды целиком', value: 1 },
     { type: 'Забрать дивиденды и сумму', value: 2 },
-])
+]);
 
 const conditionRadio = (tmp) => {
     if (tmp === false) {
-        form.type_of_processing = 'Основная сумма'
-        condition.value = false
-    } else condition.value = true
-}
+        form.type_of_processing = 'Основная сумма';
+        condition.value = false;
+    } else condition.value = true;
+};
 
 const processingRadio = (tmp) => {
-    processing.value = tmp
-}
+    processing.value = tmp;
+};
 
 const handleGetClient = (id) => {
-    userContract.value = props.clients.find((client) => client.id === id)
-}
+    userContract.value = props.clients.find((client) => client.id === id);
+};
 const getYearDifference = (startDate, endDate) => {
-    return differenceInYears(parseISO(endDate), parseISO(startDate)) // Разница в годах
-}
+    return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
+};
 const handleGetContract = (contract_id) => {
-    sum.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).sum
-    let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date
-    let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline
-    procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent
+    sum.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).sum;
+    let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date;
+    let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline;
+    procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent;
     //console.log(procent.value)
 
     if (getYearDifference(tmpCreate, tmpDeadline) === 2) {
-        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 24
+        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 24;
     } else if (getYearDifference(tmpCreate, tmpDeadline) === 1) {
-        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 12
+        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 12;
     } else {
-        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 36
+        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 36;
     }
 
-    create_date.value = format(parseISO(tmpCreate), 'dd/MM/yyyy')
+    create_date.value = format(parseISO(tmpCreate), 'dd/MM/yyyy');
     term.value =
         getYearDifference(tmpCreate, tmpDeadline) === 1
             ? getYearDifference(tmpCreate, tmpDeadline) + ' год'
-            : getYearDifference(tmpCreate, tmpDeadline) + ' года'
-}
+            : getYearDifference(tmpCreate, tmpDeadline) + ' года';
+};
 
 const form = useForm({
     create_date: new Date().toISOString().substr(0, 10),
@@ -85,11 +85,11 @@ const form = useForm({
     type_of_processing: '',
     date_of_payments: '',
     sum_of_processing: null,
-})
+});
 
 const submit = () => {
-    form.post(route('add.application'))
-}
+    form.post(route('add.application'));
+};
 </script>
 <template>
     <Head title="newApplication" />

@@ -1,11 +1,11 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import TextInput from '@/Components/TextInput.vue'
-import InputLabel from '@/Components/InputLabel.vue'
-import InputError from '@/Components/InputError.vue'
-import { parseISO, differenceInYears, format } from 'date-fns'
-import { ru } from 'date-fns/locale'
-import { ref, computed } from 'vue'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import TextInput from '@/Components/TextInput.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import InputError from '@/Components/InputError.vue';
+import { parseISO, differenceInYears, format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import { ref, computed } from 'vue';
 const props = defineProps({
     role: {
         type: String,
@@ -15,41 +15,41 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-})
+});
 const conditionsType = ref([
     { type: 'Раньше срока', value: false },
     { type: 'В срок', value: true },
-])
+]);
 const typeOfProcessing = ref([
     { type: 'Забрать дивиденды частично', value: 0 },
     { type: 'Забрать дивиденды целиком', value: 1 },
     { type: 'Забрать дивиденды и сумму', value: 2 },
-])
+]);
 const getYearDifference = (startDate, endDate) => {
-    return differenceInYears(parseISO(endDate), parseISO(startDate)) // Разница в годах
-}
+    return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
+};
 
-const application_create_date = ref(format(parseISO(props.application.create_date), 'd MMMM yyyy', { locale: ru }))
-const client = ref(props.application.user)
-const contract_number = ref(props.application.contract.contract_number)
+const application_create_date = ref(format(parseISO(props.application.create_date), 'd MMMM yyyy', { locale: ru }));
+const client = ref(props.application.user);
+const contract_number = ref(props.application.contract.contract_number);
 const contract_create_date = ref(
     format(parseISO(props.application.contract.create_date), 'd MMMM yyyy', { locale: ru }),
-) // Дата создания контракта преобразуем в 1 ноября 2024
+); // Дата создания контракта преобразуем в 1 ноября 2024
 const term = ref(
     getYearDifference(props.application.contract.create_date, props.application.contract.deadline) === 1
         ? getYearDifference(props.application.contract.create_date, props.application.contract.deadline)
         : getYearDifference(props.application.contract.create_date, props.application.contract.deadline),
-)
+);
 
-const procent = ref(props.application.contract.procent)
-const sum = ref(props.application.contract.sum)
+const procent = ref(props.application.contract.procent);
+const sum = ref(props.application.contract.sum);
 
 const dividends = computed(() => {
-    return sum.value * (procent.value / 100) * term.value
-})
+    return sum.value * (procent.value / 100) * term.value;
+});
 
-const conditionType = ref(props.application.condition)
-const processingTYpe = ref(props.application.type_of_processing)
+const conditionType = ref(props.application.condition);
+const processingTYpe = ref(props.application.type_of_processing);
 </script>
 <template>
     <Head title="showApplication" />

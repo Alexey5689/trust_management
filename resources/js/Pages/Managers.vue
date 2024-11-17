@@ -1,12 +1,12 @@
 <script setup>
-import InputLabel from '@/Components/InputLabel.vue'
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { Head } from '@inertiajs/vue3'
-import { Inertia } from '@inertiajs/inertia'
-import Dropdown from '@/Components/Dropdown.vue'
-import DropdownLink from '@/Components/DropdownLink.vue'
+import InputLabel from '@/Components/InputLabel.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head } from '@inertiajs/vue3';
+import { Inertia } from '@inertiajs/inertia';
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
 
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 defineProps({
     managers: {
         type: Array,
@@ -16,19 +16,19 @@ defineProps({
         type: Object,
         required: true,
     },
-})
+});
 
 const deleteUser = (managerId) => {
     if (confirm('Вы точно хотите удалить менеджера?')) {
-        Inertia.delete(route('admin.delete.user', { user: managerId }))
+        Inertia.delete(route('admin.delete.user', { user: managerId }));
     }
-}
+};
 
 const resetPassword = (managerId) => {
     if (confirm('Вы уверены, что хотите сбросить пароль?')) {
-        Inertia.post(route('admin.reset.password', { user: managerId }))
+        Inertia.post(route('admin.reset.password', { user: managerId }));
     }
-}
+};
 </script>
 <template>
     <Head title="Managers" />
