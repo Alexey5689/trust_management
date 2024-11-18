@@ -27,6 +27,7 @@ const create_date = ref('');
 const term = ref('');
 const condition = ref('');
 const processing = ref('');
+
 const conditionsType = ref([
     { type: 'Раньше срока', value: false },
     { type: 'В срок', value: true },
@@ -40,12 +41,16 @@ const typeOfProcessing = ref([
 const conditionRadio = (tmp) => {
     if (tmp === false) {
         form.type_of_processing = 'Основная сумма';
+        form.sum = sum.value - sum.value * 0.3;
         condition.value = false;
-    } else condition.value = true;
+    } else {
+        condition.value = true;
+        form.sum = dividends.value;
+    }
 };
 
-const processingRadio = (tmp) => {
-    processing.value = tmp;
+const processingRadio = (kind) => {
+    processing.value = kind;
 };
 
 const handleGetClient = (id) => {
@@ -75,7 +80,6 @@ const handleGetContract = (contract_id) => {
             ? getYearDifference(tmpCreate, tmpDeadline) + ' год'
             : getYearDifference(tmpCreate, tmpDeadline) + ' года';
 };
-
 const form = useForm({
     create_date: new Date().toISOString().substr(0, 10),
     user_id: '',
@@ -84,7 +88,7 @@ const form = useForm({
     status: 'В обработке',
     type_of_processing: '',
     date_of_payments: '',
-    sum_of_processing: null,
+    sum: null,
 });
 
 const submit = () => {
@@ -254,9 +258,7 @@ const submit = () => {
                                             <TextInput
                                                 id="dividends"
                                                 :disabled="processing === 1"
-                                                v-model="form.sum_of_processing"
-                                                :placeholder="dividends"
-                                                :value="form.sum_of_processing"
+                                                v-model="form.sum"
                                                 type="text"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             />

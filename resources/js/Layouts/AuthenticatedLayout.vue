@@ -63,7 +63,7 @@ const props = defineProps({
                     <Icon_applications />
                     Заявки
                 </NavLink>
-                <NavLink v-if="props.userRole === 'client'" :href="route('client.balanceTransactions')">
+                <NavLink v-if="props.userRole === 'client'" :href="route('client.balance.ransactions')">
                     Баланс и транзакции
                 </NavLink>
             </nav>

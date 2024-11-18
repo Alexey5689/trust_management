@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('type_of_processing');
             $table->date('create_date');
             $table->date('date_of_payments');
+            $table->decimal('sum', 10, 2);
             $table->timestamps();
         });
     }

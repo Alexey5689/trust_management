@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
 {
+    
     public function createAddApplication(){
         $user = Auth::user();
         $role = $user->role->title;
@@ -36,6 +37,7 @@ class ApplicationController extends Controller
             'condition' => 'required|string|max:255', // Проверка условия
             'status' => 'required|string|max:50', // Проверка статуса
             'type_of_processing' => 'required|string|max:255', // Проверка типа обработки
+            'sum' => 'required|integer',
         ]);
         $user = Auth::user();
         $role = $user->role->title;
@@ -58,6 +60,7 @@ class ApplicationController extends Controller
             'status'=>$request->status,
             'type_of_processing'=>$request->type_of_processing,
             'date_of_payments'=>$request->date_of_payments,
+            'sum'=>$request->sum,
         ]);
         return redirect(route($role . '.applications'))->with('success', 'Заявка успешно создана!');
       }
@@ -73,6 +76,7 @@ class ApplicationController extends Controller
                 'condition' => $application->condition,
                 'status' => $application->status,
                 'type_of_processing' => $application->type_of_processing,
+                'sum' => $application->sum,
                 'user' => [
                     'id' => $application->user->id,
                     'full_name' => $application->user->first_name . ' ' . $application->user->last_name . ' ' . $application->user->middle_name,
@@ -99,25 +103,35 @@ class ApplicationController extends Controller
             ],
         ]);
     }
-    public function updateStatusApplication(Request $request, Application $application){
-        // dd($request->all());
+    public function updateStatusApplication(Request $request, Application $application)
+    {
         $user = Auth::user();
         $role = $user->role->title;
-        $application->status = $request->status;
-        $application->save();
-        // if($request->status == 'отклонено'){
-        //     $application->user->userContracts()->where('contract_id', $application->contract_id)->delete();
-        // }else if( $request->status == 'Исполнена'){
-        //     $application->$user->userTransactions()->create([
-        //         'contract_id'=>$application->contract_id,
-        //         'manager_id' => $application->$user->,
-        //         'date_transition' => $request->create_date,
-        //         'status' => $request->contract_status,
-        //         'sum_transition' => $request->sum,
-        //         'sourse' =>'Договор'
-        //     ]);
 
-        // }
-        return redirect(route($role . '.applications'))->with('success', 'Статус заявки успешно изменен!');
+        // Обновляем статус заявки
+        $application->status = $request->status;
+
+        // Если статус "Исполнена", создаем транзакцию
+        if ($request->status === 'Исполнена') {
+            $application->user->userTransactions()->create([
+                'contract_id' => $application->contract_id,
+                'manager_id' => $application->manager_id,
+                'user_id' => $application->user_id,
+                'date_transition' => $application->date_of_payments,
+                'sum_transition' => $application->sum,
+                'sourse' => 'Заявка',
+            ]);
+
+            $message = 'Статус заявки успешно изменен! Транзакция создана.';
+        } else {
+            $message = 'Статус заявки успешно изменен!';
+        }
+
+        // Сохраняем изменения в заявке
+        $application->save();
+
+        // Редирект с сообщением
+        return redirect(route($role . '.applications'))->with('success', $message);
     }
+
 }

@@ -15,6 +15,7 @@ class Application extends Model
         'contract_id',
         'condition',
         'status',
+        'sum',
         'type_of_processing',
         'date_of_payments',
     ];
