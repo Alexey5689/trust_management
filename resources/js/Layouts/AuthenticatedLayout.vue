@@ -12,6 +12,9 @@ import Icon_personal_account from '@/Components/Icon/PersonalAccount.vue';
 import Icon_users from '@/Components/Icon/Users.vue';
 import Icon_contract from '@/Components/Icon/Contract.vue';
 import Icon_applications from '@/Components/Icon/Applications.vue';
+import Icon_logo from '@/Components/Icon/Logo.vue';
+import Icon_logo_name from '@/Components/Icon/LogoName.vue';
+import profileImage from '../../img/profile.png';
 
 const props = defineProps({
     userRole: {
@@ -23,43 +26,48 @@ const props = defineProps({
 
 <template>
     <div class="flex">
-        <div class="sidebar_box">
-            <div></div>
+        <div class="sidebar_box flex flex-column">
+            <div class="logo_hamb flex align-center justify-between">
+                <div class="flex align-center">
+                    <Icon_logo style="margin-right: 12.5px;" />
+                    <Icon_logo_name />
+                </div>
+                <div class="hamb_box flex flex-column">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+            <div class="profile flex flex-column align-center">
+                <div class="profile_img flex align-center justify-center">
+                    <img :src="profileImage" alt="profile">
+                </div>
+                <p class="profile_name">Сергей Демидов</p>
+                <span class="profile_mail">demidov23232399@icloud.com</span>
+            </div>
             <nav class="flex flex-column nav_box">
-                <NavLink
-                    :href="route(`${props.userRole}.profile`)"
-                    :active="route().current(`${props.userRole}.profile`)"
-                >
+                <NavLink :href="route(`${props.userRole}.profile`)"
+                    :active="route().current(`${props.userRole}.profile`)">
                     <Icon_personal_account />
                     Личный кабинет
                 </NavLink>
-                <NavLink
-                    v-if="props.userRole === 'admin'"
-                    :href="route('admin.users')"
-                    :active="route().current('admin.users')"
-                >
+                <NavLink v-if="props.userRole === 'admin'" :href="route('admin.users')"
+                    :active="route().current('admin.users')">
                     <Icon_users />
                     Пользователи
                 </NavLink>
-                <NavLink
-                    v-if="props.userRole === 'manager'"
-                    :href="route(`${props.userRole}.clients`)"
-                    :active="route().current(`${props.userRole}.clients`)"
-                >
+                <NavLink v-if="props.userRole === 'manager'" :href="route(`${props.userRole}.clients`)"
+                    :active="route().current(`${props.userRole}.clients`)">
                     <Icon_users />
                     Клиенты
                 </NavLink>
-                <NavLink
-                    :href="route(`${props.userRole}.contracts`)"
-                    :active="route().current(`${props.userRole}.contracts`)"
-                >
+                <NavLink :href="route(`${props.userRole}.contracts`)"
+                    :active="route().current(`${props.userRole}.contracts`)">
                     <Icon_contract />
                     Договоры
                 </NavLink>
-                <NavLink
-                    :href="route(`${props.userRole}.applications`)"
-                    :active="route().current(`${props.userRole}.applications`)"
-                >
+                <NavLink :href="route(`${props.userRole}.applications`)"
+                    :active="route().current(`${props.userRole}.applications`)">
                     <Icon_applications />
                     Заявки
                 </NavLink>
@@ -74,12 +82,8 @@ const props = defineProps({
                 <div class="flex align-center justify-end">
                     {{ props.userRole }}
                     <Icon_notifications />
-                    <ResponsiveNavLink
-                        :href="route('logout')"
-                        method="post"
-                        as="button"
-                        class="flex align-center justify-center btn"
-                    >
+                    <ResponsiveNavLink :href="route('logout')" method="post" as="button"
+                        class="flex align-center justify-center btn">
                         <Icon_exit />
                         Выйти
                     </ResponsiveNavLink>
@@ -102,6 +106,7 @@ const props = defineProps({
     width: 332px;
     height: 100vh;
     padding: 16px;
+    row-gap: 32px;
 }
 
 .content_box {
@@ -153,5 +158,41 @@ const props = defineProps({
 
 .btn svg {
     margin-right: 4px;
+}
+
+.hamb_box {
+    row-gap: 4px;
+    cursor: pointer;
+}
+
+.hamb_box:hover .bar:last-child {
+    width: 14px;
+}
+
+.bar {
+    display: block;
+    width: 19px;
+    height: 2px;
+    background: #242424;
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+.profile_img {
+    width: 90px;
+    height: 90px;
+    background: #F3F5F6;
+    border-radius: 205px;
+}
+
+.profile_name {
+    margin-top: 16px;
+    font-weight: 500;
+}
+
+.profile_mail {
+    margin-top: 4px;
+    color: #6D757D;
+
 }
 </style>
