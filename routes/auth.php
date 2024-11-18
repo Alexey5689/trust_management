@@ -35,8 +35,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->group(function () {
         Route::get('/profile', [ProfileController::class, 'createProfile'])->name('admin.profile')->middleware(['role:admin']);
-        Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients')->middleware(['role:admin']);
-        Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers')->middleware(['role:admin']);
+        Route::get('/users', [AdminController::class, 'showAllUsers'])->name('admin.users')->middleware(['role:admin']);
         Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts')->middleware(['role:admin']);
         Route::get('/applications', [AdminController::class, 'showApplications'])->name('admin.applications')->middleware(['role:admin']);
         //рег менеджер
@@ -96,3 +95,5 @@ Route::middleware('auth')->group(function () {
 });
 
 
+// Route::get('/clients',[AdminController::class, 'showClients'])->name('admin.clients')->middleware(['role:admin']);
+// Route::get('/managers',[AdminController::class, 'showManagers'])->name('admin.managers')->middleware(['role:admin']);

@@ -21,7 +21,7 @@ class ProfileController extends Controller
                 'id' => $user->id,
                 'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
                 'email' => $user->email,
-                'password' => $user->password = Hash::make($user->password),
+                'phone_number' => $user->phone_number
             ],
             'role' => $role,
             'status' => session('status'),

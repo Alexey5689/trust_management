@@ -1,5 +1,4 @@
 <script setup>
-import Dashboard from '@/Pages/Dashboard.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
@@ -8,6 +7,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Inertia } from '@inertiajs/inertia';
 import { parseISO, differenceInYears, format, differenceInDays } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import { computed, ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 const props = defineProps({
@@ -21,7 +21,7 @@ const props = defineProps({
     },
 });
 
-const formatDate = (date) => format(parseISO(date), 'dd/MM/yyyy'); // Форматируем дату
+const formatDate = (date) => format(parseISO(date), 'd MMMM yyyy', { locale: ru }); // Форматируем дату
 const getYearDifference = (startDate, endDate) => {
     return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
 };

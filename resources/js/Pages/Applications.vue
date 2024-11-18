@@ -1,5 +1,4 @@
 <script setup>
-import Dashboard from '@/Pages/Dashboard.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';

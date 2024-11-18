@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Application;
+use App\Models\User;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
@@ -103,6 +105,19 @@ class ApplicationController extends Controller
         $role = $user->role->title;
         $application->status = $request->status;
         $application->save();
+        // if($request->status == 'отклонено'){
+        //     $application->user->userContracts()->where('contract_id', $application->contract_id)->delete();
+        // }else if( $request->status == 'Исполнена'){
+        //     $application->$user->userTransactions()->create([
+        //         'contract_id'=>$application->contract_id,
+        //         'manager_id' => $application->$user->,
+        //         'date_transition' => $request->create_date,
+        //         'status' => $request->contract_status,
+        //         'sum_transition' => $request->sum,
+        //         'sourse' =>'Договор'
+        //     ]);
+
+        // }
         return redirect(route($role . '.applications'))->with('success', 'Статус заявки успешно изменен!');
     }
 }

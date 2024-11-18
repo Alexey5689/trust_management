@@ -34,20 +34,20 @@ const props = defineProps({
                     Личный кабинет
                 </NavLink>
                 <NavLink
-                    v-if="props.userRole === 'admin' || props.userRole === 'manager'"
+                    v-if="props.userRole === 'admin'"
+                    :href="route('admin.users')"
+                    :active="route().current('admin.users')"
+                >
+                    <Icon_users />
+                    Пользователи
+                </NavLink>
+                <NavLink
+                    v-if="props.userRole === 'manager'"
                     :href="route(`${props.userRole}.clients`)"
                     :active="route().current(`${props.userRole}.clients`)"
                 >
                     <Icon_users />
                     Клиенты
-                </NavLink>
-                <NavLink
-                    v-if="props.userRole === 'admin'"
-                    :href="route(`${props.userRole}.managers`)"
-                    :active="route().current(`${props.userRole}.managers`)"
-                >
-                    <Icon_users />
-                    Менеджеры
                 </NavLink>
                 <NavLink
                     :href="route(`${props.userRole}.contracts`)"

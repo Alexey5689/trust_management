@@ -1,5 +1,4 @@
 <script setup>
-import Dashboard from './Dashboard.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head } from '@inertiajs/vue3';

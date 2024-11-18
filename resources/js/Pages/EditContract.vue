@@ -1,5 +1,4 @@
 <script setup>
-import Dashboard from '@/Pages/Dashboard.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -8,6 +7,7 @@ import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { parseISO, differenceInYears, format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -26,6 +26,7 @@ const props = defineProps({
 });
 
 const selectedDuration = ref('');
+const formatDate = (date) => format(parseISO(date), 'd MMMM yyyy', { locale: ru }); // Форматируем дату
 
 const form = useForm({
     user_id: props.contract.user_id,
@@ -66,11 +67,11 @@ const calculateDeadlineDate = (years, createDate) => {
 const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;
     if (selectedDuration === '1 год') {
-        form.deadline = calculateDeadlineDate(1, form.create_date);
+        form.deadline = calculateDeadlineDate(1, props.contract.create_date);
     } else if (selectedDuration === '2 года') {
-        form.deadline = calculateDeadlineDate(2, form.create_date);
+        form.deadline = calculateDeadlineDate(2, props.contract.create_date);
     } else if (selectedDuration === '3 года') {
-        form.deadline = calculateDeadlineDate(3, form.create_date);
+        form.deadline = calculateDeadlineDate(3, props.contract.create_date);
     }
 };
 
@@ -101,7 +102,7 @@ const submit = () => {
     <Head title="Register" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Регитсрация клиента</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Изменение договора</h2>
         </template>
         <template #main>
             <div class="py-12">
@@ -111,6 +112,7 @@ const submit = () => {
                             <form @submit.prevent="submit">
                                 <div class="mt-4">
                                     {{ clients }}
+                                    {{ contract }}
                                     <InputLabel for="clients" value="Выберите клиента*" />
                                     <select
                                         id="clients"

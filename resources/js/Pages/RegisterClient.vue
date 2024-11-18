@@ -1,5 +1,4 @@
 <script setup>
-import Dashboard from '@/Pages/Dashboard.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -10,7 +9,10 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const props = defineProps({
-    managers: Array, // Менеджеры, которые переданы из контроллера
+    managers: {
+        type: Array,
+        required: false,
+    }, // Менеджеры, которые переданы из контроллера
     role: {
         type: String,
         required: true,

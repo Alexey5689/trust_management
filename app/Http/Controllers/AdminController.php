@@ -50,6 +50,50 @@ class AdminController extends Controller
             'role' => $role, // Передаем роль пользователя в Vue-компонент
         ]);
     }
+
+    public function showAllUsers(){
+        $user = Auth::user(); // Получаем текущего пользователя
+        $role = $user->role->title; // Получаем его роль
+
+        $clients = User::whereHas('role', function ($query) {
+        $query->where('title', 'client'); // Фильтрация по роли 'client'
+        })
+            ->with(['userContracts']) // Предзагрузка контрактов
+            ->get()
+            ->map(function ($client) {
+                 // Получаем первый контракт
+                $contract = $client->userContracts->first();
+
+                // Получаем данные менеджера, если контракт существует
+                $manager = $contract ? $contract->manager : null;
+
+                return [
+                    'id' => $client->id,
+                    'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+                    'email' => $client->email,
+                    'phone_number' => $client->phone_number,
+                    'manager_full_name' => $manager
+                            ? $manager->first_name . ' ' . $manager->last_name . ' ' . $manager->middle_name
+                            : 'Менеджер не назначен',
+                ];
+        });
+        $managers = User::whereHas('role', function($query) {
+            $query->where('title', 'manager');
+        })->with('managerContracts')->get()->map(function ($manager) {
+            return [
+                'id' => $manager->id,
+                'full_name' => $manager->first_name . ' ' . $manager->last_name . ' ' . $manager->middle_name,
+                'email' => $manager->email,
+                'phone_number' => $manager->phone_number,
+            ];
+        });
+        return Inertia::render('AllUsers', [
+           
+            'clients' => $clients,
+            'managers' => $managers,
+            'role' => $role,
+        ]);
+    }
     // все договоры
     public function showAllContracts(){
         $user = Auth::user(); // Получаем текущего пользователя
