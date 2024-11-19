@@ -35,7 +35,7 @@ const props = defineProps({
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <h2>Клиенты</h2>
                         <div class="p-6 text-gray-900">
-                            {{ props.clients }}
+                            {{ props.clients.length === 0 ? 'Клиентов нет' : props.clients }}
                         </div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@ const props = defineProps({
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <h2>Менеджеры</h2>
                         <div class="p-6 text-gray-900">
-                            {{ props.managers }}
+                            {{ props.managers.length === 0 ? 'Менеджеров нет' : props.managers }}
                         </div>
                     </div>
                 </div>

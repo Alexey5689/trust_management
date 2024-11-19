@@ -15,13 +15,26 @@ class ApplicationController extends Controller
     public function createAddApplication(){
         $user = Auth::user();
         $role = $user->role->title;
-        $clients = $user->managedUsers->load('userContracts')->map(function ($client) {
-            return [
-                'id' => $client->id,
-                'full_name' => $client->first_name. ' ' .$client->last_name. ' ' .$client->middle_name,
-                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
-            ];
-        });
+        if($role === 'admin'){
+            $clients = User::whereHas('role', function($query) {
+                $query->where('title', 'client'); // Фильтрация по роли 'client'
+            })->with('userContracts')->get()->map(function ($client) {
+                return [
+                    'id' => $client->id,
+                    'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+                    'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                ];
+            });
+        }else{
+            $clients = $user->managedUsers->load('userContracts')->map(function ($client) {
+                return [
+                    'id' => $client->id,
+                    'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+                    'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                ];
+            });
+        }
+       
         return Inertia::render('AddApplication', [
             'role' => $role,
             'clients' => $clients,
@@ -33,6 +46,7 @@ class ApplicationController extends Controller
             'create_date' => 'required|date_format:Y-m-d',
             'date_of_payments' => 'required|date_format:Y-m-d|after_or_equal:create_date', // Дата платежа не должна быть раньше даты создания
             'user_id' => 'required|exists:users,id', // Убедиться, что пользователь существует
+            'manager_id' => 'required|exists:users,id', // Убедиться, что менеджер существует
             'contract_id' => 'required|exists:contracts,id', // Проверить существование контракта
             'condition' => 'required|string|max:255', // Проверка условия
             'status' => 'required|string|max:50', // Проверка статуса
@@ -43,18 +57,20 @@ class ApplicationController extends Controller
         $role = $user->role->title;
         /** @var User $user */
         // Проверка, что менеджер имеет право работать с пользователем
-        if (!$user->managedUsers()->where('id', $request->user_id)->exists()) {
+        if (!$user->managedUsers()->where('id', $request->user_id)->exists() && $role !== 'admin') {
             abort(403, 'У вас нет прав для создания заявки на этого пользователя.');
         }
 
         // Проверка, что контракт принадлежит менеджеру
-        if (!$user->managerContracts()->where('id', $request->contract_id)->exists()) {
+        if (!$user->managerContracts()->where('id', $request->contract_id  )->exists() && $role !== 'admin') {
             abort(403, 'У вас нет прав для использования этого контракта.');
         }
-        $user->managerApplications()->create([
+        
+
+        Application::create([
             'create_date'=> $request->create_date,
             'user_id'=> $request->user_id,
-            'manager_id'=> $user->id,
+            'manager_id'=> $request->manager_id,
             'contract_id'=> $request->contract_id,
             'condition'=>$request->condition,
             'status'=>$request->status,

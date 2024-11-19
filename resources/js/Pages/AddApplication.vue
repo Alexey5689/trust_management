@@ -64,6 +64,7 @@ const handleGetContract = (contract_id) => {
     let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date;
     let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline;
     procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent;
+    form.manager_id = userContract.value.user_contracts.find((contract) => contract.id === contract_id).manager_id;
     //console.log(procent.value)
 
     if (getYearDifference(tmpCreate, tmpDeadline) === 2) {
@@ -84,6 +85,7 @@ const form = useForm({
     create_date: new Date().toISOString().substr(0, 10),
     user_id: '',
     contract_id: '',
+    manager_id: '',
     condition: '',
     status: 'В обработке',
     type_of_processing: '',

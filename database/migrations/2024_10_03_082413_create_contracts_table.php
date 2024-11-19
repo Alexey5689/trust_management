@@ -17,7 +17,7 @@ return new class extends Migration
             // Связь с таблицей пользователей (user_id и manager_id)
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
-            $table->integer('contract_number')->unsigned();
+            $table->integer('contract_number')->unique()->unsigned();
             $table->date('create_date');
             $table->date('deadline');
             $table->integer('sum')->unsigned();

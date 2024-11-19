@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Contract;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,9 +29,7 @@ class ManagerController extends Controller
         ->map(function ($client) {
             return [
                 'id' => $client->id,
-                'first_name' => $client->first_name,
-                'last_name' => $client->last_name,
-                'middle_name' => $client->middle_name,
+                'full_name' => $client->last_name . ' ' . $client->first_name . ' ' . $client->middle_name,
                 'email' => $client->email,
                 'phone_number' => $client->phone_number,
                 'active' => $client->active,
@@ -78,7 +77,7 @@ class ManagerController extends Controller
             'middle_name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'phone_number' => 'required|string|max:20',
-            'contract_number' => 'required|integer',
+            'contract_number' => 'required|integer|unique:'. Contract::class,
             'deadline' => 'required|date_format:Y-m-d',
             'create_date' => 'required|date_format:Y-m-d',
             'sum' => 'required|integer',
@@ -205,7 +204,7 @@ class ManagerController extends Controller
       {
         // dd($request->all());
         $request->validate([
-            'contract_number' => 'required|integer',
+            'contract_number' => 'required|integer|unique:'. Contract::class,
             'procent' => 'required|integer',
             'deadline' => 'required|date_format:Y-m-d',
             'create_date' => 'required|date_format:Y-m-d',

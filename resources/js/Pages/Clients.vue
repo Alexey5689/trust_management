@@ -42,18 +42,16 @@ const resetPassword = (clientId) => {
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
-                            <!-- {{ clients }} -->
+                            {{ clients }}
                             <div v-if="clients.length == 0">Клиентов нет</div>
                             <div v-else class="client" v-for="client in clients" :key="client.id">
                                 <div>
                                     <InputLabel for="last_name" value="ID" />
                                     {{ client.id }}
                                 </div>
-                                <div :class="!client.active ? 'text-red-900' : 'text-gray-900'">
+                                <div :class="!client.active ? 'text-red' : ''">
                                     <InputLabel for="last_name" value="ФИО" />
-                                    {{ client.last_name }}
-                                    {{ client.first_name }}
-                                    {{ client.middle_name }}
+                                    {{ client.full_name }}
                                 </div>
                                 <div>
                                     <InputLabel for="last_name" value="Номер телефона" />
@@ -126,5 +124,8 @@ const resetPassword = (clientId) => {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+.text-red {
+    color: red;
 }
 </style>

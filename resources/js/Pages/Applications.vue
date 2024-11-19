@@ -3,6 +3,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { parseISO, differenceInYears, format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -17,6 +18,7 @@ const props = defineProps({
         required: true,
     },
 });
+const formatDate = (date) => format(parseISO(date), 'd MMMM yyyy', { locale: ru }); // Форматируем дату
 </script>
 <template>
     <Head title="Applications" />
@@ -36,7 +38,7 @@ const props = defineProps({
                             <div v-else class="client" v-for="application in props.applications" :key="application.id">
                                 <div>
                                     <InputLabel for="create_date" value="Дата заявки" />
-                                    <p>{{ application.create_date }}</p>
+                                    <p>{{ formatDate(application.create_date) }}</p>
                                 </div>
                                 <div>
                                     <InputLabel for="client" value="Клиент" />
@@ -60,7 +62,7 @@ const props = defineProps({
                                 </div>
                                 <div>
                                     <InputLabel for="date_of_payments" value="Дата выплаты" />
-                                    <p>{{ application.date_of_payments }}</p>
+                                    <p>{{ formatDate(application.date_of_payments) }}</p>
                                 </div>
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
@@ -86,7 +88,8 @@ const props = defineProps({
                                             </button>
                                         </span>
                                     </template>
-                                    <template #content>
+
+                                    <template v-if="role === 'admin'" #content>
                                         <DropdownLink
                                             as="button"
                                             :href="

@@ -25,7 +25,7 @@ class CreatingPasswordController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-
+        //dd($request->all());
         // Валидация только нового пароля и его подтверждения
          $validated = $request->validate([
             'email' => 'required|email',
@@ -41,8 +41,7 @@ class CreatingPasswordController extends Controller
                 $user->save();
             }
         );
-
-
+        //dd($status);
          // Если сброс пароля прошел успешно
         if ($status === PasswordFacade::PASSWORD_RESET) {
             // return redirect(route('login'))->with('status', __($status));

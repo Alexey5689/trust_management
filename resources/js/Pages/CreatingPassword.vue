@@ -36,7 +36,7 @@ const submit = () => {
     <GuestLayout>
         <Head title="Log in" />
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div v-if="status" class="text-green">
             {{ status }}
         </div>
 
@@ -83,3 +83,8 @@ const submit = () => {
         </form>
     </GuestLayout>
 </template>
+<style>
+.text-green {
+    color: green;
+}
+</style>

@@ -69,11 +69,11 @@ class AdminController extends Controller
 
                 return [
                     'id' => $client->id,
-                    'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+                    'full_name' => $client->last_name . ' ' . $client->first_name . ' ' . $client->middle_name,
                     'email' => $client->email,
                     'phone_number' => $client->phone_number,
                     'manager_full_name' => $manager
-                            ? $manager->first_name . ' ' . $manager->last_name . ' ' . $manager->middle_name
+                            ? $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name
                             : 'Менеджер не назначен',
                 ];
         });
@@ -82,7 +82,7 @@ class AdminController extends Controller
         })->with('managerContracts')->get()->map(function ($manager) {
             return [
                 'id' => $manager->id,
-                'full_name' => $manager->first_name . ' ' . $manager->last_name . ' ' . $manager->middle_name,
+                'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
                 'email' => $manager->email,
                 'phone_number' => $manager->phone_number,
             ];
@@ -149,12 +149,12 @@ class AdminController extends Controller
             'middle_name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'phone_number' => 'required|string|max:20',
-            'contract_number' => 'required|integer',
+            'contract_number' => 'required|integer|unique:'. Contract::class,
             'deadline' => 'required|date_format:Y-m-d',
             'create_date' => 'required|date_format:Y-m-d',
             'sum' => 'required|integer',
         ]);
-
+        //dd($request->all());
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
@@ -183,7 +183,7 @@ class AdminController extends Controller
         // Записываем менеджера в таблицу user_manager
         $user->managers()->attach($manager_id);
         // Создание контракта с user_id и manager_id
-        $user->userContracts()->create([
+        $contract = $user->userContracts()->create([
             'manager_id' => $request->manager_id,
             'contract_number' => $request->contract_number,
             'create_date' => $request->create_date,
@@ -194,13 +194,21 @@ class AdminController extends Controller
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
         ]);
+        $user->userTransactions()->create([
+            'contract_id'=>$contract->id,
+            'manager_id' => $manager_id,
+            'date_transition' => $request->create_date,
+            'status' => $request->contract_status,
+            'sum_transition' => $request->sum,
+            'sourse' =>'Договор'
+        ]);
 
 
         $token = Password::createToken($user);
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect(route('admin.clients'))->with('status', 'Клиент успешно зарегистрирован!');
+        return redirect(route('admin.users'))->with('status', 'Клиент успешно зарегистрирован!');
     }
 
 
@@ -346,13 +354,13 @@ class AdminController extends Controller
       {
         // dd($request->all());
         $request->validate([
-            'contract_number' => 'required|integer',
+            'contract_number' => 'required|integer|unique:'. Contract::class,
             'procent' => 'required|integer',
             'deadline' => 'required|date_format:Y-m-d',
             'create_date' => 'required|date_format:Y-m-d',
             'sum' => 'required|integer',
         ]);
-
+        //dd($request->all());
          // Находим клиента по user_id из запроса
         $client = User::findOrFail($request->user_id);
         // Получаем ID первого менеджера, закрепленного за клиентом

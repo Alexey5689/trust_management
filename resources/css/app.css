@@ -1,6 +1,6 @@
-/* @tailwind base;
+@tailwind base;
 @tailwind components;
-@tailwind utilities; */
+@tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
 
@@ -39,7 +39,7 @@ html,
 body {
     height: 100%;
     width: 100%;
-    font-family: "Onest", sans-serif;
+    font-family: 'Onest', sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 21px;
