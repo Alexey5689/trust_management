@@ -49,6 +49,7 @@ const submit = () => {
         </template>
         <template #main>
             <div class="py-12">
+                {{ props.client }}
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
@@ -136,9 +137,7 @@ const submit = () => {
                                         <option value="" disabled>Выберите менеджера</option>
                                         <!-- Выводим список менеджеров -->
                                         <option v-for="manager in managers" :key="manager.id" :value="manager.id">
-                                            {{ manager.last_name }}
-                                            {{ manager.first_name }}
-                                            {{ manager.middle_name }}
+                                            {{ manager.full_name }}
                                         </option>
                                     </select>
                                     <InputError class="mt-2" :message="form.errors.manager_id" />

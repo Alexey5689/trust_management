@@ -17,40 +17,7 @@ use Illuminate\Auth\Events\Registered;
 
 class AdminController extends Controller
 {
-    // всеклиенты
-    public function showClients()
-    {
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
-        // Фильтрация клиентов
-        $clients = User::whereHas('role', function($query) {
-            $query->where('title', 'client'); // Фильтрация по роли 'client'
-        })->with('userContracts')->get();
-        // dd($clients);
-
-        return Inertia::render('Clients', [
-            'clients' => $clients,
-            'role' => $role, // Передаем роль пользователя в Vue-компонент
-
-        ]);
-    }
-    //все менеджеры
-    public function showManagers()
-    {
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
-        // dd($user, $role);
-        // Фильтрация менеджеров
-        $managers = User::whereHas('role', function($query) {
-            $query->where('title', 'manager');
-        })->with('managerContracts')->get();
-
-        return Inertia::render('Managers', [
-            'managers' => $managers,
-            'role' => $role, // Передаем роль пользователя в Vue-компонент
-        ]);
-    }
-
+    // все пользователи
     public function showAllUsers(){
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
@@ -127,13 +94,22 @@ class AdminController extends Controller
         ]);
 
     }
+
+
+
     // регистрация user как клиент
     public function createClientsByAdmin()
     {
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
         // Получаем всех пользователей с ролью менеджера (role_id = 2)
-        $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
+        // $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
+        $managers = User::where('role_id', 2)->get()->map(function ($manager) {
+            return [
+                'id' => $manager->id,
+                'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
+            ];
+        });
         // Передаем менеджеров на страницу регистрации
         return Inertia::render('RegisterClient',[
             'managers' => $managers,
@@ -211,6 +187,63 @@ class AdminController extends Controller
         return redirect(route('admin.users'))->with('status', 'Клиент успешно зарегистрирован!');
     }
 
+     // изменение контактных данных user клиент
+     public function editClientByAdmin(User $client): Response
+     {
+         $user = Auth::user(); // Получаем текущего пользователя
+         $role = $user->role->title; // Получаем его роль
+         $managers = User::where('role_id', 2)->get()->map(function ($manager) {
+            return [
+                'id' => $manager->id,
+                'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
+            ];
+        });;
+         $assignedManagerId = $client->userContracts()->first()->manager_id;
+         //dd($user, $role, $assignedManager);
+         return Inertia::render('EditClient', [
+             'role' => $role,
+             'client' =>[
+                 'id' => $client->id,
+                 'last_name' => $client->last_name,
+                 'first_name' => $client->first_name,
+                 'middle_name' => $client->middle_name,
+                 'email' => $client->email,
+                 'phone_number' => $client->phone_number
+             ] ,
+             'managers'=>$managers,
+             'assignedManager' => $assignedManagerId
+         ]);
+     }
+     public function updateClientByAdmin(Request $request, User $client): RedirectResponse
+     {
+       // dd($request->all());
+         $request->validate([
+             'last_name' => 'required|string|max:255',
+             'first_name' => 'required|string|max:255',
+             'middle_name' => 'required|string|max:255',
+             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $client->id,
+             'phone_number' => 'required|string|max:20',
+         ]);
+         $client->last_name = $request->last_name;
+         $client->first_name = $request->first_name;
+         $client->middle_name = $request->middle_name;
+         $client->email = $request->email;
+         $client->phone_number = $request->phone_number;
+
+
+         // Обновление менеджера в промежуточной таблице user_manager
+           $client->managers()->sync([$request->manager_id]);
+
+         $client->userContracts()->update([
+            'manager_id' => $request->manager_id,
+         ]);
+         $client->save();
+         return redirect(route('admin.users'))->with('success', 'Данные клиента обновлены');
+     }
+
+
+
+
 
 
     // регистрация user как менеджера
@@ -286,48 +319,11 @@ class AdminController extends Controller
     }
 
 
-      // изменение контактных данных user клиент
-      public function editClientByAdmin(User $client): Response
-      {
-          $user = Auth::user(); // Получаем текущего пользователя
-          $role = $user->role->title; // Получаем его роль
-          $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
-          $assignedManagerId = $client->userContracts()->first()->manager_id;
-          //dd($user, $role, $assignedManager);
-          return Inertia::render('EditClient', [
-              'role' => $role,
-              'client' => $client,
-              'managers'=>$managers,
-              'assignedManager' => $assignedManagerId
-          ]);
-      }
-      public function updateClientByAdmin(Request $request, User $client): RedirectResponse
-      {
-        // dd($request->all());
-          $request->validate([
-              'last_name' => 'required|string|max:255',
-              'first_name' => 'required|string|max:255',
-              'middle_name' => 'required|string|max:255',
-              'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $client->id,
-              'phone_number' => 'required|string|max:20',
-          ]);
-          $client->last_name = $request->last_name;
-          $client->first_name = $request->first_name;
-          $client->middle_name = $request->middle_name;
-          $client->email = $request->email;
-          $client->phone_number = $request->phone_number;
+     
+     
 
 
-          // Обновление менеджера в промежуточной таблице user_manager
-            $client->managers()->sync([$request->manager_id]);
-
-          $client->userContracts()->update([
-            'manager_id' => $request->manager_id,
-          ]);
-          $client->save();
-          return redirect(route('admin.clients'))->with('success', 'Данные обновлены');
-      }
-
+    //новый договор
       public function createAddContractByAdmin()
       {
         $user = Auth::user(); // Получаем текущего пользователя
@@ -383,7 +379,7 @@ class AdminController extends Controller
 
 
 
-
+      //редакция договора
       public function editContractByAdmin(Contract $contract): Response
       {
         $user = Auth::user(); // Получаем текущего пользователя
@@ -440,6 +436,9 @@ class AdminController extends Controller
    
 
 
+
+
+      
       // Удаление user
     public function deleteUserByAdmin(User $user): RedirectResponse
     {
@@ -453,3 +452,38 @@ class AdminController extends Controller
         return redirect(route('admin.contracts'))->with('success', 'Контракт удален');
     }
 }
+
+
+
+// public function showClients()
+// {
+//     $user = Auth::user(); // Получаем текущего пользователя
+//     $role = $user->role->title; // Получаем его роль
+//     // Фильтрация клиентов
+//     $clients = User::whereHas('role', function($query) {
+//         $query->where('title', 'client'); // Фильтрация по роли 'client'
+//     })->with('userContracts')->get();
+//     // dd($clients);
+
+//     return Inertia::render('Clients', [
+//         'clients' => $clients,
+//         'role' => $role, // Передаем роль пользователя в Vue-компонент
+
+//     ]);
+// }
+// //все менеджеры
+// public function showManagers()
+// {
+//     $user = Auth::user(); // Получаем текущего пользователя
+//     $role = $user->role->title; // Получаем его роль
+//     // dd($user, $role);
+//     // Фильтрация менеджеров
+//     $managers = User::whereHas('role', function($query) {
+//         $query->where('title', 'manager');
+//     })->with('managerContracts')->get();
+
+//     return Inertia::render('Managers', [
+//         'managers' => $managers,
+//         'role' => $role, // Передаем роль пользователя в Vue-компонент
+//     ]);
+// }

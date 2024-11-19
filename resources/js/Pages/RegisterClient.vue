@@ -299,9 +299,7 @@ const submit = () => {
                                         <option value="" disabled>Выберите менеджера</option>
                                         <!-- Выводим список менеджеров -->
                                         <option v-for="manager in managers" :key="manager.id" :value="manager.id">
-                                            {{ manager.last_name }}
-                                            {{ manager.first_name }}
-                                            {{ manager.middle_name }}
+                                            {{ manager.full_name }}
                                         </option>
                                     </select>
                                     <InputError class="mt-2" :message="form.errors.manager_id" />
