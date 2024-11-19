@@ -85,7 +85,7 @@ onMounted(() => {
         </template>
     </AuthenticatedLayout>
 
-    <Modal />
+    <!-- <Modal /> -->
 </template>
 
 <style scoped>

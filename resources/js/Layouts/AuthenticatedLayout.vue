@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed  } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -14,6 +14,8 @@ import Icon_contract from '@/Components/Icon/Contract.vue';
 import Icon_applications from '@/Components/Icon/Applications.vue';
 import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
+import Icon_logs from '@/Components/Icon/Logs.vue';
+import Icon_arrow from '@/Components/Icon/Arrow.vue';
 import profileImage from '../../img/profile.png';
 
 const props = defineProps({
@@ -22,17 +24,29 @@ const props = defineProps({
         required: true,
     },
 });
+
+const isCollapsed = ref(false);
+
+const sidebarWidth = computed(() => (isCollapsed.value ? '92px' : '332px'));
+
+const contentWidth = computed(() => `calc(100vw - ${isCollapsed.value ? '92px' : '332px'})`);
+
+const arrowOpacity = computed(() => (isCollapsed.value ? 1 : 0));
+
+const toggleSidebar = () => {
+    isCollapsed.value = !isCollapsed;
+};
 </script>
 
 <template>
     <div class="flex">
-        <div class="sidebar_box flex flex-column">
+        <div class="sidebar_box flex flex-column" :style="{ width: sidebarWidth }">
             <div class="logo_hamb flex align-center justify-between">
                 <div class="flex align-center">
                     <Icon_logo style="margin-right: 12.5px;" />
                     <Icon_logo_name />
                 </div>
-                <div class="hamb_box flex flex-column">
+                <div class="hamb_box flex flex-column" @click="isCollapsed = !isCollapsed">
                     <span class="bar"></span>
                     <span class="bar"></span>
                     <span class="bar"></span>
@@ -74,12 +88,19 @@ const props = defineProps({
                 <NavLink v-if="props.userRole === 'client'" :href="route('client.balance.ransactions')">
                     Баланс и транзакции
                 </NavLink>
+                <NavLink class="logs" v-if="props.userRole === 'admin'">
+                    <Icon_logs />
+                    Логи
+                </NavLink>
             </nav>
         </div>
 
-        <div class="flex flex-column content_box">
+        <div class="flex flex-column content_box" :style="{ width: contentWidth }">
             <header class="" v-if="$slots.header">
                 <div class="flex align-center justify-end">
+                    <div class="btn_arrow" :style="{ opacity: arrowOpacity }" @click="toggleSidebar">
+                        <Icon_arrow />
+                    </div>
                     {{ props.userRole }}
                     <Icon_notifications />
                     <ResponsiveNavLink :href="route('logout')" method="post" as="button"
@@ -103,23 +124,26 @@ const props = defineProps({
 <style scoped>
 .sidebar_box {
     background: #fff;
-    width: 332px;
+    /* width: 332px; */
     height: 100vh;
     padding: 16px;
     row-gap: 32px;
+    transition: width 0.3s ease;
 }
 
 .content_box {
     background: #f3f5f6;
-    width: calc(100vw - 332px);
+    /* width: calc(100vw - 332px); */
     height: 100vh;
     padding: 22px 32px;
+    transition: width 0.3s ease;
 }
 
 .nav_box {
     margin: 0 auto;
     width: 300px;
     row-gap: 4px;
+    height: 100%;
 }
 
 .nav_box a {
@@ -136,6 +160,9 @@ const props = defineProps({
 
 .nav_box a svg {
     fill: #242424;
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s;
 }
 
 .nav_box .active,
@@ -145,6 +172,7 @@ const props = defineProps({
     border-radius: 24px;
 }
 
+.nav_box a:hover svg,
 .nav_box .active svg {
     fill: #4e9f7d;
 }
@@ -153,7 +181,7 @@ const props = defineProps({
     width: 111px;
     height: 48px;
     background: none;
-    margin-left: 16px;
+    margin-left: 10px;
 }
 
 .btn svg {
@@ -193,6 +221,17 @@ const props = defineProps({
 .profile_mail {
     margin-top: 4px;
     color: #6D757D;
+}
 
+.logs {
+    margin-top: auto;
+}
+
+.btn_arrow {
+    height: 44px;
+    width: 44px;
+    margin-right: auto;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
 }
 </style>
