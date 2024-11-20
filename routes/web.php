@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\DeleteController;
 use Illuminate\Support\Facades\App;
 
 Route::get('/', function () {
@@ -37,17 +38,26 @@ Route::middleware('auth')->group(function () {
     //сброс пароля
     Route::post('/reset-password/{user}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password');
 
+    //удаление user, contract
+    //Удаление user
+    Route::delete('/delete-user/{user}', [DeleteController::class, 'deleteUser'])->name('delete.user')->middleware(['role:admin']);
+    Route::delete('/delete-contract/{contract}', [DeleteController::class, 'deleteContract'])->name('delete.contract')->middleware(['role:admin']);
 
-     // Добавление заявки
+    // Добавление заявки
     Route::get('/add-applications', [ApplicationController::class, 'createAddApplication'])->name('add.application');
     Route::post('/add-applications', [ApplicationController::class, 'storeAddApplication']);
       //просмотр заявок
     Route::get('/show-application/{application}', [ApplicationController::class, 'showApplication'])->name('show.application');
-    Route::get('/change-status-application/{application}', [ApplicationController::class, 'changeStatusApplication'])->name('change.status.application');
-    Route::patch('/change-status-application/{application}', [ApplicationController::class, 'updateStatusApplication']);
+    Route::get('/change-status-application/{application}', [ApplicationController::class, 'changeStatusApplication'])->name('change.status.application')->middleware(['role:admin']);
+    Route::patch('/change-status-application/{application}', [ApplicationController::class, 'updateStatusApplication'])->middleware(['role:admin']);
 
 });
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/admin.php';
+require __DIR__ . '/manager.php';
+require __DIR__ . '/client.php';
+require __DIR__ . '/guest.php';
+require __DIR__ . '/application.php';
 
 

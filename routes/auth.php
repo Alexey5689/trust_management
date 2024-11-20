@@ -62,10 +62,6 @@ Route::middleware('auth')->group(function () {
          //редактирование договора
          Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('admin.edit.contract');
          Route::patch('/edit-contract/{contract}', [AdminController::class, 'updateContractByAdmin']);
-
-        //Удаление user
-        Route::delete('/delete-user/{user}', [AdminController::class, 'deleteUserByAdmin'])->name('admin.delete.user')->middleware(['role:admin']);
-        Route::delete('/delete-contract/{contract}', [AdminController::class, 'deleteContractByAdmin'])->name('admin.delete.contract')->middleware(['role:admin']);
     });
 
     Route::prefix('manager')->group(function () {

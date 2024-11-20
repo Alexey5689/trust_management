@@ -67,9 +67,7 @@ const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;
     if (selectedDuration === '1 год') {
         form.deadline = calculateDeadlineDate(1, form.create_date);
-    } else if (selectedDuration === '2 года') {
-        form.deadline = calculateDeadlineDate(2, form.create_date);
-    } else if (selectedDuration === '3 года') {
+    } else {
         form.deadline = calculateDeadlineDate(3, form.create_date);
     }
 };
@@ -237,7 +235,6 @@ const submit = () => {
                                     >
                                         <option value="" disabled>Выберите срок договора</option>
                                         <option value="1 год">1 год</option>
-                                        <option value="2 года">2 года</option>
                                         <option value="3 года">3 года</option>
                                     </select>
 
@@ -281,7 +278,6 @@ const submit = () => {
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     >
                                         <option value="" disabled>Выберите интервал выплат</option>
-                                        <option value="Ежемесячно">Ежемесячно</option>
                                         <option value="Ежеквартально">Ежеквартально</option>
                                         <option value="Ежегодно">Ежегодно</option>
                                     </select>

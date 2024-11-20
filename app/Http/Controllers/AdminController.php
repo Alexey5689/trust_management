@@ -438,19 +438,7 @@ class AdminController extends Controller
 
 
 
-      
-      // Удаление user
-    public function deleteUserByAdmin(User $user): RedirectResponse
-    {
-        // dd($user);
-          $user->delete();
-          return redirect('/')->with('success', 'User удален');
-    }
-    public function deleteContractByAdmin(Contract $contract): RedirectResponse
-    {
-        $contract->delete();
-        return redirect(route('admin.contracts'))->with('success', 'Контракт удален');
-    }
+   
 }
 
 

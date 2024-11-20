@@ -20,6 +20,18 @@ const props = defineProps({
         required: true,
     },
 });
+
+const deleteUser = (userId) => {
+    if (confirm('Вы точно хотите удалить менеджера?')) {
+        Inertia.delete(route('admin.delete.user', { user: userId }));
+    }
+};
+
+const resetPassword = (userId) => {
+    if (confirm('Вы уверены, что хотите сбросить пароль?')) {
+        Inertia.post(route('reset.password', { user: userId }));
+    }
+};
 </script>
 
 <template>

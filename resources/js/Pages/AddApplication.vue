@@ -6,6 +6,7 @@ import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { parseISO, differenceInYears, format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -48,6 +49,7 @@ const conditionRadio = (tmp) => {
         form.sum = dividends.value;
     }
 };
+const formatDate = (date) => format(parseISO(date), 'd MMMM yyyy', { locale: ru }); // Форматируем дату
 
 const processingRadio = (kind) => {
     processing.value = kind;
@@ -65,21 +67,12 @@ const handleGetContract = (contract_id) => {
     let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline;
     procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent;
     form.manager_id = userContract.value.user_contracts.find((contract) => contract.id === contract_id).manager_id;
-    //console.log(procent.value)
 
-    if (getYearDifference(tmpCreate, tmpDeadline) === 2) {
-        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 24;
-    } else if (getYearDifference(tmpCreate, tmpDeadline) === 1) {
-        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 12;
-    } else {
-        dividends.value = ((sum.value * (procent.value / 100)) / 12) * 36;
-    }
+    const termYears = getYearDifference(tmpCreate, tmpDeadline);
 
-    create_date.value = format(parseISO(tmpCreate), 'dd/MM/yyyy');
-    term.value =
-        getYearDifference(tmpCreate, tmpDeadline) === 1
-            ? getYearDifference(tmpCreate, tmpDeadline) + ' год'
-            : getYearDifference(tmpCreate, tmpDeadline) + ' года';
+    dividends.value = sum.value * (procent.value / 100) * termYears;
+    create_date.value = formatDate(tmpCreate);
+    term.value = termYears === 1 ? termYears + ' год' : termYears + ' года';
 };
 const form = useForm({
     create_date: new Date().toISOString().substr(0, 10),
