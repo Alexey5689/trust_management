@@ -3,9 +3,9 @@
     use App\Http\Controllers\ManagerController;
     use App\Http\Controllers\ProfileController;
 
-    Route::middleware('auth')->group(function () {
+    Route::middleware('auth', 'role:manager')->group(function () {
         Route::prefix('manager')->group(function () {
-            Route::get('/profile', [ProfileController::class, 'createProfile'])->name('manager.profile')->middleware(['role:manager']);
+            Route::get('/profile', [ProfileController::class, 'createProfile'])->name('manager.profile');
             Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
             Route::get('/contracts', [ManagerController::class, 'showContracts'])->name('manager.contracts');
             Route::get('/applications', [ManagerController::class, 'createApplications'])->name('manager.applications');

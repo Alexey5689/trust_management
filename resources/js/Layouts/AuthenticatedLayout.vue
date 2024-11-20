@@ -1,11 +1,7 @@
 <script setup>
-import { ref, computed  } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
+import { ref, computed } from 'vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
 import Icon_exit from '@/Components/Icon/Exit.vue';
 import Icon_notifications from '@/Components/Icon/Notifications.vue';
 import Icon_personal_account from '@/Components/Icon/PersonalAccount.vue';
@@ -22,6 +18,10 @@ const props = defineProps({
     userRole: {
         type: String,
         required: true,
+    },
+    userInfo: {
+        type: Array,
+        required: false,
     },
 });
 
@@ -43,7 +43,7 @@ const toggleSidebar = () => {
         <div class="sidebar_box flex flex-column" :style="{ width: sidebarWidth }">
             <div class="logo_hamb flex align-center justify-between">
                 <div class="flex align-center">
-                    <Icon_logo style="margin-right: 12.5px;" />
+                    <Icon_logo style="margin-right: 12.5px" />
                     <Icon_logo_name />
                 </div>
                 <div class="hamb_box flex flex-column" @click="isCollapsed = !isCollapsed">
@@ -54,34 +54,46 @@ const toggleSidebar = () => {
             </div>
             <div class="profile flex flex-column align-center">
                 <div class="profile_img flex align-center justify-center">
-                    <img :src="profileImage" alt="profile">
+                    <img :src="profileImage" alt="profile" />
                 </div>
-                <p class="profile_name">Сергей Демидов</p>
-                <span class="profile_mail">demidov23232399@icloud.com</span>
+                <p class="profile_name">{{ props.userInfo?.full_name }}</p>
+                <span class="profile_mail">{{ props.userInfo?.email }}</span>
             </div>
             <nav class="flex flex-column nav_box">
-                <NavLink :href="route(`${props.userRole}.profile`)"
-                    :active="route().current(`${props.userRole}.profile`)">
+                <NavLink
+                    :href="route(`${props.userRole}.profile`)"
+                    :active="route().current(`${props.userRole}.profile`)"
+                >
                     <Icon_personal_account />
                     Личный кабинет
                 </NavLink>
-                <NavLink v-if="props.userRole === 'admin'" :href="route('admin.users')"
-                    :active="route().current('admin.users')">
+                <NavLink
+                    v-if="props.userRole === 'admin'"
+                    :href="route('admin.users')"
+                    :active="route().current('admin.users')"
+                >
                     <Icon_users />
                     Пользователи
                 </NavLink>
-                <NavLink v-if="props.userRole === 'manager'" :href="route(`${props.userRole}.clients`)"
-                    :active="route().current(`${props.userRole}.clients`)">
+                <NavLink
+                    v-if="props.userRole === 'manager'"
+                    :href="route(`${props.userRole}.clients`)"
+                    :active="route().current(`${props.userRole}.clients`)"
+                >
                     <Icon_users />
                     Клиенты
                 </NavLink>
-                <NavLink :href="route(`${props.userRole}.contracts`)"
-                    :active="route().current(`${props.userRole}.contracts`)">
+                <NavLink
+                    :href="route(`${props.userRole}.contracts`)"
+                    :active="route().current(`${props.userRole}.contracts`)"
+                >
                     <Icon_contract />
                     Договоры
                 </NavLink>
-                <NavLink :href="route(`${props.userRole}.applications`)"
-                    :active="route().current(`${props.userRole}.applications`)">
+                <NavLink
+                    :href="route(`${props.userRole}.applications`)"
+                    :active="route().current(`${props.userRole}.applications`)"
+                >
                     <Icon_applications />
                     Заявки
                 </NavLink>
@@ -102,9 +114,14 @@ const toggleSidebar = () => {
                         <Icon_arrow />
                     </div>
                     {{ props.userRole }}
+                    {{ props.userInfo }}
                     <Icon_notifications />
-                    <ResponsiveNavLink :href="route('logout')" method="post" as="button"
-                        class="flex align-center justify-center btn">
+                    <ResponsiveNavLink
+                        :href="route('logout')"
+                        method="post"
+                        as="button"
+                        class="flex align-center justify-center btn"
+                    >
                         <Icon_exit />
                         Выйти
                     </ResponsiveNavLink>
@@ -209,7 +226,7 @@ const toggleSidebar = () => {
 .profile_img {
     width: 90px;
     height: 90px;
-    background: #F3F5F6;
+    background: #f3f5f6;
     border-radius: 205px;
 }
 
@@ -220,7 +237,7 @@ const toggleSidebar = () => {
 
 .profile_mail {
     margin-top: 4px;
-    color: #6D757D;
+    color: #6d757d;
 }
 
 .logs {

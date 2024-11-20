@@ -1,12 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ResetPasswordController;
-use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\DeleteController;
-use Illuminate\Support\Facades\App;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CreatingPasswordController;
 
 Route::get('/', function () {
     if (!Auth::check()) {
@@ -25,39 +23,30 @@ Route::get('/', function () {
 });
 
 
-Route::middleware('auth')->group(function () {
-    //редакция профиль пользователя. смена пароля.емена почты
-    Route::get('profile/edit',[ProfileController::class, 'editProfile'])->name('profile.edit');
-    Route::patch('profile/edit', [ProfileController::class, 'updateProfile'])->name('profile.update');
-    Route::get('password/edit', [ProfileController::class, 'editPassword'])->name('password.edit');
-    Route::patch('password/edit', [ProfileController::class, 'updatePassword'])->name('password.update');
-    Route::get('email/edit', [ProfileController::class, 'editEmail'])->name('email.edit')->middleware(['role:admin']);
-    Route::patch('email/edit', [ProfileController::class, 'updateEmail'])->name('email.update')->middleware(['role:admin']);
+Route::middleware('guest')->group(function () {
+    //вход
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
+    // создание пароля
+    Route::get('create-password/{token}', [CreatingPasswordController::class, 'create'])
+        ->name('password.set');
 
-    //сброс пароля
-    Route::post('/reset-password/{user}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password');
-
-    //удаление user, contract
-    //Удаление user
-    Route::delete('/delete-user/{user}', [DeleteController::class, 'deleteUser'])->name('delete.user')->middleware(['role:admin']);
-    Route::delete('/delete-contract/{contract}', [DeleteController::class, 'deleteContract'])->name('delete.contract')->middleware(['role:admin']);
-
-    // Добавление заявки
-    Route::get('/add-applications', [ApplicationController::class, 'createAddApplication'])->name('add.application');
-    Route::post('/add-applications', [ApplicationController::class, 'storeAddApplication']);
-      //просмотр заявок
-    Route::get('/show-application/{application}', [ApplicationController::class, 'showApplication'])->name('show.application');
-    Route::get('/change-status-application/{application}', [ApplicationController::class, 'changeStatusApplication'])->name('change.status.application')->middleware(['role:admin']);
-    Route::patch('/change-status-application/{application}', [ApplicationController::class, 'updateStatusApplication'])->middleware(['role:admin']);
+    Route::patch('create-password', [CreatingPasswordController::class, 'update'])
+        ->name('password.create');
+});
+Route::middleware('auth',)->group(function () {
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+     //сброс пароля
+     Route::post('/reset-password/{user}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password')->middleware(['role:admin', 'role:manager']);
 
 });
 
-require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
 require __DIR__ . '/manager.php';
 require __DIR__ . '/client.php';
-require __DIR__ . '/guest.php';
+require __DIR__ . '/delete.php';
 require __DIR__ . '/application.php';
+require __DIR__ . '/edit.php';
 
 

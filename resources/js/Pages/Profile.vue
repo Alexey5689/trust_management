@@ -39,7 +39,7 @@ onMounted(() => {
 
 <template>
     <Head title="Profile" />
-    <AuthenticatedLayout :userRole="props.role">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
         <template #header>
             <h2 class="title">Личный кабинет</h2>
         </template>
