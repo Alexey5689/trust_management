@@ -15,17 +15,20 @@
             //изменение менеджера
             Route::get('/edit-manager/{manager}', [AdminController::class, 'editManagersByAdmin'])->name('admin.edit.manager');
             Route::patch('/edit-manager/{manager}', [AdminController::class, 'updateManagersByAdmin']);
-            //изменение клиента
-            Route::get('/edit-client/{client}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client');
-            Route::patch('/edit-client/{client}', [AdminController::class, 'updateClientByAdmin']);
             //рег клиент
             Route::get('/registration-client', [AdminController::class, 'createClientsByAdmin'])->name('admin.registration.client');
             Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);
-             //Добавление договора
+            //изменение клиента
+            Route::get('/edit-client/{client}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client');
+            Route::patch('/edit-client/{client}', [AdminController::class, 'updateClientByAdmin']);
+            //Добавление договора
              Route::get('/add-contract', [AdminController::class, 'createAddContractByAdmin'])->name('admin.add.contract');
              Route::post('/add-contract', [AdminController::class, 'storeAddContractByAdmin']);
-             //редактирование договора
+            //редактирование договора
              Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('admin.edit.contract');
              Route::patch('/edit-contract/{contract}', [AdminController::class, 'updateContractByAdmin']);
+            //редакция профиль пользователя.емена почты
+             Route::get('email/edit', [ProfileController::class, 'editEmail'])->name('email.edit');
+             Route::patch('email/edit', [ProfileController::class, 'updateEmail'])->name('email.update');
         });
     });

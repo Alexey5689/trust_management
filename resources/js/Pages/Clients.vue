@@ -20,7 +20,7 @@ const props = defineProps({
 
 const deleteUser = (clientId) => {
     if (confirm('Вы точно хотите удалить менеджера?')) {
-        Inertia.delete(route('admin.delete.user', { user: clientId }));
+        Inertia.delete(route('delete.user', { user: clientId }));
     }
 };
 

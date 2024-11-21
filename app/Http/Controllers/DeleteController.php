@@ -19,6 +19,7 @@ class DeleteController extends Controller
       }
       public function deleteContract(Contract $contract): RedirectResponse
       {
+          //dd($contract);
           $contract->delete();
           return redirect(route('admin.contracts'))->with('success', 'Контракт удален');
       }

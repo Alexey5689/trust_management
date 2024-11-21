@@ -198,7 +198,7 @@ class AdminController extends Controller
                 'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
             ];
         });;
-         $assignedManagerId = $client->userContracts()->first()->manager_id;
+         $assignedManagerId = $client->userContracts()->first()->manager_id ?? 'Менеджер не назначен';
          //dd($user, $role, $assignedManager);
          return Inertia::render('EditClient', [
              'role' => $role,
@@ -216,7 +216,7 @@ class AdminController extends Controller
      }
      public function updateClientByAdmin(Request $request, User $client): RedirectResponse
      {
-       // dd($request->all());
+       //dd($request->all());
          $request->validate([
              'last_name' => 'required|string|max:255',
              'first_name' => 'required|string|max:255',
@@ -231,12 +231,12 @@ class AdminController extends Controller
          $client->phone_number = $request->phone_number;
 
 
-         // Обновление менеджера в промежуточной таблице user_manager
-           $client->managers()->sync([$request->manager_id]);
+        // Обновление менеджера в промежуточной таблице user_manager
+        $client->managers()->sync([$request->manager_id]);
 
-         $client->userContracts()->update([
+        $client->userContracts()->update([
             'manager_id' => $request->manager_id,
-         ]);
+        ]);
          $client->save();
          return redirect(route('admin.users'))->with('success', 'Данные клиента обновлены');
      }
@@ -315,7 +315,7 @@ class AdminController extends Controller
         $manager->email = $request->email;
         $manager->phone_number = $request->phone_number;
         $manager->save();
-        return redirect(route('admin.managers'))->with('success', 'Данные обновлены');
+        return redirect(route('admin.users'))->with('success', 'Данные обновлены');
     }
 
 
@@ -433,12 +433,54 @@ class AdminController extends Controller
         return redirect(route('admin.contracts'))->with('success', 'Контракт успешно обновлен!');
       }
 
-   
+      public function changeStatusApplication(Application $application){
+        $user = Auth::user();
+        $role = $user->role->title;
+        return Inertia::render('ChangeStatusApplication', [
+            'role' => $role,
+            'application' => [
+                'id' => $application->id,
+                'status' => $application->status,
+            ],
+        ]);
+    }
+    public function updateStatusApplication(Request $request, Application $application)
+    {
+        //dd($request->all(), $application);
+        $user = Auth::user();
+        $role = $user->role->title;
 
+        // Обновляем статус заявки
+        $application->status = $request->status;
 
+        // Если статус "Исполнена", создаем транзакцию
+        if ($request->status === 'Исполнена') {
+            $application->user->userTransactions()->create([
+                'contract_id' => $application->contract_id,
+                'manager_id' => $application->manager_id,
+                'user_id' => $application->user_id,
+                'date_transition' => $application->date_of_payments,
+                'sum_transition' => $application->sum,
+                'sourse' => 'Заявка',
+            ]);
 
+            $message = 'Статус заявки успешно изменен! Транзакция создана.';
+            if($application->condition === 'Раньше срока'){
+                $contract = Contract::find($application->contract_id);
+                $contract->update([
+                    'contract_status' => 'false',
+                ]);
+            }
+        } else {
+            $message = 'Статус заявки успешно изменен!';
+        }
 
-   
+        // Сохраняем изменения в заявке
+        $application->save();
+
+        // Редирект с сообщением
+        return redirect(route($role . '.applications'))->with('success', $message);
+    }  
 }
 
 

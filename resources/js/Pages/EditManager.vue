@@ -26,9 +26,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.patch(route('admin.edit.manager', { manager: props.manager.id }), {
-        // onFinish: () => form.reset('password', 'password_confirmation'),
-    });
+    form.patch(route('admin.edit.manager', { manager: props.manager.id }), {});
 };
 </script>
 
@@ -114,7 +112,7 @@ const submit = () => {
                                         required
                                     />
 
-                                    <InputError class="mt-2" :message="form.errors.email" />
+                                    <InputError class="mt-2" :message="form.errors.phone_number" />
                                 </div>
                                 <div class="flex items-center justify-end mt-4">
                                     <PrimaryButton

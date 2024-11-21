@@ -27,7 +27,7 @@ const getYearDifference = (startDate, endDate) => {
 };
 const deleteContract = (contractId) => {
     if (confirm('Вы точно хотите удалить договор?')) {
-        Inertia.delete(route('admin.delete.contract', { contract: contractId }));
+        Inertia.delete(route('delete.contract', { contract: contractId }));
     }
 };
 const nowDate = format(new Date(), 'yyyy-MM-dd');

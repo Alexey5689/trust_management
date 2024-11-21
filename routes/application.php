@@ -1,14 +1,22 @@
 <?php
+
+    use App\Http\Controllers\AdminController;
     use App\Http\Controllers\ApplicationController;
     use Illuminate\Support\Facades\Route;
-    Route::middleware('auth')->group(function () {
+
+
+
+    Route::middleware('auth', 'role:admin')->group(function () {
+        Route::get('/change-status-application/{application}', [AdminController::class, 'changeStatusApplication'])->name('change.status.application');
+        Route::patch('/change-status-application/{application}', [AdminController::class, 'updateStatusApplication']);
+    });
+    Route::middleware('auth', 'role:admin,manager')->group(function () {
         // Добавление заявки
-        Route::get('/add-applications', [ApplicationController::class, 'createAddApplication'])->name('add.application')->middleware(['role:admin']);
-        Route::post('/add-applications', [ApplicationController::class, 'storeAddApplication'])->middleware(['role:admin', 'role:manager']);
+        Route::get('/add-applications', [ApplicationController::class, 'createAddApplication'])->name('add.application');
+        Route::post('/add-applications', [ApplicationController::class, 'storeAddApplication']);
         //просмотр заявок
-        Route::get('/show-application/{application}', [ApplicationController::class, 'showApplication'])->name('show.application')->middleware(['role:admin', 'role:manager']);
-        Route::get('/change-status-application/{application}', [ApplicationController::class, 'changeStatusApplication'])->name('change.status.application')->middleware(['role:admin']);
-        Route::patch('/change-status-application/{application}', [ApplicationController::class, 'updateStatusApplication'])->middleware(['role:admin']);
+        Route::get('/show-application/{application}', [ApplicationController::class, 'showApplication'])->name('show.application');
+        
     });
 
 

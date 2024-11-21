@@ -22,13 +22,13 @@ const props = defineProps({
 });
 
 const deleteUser = (userId) => {
-    if (confirm('Вы точно хотите удалить менеджера?')) {
-        Inertia.delete(route('admin.delete.user', { user: userId }));
+    if (confirm('Вы точно хотите удалить пользователя?')) {
+        Inertia.delete(route('delete.user', { user: userId }));
     }
 };
 
 const resetPassword = (userId) => {
-    if (confirm('Вы уверены, что хотите сбросить пароль?')) {
+    if (confirm('Вы уверены, что хотите сбросить пароль пользователю?')) {
         Inertia.post(route('reset.password', { user: userId }));
     }
 };
@@ -47,7 +47,7 @@ const resetPassword = (userId) => {
                 <header>
                     <h2 class="title-card">Клиенты</h2>
                 </header>
-                <!-- {{ props.clients }} -->
+                {{ props.clients }}
                 <div class="card-content flex" v-for="client in props.clients" :key="client.id">
                     <div class="card-item">
                         <InputLabel for="number" value="№" />

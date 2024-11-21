@@ -38,7 +38,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth',)->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
      //сброс пароля
-     Route::post('/reset-password/{user}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password')->middleware(['role:admin', 'role:manager']);
+    Route::post('/reset-password/{user}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password')->middleware(['role:admin,manager']);
 
 });
 
