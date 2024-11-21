@@ -25,10 +25,10 @@
              Route::get('/add-contract', [AdminController::class, 'createAddContractByAdmin'])->name('admin.add.contract');
              Route::post('/add-contract', [AdminController::class, 'storeAddContractByAdmin']);
             //редактирование договора
-             Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('admin.edit.contract');
+             Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('edit.contract');
              Route::patch('/edit-contract/{contract}', [AdminController::class, 'updateContractByAdmin']);
             //редакция профиль пользователя.емена почты
-             Route::get('email/edit', [ProfileController::class, 'editEmail'])->name('email.edit');
-             Route::patch('email/edit', [ProfileController::class, 'updateEmail'])->name('email.update');
+             Route::get('email/edit', [ProfileController::class, 'editEmailByAdmin'])->name('email.edit');
+             Route::patch('email/edit', [ProfileController::class, 'updateEmailByAdmin'])->name('email.update');
         });
     });

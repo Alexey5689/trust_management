@@ -65,7 +65,22 @@ class AdminController extends Controller
     public function showAllContracts(){
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
-        $contracts = Contract::with(['user'])->get();
+        $contracts = Contract::with(['user'])->get() ->map(function ($contract) {
+            return [
+                'id' => $contract->id,
+                'contract_number' => $contract->contract_number,
+                'create_date' => $contract->create_date,
+                'sum' => $contract->sum,
+                'deadline' => $contract->deadline,
+                'procent' => $contract->procent,
+                'payments' => $contract->payments,
+                'contract_status' => $contract->contract_status,
+                'user' => [
+                    'id' => $contract->user->id,
+                    'full_name' => $contract->user->last_name . ' ' . $contract->user->first_name . ' ' . $contract->user->middle_name,
+                ]
+            ];
+        });
         return Inertia::render('Contracts', [
             'role' => $role, // Передаем роль пользователя в Vue-компонент
             'contracts'=> $contracts
@@ -103,7 +118,6 @@ class AdminController extends Controller
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
         // Получаем всех пользователей с ролью менеджера (role_id = 2)
-        // $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
         $managers = User::where('role_id', 2)->get()->map(function ($manager) {
             return [
                 'id' => $manager->id,
@@ -141,19 +155,6 @@ class AdminController extends Controller
             'token' => Str::random(60),
             'refresh_token' => Str::random(60),
         ]);
-
-
-        // $loggedInUser = Auth::user();
-        // $loggedInUser = User::with('role')->find(Auth::id());
-
-        // if ($loggedInUser->isAdmin()) {
-        //     // Если админ — берем менеджера из запроса
-
-        // } else {
-        //     // Если менеджер — его ID
-        //     $manager_id = $loggedInUser->id;
-        // }
-
 
         $manager_id = $request->manager_id;
         // Записываем менеджера в таблицу user_manager
@@ -482,38 +483,3 @@ class AdminController extends Controller
         return redirect(route($role . '.applications'))->with('success', $message);
     }  
 }
-
-
-
-// public function showClients()
-// {
-//     $user = Auth::user(); // Получаем текущего пользователя
-//     $role = $user->role->title; // Получаем его роль
-//     // Фильтрация клиентов
-//     $clients = User::whereHas('role', function($query) {
-//         $query->where('title', 'client'); // Фильтрация по роли 'client'
-//     })->with('userContracts')->get();
-//     // dd($clients);
-
-//     return Inertia::render('Clients', [
-//         'clients' => $clients,
-//         'role' => $role, // Передаем роль пользователя в Vue-компонент
-
-//     ]);
-// }
-// //все менеджеры
-// public function showManagers()
-// {
-//     $user = Auth::user(); // Получаем текущего пользователя
-//     $role = $user->role->title; // Получаем его роль
-//     // dd($user, $role);
-//     // Фильтрация менеджеров
-//     $managers = User::whereHas('role', function($query) {
-//         $query->where('title', 'manager');
-//     })->with('managerContracts')->get();
-
-//     return Inertia::render('Managers', [
-//         'managers' => $managers,
-//         'role' => $role, // Передаем роль пользователя в Vue-компонент
-//     ]);
-// }

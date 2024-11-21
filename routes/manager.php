@@ -18,8 +18,6 @@
             //Добавление договора
             Route::get('/add-contract', [ManagerController::class, 'createAddContractByManager'])->name('manager.add.contract');
             Route::post('/add-contract', [ManagerController::class, 'storeAddContractByManager']);
-    
-    
         });
     });
     

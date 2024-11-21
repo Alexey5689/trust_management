@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Contract;
-use App\Models\Application;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -48,7 +47,22 @@ class ManagerController extends Controller
         $role = $user->role->title; // Получаем его роль
          // Явно указываем тип переменной $user
         /** @var User $user */
-        $contracts = $user->managerContracts()->with('user')->get();
+        $contracts = $user->managerContracts()->with('user')->get()->map(function ($contract) {
+            return [
+                'id' => $contract->id,
+                'contract_number' => $contract->contract_number,
+                'create_date' => $contract->create_date,
+                'sum' => $contract->sum,
+                'deadline' => $contract->deadline,
+                'procent' => $contract->procent,
+                'payments' => $contract->payments,
+                'contract_status' => $contract->contract_status,
+                'user' => [
+                    'id' => $contract->user->id,
+                    'full_name' => $contract->user->last_name . ' ' . $contract->user->first_name . ' ' . $contract->user->middle_name,
+                ]
+            ];
+        });
         return Inertia::render('Contracts', [
             'contracts' => $contracts,
             'role' => $role,
@@ -99,20 +113,6 @@ class ManagerController extends Controller
         $manager_id = $loggedInUser->id;
 
 
-        //  // Получение ID менеджера
-        //  $manager_id = Auth::id();
-
-        //  // Связь с менеджером
-        //  $user->managers()->attach($manager_id);
-
-        // if ($loggedInUser->isAdmin()) {
-        //     // Если админ — берем менеджера из запроса
-        //     $manager_id = $request->manager_id;
-        // } else {
-        //     // Если менеджер — его ID
-        //     $manager_id = $loggedInUser->id;
-        // }
-
         // Записываем менеджера в таблицу user_manager
         $user->managers()->attach($manager_id);
 
@@ -150,9 +150,7 @@ class ManagerController extends Controller
       {
           $user = Auth::user(); // Получаем текущего пользователя
           $role = $user->role->title; // Получаем его роль
-        //   $managers = User::where('role_id', 2)->get(['id', 'last_name', 'first_name', 'middle_name']);
-        //   $assignedManagerId = $client->userContracts()->first()->manager_id;
-          //dd($user, $role, $assignedManager);
+       
           return Inertia::render('EditClient', [
               'role' => $role,
               'client' => $client,
@@ -177,15 +175,13 @@ class ManagerController extends Controller
           $client->phone_number = $request->phone_number;
 
 
-        //   $client->userContracts()->update([
-        //     'manager_id' => $request->manager_id,
-        //   ]);
           $client->save();
           return redirect(route('manager.clients'))->with('success', 'Данные обновлены');
       }
 
       public function createAddContractByManager()
       {
+        
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
         $clients = $user->managedUsers->map(function ($client) {
@@ -202,7 +198,7 @@ class ManagerController extends Controller
       }
       public function storeAddContractByManager(Request $request)
       {
-        // dd($request->all());
+        //dd($request->all());
         $request->validate([
             'contract_number' => 'required|integer|unique:'. Contract::class,
             'procent' => 'required|integer',
@@ -227,30 +223,6 @@ class ManagerController extends Controller
         ]);
         return redirect(route('manager.contracts'))->with('success', 'Контракт успешно создан!');
       }
-
-
-    //   public function editContractByManager(){
-    //     $user = Auth::user();
-    //     $role = $user->role->title;
-    //     $contracts = $user->managerContracts->map(function ($contract) {
-    //         return [
-    //             'id' => $contract->id,
-    //             'full_name' => $contract->user->first_name. ' ' .$contract->user->last_name. ' ' .$contract->user->middle_name,
-    //             'contract_number' => $contract->contract_number,
-    //             'create_date' => $contract->create_date,
-    //             'sum' => $contract->sum,
-    //             'deadline' => $contract->deadline,
-    //             'procent' => $contract->procent,
-    //             'payments' => $contract->payments,
-    //             'agree_with_terms' => $contract->agree_with_terms,
-    //             'contract_status' => $contract->contract_status,
-    //         ];
-    //     });
-    //     return Inertia::render('EditContract', [
-    //         'role' => $role,
-    //         'contracts' => $contracts,
-    //     ]);
-    //   }
 
       public function createApplications(){
         $user = Auth::user();

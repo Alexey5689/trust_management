@@ -5,9 +5,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { parseISO, differenceInYears, format } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { Head, useForm } from '@inertiajs/vue3';
+import { formatDate, getYearDifference, calculateDeadlineDate } from '@/helpers.js';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -26,8 +25,6 @@ const props = defineProps({
 });
 
 const selectedDuration = ref('');
-const formatDate = (date) => format(parseISO(date), 'd MMMM yyyy', { locale: ru }); // Форматируем дату
-
 const form = useForm({
     user_id: props.contract.user_id,
     contract_number: props.contract.contract_number,
@@ -40,47 +37,18 @@ const form = useForm({
     payments: props.contract.payments, // Выплаты
 });
 
-// Функция для вычисления даты окончания договора на основе даты подписания
-const calculateDeadlineDate = (years, createDate) => {
-    const date = new Date(createDate);
-    console.log('Дата ебать', date);
-
-    // Сохраняем день и месяц из даты подписания
-    const day = date.getDate();
-    const month = date.getMonth();
-
-    // Прибавляем годы
-    date.setFullYear(date.getFullYear() + years);
-
-    // Проверяем, чтобы месяц и день совпадали после изменения года
-    // Если дата сместилась (например, 29 февраля в невисокосном году), мы устанавливаем исходный день
-    if (date.getMonth() !== month) {
-        date.setDate(0); // Устанавливаем последний день предыдущего месяца
-    } else {
-        date.setDate(day); // Восстанавливаем день
-    }
-
-    return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
-};
-
 // Обработчик изменения срока договора
 const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;
     if (selectedDuration === '1 год') {
         form.deadline = calculateDeadlineDate(1, props.contract.create_date);
-    } else if (selectedDuration === '2 года') {
-        form.deadline = calculateDeadlineDate(2, props.contract.create_date);
-    } else if (selectedDuration === '3 года') {
+    } else {
         form.deadline = calculateDeadlineDate(3, props.contract.create_date);
     }
 };
 
-const getYearDifference = (startDate, endDate) => {
-    return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
-};
-
 const submit = () => {
-    form.patch(route('admin.edit.contract', { contract: props.contract.id }), {
+    form.patch(route('edit.contract', { contract: props.contract.id }), {
         onFinish: () =>
             form.reset(
                 'contract_number',
@@ -94,7 +62,7 @@ const submit = () => {
             ),
     });
 
-    console.log(form);
+    // console.log(form);
 };
 </script>
 
@@ -181,7 +149,6 @@ const submit = () => {
                                             }}
                                         </option>
                                         <option value="1 год">1 год</option>
-                                        <option value="2 года">2 года</option>
                                         <option value="3 года">3 года</option>
                                     </select>
                                     <InputError class="mt-2" :message="form.errors.deadline" />
@@ -224,7 +191,6 @@ const submit = () => {
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     >
                                         <option value="" disabled>Выберите интервал выплат</option>
-                                        <option value="Ежемесячно">Ежемесячно</option>
                                         <option value="Ежеквартально">Ежеквартально</option>
                                         <option value="Ежегодно">Ежегодно</option>
                                     </select>

@@ -2,12 +2,11 @@
 import InputLabel from '@/Components/InputLabel.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { parseISO, differenceInYears, format } from 'date-fns';
-import { ru } from 'date-fns/locale';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import { Inertia } from '@inertiajs/inertia';
+import { formatDate } from '@/helpers.js';
+
 const props = defineProps({
     role: {
         type: Object,
@@ -18,7 +17,6 @@ const props = defineProps({
         required: true,
     },
 });
-const formatDate = (date) => format(parseISO(date), 'd MMMM yyyy', { locale: ru }); // Форматируем дату
 </script>
 <template>
     <Head title="Applications" />

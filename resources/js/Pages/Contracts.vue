@@ -6,8 +6,8 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Inertia } from '@inertiajs/inertia';
-import { parseISO, differenceInYears, format, differenceInDays } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { format } from 'date-fns';
+import { formatDate, getYearDifference } from '@/helpers.js';
 import { computed, ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 const props = defineProps({
@@ -21,15 +21,12 @@ const props = defineProps({
     },
 });
 
-const formatDate = (date) => format(parseISO(date), 'd MMMM yyyy', { locale: ru }); // Форматируем дату
-const getYearDifference = (startDate, endDate) => {
-    return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
-};
 const deleteContract = (contractId) => {
     if (confirm('Вы точно хотите удалить договор?')) {
         Inertia.delete(route('delete.contract', { contract: contractId }));
     }
 };
+
 const nowDate = format(new Date(), 'yyyy-MM-dd');
 // Вычисление основной суммы
 const sum = computed(() => {
@@ -42,8 +39,6 @@ const dividents = ref(null);
 const getDividends = (rate) => {
     dividents.value = 0;
     props.contracts.forEach((contract) => {
-        const termYears = differenceInYears(parseISO(contract.deadline), parseISO(contract.create_date));
-
         const dailyRate = (contract.sum * (contract.procent / 100)) / rate;
         dividents.value += dailyRate;
     });
@@ -66,14 +61,13 @@ const getDividends = (rate) => {
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
+                            {{ props.contracts }}
                             <div v-if="props.contracts.length == 0">Договоров нет</div>
                             <div v-else class="client" v-for="contract in props.contracts" :key="contract.id">
                                 <div v-if="props.role === 'admin' || props.role === 'manager'">
                                     <InputLabel for="contract_number" value="Клиент" />
                                     <p>
-                                        {{ contract.user.last_name }}
-                                        {{ contract.user.first_name }}
-                                        {{ contract.user.middle_name }}
+                                        {{ contract.user.full_name }}
                                     </p>
                                 </div>
                                 <div>
@@ -81,13 +75,13 @@ const getDividends = (rate) => {
                                     <p>{{ contract.contract_number }}</p>
                                 </div>
                                 <div>
-                                    <InputLabel for="contract_number" value="Дата" />
+                                    <InputLabel for="create_date" value="Дата" />
                                     <p>
                                         {{ formatDate(contract.create_date) }}
                                     </p>
                                 </div>
                                 <div>
-                                    <InputLabel for="contract_number" value="Срок договора" />
+                                    <InputLabel for="contract_term" value="Срок договора" />
                                     <p>
                                         {{
                                             getYearDifference(contract.create_date, contract.deadline) === 1
@@ -97,16 +91,16 @@ const getDividends = (rate) => {
                                     </p>
                                 </div>
                                 <div>
-                                    <InputLabel for="contract_number" value="Ставка %" />
+                                    <InputLabel for="procent" value="Ставка %" />
                                     <p>{{ contract.procent }}</p>
                                 </div>
 
                                 <div v-if="(role === 'admin' || role === 'manager') && contract.payments">
-                                    <InputLabel for="contract_number" value="Выплаты" />
+                                    <InputLabel for="payments" value="Выплаты" />
                                     <p>{{ contract.payments }}</p>
                                 </div>
                                 <div>
-                                    <InputLabel for="contract_number" value="Сумма" />
+                                    <InputLabel for="sum" value="Сумма" />
                                     <p>{{ contract.sum }}</p>
                                 </div>
                                 <Dropdown v-if="role === 'admin'" align="right" width="48">
@@ -136,7 +130,7 @@ const getDividends = (rate) => {
                                     <template #content>
                                         <DropdownLink
                                             :href="
-                                                route(`admin.edit.contract`, {
+                                                route(`edit.contract`, {
                                                     contract: contract.id,
                                                 })
                                             "

@@ -1,5 +1,4 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -7,6 +6,7 @@ import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { calculateDeadlineDate } from '@/helpers.js';
 
 const props = defineProps({
     clients: Array, // Менеджеры, которые переданы из контроллера
@@ -30,29 +30,6 @@ const form = useForm({
     contract_status: true,
     payments: '', // Выплаты
 });
-
-// Функция для вычисления даты окончания договора на основе даты подписания
-const calculateDeadlineDate = (years, createDate) => {
-    const date = new Date(createDate);
-    console.log('Дата ебать', date);
-
-    // Сохраняем день и месяц из даты подписания
-    const day = date.getDate();
-    const month = date.getMonth();
-
-    // Прибавляем годы
-    date.setFullYear(date.getFullYear() + years);
-
-    // Проверяем, чтобы месяц и день совпадали после изменения года
-    // Если дата сместилась (например, 29 февраля в невисокосном году), мы устанавливаем исходный день
-    if (date.getMonth() !== month) {
-        date.setDate(0); // Устанавливаем последний день предыдущего месяца
-    } else {
-        date.setDate(day); // Восстанавливаем день
-    }
-
-    return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
-};
 
 // Обработчик изменения срока договора
 const handleDeadlineChange = (event) => {

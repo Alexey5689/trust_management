@@ -100,7 +100,7 @@ class ProfileController extends Controller
         return redirect('/');
     }
 
-    public function editEmail()
+    public function editEmailByAdmin()
     {
         $user = Auth::user();
         $role = $user->role->title;
@@ -111,7 +111,7 @@ class ProfileController extends Controller
             'userEmail' => $userEmail
         ]);
     }
-    public function updateEmail(Request $request)
+    public function updateEmailByAdmin(Request $request)
     {
         $request->validate([
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,

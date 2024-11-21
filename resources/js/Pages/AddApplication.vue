@@ -4,10 +4,9 @@ import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { parseISO, differenceInYears, format } from 'date-fns';
-import { ru } from 'date-fns/locale';
-import { ref, computed } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import { formatDate, getYearDifference } from '@/helpers.js';
+import { ref } from 'vue';
 
 const props = defineProps({
     role: {
@@ -49,7 +48,6 @@ const conditionRadio = (tmp) => {
         form.sum = dividends.value;
     }
 };
-const formatDate = (date) => format(parseISO(date), 'd MMMM yyyy', { locale: ru }); // Форматируем дату
 
 const processingRadio = (kind) => {
     processing.value = kind;
@@ -58,9 +56,7 @@ const processingRadio = (kind) => {
 const handleGetClient = (id) => {
     userContract.value = props.clients.find((client) => client.id === id);
 };
-const getYearDifference = (startDate, endDate) => {
-    return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
-};
+
 const handleGetContract = (contract_id) => {
     sum.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).sum;
     let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date;

@@ -1,10 +1,8 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import TextInput from '@/Components/TextInput.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import InputError from '@/Components/InputError.vue';
-import { parseISO, differenceInYears, format } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { formatDate, getYearDifference } from '@/helpers.js';
+import { parseISO } from 'date-fns';
 import { ref, computed } from 'vue';
 const props = defineProps({
     role: {
@@ -25,16 +23,11 @@ const typeOfProcessing = ref([
     { type: 'Забрать дивиденды целиком', value: 1 },
     { type: 'Забрать дивиденды и сумму', value: 2 },
 ]);
-const getYearDifference = (startDate, endDate) => {
-    return differenceInYears(parseISO(endDate), parseISO(startDate)); // Разница в годах
-};
 
-const application_create_date = ref(format(parseISO(props.application.create_date), 'd MMMM yyyy', { locale: ru }));
+const application_create_date = ref(formatDate(parseISO(props.application.create_date)));
 const client = ref(props.application.user);
 const contract_number = ref(props.application.contract.contract_number);
-const contract_create_date = ref(
-    format(parseISO(props.application.contract.create_date), 'd MMMM yyyy', { locale: ru }),
-); // Дата создания контракта преобразуем в 1 ноября 2024
+const contract_create_date = ref(formatDate(parseISO(props.application.contract.create_date))); // Дата создания контракта преобразуем в 1 ноября 2024
 const term = ref(
     getYearDifference(props.application.contract.create_date, props.application.contract.deadline) === 1
         ? getYearDifference(props.application.contract.create_date, props.application.contract.deadline)
