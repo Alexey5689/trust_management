@@ -59,14 +59,15 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'user_manager', 'manager_id', 'user_id');
     }
 
+    // транзакции
     public function userTransactions(){
         return $this->hasMany(Transaction::class, 'user_id');
     }
     public function managerTransactions()
-{
-    return $this->hasMany(Transaction::class, 'manager_id');
-}
-
+    {
+        return $this->hasMany(Transaction::class, 'manager_id');
+    }
+    // контракты
     public function userContracts()
     {
         return $this->hasMany(Contract::class, 'user_id',);
@@ -75,7 +76,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Contract::class, 'manager_id');
     }
-
+    // заявки
     public function userApplications()
     {
         return $this->hasMany(Application::class, 'user_id');
@@ -85,6 +86,7 @@ class User extends Authenticatable
         return $this->hasMany(Application::class, 'manager_id');
     }
 
+    //логи
     public function createdLogs(){
         return $this->hasMany(Log::class, 'created_by');
     }

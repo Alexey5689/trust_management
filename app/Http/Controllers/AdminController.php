@@ -180,6 +180,15 @@ class AdminController extends Controller
             'sum_transition' => $request->sum,
             'sourse' =>'Договор'
         ]);
+        // Логируем событие регистрации
+        Log::create([
+            'model_id' => $user->id,
+            'model_type' => User::class,
+            'change' => 'Регистрация пользователя',
+            'old_value' => 'Регистрация',
+            'new_value' => $user->email,
+            'created_by' => Auth::id(), // ID самого пользователя
+        ]);
 
 
         $token = Password::createToken($user);
@@ -226,15 +235,47 @@ class AdminController extends Controller
              'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $client->id,
              'phone_number' => 'required|string|max:20',
          ]);
-         $client->last_name = $request->last_name;
-         $client->first_name = $request->first_name;
-         $client->middle_name = $request->middle_name;
-         $client->email = $request->email;
-         $client->phone_number = $request->phone_number;
 
+         $originalData = $client->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
+         $client->update($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
+        //  $client->last_name = $request->last_name;
+        //  $client->first_name = $request->first_name;
+        //  $client->middle_name = $request->middle_name;
+        //  $client->email = $request->email;
+        //  $client->phone_number = $request->phone_number;
+         // Логируем изменения
+         foreach ($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']) as $field => $newValue) {
+            if ($originalData[$field] !== $newValue) {
+                Log::create([
+                    'model_id' => $client->id,
+                    'model_type' => User::class,
+                    'change' => $field,
+                    'old_value' => $originalData[$field],
+                    'new_value' => $newValue,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+        }
 
+        // Проверяем, изменился ли менеджер
+        $currentManager = $client->managers()->first();
+        $newManager = User::find($request->manager_id);
+
+        if ($currentManager?->id != $newManager?->id) {
+            // Обновляем менеджера в промежуточной таблице user_manager
+            $client->managers()->sync([$request->manager_id]);
+            // Логируем смену менеджера
+            Log::create([
+                'model_id' => $client->id,
+                'model_type' => User::class,
+                'change' => 'manager_id',
+                'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
+                'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
+                'created_by' => Auth::id(),
+            ]);
+        }
         // Обновление менеджера в промежуточной таблице user_manager
-        $client->managers()->sync([$request->manager_id]);
+        // $client->managers()->sync([$request->manager_id]);
 
         $client->userContracts()->update([
             'manager_id' => $request->manager_id,

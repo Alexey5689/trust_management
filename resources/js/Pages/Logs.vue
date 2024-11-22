@@ -1,7 +1,8 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-
+import InputLabel from '@/Components/InputLabel.vue';
+import { formatDate } from '@/helpers.js';
 const props = defineProps({
     logs: {
         type: Array,
@@ -24,9 +25,36 @@ const props = defineProps({
                 <header>
                     <h2 class="title-card">Логи</h2>
                 </header>
-                <!--  -->
-                <div class="card-content flex">
-                    {{ props.logs }}
+                {{ props.logs }}
+                <div class="card-content flex" v-for="log in props.logs" :key="log.id">
+                    <div class="card-item">
+                        <InputLabel for="number" value="№" />
+                        <p class="text">{{ log.id }}</p>
+                    </div>
+                    <div class="card-item">
+                        <InputLabel for="creator" value="Создатель" />
+                        <p class="text">{{ log.creator.full_name }}</p>
+                    </div>
+                    <div class="card-item">
+                        <InputLabel for="change" value="Что изменено" />
+                        <p class="text">{{ log.change }}</p>
+                    </div>
+                    <div class="card-item">
+                        <InputLabel for="old_value" value="Старое значение" />
+                        <p class="text">{{ log.old_value }}</p>
+                    </div>
+                    <div class="card-item">
+                        <InputLabel for="new_value" value="Новое значение" />
+                        <p class="text">{{ log.new_value }}</p>
+                    </div>
+                    <div class="card-item">
+                        <InputLabel for="target" value="Цель" />
+                        <p class="text">{{ log.target.full_name }}</p>
+                    </div>
+                    <div class="card-item">
+                        <InputLabel for="date" value="Дата изменения" />
+                        <p class="text">{{ formatDate(log.created_at) }}</p>
+                    </div>
                 </div>
             </div>
         </template>
