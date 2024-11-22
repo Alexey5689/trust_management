@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Log;
 
 class ProfileController extends Controller
 {
@@ -32,22 +33,22 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $role = $user->role->title;
-        // dd($userInfo);
-        // return Inertia::render('Edit', [
-        //     'user' => [
-        //         'last_name' => $user->last_name,
-        //         'first_name' => $user->first_name,
-        //         'middle_name' => $user->middle_name,
-        //     ],
-        //     'role' => $role,
-        // ]);
-        return response()->json([
+       // dd($userInfo);
+        return Inertia::render('EditProfile', [
             'user' => [
                 'last_name' => $user->last_name,
                 'first_name' => $user->first_name,
                 'middle_name' => $user->middle_name,
             ],
+            'role' => $role,
         ]);
+        // return response()->json([
+        //     'user' => [
+        //         'last_name' => $user->last_name,
+        //         'first_name' => $user->first_name,
+        //         'middle_name' => $user->middle_name,
+        //     ],
+        // ]);
     }
 
     public function updateProfile(Request $request)
@@ -63,10 +64,26 @@ class ProfileController extends Controller
 
         $user = Auth::user();
         $role = $user->role->title;
-        $user->last_name = $request->last_name;
-        $user->first_name = $request->first_name;
-        $user->middle_name = $request->middle_name;
-        $user->save();
+        $originalData = $user->only(['last_name', 'first_name', 'middle_name']);
+        $user->update($request->only(['last_name', 'first_name', 'middle_name']));
+
+         // Логируем изменения
+        foreach ($request->only(['last_name', 'first_name', 'middle_name']) as $field => $newValue) {
+            if ($originalData[$field] !== $newValue) {
+                Log::create([
+                    'model_id' => $user->id,
+                    'model_type' => User::class,
+                    'change' => $field,
+                    'old_value' => $originalData[$field],
+                    'new_value' => $newValue,
+                    'created_by' =>  $user->id,
+                ]);
+            }
+        }
+        // $user->last_name = $request->last_name;
+        // $user->first_name = $request->first_name;
+        // $user->middle_name = $request->middle_name;
+        // $user->save();
         return redirect()->route($role . '.profile')->with('status', 'Данные обновлены');
     }
 
@@ -93,6 +110,15 @@ class ProfileController extends Controller
         $user = Auth::user();
         $user->password = Hash::make($request->password);
         $user->save();
+        // Логируем изменения
+        Log::create([
+            'model_id' => $user->id,
+            'model_type' => User::class,
+            'change' => 'password',
+            'old_value' => 'Пароль', // Не указываем старое значение
+            'new_value' => 'Пароль изменён', // Указываем сообщение, а не пароль
+            'created_by' => $user->id,
+        ]);
 
         Auth::guard('web')->logout();
         $request->session()->invalidate();
@@ -121,9 +147,17 @@ class ProfileController extends Controller
         /** @var User $user */
 
         $user = Auth::user();
-
+        $oldEmail = $user->email;
         $user->email = $request->email;
         $user->save();
+        Log::create([
+            'model_id' => $user->id,
+            'model_type' => User::class,
+            'change' => 'email',
+            'old_value' => $oldEmail,
+            'new_value' => $request->email,
+            'created_by' => Auth::id(),
+        ]);
 
         Auth::guard('web')->logout();
         $request->session()->invalidate();

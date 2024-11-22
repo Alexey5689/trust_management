@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
             $table->id();
-            $table->string('model_id');
-            $table->string('model_type');
-            $table->string('change');
-            $table->string('created_by');
+            $table->unsignedBigInteger('model_id'); // ID изменяемой записи
+            $table->string('model_type'); // Тип модели (например, User)
+            $table->string('change'); // Поле, которое изменилось
+            $table->text('old_value')->nullable(); // Старое значение
+            $table->text('new_value')->nullable(); // Новое значение
+            $table->unsignedBigInteger('created_by'); // ID пользователя, совершившего изменение
             $table->timestamps();
         });
     }

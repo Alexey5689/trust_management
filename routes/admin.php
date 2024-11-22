@@ -9,6 +9,7 @@
             Route::get('/users', [AdminController::class, 'showAllUsers'])->name('admin.users');
             Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts');
             Route::get('/applications', [AdminController::class, 'showApplications'])->name('admin.applications');
+            Route::get('/logs', [AdminController::class, 'createLogs'])->name('admin.logs');
             //рег менеджер
             Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager');
             Route::post('/registration-manager', [AdminController::class, 'storeManagersByAdmin']);
@@ -30,5 +31,7 @@
             //редакция профиль пользователя.емена почты
              Route::get('email/edit', [ProfileController::class, 'editEmailByAdmin'])->name('email.edit');
              Route::patch('email/edit', [ProfileController::class, 'updateEmailByAdmin'])->name('email.update');
+
+            
         });
     });

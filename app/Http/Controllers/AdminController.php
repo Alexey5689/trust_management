@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Contract;
+use App\Models\Log;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -482,4 +483,31 @@ class AdminController extends Controller
         // Редирект с сообщением
         return redirect(route($role . '.applications'))->with('success', $message);
     }  
+    public function createLogs(){
+        $user = Auth::user();
+        $role = $user->role->title;
+        $logs = Log::with(['creator', 'target'])->get()->map(function ($log) {
+            return [
+                'id' => $log->id,
+                'model_type' => $log->model_type,
+                'created_at' => $log->created_at,
+                'creator' => [
+                    'id' => $log->creator->id,
+                    'full_name' => $log->creator->last_name . ' ' . $log->creator->first_name . ' ' . $log->creator->middle_name,
+                ],
+                'target' => [
+                    'id' => $log->target->id,
+                    'full_name' => $log->target->last_name . ' ' . $log->target->first_name . ' ' . $log->target->middle_name,
+                ],
+                'change' => $log->change,
+                'old_value' => $log->old_value,
+                'new_value' => $log->new_value,
+
+            ];
+        });
+        return Inertia::render('Logs', [
+            'role' => $role,
+            'logs' => $logs
+        ]);
+    }
 }

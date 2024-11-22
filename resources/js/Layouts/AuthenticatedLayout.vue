@@ -100,7 +100,7 @@ const toggleSidebar = () => {
                 <NavLink v-if="props.userRole === 'client'" :href="route('client.balance.ransactions')">
                     Баланс и транзакции
                 </NavLink>
-                <NavLink class="logs" v-if="props.userRole === 'admin'">
+                <NavLink class="logs" :href="route('admin.logs')" v-if="props.userRole === 'admin'">
                     <Icon_logs />
                     Логи
                 </NavLink>

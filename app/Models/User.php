@@ -85,6 +85,13 @@ class User extends Authenticatable
         return $this->hasMany(Application::class, 'manager_id');
     }
 
+    public function createdLogs(){
+        return $this->hasMany(Log::class, 'created_by');
+    }
+    public function targetLogs(){
+        return $this->hasMany(Log::class, 'model_id');
+    }
+
 
     public function isAdmin()
     {
