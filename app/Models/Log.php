@@ -13,6 +13,7 @@ class Log extends Model
         'model_id',
         'model_type',
         'change',
+        'action',
         'old_value',
         'new_value',
         'created_by',

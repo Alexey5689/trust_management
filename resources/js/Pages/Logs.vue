@@ -52,6 +52,10 @@ const props = defineProps({
                         <p class="text">{{ log.target.full_name }}</p>
                     </div>
                     <div class="card-item">
+                        <InputLabel for="action" value="Действие" />
+                        <p class="text">{{ log.action }}</p>
+                    </div>
+                    <div class="card-item">
                         <InputLabel for="date" value="Дата изменения" />
                         <p class="text">{{ formatDate(log.created_at) }}</p>
                     </div>

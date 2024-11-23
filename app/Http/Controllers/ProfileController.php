@@ -74,6 +74,7 @@ class ProfileController extends Controller
                     'model_id' => $user->id,
                     'model_type' => User::class,
                     'change' => $field,
+                    'action' => 'update',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
                     'created_by' =>  $user->id,
@@ -115,6 +116,7 @@ class ProfileController extends Controller
             'model_id' => $user->id,
             'model_type' => User::class,
             'change' => 'password',
+            'action' => 'update',
             'old_value' => 'Пароль', // Не указываем старое значение
             'new_value' => 'Пароль изменён', // Указываем сообщение, а не пароль
             'created_by' => $user->id,
@@ -154,6 +156,7 @@ class ProfileController extends Controller
             'model_id' => $user->id,
             'model_type' => User::class,
             'change' => 'email',
+            'action' => 'update',
             'old_value' => $oldEmail,
             'new_value' => $request->email,
             'created_by' => Auth::id(),

@@ -18,6 +18,7 @@ use Illuminate\Auth\Events\Registered;
 
 class AdminController extends Controller
 {
+    
     // все пользователи
     public function showAllUsers(){
         $user = Auth::user(); // Получаем текущего пользователя
@@ -87,7 +88,7 @@ class AdminController extends Controller
             'contracts'=> $contracts
         ]);
     }
-
+    //все заявки
     public function showApplications(){
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
@@ -156,6 +157,16 @@ class AdminController extends Controller
             'token' => Str::random(60),
             'refresh_token' => Str::random(60),
         ]);
+         // Логируем событие регистрации
+         Log::create([
+            'model_id' => $user->id,
+            'model_type' => User::class,
+            'change' => 'Регистрация пользователя',
+            'action' => 'create',
+            'old_value' => 'Регистрация',
+            'new_value' => $user->email,
+            'created_by' => Auth::id(), // ID самого пользователя
+        ]);
 
         $manager_id = $request->manager_id;
         // Записываем менеджера в таблицу user_manager
@@ -172,6 +183,15 @@ class AdminController extends Controller
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
         ]);
+        Log::create([
+            'model_id' => $contract->user_id,
+            'model_type' => Contract::class,
+            'change' => 'Добавление договора',
+            'action' => 'create',
+            'old_value' => null,
+            'new_value' => 'Договор No' . $contract->contract_number,
+            'created_by' => Auth::id(), // ID самого пользователя
+        ]);
         $user->userTransactions()->create([
             'contract_id'=>$contract->id,
             'manager_id' => $manager_id,
@@ -180,15 +200,7 @@ class AdminController extends Controller
             'sum_transition' => $request->sum,
             'sourse' =>'Договор'
         ]);
-        // Логируем событие регистрации
-        Log::create([
-            'model_id' => $user->id,
-            'model_type' => User::class,
-            'change' => 'Регистрация пользователя',
-            'old_value' => 'Регистрация',
-            'new_value' => $user->email,
-            'created_by' => Auth::id(), // ID самого пользователя
-        ]);
+       
 
 
         $token = Password::createToken($user);
@@ -236,27 +248,26 @@ class AdminController extends Controller
              'phone_number' => 'required|string|max:20',
          ]);
 
+        
+
          $originalData = $client->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
          $client->update($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
-        //  $client->last_name = $request->last_name;
-        //  $client->first_name = $request->first_name;
-        //  $client->middle_name = $request->middle_name;
-        //  $client->email = $request->email;
-        //  $client->phone_number = $request->phone_number;
          // Логируем изменения
          foreach ($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']) as $field => $newValue) {
-            if ($originalData[$field] !== $newValue) {
+            $oldValue =$this->normalizeValue($originalData[$field]);
+            $newValue =$this->normalizeValue($newValue);
+            if ($oldValue !== $newValue) {
                 Log::create([
                     'model_id' => $client->id,
                     'model_type' => User::class,
                     'change' => $field,
+                    'action' => 'update',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
                     'created_by' => Auth::id(),
                 ]);
             }
         }
-
         // Проверяем, изменился ли менеджер
         $currentManager = $client->managers()->first();
         $newManager = User::find($request->manager_id);
@@ -269,14 +280,12 @@ class AdminController extends Controller
                 'model_id' => $client->id,
                 'model_type' => User::class,
                 'change' => 'manager_id',
+                'action' => 'update',
                 'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
                 'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
                 'created_by' => Auth::id(),
             ]);
         }
-        // Обновление менеджера в промежуточной таблице user_manager
-        // $client->managers()->sync([$request->manager_id]);
-
         $client->userContracts()->update([
             'manager_id' => $request->manager_id,
         ]);
@@ -320,13 +329,23 @@ class AdminController extends Controller
             'token' => Str::random(60),
             'refresh_token' => Str::random(60),
         ]);
+        // Логируем событие регистрации
+        Log::create([
+            'model_id' => $user->id,
+            'model_type' => User::class,
+            'change' => 'Регистрация пользователя',
+            'action' => 'create',
+            'old_value' => 'Регистрация',
+            'new_value' => $user->email,
+            'created_by' => Auth::id(), // ID самого пользователя
+        ]);
 
 
         $token = Password::createToken($user);
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect(route('admin.managers'))->with('success', 'Менеджер успешно зарегистрирован!');
+        return redirect(route('admin.users'))->with('success', 'Менеджер успешно зарегистрирован!');
     }
 
 
@@ -352,12 +371,24 @@ class AdminController extends Controller
             'phone_number' => 'required|string|max:20',
         ]);
 
-        $manager->last_name = $request->last_name;
-        $manager->first_name = $request->first_name;
-        $manager->middle_name = $request->middle_name;
-        $manager->email = $request->email;
-        $manager->phone_number = $request->phone_number;
-        $manager->save();
+      
+        
+        $originalData = $manager->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
+        $manager->update($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
+        foreach ($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']) as $field => $newValue) {
+            $oldValue = $this->normalizeValue($originalData[$field]);
+            $newValue = $this->normalizeValue($newValue);
+            if ($oldValue !== $newValue) {
+                Log::create([
+                    'model_id' => $manager->id,
+                    'model_type' => User::class,
+                    'change' => $field,
+                    'old_value' => $originalData[$field],
+                    'new_value' => $newValue,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+        }
         return redirect(route('admin.users'))->with('success', 'Данные обновлены');
     }
 
@@ -405,7 +436,7 @@ class AdminController extends Controller
         // Получаем ID первого менеджера, закрепленного за клиентом
         $manager_id = optional($client->managers->first())->id;
         // dd($manager_id);
-        Contract::create([
+        $contract = Contract::create([
             'user_id' => $request->user_id,
             'manager_id' => $manager_id,
             'contract_number' => $request->contract_number,
@@ -416,6 +447,16 @@ class AdminController extends Controller
             'payments' => $request->payments,
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
+        ]);
+        // Логируем событие регистрации
+        Log::create([
+            'model_id' => $contract->user_id,
+            'model_type' => Contract::class,
+            'change' => 'Добавление договора',
+            'action' => 'create',
+            'old_value' => null,
+            'new_value' => $contract->contract_number,
+            'created_by' => Auth::id(), // ID самого пользователя
         ]);
         return redirect(route('admin.contracts'))->with('success', 'Контракт успешно создан!');
       }
@@ -455,24 +496,30 @@ class AdminController extends Controller
             'create_date' => 'required|date_format:Y-m-d',
             'sum' => 'required|integer',
         ]);
-
          // Находим клиента по user_id из запроса
-        $client = User::findOrFail($request->user_id);
+        // $client = User::findOrFail($request->user_id);
         // Получаем ID первого менеджера, закрепленного за клиентом
-        $manager_id = optional($client->managers->first())->id;
+        // $manager_id = optional($client->managers->first())->id;
+
+        $originalData = $contract->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']);
+        $contract->update($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']));
+
+        foreach ($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']) as $field => $newValue) {
+            $oldValue = $this->normalizeValue($originalData[$field]);
+            $newValue = $this->normalizeValue($newValue);
+            if ($oldValue !== $newValue) {
+                Log::create([
+                    'model_id' => $contract->user_id,
+                    'model_type' => User::class,
+                    'change' => $field,
+                    'action' => 'update',
+                    'old_value' => $originalData[$field],
+                    'new_value' => $newValue,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+        }
         // dd($manager_id);
-        $contract->update([
-            'user_id' => $request->user_id,
-            'manager_id' => $manager_id,
-            'contract_number' => $request->contract_number,
-            'create_date' => $request->create_date,
-            'sum' => $request->sum,
-            'deadline' => $request->deadline,
-            'procent' => $request->procent,
-            'payments' => $request->payments,
-            'agree_with_terms' => $request->agree_with_terms,
-            'contract_status' => $request->contract_status,
-        ]);
         return redirect(route('admin.contracts'))->with('success', 'Контракт успешно обновлен!');
       }
 
@@ -514,12 +561,29 @@ class AdminController extends Controller
                     'contract_status' => 'false',
                 ]);
             }
+           
         } else {
             $message = 'Статус заявки успешно изменен!';
         }
-
+        $originalData = $application->only(['status']);
+        $application->update($request->only(['status']));
+        foreach ($request->only(['status']) as $field => $newValue) {
+            $oldValue = $this->normalizeValue($originalData[$field]);
+            $newValue = $this->normalizeValue($newValue);
+            if ($oldValue !== $newValue) {
+                Log::create([
+                    'model_id' => $application->id,
+                    'model_type' => Application::class,
+                    'change' => $field,
+                    'action' => 'update',
+                    'old_value' => $oldValue,
+                    'new_value' => $newValue,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+        }
         // Сохраняем изменения в заявке
-        $application->save();
+        // $application->save();
 
         // Редирект с сообщением
         return redirect(route($role . '.applications'))->with('success', $message);
@@ -532,6 +596,7 @@ class AdminController extends Controller
                 'id' => $log->id,
                 'model_type' => $log->model_type,
                 'created_at' => $log->created_at,
+                'action' => $log->action,
                 'creator' => [
                     'id' => $log->creator->id,
                     'full_name' => $log->creator->last_name . ' ' . $log->creator->first_name . ' ' . $log->creator->middle_name,
