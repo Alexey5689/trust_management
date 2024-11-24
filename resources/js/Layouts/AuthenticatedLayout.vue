@@ -43,66 +43,86 @@ const toggleSidebar = () => {
         <div class="sidebar_box flex flex-column" :style="{ width: sidebarWidth }">
             <div class="logo_hamb flex align-center justify-between">
                 <div class="flex align-center">
-                    <Icon_logo style="margin-right: 12.5px" />
-                    <Icon_logo_name />
+                    <Icon_logo 
+                        style="margin-right: 12.5px" 
+                        :class="{ collapsed: isCollapsed }"
+                    />
+                    <Icon_logo_name v-if="!isCollapsed" />
                 </div>
-                <div class="hamb_box flex flex-column" @click="isCollapsed = !isCollapsed">
+                <div v-if="!isCollapsed" class="hamb_box flex flex-column" @click="isCollapsed = !isCollapsed">
                     <span class="bar"></span>
                     <span class="bar"></span>
                     <span class="bar"></span>
                 </div>
             </div>
             <div class="profile flex flex-column align-center">
-                <div class="profile_img flex align-center justify-center">
+                <div :class="{ collapsed: isCollapsed }" class="profile_img flex align-center justify-center">
                     <img :src="profileImage" alt="profile" />
                 </div>
-                <p class="profile_name">{{ props.userInfo?.full_name }}</p>
-                <span class="profile_mail">{{ props.userInfo?.email }}</span>
+                <!-- {{ props.userInfo?.email }}  {{ props.userInfo?.full_name }} -->
+                <transition name="fade-height">
+                    <div v-if="!isCollapsed">
+                        <p class="profile_name">Ефимов Денис Васильевич</p>
+                        <span class="profile_mail">denisefremoff@mail.ru</span>
+                    </div>
+                </transition>
             </div>
-            <nav class="flex flex-column nav_box">
-                <NavLink
+            <nav class="flex flex-column nav_box" :style="{ width: isCollapsed ? '60px' : '300px' }">
+                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     :href="route(`${props.userRole}.profile`)"
                     :active="route().current(`${props.userRole}.profile`)"
                 >
                     <Icon_personal_account />
-                    Личный кабинет
+                    <span v-if="!isCollapsed">Личный кабинет</span>
                 </NavLink>
-                <NavLink
+                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     v-if="props.userRole === 'admin'"
                     :href="route('admin.users')"
                     :active="route().current('admin.users')"
                 >
                     <Icon_users />
-                    Пользователи
+                    <span v-if="!isCollapsed">Пользователи</span>
                 </NavLink>
-                <NavLink
+                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     v-if="props.userRole === 'manager'"
                     :href="route(`${props.userRole}.clients`)"
                     :active="route().current(`${props.userRole}.clients`)"
                 >
                     <Icon_users />
-                    Клиенты
+                    <span v-if="!isCollapsed">Клиенты</span>
                 </NavLink>
-                <NavLink
+                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     :href="route(`${props.userRole}.contracts`)"
                     :active="route().current(`${props.userRole}.contracts`)"
                 >
                     <Icon_contract />
-                    Договоры
+                    <span v-if="!isCollapsed">Договоры</span>
                 </NavLink>
-                <NavLink
+                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     :href="route(`${props.userRole}.applications`)"
                     :active="route().current(`${props.userRole}.applications`)"
                 >
                     <Icon_applications />
-                    Заявки
+                    <span v-if="!isCollapsed">Заявки</span>
                 </NavLink>
-                <NavLink v-if="props.userRole === 'client'" :href="route('client.balance.ransactions')">
-                    Баланс и транзакции
+
+                <!-- АЛЕКСЕЙ ИСПРАВЬ ransactions на ВЕРНЫЙ -->
+                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                    v-if="props.userRole === 'client'" 
+                    :href="route('client.balance.ransactions')" 
+                    :active="route().current('client.balance.ransactions')"
+                >
+                    <span v-if="!isCollapsed">Баланс и транзакции</span>
                 </NavLink>
-                <NavLink class="logs" :href="route('admin.logs')" v-if="props.userRole === 'admin'">
+                <!-- АЛЕКСЕЙ ИСПРАВЬ ransactions на ВЕРНЫЙ -->
+
+                <NavLink class="logs" :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                    v-if="props.userRole === 'admin'"
+                    :href="route('admin.logs')" 
+                    :active="route().current('admin.logs')"
+                >
                     <Icon_logs />
-                    Логи
+                    <span v-if="!isCollapsed">Логи</span>
                 </NavLink>
             </nav>
         </div>
@@ -141,30 +161,29 @@ const toggleSidebar = () => {
 <style scoped>
 .sidebar_box {
     background: #fff;
-    /* width: 332px; */
     height: 100vh;
     padding: 16px;
     row-gap: 32px;
-    transition: width 0.3s ease;
+    transition: width 0.3s;
 }
 
 .content_box {
     background: #f3f5f6;
-    /* width: calc(100vw - 332px); */
     height: 100vh;
     padding: 22px 32px;
-    transition: width 0.3s ease;
+    transition: 0.3s;
 }
 
 .nav_box {
     margin: 0 auto;
-    width: 300px;
+    /* width: 300px; */
     row-gap: 4px;
     height: 100%;
+    transition: margin-top 0.3s;
 }
 
 .nav_box a {
-    height: 68px;
+    height: 60px;
     width: 100%;
     padding-left: 32px;
     -webkit-column-gap: 20px;
@@ -220,7 +239,7 @@ const toggleSidebar = () => {
     height: 2px;
     background: #242424;
     border-radius: 2px;
-    transition: width 0.3s;
+    transition: 0.3s;
 }
 
 .profile_img {
@@ -248,7 +267,31 @@ const toggleSidebar = () => {
     height: 44px;
     width: 44px;
     margin-right: auto;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s;
     cursor: pointer;
+}
+
+.collapsed {
+    height: 60px;
+    width: 60px;
+    transition: 0.3s;
+}
+
+.fade-height-enter-active,
+.fade-height-leave-active {
+    transition: height 0.3s, opacity 0.3s;
+}
+
+.fade-height-enter-from,
+.fade-height-leave-to {
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.fade-height-enter-to,
+.fade-height-leave-from {
+    height: auto;
+    opacity: 1;
 }
 </style>
