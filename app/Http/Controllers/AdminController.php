@@ -455,7 +455,7 @@ class AdminController extends Controller
             'change' => 'Добавление договора',
             'action' => 'create',
             'old_value' => null,
-            'new_value' => $contract->contract_number,
+            'new_value' => 'Договор No ' . $contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
         return redirect(route('admin.contracts'))->with('success', 'Контракт успешно создан!');
@@ -509,8 +509,8 @@ class AdminController extends Controller
             $newValue = $this->normalizeValue($newValue);
             if ($oldValue !== $newValue) {
                 Log::create([
-                    'model_id' => $contract->user_id,
-                    'model_type' => User::class,
+                    'model_id' => 'Договор No' . $contract->contract_number,
+                    'model_type' => Contract::class,
                     'change' => $field,
                     'action' => 'update',
                     'old_value' => $originalData[$field],
@@ -602,8 +602,8 @@ class AdminController extends Controller
                     'full_name' => $log->creator->last_name . ' ' . $log->creator->first_name . ' ' . $log->creator->middle_name,
                 ],
                 'target' => [
-                    'id' => $log->target->id,
-                    'full_name' => $log->target->last_name . ' ' . $log->target->first_name . ' ' . $log->target->middle_name,
+                    'id' => $log->target->id ?? null,
+                    'full_name' => $log->target->last_name  . ' ' . $log->target->first_name . ' ' . $log->target->middle_name,
                 ],
                 'change' => $log->change,
                 'old_value' => $log->old_value,

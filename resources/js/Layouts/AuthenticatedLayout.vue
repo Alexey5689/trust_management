@@ -43,10 +43,7 @@ const toggleSidebar = () => {
         <div class="sidebar_box flex flex-column" :style="{ width: sidebarWidth }">
             <div class="logo_hamb flex align-center justify-between">
                 <div class="flex align-center">
-                    <Icon_logo 
-                        style="margin-right: 12.5px" 
-                        :class="{ collapsed: isCollapsed }"
-                    />
+                    <Icon_logo style="margin-right: 12.5px" :class="{ collapsed: isCollapsed }" />
                     <Icon_logo_name v-if="!isCollapsed" />
                 </div>
                 <div v-if="!isCollapsed" class="hamb_box flex flex-column" @click="isCollapsed = !isCollapsed">
@@ -68,14 +65,16 @@ const toggleSidebar = () => {
                 </transition>
             </div>
             <nav class="flex flex-column nav_box" :style="{ width: isCollapsed ? '60px' : '300px' }">
-                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                <NavLink
+                    :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     :href="route(`${props.userRole}.profile`)"
                     :active="route().current(`${props.userRole}.profile`)"
                 >
                     <Icon_personal_account />
                     <span v-if="!isCollapsed">Личный кабинет</span>
                 </NavLink>
-                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                <NavLink
+                    :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     v-if="props.userRole === 'admin'"
                     :href="route('admin.users')"
                     :active="route().current('admin.users')"
@@ -83,7 +82,8 @@ const toggleSidebar = () => {
                     <Icon_users />
                     <span v-if="!isCollapsed">Пользователи</span>
                 </NavLink>
-                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                <NavLink
+                    :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     v-if="props.userRole === 'manager'"
                     :href="route(`${props.userRole}.clients`)"
                     :active="route().current(`${props.userRole}.clients`)"
@@ -91,14 +91,16 @@ const toggleSidebar = () => {
                     <Icon_users />
                     <span v-if="!isCollapsed">Клиенты</span>
                 </NavLink>
-                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                <NavLink
+                    :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     :href="route(`${props.userRole}.contracts`)"
                     :active="route().current(`${props.userRole}.contracts`)"
                 >
                     <Icon_contract />
                     <span v-if="!isCollapsed">Договоры</span>
                 </NavLink>
-                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                <NavLink
+                    :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     :href="route(`${props.userRole}.applications`)"
                     :active="route().current(`${props.userRole}.applications`)"
                 >
@@ -106,19 +108,20 @@ const toggleSidebar = () => {
                     <span v-if="!isCollapsed">Заявки</span>
                 </NavLink>
 
-                <!-- АЛЕКСЕЙ ИСПРАВЬ ransactions на ВЕРНЫЙ -->
-                <NavLink :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
-                    v-if="props.userRole === 'client'" 
-                    :href="route('client.balance.ransactions')" 
-                    :active="route().current('client.balance.ransactions')"
+                <NavLink
+                    :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                    v-if="props.userRole === 'client'"
+                    :href="route('client.balance.ransactions')"
+                    :active="route().current('client.balance.transactions')"
                 >
                     <span v-if="!isCollapsed">Баланс и транзакции</span>
                 </NavLink>
-                <!-- АЛЕКСЕЙ ИСПРАВЬ ransactions на ВЕРНЫЙ -->
 
-                <NavLink class="logs" :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
+                <NavLink
+                    class="logs"
+                    :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     v-if="props.userRole === 'admin'"
-                    :href="route('admin.logs')" 
+                    :href="route('admin.logs')"
                     :active="route().current('admin.logs')"
                 >
                     <Icon_logs />

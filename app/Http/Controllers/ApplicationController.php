@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Application;
 use App\Models\User;
+use App\Models\Log;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,7 +68,7 @@ class ApplicationController extends Controller
         }
         
 
-        Application::create([
+        $application = Application::create([
             'create_date'=> $request->create_date,
             'user_id'=> $request->user_id,
             'manager_id'=> $request->manager_id,
@@ -77,6 +78,15 @@ class ApplicationController extends Controller
             'type_of_processing'=>$request->type_of_processing,
             'date_of_payments'=>$request->date_of_payments,
             'sum'=>$request->sum,
+        ]);
+        Log::create([
+            'model_id' => $application->user_id,
+            'model_type' => Application::class,
+            'change' => "Создание заявки",
+            'action' => 'create',
+            'old_value' => null,
+            'new_value' => 'Заявка No' . $application->id,
+            'created_by' => Auth::id(),
         ]);
         return redirect(route($role . '.applications'))->with('success', 'Заявка успешно создана!');
       }

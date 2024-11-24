@@ -25,7 +25,7 @@ const props = defineProps({
                 <header>
                     <h2 class="title-card">Логи</h2>
                 </header>
-                {{ props.logs }}
+                <!-- {{ props.logs }} -->
                 <div class="card-content flex" v-for="log in props.logs" :key="log.id">
                     <div class="card-item">
                         <InputLabel for="number" value="№" />

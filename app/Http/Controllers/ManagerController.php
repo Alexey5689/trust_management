@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Log;
 use App\Models\Contract;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -108,6 +109,17 @@ class ManagerController extends Controller
             'refresh_token' => Str::random(60),
         ]);
 
+        // Логируем событие регистрации
+        Log::create([
+            'model_id' => $user->id,
+            'model_type' => User::class,
+            'change' => 'Регистрация пользователя',
+            'action' => 'create',
+            'old_value' => 'Регистрация',
+            'new_value' => $user->email,
+            'created_by' => Auth::id(), // ID самого пользователя
+        ]);
+
         // $loggedInUser = Auth::user();
         $loggedInUser = User::with('role')->find(Auth::id());
         $manager_id = $loggedInUser->id;
@@ -129,6 +141,16 @@ class ManagerController extends Controller
             'contract_status' => $request->contract_status,
         ]);
 
+        Log::create([
+            'model_id' => $contract->user_id,
+            'model_type' => Contract::class,
+            'change' => 'Добавление договора',
+            'action' => 'create',
+            'old_value' => null,
+            'new_value' => 'Договор No' . $contract->contract_number,
+            'created_by' => Auth::id(), // ID самого пользователя
+        ]);
+
         $user->userTransactions()->create([
             'contract_id'=>$contract->id,
             'manager_id' => $manager_id,
@@ -137,6 +159,7 @@ class ManagerController extends Controller
             'sum_transition' => $request->sum,
             'sourse' =>'Договор'
         ]);
+
 
 
         $token = Password::createToken($user);
@@ -162,21 +185,26 @@ class ManagerController extends Controller
       {
         // dd($request->all());
           $request->validate([
-              'last_name' => 'required|string|max:255',
-              'first_name' => 'required|string|max:255',
-              'middle_name' => 'required|string|max:255',
-              'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $client->id,
               'phone_number' => 'required|string|max:20',
           ]);
-          $client->last_name = $request->last_name;
-          $client->first_name = $request->first_name;
-          $client->middle_name = $request->middle_name;
-          $client->email = $request->email;
-          $client->phone_number = $request->phone_number;
-
-
-          $client->save();
-          return redirect(route('manager.clients'))->with('success', 'Данные обновлены');
+          $message = 'Изменений не было';
+          $oldPhone = $this->normalizeValue($client->phone_number);
+          $newPhone = $this->normalizeValue($request->phone_number);
+          if($oldPhone !== $newPhone){
+            $client->update($request->only(['phone_number']));
+            Log::create([
+                'model_id' => $client->id,
+                'model_type' => User::class,
+                'change' => 'phone_number',
+                'action' => 'update',
+                'old_value' => $oldPhone,
+                'new_value' => $newPhone,
+                'created_by' => Auth::id(),
+            ]);
+            $message = 'Телефон успешно обновлен';
+          }
+          
+          return redirect(route('manager.clients'))->with('info', $message);
       }
 
       public function createAddContractByManager()
@@ -220,6 +248,15 @@ class ManagerController extends Controller
             'payments' => $request->payments,
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
+        ]);
+        Log::create([
+            'model_id' => $request->user_id,
+            'model_type' => Contract::class,
+            'change' => 'Добавление договора',
+            'action' => 'create',
+            'old_value' => null,
+            'new_value' => $request->contract_number,
+            'created_by' => Auth::id(),
         ]);
         return redirect(route('manager.contracts'))->with('success', 'Контракт успешно создан!');
       }

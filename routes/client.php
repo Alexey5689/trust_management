@@ -9,6 +9,6 @@ Route::middleware('auth' , 'role:client')->group(function () {
         Route::get('/profile', [ProfileController::class, 'createProfile'])->name('client.profile');
         Route::get('/contracts', [ClientController::class, 'showContracts'])->name('client.contracts');
         Route::get('/applications', [ClientController::class, 'showApplications'])->name('client.applications');
-        Route::get ('/balance-transactions', [ClientController::class, 'showBalanceTransactions'])->name('client.balance.ransactions');
+        Route::get ('/balance-transactions', [ClientController::class, 'showBalanceTransactions'])->name('client.balance.transactions');
     });
 });
