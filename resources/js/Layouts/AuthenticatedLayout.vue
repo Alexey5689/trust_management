@@ -13,6 +13,9 @@ import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 import Icon_logs from '@/Components/Icon/Logs.vue';
 import Icon_arrow from '@/Components/Icon/Arrow.vue';
 import profileImage from '../../img/profile.png';
+import { useUserInfo } from '@/hooks.js';
+
+const { user_Name_Email } = useUserInfo();
 
 const props = defineProps({
     userRole: {
@@ -35,6 +38,9 @@ const arrowOpacity = computed(() => (isCollapsed.value ? 1 : 0));
 
 const toggleSidebar = () => {
     isCollapsed.value = !isCollapsed;
+};
+const remote = () => {
+    localStorage.removeItem('userInfo');
 };
 </script>
 
@@ -59,8 +65,12 @@ const toggleSidebar = () => {
                 <!-- {{ props.userInfo?.email }}  {{ props.userInfo?.full_name }} -->
                 <transition name="fade-height">
                     <div v-if="!isCollapsed">
-                        <p class="profile_name">Ефимов Денис Васильевич</p>
-                        <span class="profile_mail">denisefremoff@mail.ru</span>
+                        <p class="profile_name">
+                            {{ props.userInfo?.full_name ? props.userInfo.full_name : user_Name_Email.full_name }}
+                        </p>
+                        <span class="profile_mail">
+                            {{ props.userInfo?.email ? props.userInfo.email : user_Name_Email.email }}</span
+                        >
                     </div>
                 </transition>
             </div>
@@ -141,6 +151,7 @@ const toggleSidebar = () => {
                     <Icon_notifications />
                     <ResponsiveNavLink
                         :href="route('logout')"
+                        @click="remote()"
                         method="post"
                         as="button"
                         class="flex align-center justify-center btn"

@@ -27,6 +27,7 @@ const showStatusMessage = ref(false);
 const status = ref('');
 
 onMounted(() => {
+    localStorage.setItem('userInfo', JSON.stringify({ full_name: props.user.full_name, email: props.user.email }));
     if (props.status) {
         status.value = props.status;
         showStatusMessage.value = true;
