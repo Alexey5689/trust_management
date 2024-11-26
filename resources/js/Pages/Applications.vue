@@ -87,7 +87,7 @@ const props = defineProps({
                                         </span>
                                     </template>
 
-                                    <template v-if="role === 'admin'" #content>
+                                    <template #content>
                                         <DropdownLink
                                             as="button"
                                             :href="
@@ -99,6 +99,7 @@ const props = defineProps({
                                             Подробная информация
                                         </DropdownLink>
                                         <DropdownLink
+                                            v-if="role === 'admin'"
                                             :href="
                                                 route('change.status.application', {
                                                     application: application.id,

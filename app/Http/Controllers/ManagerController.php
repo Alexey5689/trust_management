@@ -90,13 +90,14 @@ class ManagerController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'middle_name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
-            'phone_number' => 'required|string|max:20',
-            'contract_number' => 'required|integer|unique:'. Contract::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email',
+            'phone_number' => 'required|string|max:20|unique:' . User::class . ',phone_number',
+            'contract_number' => 'required|integer|unique:' . Contract::class . ',contract_number',
             'deadline' => 'required|date_format:Y-m-d',
             'create_date' => 'required|date_format:Y-m-d',
             'sum' => 'required|integer',
         ]);
+        
 
         $user = User::create([
             'first_name' => $request->first_name,
@@ -255,7 +256,7 @@ class ManagerController extends Controller
             'change' => 'Добавление договора',
             'action' => 'create',
             'old_value' => null,
-            'new_value' => $request->contract_number,
+            'new_value' =>'Договор No' . $request->contract_number,
             'created_by' => Auth::id(),
         ]);
         return redirect(route('manager.contracts'))->with('success', 'Контракт успешно создан!');

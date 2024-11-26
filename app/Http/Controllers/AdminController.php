@@ -139,9 +139,9 @@ class AdminController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'middle_name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
-            'phone_number' => 'required|string|max:20',
-            'contract_number' => 'required|integer|unique:'. Contract::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email',
+            'phone_number' => 'required|string|max:20|unique:' . User::class . ',phone_number',
+            'contract_number' => 'required|integer|unique:' . Contract::class . ',contract_number',
             'deadline' => 'required|date_format:Y-m-d',
             'create_date' => 'required|date_format:Y-m-d',
             'sum' => 'required|integer',
@@ -383,6 +383,7 @@ class AdminController extends Controller
                     'model_id' => $manager->id,
                     'model_type' => User::class,
                     'change' => $field,
+                    'action' => 'update',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
                     'created_by' => Auth::id(),
@@ -509,7 +510,7 @@ class AdminController extends Controller
             $newValue = $this->normalizeValue($newValue);
             if ($oldValue !== $newValue) {
                 Log::create([
-                    'model_id' => 'Договор No' . $contract->contract_number,
+                    'model_id' => $contract->user_id,
                     'model_type' => Contract::class,
                     'change' => $field,
                     'action' => 'update',
@@ -535,59 +536,51 @@ class AdminController extends Controller
         ]);
     }
     public function updateStatusApplication(Request $request, Application $application)
-    {
-        //dd($request->all(), $application);
-        $user = Auth::user();
-        $role = $user->role->title;
+{
+    $user = Auth::user();
+    $role = $user->role->title;
 
-        // Обновляем статус заявки
-        $application->status = $request->status;
+    $originalStatus = $application->status;
 
-        // Если статус "Исполнена", создаем транзакцию
-        if ($request->status === 'Исполнена') {
-            $application->user->userTransactions()->create([
-                'contract_id' => $application->contract_id,
-                'manager_id' => $application->manager_id,
-                'user_id' => $application->user_id,
-                'date_transition' => $application->date_of_payments,
-                'sum_transition' => $application->sum,
-                'sourse' => 'Заявка',
-            ]);
+    // Обновляем статус заявки
+    $application->update(['status' => $request->status]);
 
-            $message = 'Статус заявки успешно изменен! Транзакция создана.';
-            if($application->condition === 'Раньше срока'){
-                $contract = Contract::find($application->contract_id);
-                $contract->update([
-                    'contract_status' => 'false',
-                ]);
-            }
-           
-        } else {
-            $message = 'Статус заявки успешно изменен!';
+    // Если статус "Исполнена", создаем транзакцию
+    if ($request->status === 'Исполнена') {
+        $application->user->userTransactions()->create([
+            'contract_id' => $application->contract_id,
+            'manager_id' => $application->manager_id,
+            'user_id' => $application->user_id,
+            'date_transition' => $application->date_of_payments,
+            'sum_transition' => $application->sum,
+            'sourse' => 'Заявка',
+        ]);
+
+        $message = 'Статус заявки успешно изменен! Транзакция создана.';
+
+        if ($application->condition === 'Раньше срока') {
+            $contract = Contract::find($application->contract_id);
+            $contract->update(['contract_status' => false]);
         }
-        $originalData = $application->only(['status']);
-        $application->update($request->only(['status']));
-        foreach ($request->only(['status']) as $field => $newValue) {
-            $oldValue = $this->normalizeValue($originalData[$field]);
-            $newValue = $this->normalizeValue($newValue);
-            if ($oldValue !== $newValue) {
-                Log::create([
-                    'model_id' => $application->id,
-                    'model_type' => Application::class,
-                    'change' => $field,
-                    'action' => 'update',
-                    'old_value' => $oldValue,
-                    'new_value' => $newValue,
-                    'created_by' => Auth::id(),
-                ]);
-            }
-        }
-        // Сохраняем изменения в заявке
-        // $application->save();
+    } else {
+        $message = 'Статус заявки успешно изменен!';
+    }
 
-        // Редирект с сообщением
-        return redirect(route($role . '.applications'))->with('success', $message);
-    }  
+    // Логирование изменения статуса
+    if ($originalStatus !== $application->status) {
+        Log::create([
+            'model_id' => $application->id,
+            'model_type' => Application::class,
+            'change' => 'status',
+            'action' => 'update',
+            'old_value' => $originalStatus,
+            'new_value' => $application->status,
+            'created_by' => Auth::id(),
+        ]);
+    }
+
+    return redirect(route($role . '.applications'))->with('success', $message);
+} 
     public function createLogs(){
         $user = Auth::user();
         $role = $user->role->title;
@@ -602,8 +595,8 @@ class AdminController extends Controller
                     'full_name' => $log->creator->last_name . ' ' . $log->creator->first_name . ' ' . $log->creator->middle_name,
                 ],
                 'target' => [
-                    'id' => $log->target->id ?? null,
-                    'full_name' => $log->target->last_name  . ' ' . $log->target->first_name . ' ' . $log->target->middle_name,
+                    'id' => $log->target->id,
+                    'full_name' => $log->target->last_name  . ' ' . $log->target->first_name . ' ' . $log->target->middle_name, 
                 ],
                 'change' => $log->change,
                 'old_value' => $log->old_value,

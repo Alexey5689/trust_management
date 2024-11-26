@@ -130,7 +130,7 @@ const remote = () => {
                 <NavLink
                     class="logs"
                     :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
-                    v-if="props.userRole === 'admin'"
+                    v-if="props.userRole === 'admin' || props.userRole === 'manager'"
                     :href="route('admin.logs')"
                     :active="route().current('admin.logs')"
                 >

@@ -15,7 +15,7 @@ const props = defineProps({
 });
 </script>
 <template>
-    <Head title="Profile" />
+    <Head title="Logs" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
             <h2 class="title">Логи</h2>
