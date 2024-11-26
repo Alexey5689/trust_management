@@ -1,11 +1,14 @@
 <script setup>
+import { onMounted, ref } from 'vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { onMounted, ref } from 'vue';
-import Modal from '@/Components/Modal/ModelTest.vue';
+
+// import Modal from '@/Components/Modal/ModelTest.vue';
+
+import BaseModal from '@/Components/Modal/BaseModal.vue';
 
 const props = defineProps({
     user: {
@@ -36,9 +39,29 @@ onMounted(() => {
         }, 3000); // 10000 мс = 10 секунд
     }
 });
+
+const isModalOpen = ref(false);
+const currentModal = ref(null);
+
+const modalTitles = {
+    contacts: 'Изменение контактных данных',
+    password: 'Изменение пароля',
+    email: 'Изменение почты',
+};
+
+const openModal = (type) => {
+    currentModal.value = type;
+    isModalOpen.value = true;
+};
+
+const closeModal = () => {
+    isModalOpen.value = false;
+    currentModal.value = null;
+};
 </script>
 
 <template>
+
     <Head title="Profile" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
         <template #header>
@@ -81,10 +104,37 @@ onMounted(() => {
                     <!-- <div>
                         {{ props.user }}
                     </div> -->
+
+
                 </div>
+
             </div>
+            <button @click="openModal('contacts')">Изменить контактные данные</button>
+            <button @click="openModal('password')">Изменить пароль</button>
+            <button @click="openModal('email')">Изменить почту</button>
         </template>
     </AuthenticatedLayout>
+
+
+
+
+
+    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal]" @close="closeModal">
+        <template #default>
+            <p>Содержимое для модального окна с заголовком "{{ modalTitles[currentModal] }}".</p>
+        </template>
+        <template #footer>
+            <button @click="closeModal" class="btn-cancel">Отменить</button>
+            <button class="btn-save">Сохранить</button>
+        </template>
+    </BaseModal>
+
+
+
+
+
+
+
 
     <!-- <Modal /> -->
 </template>
@@ -128,5 +178,9 @@ onMounted(() => {
 
 .text {
     margin-bottom: 16px;
+}
+
+.btn-cancel {
+    margin-right: 10px;
 }
 </style>
