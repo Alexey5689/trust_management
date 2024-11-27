@@ -1,5 +1,6 @@
 <script setup>
 import { watch, ref } from 'vue';
+import Close from '@/Components/Icon/Close.vue';
 
 const props = defineProps({
     isOpen: {
@@ -32,8 +33,10 @@ const closeModal = () => {
     <div v-if="isVisible" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
             <div class="modal-header">
-                <h2>{{ title }}</h2>
-                <button class="close-btn" @click="closeModal">✖</button>
+                <h2 class="title-2">{{ title }}</h2>
+                <button class="close-btn" @click="closeModal">
+                    <Close />
+                </button>
             </div>
             <div class="modal-body">
                 <slot></slot>
@@ -45,7 +48,7 @@ const closeModal = () => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -60,9 +63,9 @@ const closeModal = () => {
 
 .modal-content {
     background: white;
-    border-radius: 10px;
+    border-radius: 32px;
     padding: 20px;
-    width: 400px;
+    width: 600px;
     position: relative;
 }
 
@@ -70,17 +73,28 @@ const closeModal = () => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #eee;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
 }
 
 .modal-body {
     margin: 20px 0;
+}
+
+.title-2 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 29px;
+}
+
+.close-btn {
+    height: 32px;
+    width: 32px;
+    background: #F3F5F6;
+    border-radius: 100%;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background: #dfe4e7;
 }
 </style>

@@ -107,34 +107,26 @@ const closeModal = () => {
 
 
                 </div>
-
             </div>
+
             <button @click="openModal('contacts')">Изменить контактные данные</button>
             <button @click="openModal('password')">Изменить пароль</button>
             <button @click="openModal('email')">Изменить почту</button>
+
         </template>
     </AuthenticatedLayout>
-
-
-
-
 
     <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal]" @close="closeModal">
         <template #default>
             <p>Содержимое для модального окна с заголовком "{{ modalTitles[currentModal] }}".</p>
         </template>
         <template #footer>
-            <button @click="closeModal" class="btn-cancel">Отменить</button>
-            <button class="btn-save">Сохранить</button>
+            <div class="flex justify-end">
+                <button @click="closeModal" class="btn-cancel">Отменить</button>
+                <button class="btn-save">Сохранить</button>
+            </div>
         </template>
     </BaseModal>
-
-
-
-
-
-
-
 
     <!-- <Modal /> -->
 </template>
@@ -180,7 +172,36 @@ const closeModal = () => {
     margin-bottom: 16px;
 }
 
+.btn-cancel,
+.btn-save {
+    font-family: Onest;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    letter-spacing: 0.015em;
+    height: 45px;
+    padding: 0 20px;
+    border-radius: 12px;
+}
+
+.btn-save {
+    background: #4E9F7D;
+    color: #fff;
+    transition: 0.3s;
+}
+
+.btn-save:hover {
+    background: #428569;
+}
+
 .btn-cancel {
     margin-right: 10px;
+    color: #242424;
+    background: #F3F5F6;
+    transition: 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #dfe4e7;
 }
 </style>
