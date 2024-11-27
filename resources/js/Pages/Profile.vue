@@ -25,6 +25,9 @@ const props = defineProps({
     },
 });
 
+const showStatusMessage = ref(false);
+const status = ref('');
+
 onMounted(() => {
     localStorage.setItem('userInfo', JSON.stringify({ full_name: props.user.full_name, email: props.user.email }));
 });
@@ -43,6 +46,16 @@ const routes = {
     email: 'email-edit',
 };
 
+// Данные формы
+const formData = ref({
+    last_name: '',
+    first_name: '',
+    middle_name: '',
+    password: '',
+    confirm_password: '',
+    email: '',
+});
+
 const openModal = (type) => {
     currentModal.value = type;
     isModalOpen.value = true;
@@ -51,6 +64,11 @@ const openModal = (type) => {
 const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
+};
+
+const saveChanges = () => {
+    console.log('Сохранение данных формы:', formData.value);
+    closeModal();
 };
 </script>
 
@@ -104,12 +122,38 @@ const closeModal = () => {
         @close="closeModal"
     >
         <template #default>
-            <p>Содержимое для модального окна с заголовком "{{ modalTitles[currentModal] }}".</p>
+            <div v-if="currentModal === 'contacts'">
+                <form>
+                    <label for="last_name">Фамилия</label>
+                    <input type="text" id="last_name" v-model="formData.last_name" />
+
+                    <label for="first_name">Имя</label>
+                    <input type="text" id="first_name" v-model="formData.first_name" />
+
+                    <label for="middle_name">Отчество</label>
+                    <input type="text" id="middle_name" v-model="formData.middle_name" />
+                </form>
+            </div>
+            <div v-else-if="currentModal === 'password'">
+                <form>
+                    <label for="password">Новый пароль</label>
+                    <input type="password" id="password" v-model="formData.password" />
+
+                    <label for="confirm_password">Подтвердите пароль</label>
+                    <input type="password" id="confirm_password" v-model="formData.confirm_password" />
+                </form>
+            </div>
+            <div v-else-if="currentModal === 'email'">
+                <form>
+                    <label for="email">Новая почта</label>
+                    <input type="email" id="email" v-model="formData.email" />
+                </form>
+            </div>
         </template>
         <template #footer>
             <div class="flex justify-end">
                 <button @click="closeModal" class="btn-cancel">Отменить</button>
-                <button class="btn-save">Сохранить</button>
+                <button class="btn-save" @click="saveChanges">Сохранить</button>
             </div>
         </template>
     </BaseModal>
