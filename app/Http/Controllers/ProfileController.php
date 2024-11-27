@@ -32,23 +32,23 @@ class ProfileController extends Controller
     public function editProfile()
     {
         $user = Auth::user();
-        $role = $user->role->title;
+        //$role = $user->role->title;
        // dd($userInfo);
-        return Inertia::render('EditProfile', [
-            'user' => [
-                'last_name' => $user->last_name,
-                'first_name' => $user->first_name,
-                'middle_name' => $user->middle_name,
-            ],
-            'role' => $role,
-        ]);
-        // return response()->json([
+        // return Inertia::render('EditProfile', [
         //     'user' => [
         //         'last_name' => $user->last_name,
         //         'first_name' => $user->first_name,
         //         'middle_name' => $user->middle_name,
         //     ],
+        //     'role' => $role,
         // ]);
+        return response()->json([
+            'user' => [
+                'last_name' => $user->last_name,
+                'first_name' => $user->first_name,
+                'middle_name' => $user->middle_name,
+            ],
+        ]);
     }
 
     public function updateProfile(Request $request)

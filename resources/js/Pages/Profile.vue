@@ -25,19 +25,8 @@ const props = defineProps({
     },
 });
 
-const showStatusMessage = ref(false);
-
-const status = ref('');
-
 onMounted(() => {
     localStorage.setItem('userInfo', JSON.stringify({ full_name: props.user.full_name, email: props.user.email }));
-    if (props.status) {
-        status.value = props.status;
-        showStatusMessage.value = true;
-        setTimeout(() => {
-            showStatusMessage.value = false;
-        }, 3000); // 10000 мс = 10 секунд
-    }
 });
 
 const isModalOpen = ref(false);
@@ -47,6 +36,11 @@ const modalTitles = {
     contacts: 'Изменение контактных данных',
     password: 'Изменение пароля',
     email: 'Изменение почты',
+};
+const routes = {
+    contacts: 'profile-edit',
+    password: 'password-edit',
+    email: 'email-edit',
 };
 
 const openModal = (type) => {
@@ -61,7 +55,6 @@ const closeModal = () => {
 </script>
 
 <template>
-
     <Head title="Profile" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
         <template #header>
@@ -73,12 +66,6 @@ const closeModal = () => {
                     <h2 class="title-card">Контактные данные</h2>
                 </header>
                 <div class="card-content flex">
-                    <!-- <div>
-                        <p v-if="showStatusMessage" class="">
-                            {{ status }}
-                        </p>
-                    </div> -->
-
                     <div class="card-item">
                         <InputLabel for="last_name" value="ФИО" />
                         <p class="text">{{ props.user.full_name }}</p>
@@ -100,23 +87,22 @@ const closeModal = () => {
                             Изменить почту
                         </ResponsiveNavLink>
                     </div>
-
-                    <!-- <div>
-                        {{ props.user }}
-                    </div> -->
-
-
                 </div>
             </div>
 
             <button @click="openModal('contacts')">Изменить контактные данные</button>
             <button @click="openModal('password')">Изменить пароль</button>
             <button @click="openModal('email')">Изменить почту</button>
-
         </template>
     </AuthenticatedLayout>
 
-    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal]" @close="closeModal">
+    <BaseModal
+        v-if="isModalOpen"
+        :isOpen="isModalOpen"
+        :title="modalTitles[currentModal]"
+        :route="routes[currentModal]"
+        @close="closeModal"
+    >
         <template #default>
             <p>Содержимое для модального окна с заголовком "{{ modalTitles[currentModal] }}".</p>
         </template>
@@ -185,7 +171,7 @@ const closeModal = () => {
 }
 
 .btn-save {
-    background: #4E9F7D;
+    background: #4e9f7d;
     color: #fff;
     transition: 0.3s;
 }
@@ -197,7 +183,7 @@ const closeModal = () => {
 .btn-cancel {
     margin-right: 10px;
     color: #242424;
-    background: #F3F5F6;
+    background: #f3f5f6;
     transition: 0.3s;
 }
 

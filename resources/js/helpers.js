@@ -1,5 +1,6 @@
 import { parseISO, differenceInYears, format, differenceInDays } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import axios from 'axios';
 
 export const formatDate = (date) => {
     try {
@@ -48,4 +49,14 @@ export const calculateDeadlineDate = (years, createDate) => {
     }
 
     return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
+};
+
+export const fetchData = async (route) => {
+    try {
+        const response = await axios.get(`/${route}`);
+        return response.data; // Возвращаем данные
+    } catch (error) {
+        console.error('Ошибка при выполнении GET запроса:', error);
+        throw error; // Бросаем ошибку для обработки в другом месте
+    }
 };

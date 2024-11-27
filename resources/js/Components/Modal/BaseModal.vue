@@ -1,7 +1,7 @@
 <script setup>
-import { watch, ref } from 'vue';
+import { watch, ref, onMounted } from 'vue';
 import Close from '@/Components/Icon/Close.vue';
-
+import { fetchData } from '@/helpers';
 const props = defineProps({
     isOpen: {
         type: Boolean,
@@ -11,18 +11,36 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    route: {
+        type: String,
+        required: true,
+    },
 });
 
 const emit = defineEmits(['close']);
 
 const isVisible = ref(false);
 
-watch(() => props.isOpen,
+const response = ref(null);
+const error = ref(null);
+
+watch(
+    () => props.isOpen,
     (newVal) => {
         isVisible.value = newVal;
     },
-    { immediate: true }
+    { immediate: true },
 );
+
+onMounted(async () => {
+    try {
+        const data = await fetchData(props.route); // Ожидаем завершения запроса
+        response.value = data; // Обновляем реактивные данные
+    } catch (err) {
+        error.value = err; // Сохраняем ошибку
+    } finally {
+    }
+});
 
 const closeModal = () => {
     emit('close');
@@ -88,7 +106,7 @@ const closeModal = () => {
 .close-btn {
     height: 32px;
     width: 32px;
-    background: #F3F5F6;
+    background: #f3f5f6;
     border-radius: 100%;
     transition: 0.3s;
     cursor: pointer;
