@@ -19,6 +19,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    status: {
+        type: String,
+        required: false,
+    },
 });
 
 const deleteUser = (userId) => {

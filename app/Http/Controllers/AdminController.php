@@ -290,7 +290,7 @@ class AdminController extends Controller
             'manager_id' => $request->manager_id,
         ]);
          $client->save();
-         return redirect(route('admin.users'))->with('success', 'Данные клиента обновлены');
+         return redirect(route('admin.users'))->with('status', 'Данные пользователя успешно обновлены');
      }
 
 
@@ -345,7 +345,7 @@ class AdminController extends Controller
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect(route('admin.users'))->with('success', 'Менеджер успешно зарегистрирован!');
+        return redirect(route('admin.users'))->with('status', 'Менеджер успешно зарегистрирован!');
     }
 
 
@@ -390,7 +390,7 @@ class AdminController extends Controller
                 ]);
             }
         }
-        return redirect(route('admin.users'))->with('success', 'Данные обновлены');
+        return redirect(route('admin.users'))->with('status', 'Данные пользователя успешно обновлены');
     }
 
 
@@ -459,7 +459,7 @@ class AdminController extends Controller
             'new_value' => 'Договор No ' . $contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
-        return redirect(route('admin.contracts'))->with('success', 'Контракт успешно создан!');
+        return redirect(route('admin.contracts'))->with('status', 'Договор успешно создан!');
       }
 
 
@@ -497,11 +497,7 @@ class AdminController extends Controller
             'create_date' => 'required|date_format:Y-m-d',
             'sum' => 'required|integer',
         ]);
-         // Находим клиента по user_id из запроса
-        // $client = User::findOrFail($request->user_id);
-        // Получаем ID первого менеджера, закрепленного за клиентом
-        // $manager_id = optional($client->managers->first())->id;
-
+       
         $originalData = $contract->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']);
         $contract->update($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']));
 
@@ -521,7 +517,7 @@ class AdminController extends Controller
             }
         }
         // dd($manager_id);
-        return redirect(route('admin.contracts'))->with('success', 'Контракт успешно обновлен!');
+        return redirect(route('admin.contracts'))->with('status', 'Договор успешно обновлен!');
       }
 
       public function changeStatusApplication(Application $application){
@@ -579,7 +575,7 @@ class AdminController extends Controller
         ]);
     }
 
-    return redirect(route($role . '.applications'))->with('success', $message);
+    return redirect(route($role . '.applications'))->with('status', $message);
 } 
     public function createLogs(){
         $user = Auth::user();

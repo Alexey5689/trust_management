@@ -16,6 +16,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    status: {
+        type: String,
+        required: false,
+    },
 });
 </script>
 <template>

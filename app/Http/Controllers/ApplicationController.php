@@ -88,7 +88,7 @@ class ApplicationController extends Controller
             'new_value' => 'Заявка No' . $application->id,
             'created_by' => Auth::id(),
         ]);
-        return redirect(route($role . '.applications'))->with('success', 'Заявка успешно создана!');
+        return redirect(route($role . '.applications'))->with('status', 'Заявка успешно создана!');
       }
     public function showApplication(Application $application){
         $user = Auth::user();

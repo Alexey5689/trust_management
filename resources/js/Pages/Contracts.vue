@@ -19,6 +19,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    status: {
+        type: String,
+        required: false,
+    },
 });
 
 const deleteContract = (contractId) => {

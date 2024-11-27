@@ -259,7 +259,7 @@ class ManagerController extends Controller
             'new_value' =>'Договор No' . $request->contract_number,
             'created_by' => Auth::id(),
         ]);
-        return redirect(route('manager.contracts'))->with('success', 'Контракт успешно создан!');
+        return redirect(route('manager.contracts'))->with('status', 'Договор успешно создан!');
       }
 
       public function createApplications(){

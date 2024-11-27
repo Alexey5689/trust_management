@@ -82,6 +82,7 @@ const saveChanges = () => {
             <div class="card">
                 <header>
                     <h2 class="title-card">Контактные данные</h2>
+                    {{ props.status }}
                 </header>
                 <div class="card-content flex">
                     <div class="card-item">
