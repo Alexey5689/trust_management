@@ -40,7 +40,7 @@ const modalTitles = {
     password: 'Изменение пароля',
     email: 'Изменение почты',
 };
-const routes = {
+const urls = {
     contacts: 'profile-edit',
     password: 'password-edit',
     email: 'email-edit',
@@ -73,7 +73,6 @@ const saveChanges = () => {
 </script>
 
 <template>
-
     <Head title="Profile" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
         <template #header>
@@ -116,8 +115,13 @@ const saveChanges = () => {
         </template>
     </AuthenticatedLayout>
 
-    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal]" :route="routes[currentModal]"
-        @close="closeModal">
+    <BaseModal
+        v-if="isModalOpen"
+        :isOpen="isModalOpen"
+        :title="modalTitles[currentModal]"
+        :url="urls[currentModal]"
+        @close="closeModal"
+    >
         <template #default>
             <div v-if="currentModal === 'contacts'">
                 <form class="flex">
@@ -146,7 +150,9 @@ const saveChanges = () => {
                         <input type="password" id="confirm_password" v-model="formData.confirm_password" />
                     </div>
                 </form>
-                <p class="warning" style="margin-top: 16px;">После сохранения необходима повторная авторизация с новым паролем</p>
+                <p class="warning" style="margin-top: 16px">
+                    После сохранения необходима повторная авторизация с новым паролем
+                </p>
             </div>
             <div v-else-if="currentModal === 'email'">
                 <form class="flex">
@@ -154,7 +160,7 @@ const saveChanges = () => {
                         <label for="email">Новая почта</label>
                         <input type="email" id="email" v-model="formData.email" />
                     </div>
-                    <div style="width: 100%;">
+                    <div style="width: 100%">
                         <p class="warning">Description что сделать после изменения почты</p>
                     </div>
                 </form>
@@ -256,12 +262,11 @@ form {
 
 .input label,
 .warning {
-    color: #969BA0;
+    color: #969ba0;
 }
 
 .input input {
-
-    border: 1px solid #E8EAEB;
+    border: 1px solid #e8eaeb;
     height: 45px;
     border-radius: 12px;
     width: 100%;

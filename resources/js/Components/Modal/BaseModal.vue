@@ -11,7 +11,7 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    route: {
+    url: {
         type: String,
         required: true,
     },
@@ -34,8 +34,9 @@ watch(
 
 onMounted(async () => {
     try {
-        const data = await fetchData(props.route); // Ожидаем завершения запроса
+        const data = await fetchData(props.url); // Ожидаем завершения запроса
         response.value = data; // Обновляем реактивные данные
+        console.log(response.value);
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {

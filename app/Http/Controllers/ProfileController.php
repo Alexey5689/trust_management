@@ -34,21 +34,21 @@ class ProfileController extends Controller
         $user = Auth::user();
         $role = $user->role->title;
        // dd($userInfo);
-        return Inertia::render('EditProfile', [
-            'user' => [
-                'last_name' => $user->last_name,
-                'first_name' => $user->first_name,
-                'middle_name' => $user->middle_name,
-            ],
-            'role' => $role,
-        ]);
-        // return response()->json([
+        // return Inertia::render('EditProfile', [
         //     'user' => [
         //         'last_name' => $user->last_name,
         //         'first_name' => $user->first_name,
         //         'middle_name' => $user->middle_name,
         //     ],
+        //     'role' => $role,
         // ]);
+        return response()->json([
+            'user' => [
+                'last_name' => $user->last_name,
+                'first_name' => $user->first_name,
+                'middle_name' => $user->middle_name,
+            ],
+        ]);
     }
 
     public function updateProfile(Request $request)
@@ -131,10 +131,13 @@ class ProfileController extends Controller
         $role = $user->role->title;
         $userEmail = $user->email;
         //dd($userEmail);
-        return Inertia::render('EditEmail', [
-            'role' => $role,
-            'userEmail' => $userEmail
-        ]);
+        // return Inertia::render('EditEmail', [
+        //     'role' => $role,
+        //     'userEmail' => $userEmail
+        // ]);
+        return response()->json([
+            'userEmail' => $userEmail,
+        ]); 
     }
     public function updateEmailByAdmin(Request $request)
     {
