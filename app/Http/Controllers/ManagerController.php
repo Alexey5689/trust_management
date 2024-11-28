@@ -99,7 +99,7 @@ class ManagerController extends Controller
         ]);
         
 
-        $user = User::create([
+        $client = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'middle_name' => $request->middle_name,
@@ -112,12 +112,12 @@ class ManagerController extends Controller
 
         // Логируем событие регистрации
         Log::create([
-            'model_id' => $user->id,
+            'model_id' => $client->id,
             'model_type' => User::class,
-            'change' => 'Регистрация пользователя',
-            'action' => 'create',
-            'old_value' => 'Регистрация',
-            'new_value' => $user->email,
+            'change' => null,
+            'action' => 'Регистрация клиента',
+            'old_value' => null,
+            'new_value' => $client->email,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
 
@@ -127,10 +127,10 @@ class ManagerController extends Controller
 
 
         // Записываем менеджера в таблицу user_manager
-        $user->managers()->attach($manager_id);
+        $client->managers()->attach($manager_id);
 
         // Создание контракта с user_id и manager_id
-        $contract = $user->userContracts()->create([
+        $contract = $client->userContracts()->create([
             'manager_id' => $manager_id,
             'contract_number' => $request->contract_number,
             'create_date' => $request->create_date,
@@ -145,28 +145,27 @@ class ManagerController extends Controller
         Log::create([
             'model_id' => $contract->user_id,
             'model_type' => Contract::class,
-            'change' => 'Добавление договора',
-            'action' => 'create',
+            'change' => null,
+            'action' => 'Добавление договора',
             'old_value' => null,
             'new_value' => 'Договор No' . $contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
 
-        $user->userTransactions()->create([
+        $client->userTransactions()->create([
             'contract_id'=>$contract->id,
             'manager_id' => $manager_id,
             'date_transition' => $request->create_date,
-            'status' => $request->contract_status,
             'sum_transition' => $request->sum,
             'sourse' =>'Договор'
         ]);
 
 
 
-        $token = Password::createToken($user);
-        $user->notify(new PasswordEmail($token, $user->email));
+        $token = Password::createToken($client);
+        $client->notify(new PasswordEmail($token, $client->email));
 
-        event(new Registered($user));
+        event(new Registered($client));
         return redirect(route('manager.clients'))->with('status', 'Клиент успешно зарегистрирован!');
     }
 
@@ -197,7 +196,7 @@ class ManagerController extends Controller
                 'model_id' => $client->id,
                 'model_type' => User::class,
                 'change' => 'phone_number',
-                'action' => 'update',
+                'action' => 'Обновление данных',
                 'old_value' => $oldPhone,
                 'new_value' => $newPhone,
                 'created_by' => Auth::id(),
@@ -237,8 +236,9 @@ class ManagerController extends Controller
         ]);
 
         $user = Auth::user();
+        $client = User::findOrFail($request->user_id);
         /** @var User $user */
-        $user->managerContracts()->create([
+        $contract = $user->managerContracts()->create([
             'user_id' => $request->user_id,
             'manager_id' => $user->id,
             'contract_number' => $request->contract_number,
@@ -252,12 +252,21 @@ class ManagerController extends Controller
         ]);
         Log::create([
             'model_id' => $request->user_id,
-            'model_type' => Contract::class,
-            'change' => 'Добавление договора',
-            'action' => 'create',
+            'model_type' => null,
+            'change' => null,
+            'action' => 'Добавление договора',
             'old_value' => null,
             'new_value' =>'Договор No' . $request->contract_number,
             'created_by' => Auth::id(),
+        ]);
+        
+       
+        $client->userTransactions()->create([
+            'contract_id'=>$contract->id,
+            'manager_id' => $user->id,
+            'date_transition' => $request->create_date,
+            'sum_transition' => $request->sum,
+            'sourse' =>'Договор'
         ]);
         return redirect(route('manager.contracts'))->with('status', 'Договор успешно создан!');
       }

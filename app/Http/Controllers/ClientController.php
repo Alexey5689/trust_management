@@ -14,7 +14,17 @@ class ClientController extends Controller
         $user = Auth::user();
         $role = $user->role->title;
          /** @var User $user */
-        $contracts = $user->userContracts()->with('user')->get();
+        $contracts = $user->userContracts()->get()->map(function ($contract) {
+            return [
+                'id' => $contract->id,
+                'contract_number' => $contract->contract_number,
+                'create_date' => $contract->create_date,
+                'procent' => $contract->procent,
+                'sum' => $contract->sum,
+                'deadline' => $contract->deadline,
+
+            ];
+        });
         return Inertia::render('Contracts', [
             'role' => $role,
             'contracts' => $contracts
@@ -25,8 +35,8 @@ class ClientController extends Controller
         $role = $user->role->title;
 
         /** @var User $user */
-        $transactions = $user->userTransactions()->with('user')->get();
-        $contracts = $user->userContracts()->with('user')->get();
+        $transactions = $user->userTransactions()->get();
+        $contracts = $user->userContracts()->get();
         // dd($transactions);
         return Inertia::render('BalanceTransactions', [
             'role' => $role,

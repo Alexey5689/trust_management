@@ -17,7 +17,7 @@ class ResetPasswordController extends Controller
             'model_id' => $user->id,
             'model_type' => User::class,
             'change' => 'password',
-            'action' => 'reset password',
+            'action' => 'Сброс пароля',
             'old_value' => null,
             'new_value' => null,
             'created_by' => Auth::id(),

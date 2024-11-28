@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Contract;
+use App\Models\Transaction;
 use App\Models\Log;
 use App\Models\Application;
 use Illuminate\Http\Request;
@@ -161,9 +162,9 @@ class AdminController extends Controller
          Log::create([
             'model_id' => $user->id,
             'model_type' => User::class,
-            'change' => 'Регистрация пользователя',
-            'action' => 'create',
-            'old_value' => 'Регистрация',
+            'change' => null,
+            'action' => 'Регистрация пользователя',
+            'old_value' => null,
             'new_value' => $user->email,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
@@ -196,13 +197,10 @@ class AdminController extends Controller
             'contract_id'=>$contract->id,
             'manager_id' => $manager_id,
             'date_transition' => $request->create_date,
-            'status' => $request->contract_status,
             'sum_transition' => $request->sum,
             'sourse' =>'Договор'
         ]);
        
-
-
         $token = Password::createToken($user);
         $user->notify(new PasswordEmail($token, $user->email));
 
@@ -261,7 +259,7 @@ class AdminController extends Controller
                     'model_id' => $client->id,
                     'model_type' => User::class,
                     'change' => $field,
-                    'action' => 'update',
+                    'action' => 'Обновление данных',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
                     'created_by' => Auth::id(),
@@ -280,7 +278,7 @@ class AdminController extends Controller
                 'model_id' => $client->id,
                 'model_type' => User::class,
                 'change' => 'manager_id',
-                'action' => 'update',
+                'action' => 'Смена менеджера',
                 'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
                 'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
                 'created_by' => Auth::id(),
@@ -333,9 +331,9 @@ class AdminController extends Controller
         Log::create([
             'model_id' => $user->id,
             'model_type' => User::class,
-            'change' => 'Регистрация пользователя',
-            'action' => 'create',
-            'old_value' => 'Регистрация',
+            'change' => null,
+            'action' => 'Регистрация пользователя',
+            'old_value' => null,
             'new_value' => $user->email,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
@@ -383,7 +381,7 @@ class AdminController extends Controller
                     'model_id' => $manager->id,
                     'model_type' => User::class,
                     'change' => $field,
-                    'action' => 'update',
+                    'action' => 'Обновление данных',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
                     'created_by' => Auth::id(),
@@ -449,12 +447,20 @@ class AdminController extends Controller
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
         ]);
+        $client->userTransactions()->create([
+            'contract_id'=>$contract->id,
+            'manager_id' => $manager_id,
+            'date_transition' => $request->create_date,
+            'sum_transition' => $request->sum,
+            'sourse' =>'Договор'
+        ]);
+
         // Логируем событие регистрации
         Log::create([
             'model_id' => $contract->user_id,
             'model_type' => Contract::class,
-            'change' => 'Добавление договора',
-            'action' => 'create',
+            'change' => null,
+            'action' => 'Добавление договора',
             'old_value' => null,
             'new_value' => 'Договор No ' . $contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
@@ -509,7 +515,7 @@ class AdminController extends Controller
                     'model_id' => $contract->user_id,
                     'model_type' => Contract::class,
                     'change' => $field,
-                    'action' => 'update',
+                    'action' => 'Обновление договора',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
                     'created_by' => Auth::id(),
@@ -568,7 +574,7 @@ class AdminController extends Controller
             'model_id' => $application->id,
             'model_type' => Application::class,
             'change' => 'status',
-            'action' => 'update',
+            'action' => 'Смена статуса',
             'old_value' => $originalStatus,
             'new_value' => $application->status,
             'created_by' => Auth::id(),

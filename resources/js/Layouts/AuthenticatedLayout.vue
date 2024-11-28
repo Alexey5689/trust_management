@@ -121,8 +121,8 @@ const remote = () => {
                 <NavLink
                     :style="{ paddingLeft: isCollapsed ? '20px' : '32px' }"
                     v-if="props.userRole === 'client'"
-                    :href="route('client.balance.ransactions')"
-                    :active="route().current('client.balance.transactions')"
+                    :href="route('client.balance-transactions')"
+                    :active="route().current('client.balance-transactions')"
                 >
                     <span v-if="!isCollapsed">Баланс и транзакции</span>
                 </NavLink>

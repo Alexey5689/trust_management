@@ -82,8 +82,8 @@ class ApplicationController extends Controller
         Log::create([
             'model_id' => $application->user_id,
             'model_type' => Application::class,
-            'change' => "Создание заявки",
-            'action' => 'create',
+            'change' => null ,
+            'action' => "Создание заявки",
             'old_value' => null,
             'new_value' => 'Заявка No' . $application->id,
             'created_by' => Auth::id(),
