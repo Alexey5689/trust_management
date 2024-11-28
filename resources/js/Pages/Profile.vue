@@ -73,6 +73,7 @@ const saveChanges = () => {
 </script>
 
 <template>
+
     <Head title="Profile" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
         <template #header>
@@ -115,39 +116,47 @@ const saveChanges = () => {
         </template>
     </AuthenticatedLayout>
 
-    <BaseModal
-        v-if="isModalOpen"
-        :isOpen="isModalOpen"
-        :title="modalTitles[currentModal]"
-        :route="routes[currentModal]"
-        @close="closeModal"
-    >
+    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal]" :route="routes[currentModal]"
+        @close="closeModal">
         <template #default>
             <div v-if="currentModal === 'contacts'">
-                <form>
-                    <label for="last_name">Фамилия</label>
-                    <input type="text" id="last_name" v-model="formData.last_name" />
-
-                    <label for="first_name">Имя</label>
-                    <input type="text" id="first_name" v-model="formData.first_name" />
-
-                    <label for="middle_name">Отчество</label>
-                    <input type="text" id="middle_name" v-model="formData.middle_name" />
+                <form class="flex">
+                    <div class="input flex flex-column">
+                        <label for="last_name">Фамилия</label>
+                        <input type="text" id="last_name" v-model="formData.last_name" />
+                    </div>
+                    <div class="input flex flex-column">
+                        <label for="first_name">Имя</label>
+                        <input type="text" id="first_name" v-model="formData.first_name" />
+                    </div>
+                    <div class="input flex flex-column">
+                        <label for="middle_name">Отчество</label>
+                        <input type="text" id="middle_name" v-model="formData.middle_name" />
+                    </div>
                 </form>
             </div>
             <div v-else-if="currentModal === 'password'">
-                <form>
-                    <label for="password">Новый пароль</label>
-                    <input type="password" id="password" v-model="formData.password" />
-
-                    <label for="confirm_password">Подтвердите пароль</label>
-                    <input type="password" id="confirm_password" v-model="formData.confirm_password" />
+                <form class="flex">
+                    <div class="input flex flex-column">
+                        <label for="password">Новый пароль</label>
+                        <input type="password" id="password" v-model="formData.password" />
+                    </div>
+                    <div class="input flex flex-column">
+                        <label for="confirm_password">Подтвердите пароль</label>
+                        <input type="password" id="confirm_password" v-model="formData.confirm_password" />
+                    </div>
                 </form>
+                <p class="warning" style="margin-top: 16px;">После сохранения необходима повторная авторизация с новым паролем</p>
             </div>
             <div v-else-if="currentModal === 'email'">
-                <form>
-                    <label for="email">Новая почта</label>
-                    <input type="email" id="email" v-model="formData.email" />
+                <form class="flex">
+                    <div class="input flex flex-column">
+                        <label for="email">Новая почта</label>
+                        <input type="email" id="email" v-model="formData.email" />
+                    </div>
+                    <div style="width: 100%;">
+                        <p class="warning">Description что сделать после изменения почты</p>
+                    </div>
                 </form>
             </div>
         </template>
@@ -234,5 +243,28 @@ const saveChanges = () => {
 
 .btn-cancel:hover {
     background: #dfe4e7;
+}
+
+form {
+    column-gap: 16px;
+}
+
+.input {
+    width: 100%;
+    row-gap: 8px;
+}
+
+.input label,
+.warning {
+    color: #969BA0;
+}
+
+.input input {
+
+    border: 1px solid #E8EAEB;
+    height: 45px;
+    border-radius: 12px;
+    width: 100%;
+    padding: 0 20px;
 }
 </style>

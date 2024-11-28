@@ -82,7 +82,7 @@ const closeModal = () => {
 .modal-content {
     background: white;
     border-radius: 32px;
-    padding: 20px;
+    padding: 32px;
     width: 600px;
     position: relative;
 }
@@ -94,7 +94,7 @@ const closeModal = () => {
 }
 
 .modal-body {
-    margin: 20px 0;
+    margin: 32px 0 24px 0;
 }
 
 .title-2 {
