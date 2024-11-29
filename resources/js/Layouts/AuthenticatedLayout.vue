@@ -183,14 +183,15 @@ const remote = () => {
 
 .content_box {
     background: #f3f5f6;
-    height: 100vh;
+    min-height: 100%;
     padding: 22px 32px;
     transition: 0.3s;
+    overflow-y: auto;
+    height: 100vh;
 }
 
 .nav_box {
     margin: 0 auto;
-    /* width: 300px; */
     row-gap: 4px;
     height: 100%;
     transition: margin-top 0.3s;
