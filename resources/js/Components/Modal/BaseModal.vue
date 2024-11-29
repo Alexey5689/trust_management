@@ -20,8 +20,6 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const isVisible = ref(false);
-
-const response = ref(null);
 const error = ref(null);
 
 watch(
@@ -35,8 +33,7 @@ watch(
 onMounted(async () => {
     try {
         const data = await fetchData(props.url); // Ожидаем завершения запроса
-        response.value = data; // Обновляем реактивные данные
-        console.log(response.value);
+        emit('response', data.user ? data.user : data);
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {

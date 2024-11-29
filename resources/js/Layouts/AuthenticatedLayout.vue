@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Icon_exit from '@/Components/Icon/Exit.vue';
@@ -13,7 +13,7 @@ import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 import Icon_logs from '@/Components/Icon/Logs.vue';
 import Icon_arrow from '@/Components/Icon/Arrow.vue';
 import profileImage from '../../img/profile.png';
-import { useUserInfo } from '@/hooks.js';
+import { useUserInfo } from '@/store/hooks.js';
 
 const { user_Name_Email } = useUserInfo();
 
@@ -26,8 +26,16 @@ const props = defineProps({
         type: Array,
         required: false,
     },
+    notifications: {
+        type: String,
+        required: false,
+    },
 });
 
+// watch(notification, (newNotification) => {
+//     // Ваш код для реакции на изменение notification
+//     console.log('Статус обновлен:', newNotification);
+// });
 const isCollapsed = ref(false);
 
 const sidebarWidth = computed(() => (isCollapsed.value ? '92px' : '332px'));
@@ -147,7 +155,7 @@ const remote = () => {
                         <Icon_arrow />
                     </div>
                     {{ props.userRole }}
-                    {{ props.userInfo }}
+                    {{ props.notifications }}
                     <Icon_notifications />
                     <ResponsiveNavLink
                         :href="route('logout')"

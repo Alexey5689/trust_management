@@ -32,16 +32,6 @@ class ProfileController extends Controller
     public function editProfile()
     {
         $user = Auth::user();
-        $role = $user->role->title;
-       // dd($userInfo);
-        // return Inertia::render('EditProfile', [
-        //     'user' => [
-        //         'last_name' => $user->last_name,
-        //         'first_name' => $user->first_name,
-        //         'middle_name' => $user->middle_name,
-        //     ],
-        //     'role' => $role,
-        // ]);
         return response()->json([
             'user' => [
                 'last_name' => $user->last_name,
@@ -74,7 +64,7 @@ class ProfileController extends Controller
                     'model_id' => $user->id,
                     'model_type' => User::class,
                     'change' => $field,
-                    'action' => 'update',
+                    'action' => 'Обновление данных',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
                     'created_by' =>  $user->id,
@@ -128,15 +118,9 @@ class ProfileController extends Controller
     public function editEmailByAdmin()
     {
         $user = Auth::user();
-        $role = $user->role->title;
         $userEmail = $user->email;
-        //dd($userEmail);
-        // return Inertia::render('EditEmail', [
-        //     'role' => $role,
-        //     'userEmail' => $userEmail
-        // ]);
         return response()->json([
-            'userEmail' => $userEmail,
+            'email' => $userEmail,
         ]); 
     }
     public function updateEmailByAdmin(Request $request)
@@ -156,7 +140,7 @@ class ProfileController extends Controller
             'model_id' => $user->id,
             'model_type' => User::class,
             'change' => 'email',
-            'action' => 'Смена email',
+            'action' => 'Изменение email',
             'old_value' => $oldEmail,
             'new_value' => $request->email,
             'created_by' => Auth::id(),

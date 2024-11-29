@@ -7,6 +7,7 @@ export function useUserInfo() {
     });
     // Геттеры
     const user_Name_Email = computed(() => state.userInfo);
+
     // Методы
     return { user_Name_Email };
 }

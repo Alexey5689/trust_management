@@ -1,8 +1,8 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
@@ -25,15 +25,31 @@ const props = defineProps({
     },
 });
 
-const showStatusMessage = ref(false);
-const status = ref('');
+const isModalOpen = ref(false);
+const currentModal = ref(null);
+const userData = ref({});
+const form = useForm({
+    last_name: '',
+    first_name: '',
+    middle_name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+});
+watch(
+    userData,
+    (newData) => {
+        form.last_name = newData.last_name;
+        form.first_name = newData.first_name;
+        form.middle_name = newData.middle_name;
+        form.email = newData.email;
+    },
+    { immediate: true },
+);
 
 onMounted(() => {
     localStorage.setItem('userInfo', JSON.stringify({ full_name: props.user.full_name, email: props.user.email }));
 });
-
-const isModalOpen = ref(false);
-const currentModal = ref(null);
 
 const modalTitles = {
     contacts: 'Изменение контактных данных',
@@ -47,14 +63,6 @@ const urls = {
 };
 
 // Данные формы
-const formData = ref({
-    last_name: '',
-    first_name: '',
-    middle_name: '',
-    password: '',
-    confirm_password: '',
-    email: '',
-});
 
 const openModal = (type) => {
     currentModal.value = type;
@@ -67,14 +75,16 @@ const closeModal = () => {
 };
 
 const saveChanges = () => {
-    console.log('Сохранение данных формы:', formData.value);
+    if (currentModal.value === 'contacts') form.patch(route('profile.update'));
+    else if (currentModal.value === 'password') form.patch(route('password.update'));
+    else form.patch(route('email.update'));
     closeModal();
 };
 </script>
 
 <template>
     <Head title="Profile" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="props.role" :notifications="props.status">
         <template #header>
             <h2 class="title">Личный кабинет</h2>
         </template>
@@ -82,7 +92,6 @@ const saveChanges = () => {
             <div class="card">
                 <header>
                     <h2 class="title-card">Контактные данные</h2>
-                    {{ props.status }}
                 </header>
                 <div class="card-content flex">
                     <div class="card-item">
@@ -121,21 +130,22 @@ const saveChanges = () => {
         :title="modalTitles[currentModal]"
         :url="urls[currentModal]"
         @close="closeModal"
+        @response="userData = $event"
     >
         <template #default>
             <div v-if="currentModal === 'contacts'">
                 <form class="flex">
                     <div class="input flex flex-column">
                         <label for="last_name">Фамилия</label>
-                        <input type="text" id="last_name" v-model="formData.last_name" />
+                        <input type="text" id="last_name" v-model="form.last_name" />
                     </div>
                     <div class="input flex flex-column">
                         <label for="first_name">Имя</label>
-                        <input type="text" id="first_name" v-model="formData.first_name" />
+                        <input type="text" id="first_name" v-model="form.first_name" />
                     </div>
                     <div class="input flex flex-column">
                         <label for="middle_name">Отчество</label>
-                        <input type="text" id="middle_name" v-model="formData.middle_name" />
+                        <input type="text" id="middle_name" v-model="form.middle_name" />
                     </div>
                 </form>
             </div>
@@ -143,11 +153,11 @@ const saveChanges = () => {
                 <form class="flex">
                     <div class="input flex flex-column">
                         <label for="password">Новый пароль</label>
-                        <input type="password" id="password" v-model="formData.password" />
+                        <input type="password" id="password" v-model="form.password" />
                     </div>
                     <div class="input flex flex-column">
                         <label for="confirm_password">Подтвердите пароль</label>
-                        <input type="password" id="confirm_password" v-model="formData.confirm_password" />
+                        <input type="password" id="confirm_password" v-model="form.password_confirmation" />
                     </div>
                 </form>
                 <p class="warning" style="margin-top: 16px">
@@ -158,7 +168,7 @@ const saveChanges = () => {
                 <form class="flex">
                     <div class="input flex flex-column">
                         <label for="email">Новая почта</label>
-                        <input type="email" id="email" v-model="formData.email" />
+                        <input type="email" id="email" v-model="form.email" />
                     </div>
                     <div style="width: 100%">
                         <p class="warning">Description что сделать после изменения почты</p>
