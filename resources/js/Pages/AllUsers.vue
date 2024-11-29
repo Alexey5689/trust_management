@@ -2,11 +2,12 @@
 import InputLabel from '@/Components/InputLabel.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import Dropdown from '@/Components/Dropdown.vue';
+// import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Inertia } from '@inertiajs/inertia';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
+import Dropdown from '@/Components/Modal/Dropdown.vue';
 
 const props = defineProps({
     clients: {
@@ -27,15 +28,40 @@ const props = defineProps({
     },
 });
 
-const deleteUser = (userId) => {
-    if (confirm('Вы точно хотите удалить пользователя?')) {
-        Inertia.delete(route('delete.user', { user: userId }));
-    }
-};
+// const deleteUser = (userId) => {
+//     if (confirm('Вы точно хотите удалить пользователя?')) {
+//         Inertia.delete(route('delete.user', { user: userId }));
+//     }
+// };
 
-const resetPassword = (userId) => {
-    if (confirm('Вы уверены, что хотите сбросить пароль пользователю?')) {
-        Inertia.post(route('reset.password', { user: userId }));
+// const resetPassword = (userId) => {
+//     if (confirm('Вы уверены, что хотите сбросить пароль пользователю?')) {
+//         Inertia.post(route('reset.password', { user: userId }));
+//     }
+// };
+
+const handleDropdownSelect = (user, type) => (option) => {
+    switch (option.action) {
+        case 'edit':
+            // Редирект на страницу редактирования
+            if (type === 'manager') {
+                Inertia.get(route('admin.edit.manager', { manager: user.id }));
+            } else if (type === 'client') {
+                Inertia.get(route(`${props.role}.edit.client`, { client: user.id }));
+            }
+            break;
+        case 'resetPassword':
+            if (confirm('Вы уверены, что хотите сбросить пароль?')) {
+                Inertia.post(route('reset.password', { user: user.id }));
+            }
+            break;
+        case 'delete':
+            if (confirm('Вы уверены, что хотите удалить пользователя?')) {
+                Inertia.delete(route('delete.user', { user: user.id }));
+            }
+            break;
+        default:
+            console.error('Неизвестное действие:', option.action);
     }
 };
 </script>
@@ -84,10 +110,17 @@ const resetPassword = (userId) => {
                                 <p class="text">{{ manager.email }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <button>
-                                    <Ellipsis />
-                                </button>
+                                <Dropdown :options="[
+                                    { label: 'Изменить', action: 'edit' },
+                                    { label: 'Сбросить пароль', action: 'resetPassword' },
+                                    { label: 'Удалить', action: 'delete' }
+                                ]" @select="handleDropdownSelect(manager, 'manager')">
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
                             </div>
+
 
 
                             <!-- <Dropdown align="right" width="48">
@@ -155,9 +188,15 @@ const resetPassword = (userId) => {
                                 <p class="text">{{ client.manager_full_name }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <button>
-                                    <Ellipsis />
-                                </button>
+                                <Dropdown :options="[
+                                    { label: 'Изменить', action: 'edit' },
+                                    { label: 'Сбросить пароль', action: 'resetPassword' },
+                                    { label: 'Удалить клиента', action: 'delete' }
+                                ]" @select="handleDropdownSelect(client, 'client')">
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
                             </div>
 
 
@@ -240,7 +279,7 @@ const resetPassword = (userId) => {
 
 .card-content {
     padding: 20px 32px 32px 32px;
-   
+
 }
 
 .thead-manager {
@@ -269,6 +308,15 @@ const resetPassword = (userId) => {
     display: grid;
     grid-template-columns: 50px 3fr 2fr 3fr 3fr 1fr;
     border-bottom: 1px solid #F3F5F6;
+}
+
+.thead-manager li,
+.thead-client li {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 23.2px;
+    letter-spacing: 0.01em;
+    color: #969BA0;
 }
 
 .link-btn {
@@ -305,18 +353,6 @@ const resetPassword = (userId) => {
 .ellipsis {
     margin-left: auto;
     padding-right: 12px;
-}
-
-.ellipsis button {
-    border-radius: 100%;
-    height: 28px;
-    width: 28px;
-    background: #4E9F7D1A;
-    transition: 0.3s;
-}
-
-.ellipsis button:hover {
-    background: #d3e9e0
 }
 
 .order {
