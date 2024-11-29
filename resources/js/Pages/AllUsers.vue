@@ -90,13 +90,13 @@ const handleDropdownSelect = (user, type) => (option) => {
                         <h2 class="title-card">Менеджеры</h2>
                     </header>
                     <div class="card-content">
-                        <ul class="flex thead-manager align-center">
+                        <ul class="thead-manager align-center">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                         </ul>
-                        <div class="flex items-manager align-center" v-for="manager in managers" :key="manager.id">
+                        <div class="items-manager align-center" v-for="manager in managers" :key="manager.id">
                             <div class="card-item order">
                                 <p class="text">{{ manager.id }}</p>
                             </div>
@@ -164,14 +164,14 @@ const handleDropdownSelect = (user, type) => (option) => {
                     </header>
                     <!-- {{ props.clients }} -->
                     <div class="card-content">
-                        <ul class="flex thead-client align-center">
+                        <ul class="thead-client align-center">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                             <li>Менеджер</li>
                         </ul>
-                        <div class="flex items-client align-center" v-for="client in props.clients" :key="client.id">
+                        <div class="items-client align-center" v-for="client in props.clients" :key="client.id">
                             <div class="card-item order">
                                 <p class="text">{{ client.id }}</p>
                             </div>
