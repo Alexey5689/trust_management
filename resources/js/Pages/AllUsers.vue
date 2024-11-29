@@ -6,6 +6,8 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Inertia } from '@inertiajs/inertia';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import Ellipsis from '@/Components/Icon/Ellipsis.vue';
+
 const props = defineProps({
     clients: {
         type: Array,
@@ -63,13 +65,13 @@ const resetPassword = (userId) => {
                     </header>
                     <div class="card-content">
                         <ul class="flex thead-manager align-center">
-                            <li>№</li>
+                            <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                         </ul>
                         <div class="flex items-manager align-center" v-for="manager in managers" :key="manager.id">
-                            <div class="card-item">
+                            <div class="card-item order">
                                 <p class="text">{{ manager.id }}</p>
                             </div>
                             <div class="card-item">
@@ -80,6 +82,11 @@ const resetPassword = (userId) => {
                             </div>
                             <div class="card-item">
                                 <p class="text">{{ manager.email }}</p>
+                            </div>
+                            <div class="card-item ellipsis">
+                                <button>
+                                    <Ellipsis />
+                                </button>
                             </div>
 
 
@@ -125,14 +132,14 @@ const resetPassword = (userId) => {
                     <!-- {{ props.clients }} -->
                     <div class="card-content">
                         <ul class="flex thead-client align-center">
-                            <li>№</li>
+                            <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                             <li>Менеджер</li>
                         </ul>
                         <div class="flex items-client align-center" v-for="client in props.clients" :key="client.id">
-                            <div class="card-item">
+                            <div class="card-item order">
                                 <p class="text">{{ client.id }}</p>
                             </div>
                             <div class="card-item">
@@ -146,6 +153,11 @@ const resetPassword = (userId) => {
                             </div>
                             <div class="card-item">
                                 <p class="text">{{ client.manager_full_name }}</p>
+                            </div>
+                            <div class="card-item ellipsis">
+                                <button>
+                                    <Ellipsis />
+                                </button>
                             </div>
 
 
@@ -180,6 +192,8 @@ const resetPassword = (userId) => {
                                 </DropdownLink>
                             </template>
                         </Dropdown> -->
+
+
                         </div>
                     </div>
                 </div>
@@ -246,14 +260,14 @@ const resetPassword = (userId) => {
 .thead-client {
     height: 55px;
     display: grid;
-    grid-template-columns: 50px 3fr 2fr 3fr 3fr;
+    grid-template-columns: 50px 3fr 2fr 3fr 3fr 1fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
 .items-client {
     height: 53px;
     display: grid;
-    grid-template-columns: 50px 3fr 2fr 3fr 3fr;
+    grid-template-columns: 50px 3fr 2fr 3fr 3fr 1fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
@@ -286,5 +300,26 @@ const resetPassword = (userId) => {
 
 .main {
     row-gap: 32px;
+}
+
+.ellipsis {
+    margin-left: auto;
+    padding-right: 12px;
+}
+
+.ellipsis button {
+    border-radius: 100%;
+    height: 28px;
+    width: 28px;
+    background: #4E9F7D1A;
+    transition: 0.3s;
+}
+
+.ellipsis button:hover {
+    background: #d3e9e0
+}
+
+.order {
+    padding-left: 12px;
 }
 </style>
