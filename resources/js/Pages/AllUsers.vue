@@ -1,10 +1,9 @@
 <script setup>
 import InputLabel from '@/Components/InputLabel.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 // import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import { Inertia } from '@inertiajs/inertia';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
@@ -40,24 +39,24 @@ const props = defineProps({
 //     }
 // };
 
-const handleDropdownSelect = (user, type) => (option) => {
+const handleDropdownSelect = (option, userId, type) => {
     switch (option.action) {
         case 'edit':
             // Редирект на страницу редактирования
             if (type === 'manager') {
-                Inertia.get(route('admin.edit.manager', { manager: user.id }));
+                router.get(route('admin.edit.manager', { manager: userId }));
             } else if (type === 'client') {
-                Inertia.get(route(`${props.role}.edit.client`, { client: user.id }));
+                router.get(route(`${props.role}.edit.client`, { client: userId }));
             }
             break;
         case 'resetPassword':
             if (confirm('Вы уверены, что хотите сбросить пароль?')) {
-                Inertia.post(route('reset.password', { user: user.id }));
+                router.post(route('reset.password', { user: userId }));
             }
             break;
         case 'delete':
             if (confirm('Вы уверены, что хотите удалить пользователя?')) {
-                Inertia.delete(route('delete.user', { user: user.id }));
+                router.delete(route('delete.user', { user: userId }));
             }
             break;
         default:
@@ -67,24 +66,23 @@ const handleDropdownSelect = (user, type) => (option) => {
 </script>
 
 <template>
-
     <Head title="All Users" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Пользователи</h2>
                 <div>
-                    <ResponsiveNavLink :href="route('admin.registration.client')" class="add_client"> Добавить клиента
+                    <ResponsiveNavLink :href="route('admin.registration.client')" class="add_client">
+                        Добавить клиента
                     </ResponsiveNavLink>
-                    <ResponsiveNavLink :href="route('admin.registration.manager')" class="add_manager"> Добавить
-                        менеджера
+                    <ResponsiveNavLink :href="route('admin.registration.manager')" class="add_manager">
+                        Добавить менеджера
                     </ResponsiveNavLink>
                 </div>
             </div>
         </template>
         <template #main>
             <div class="main flex flex-column">
-
                 <div class="card">
                     <header>
                         <h2 class="title-card">Менеджеры</h2>
@@ -110,18 +108,19 @@ const handleDropdownSelect = (user, type) => (option) => {
                                 <p class="text">{{ manager.email }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <Dropdown :options="[
-                                    { label: 'Изменить', action: 'edit' },
-                                    { label: 'Сбросить пароль', action: 'resetPassword' },
-                                    { label: 'Удалить', action: 'delete' }
-                                ]" @select="handleDropdownSelect(manager, 'manager')">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
+                                >
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
                                 </Dropdown>
                             </div>
-
-
 
                             <!-- <Dropdown align="right" width="48">
                             <template #trigger>
@@ -152,8 +151,6 @@ const handleDropdownSelect = (user, type) => (option) => {
                                 <DropdownLink @click="deleteUser(manager.id)" as="button"> Удалить </DropdownLink>
                             </template>
 </Dropdown> -->
-
-
                         </div>
                     </div>
                 </div>
@@ -188,20 +185,19 @@ const handleDropdownSelect = (user, type) => (option) => {
                                 <p class="text">{{ client.manager_full_name }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <Dropdown :options="[
-                                    { label: 'Изменить', action: 'edit' },
-                                    { label: 'Сбросить пароль', action: 'resetPassword' },
-                                    { label: 'Удалить клиента', action: 'delete' }
-                                ]" @select="handleDropdownSelect(client, 'client')">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить клиента', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, client, 'client')"
+                                >
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
                                 </Dropdown>
                             </div>
-
-
-
-
 
                             <!-- <Dropdown align="right" width="48">
                             <template #trigger>
@@ -231,12 +227,9 @@ const handleDropdownSelect = (user, type) => (option) => {
                                 </DropdownLink>
                             </template>
                         </Dropdown> -->
-
-
                         </div>
                     </div>
                 </div>
-
             </div>
         </template>
     </AuthenticatedLayout>
@@ -273,41 +266,40 @@ const handleDropdownSelect = (user, type) => (option) => {
     font-size: 20px;
     font-weight: 600;
     line-height: 29px;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
     padding: 24px 32px 20px 32px;
 }
 
 .card-content {
     padding: 20px 32px 32px 32px;
-
 }
 
 .thead-manager {
     height: 55px;
     display: grid;
     grid-template-columns: 50px 3.5fr 3fr 3fr 1fr;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .items-manager {
     padding: 16px 0;
     display: grid;
     grid-template-columns: 50px 3.5fr 3fr 3fr 1fr;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .thead-client {
     height: 55px;
     display: grid;
     grid-template-columns: 50px 3fr 2.5fr 2.5fr 3fr 1fr;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .items-client {
     padding: 16px 0;
     display: grid;
     grid-template-columns: 50px 3fr 2.5fr 2.5fr 3fr 1fr;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .thead-manager li,
@@ -316,7 +308,7 @@ const handleDropdownSelect = (user, type) => (option) => {
     font-weight: 600;
     line-height: 23.2px;
     letter-spacing: 0.01em;
-    color: #969BA0;
+    color: #969ba0;
 }
 
 .link-btn {
@@ -328,7 +320,7 @@ const handleDropdownSelect = (user, type) => (option) => {
 }
 
 .add_client {
-    background: #4E9F7D;
+    background: #4e9f7d;
     color: #fff;
     margin-right: 16px;
     transition: 0.3s;
