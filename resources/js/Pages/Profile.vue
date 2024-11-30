@@ -97,30 +97,24 @@ const saveChanges = () => {
                     <div class="card-item">
                         <InputLabel for="last_name" value="ФИО" />
                         <p class="text">{{ props.user.full_name }}</p>
-                        <ResponsiveNavLink :href="route(`profile.edit`)">
-                            Изменить контактные данные
-                        </ResponsiveNavLink>
+                        <button class="link-btn" @click="openModal('contacts')">Изменить контактные данные</button>
                     </div>
 
                     <div class="card-item">
                         <InputLabel for="last_name" value="Пароль" />
                         <p class="text">********</p>
-                        <ResponsiveNavLink :href="route(`password.edit`)"> Изменить пароль </ResponsiveNavLink>
+                        <button class="link-btn" @click="openModal('password')">Изменить пароль</button>
                     </div>
 
                     <div class="card-item">
                         <InputLabel for="last_name" value="Почта" />
                         <p class="text">{{ props.user.email }}</p>
-                        <ResponsiveNavLink v-if="props.role === 'admin'" :href="route(`email.edit`)">
+                        <button v-if="props.role === 'admin'" class="link-btn" @click="openModal('email')">
                             Изменить почту
-                        </ResponsiveNavLink>
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <button @click="openModal('contacts')">Изменить контактные данные</button>
-            <button @click="openModal('password')">Изменить пароль</button>
-            <button @click="openModal('email')">Изменить почту</button>
         </template>
     </AuthenticatedLayout>
 
@@ -281,5 +275,13 @@ form {
     border-radius: 12px;
     width: 100%;
     padding: 0 20px;
+}
+.link-btn {
+    background: #f3f5f6;
+    height: 45px;
+    display: inline-flex;
+    padding: 12px 20px;
+    border-radius: 12px;
+    align-items: center;
 }
 </style>
