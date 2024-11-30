@@ -10,6 +10,14 @@ export const formatDate = (date) => {
         return date; // Возвращаем исходное значение в случае ошибки
     }
 };
+export const formatDateLogs = (date) => {
+    try {
+        return format(parseISO(date), 'dd/MM/yyyy HH:mm:ss');
+    } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
+        return date; // Возвращаем исходное значение в случае ошибки
+    }
+};
 
 export const getYearDifference = (startDate, endDate) => {
     try {

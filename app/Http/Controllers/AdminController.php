@@ -187,10 +187,10 @@ class AdminController extends Controller
         Log::create([
             'model_id' => $contract->user_id,
             'model_type' => Contract::class,
-            'change' => 'Добавление договора',
-            'action' => 'create',
+            'change' => null,
+            'action' => 'Добавление договора',
             'old_value' => null,
-            'new_value' => 'Договор No' . $contract->contract_number,
+            'new_value' => 'Договор No ' . $contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
         $user->userTransactions()->create([

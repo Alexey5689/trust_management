@@ -2,7 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import { formatDate } from '@/helpers.js';
+import { formatDateLogs } from '@/helpers.js';
 const props = defineProps({
     logs: {
         type: Array,
@@ -15,7 +15,6 @@ const props = defineProps({
 });
 </script>
 <template>
-
     <Head title="Logs" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
@@ -61,7 +60,7 @@ const props = defineProps({
                             <p class="text">{{ log.action }}</p>
                         </div>
                         <div class="card-item">
-                            <p class="text">{{ formatDate(log.created_at) }}</p>
+                            <p class="text">{{ formatDateLogs(log.created_at) }}</p>
                         </div>
                     </div>
                 </div>
@@ -96,7 +95,7 @@ const props = defineProps({
     font-size: 20px;
     font-weight: 600;
     line-height: 29px;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
     padding: 24px 32px 20px 32px;
     width: 1606px;
 }
@@ -111,7 +110,7 @@ const props = defineProps({
     display: grid;
     column-gap: 5px;
     grid-template-columns: 50px 250px 150px 200px 200px 270px 250px 150px;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .items {
@@ -119,7 +118,7 @@ const props = defineProps({
     display: grid;
     column-gap: 5px;
     grid-template-columns: 50px 250px 150px 200px 200px 270px 250px 150px;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .thead-log li {
@@ -127,7 +126,7 @@ const props = defineProps({
     font-weight: 600;
     line-height: 23.2px;
     letter-spacing: 0.01em;
-    color: #969BA0;
+    color: #969ba0;
 }
 
 .order {
