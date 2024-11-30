@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Contract;
-use App\Models\Transaction;
+use App\Models\Notification;
 use App\Models\Log;
 use App\Models\Application;
 use Illuminate\Http\Request;
@@ -266,6 +266,9 @@ class AdminController extends Controller
                 ]);
             }
         }
+        $client->userNotifications()->create([
+            'content'=> 'Ваши контактные данные были изменены',
+        ]);
         // Проверяем, изменился ли менеджер
         $currentManager = $client->managers()->first();
         $newManager = User::find($request->manager_id);
@@ -282,6 +285,9 @@ class AdminController extends Controller
                 'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
                 'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
                 'created_by' => Auth::id(),
+            ]);
+            $client->userNotifications()->create([
+                'content'=> 'Ваш менеджер был изменен',
             ]);
         }
         $client->userContracts()->update([
@@ -388,6 +394,11 @@ class AdminController extends Controller
                 ]);
             }
         }
+
+        $manager->userNotifications()->create([
+            'content'=> 'Ваши контактные данные были изменены',
+        ]);
+
         return redirect(route('admin.users'))->with('status', 'Данные пользователя успешно обновлены');
     }
 
@@ -453,6 +464,9 @@ class AdminController extends Controller
             'date_transition' => $request->create_date,
             'sum_transition' => $request->sum,
             'sourse' =>'Договор'
+        ]);
+        $client->userNotifications()->create([
+            'content'=> 'Был создан договор No' . $contract->contract_number,
         ]);
 
         // Логируем событие регистрации
@@ -522,6 +536,9 @@ class AdminController extends Controller
                 ]);
             }
         }
+        $contract->user_id->userNotifications()->create([
+            'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
+        ]);
         // dd($manager_id);
         return redirect(route('admin.contracts'))->with('status', 'Договор успешно обновлен!');
       }
@@ -580,6 +597,9 @@ class AdminController extends Controller
             'created_by' => Auth::id(),
         ]);
     }
+    $application->user_id->userNotifications()->create([
+        'content'=> 'Статус заявки No' . $application->id . ' был изменен',
+    ]);
 
     return redirect(route($role . '.applications'))->with('status', $message);
 } 

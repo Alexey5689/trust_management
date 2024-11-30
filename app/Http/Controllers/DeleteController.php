@@ -15,32 +15,33 @@ class DeleteController extends Controller
       // Удаление user
       public function deleteUser(User $user): RedirectResponse
       {
-          // dd($user);
-        //   Log::create([
-        //     'model_id' => $user->id,
-        //     'model_type' => User::class,
-        //     'change' => "Удаление",
-        //     'action' => 'delete',
-        //     'old_value' => null,
-        //     'new_value' => null,
-        //     'created_by' => Auth::id(),
-        // ]);
-            //$user->delete();
-            return redirect('/')->with('success', 'User удален');
+          
+          $user->update(['active' => false]);
+          //dd($user);
+          Log::create([
+                'model_id' => $user->id,
+                'model_type' => User::class,
+                'change' => "active",
+                'action' => 'Удаление пользователя',
+                'old_value' => true,
+                'new_value' => false,
+                'created_by' => Auth::id(),
+            ]);
+            return redirect('/')->with('status', 'Статус пользователя изменен');
       }
       public function deleteContract(Contract $contract): RedirectResponse
       {
           //dd($contract);
-        //   Log::create([
-        //     'model_id' => $contract->user_id,
-        //     'model_type' => Contract::class,
-        //     'change' => "Удаление договора",
-        //     'action' => 'delete',
-        //     'old_value' => 'Договор No ' . $contract->contract_number,
-        //     'new_value' => null,
-        //     'created_by' => Auth::id(),
-        // ]);
-          $contract->delete();
-          return redirect(route('admin.contracts'))->with('success', 'Контракт удален');
+          $contract->update(['contract_status' => false]);
+          Log::create([
+            'model_id' => $contract->user_id,
+            'model_type' => Contract::class,
+            'change' => "contract_status",
+            'action' => 'Удаление договора No ' . $contract->contract_number,
+            'old_value' => true,
+            'new_value' => false,
+            'created_by' => Auth::id(),
+        ]);
+          return redirect(route('admin.contracts'))->with('success', 'Статус контракта изменен');
       }
 }

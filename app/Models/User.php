@@ -85,6 +85,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Application::class, 'manager_id');
     }
+    //уведомления
+    public function userNotifications(){
+        return $this->hasMany(Notification::class, 'user_id');
+    }   
 
     //логи
     public function createdLogs(){
