@@ -15,6 +15,7 @@ const props = defineProps({
 });
 </script>
 <template>
+
     <Head title="Logs" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
@@ -26,38 +27,42 @@ const props = defineProps({
                     <h2 class="title-card">Логи</h2>
                 </header>
                 <!-- {{ props.logs }} -->
-                <div class="card-content flex" v-for="log in props.logs" :key="log.id">
-                    <div class="card-item">
-                        <InputLabel for="number" value="№" />
-                        <p class="text">{{ log.id }}</p>
-                    </div>
-                    <div class="card-item">
-                        <InputLabel for="creator" value="Создатель" />
-                        <p class="text">{{ log.creator.full_name }}</p>
-                    </div>
-                    <div class="card-item">
-                        <InputLabel for="change" value="Что изменено" />
-                        <p class="text">{{ log.change }}</p>
-                    </div>
-                    <div class="card-item">
-                        <InputLabel for="old_value" value="Старое значение" />
-                        <p class="text">{{ log.old_value }}</p>
-                    </div>
-                    <div class="card-item">
-                        <InputLabel for="new_value" value="Новое значение" />
-                        <p class="text">{{ log.new_value }}</p>
-                    </div>
-                    <div class="card-item">
-                        <InputLabel for="target" value="Цель" />
-                        <p class="text">{{ log.target.full_name }}</p>
-                    </div>
-                    <div class="card-item">
-                        <InputLabel for="action" value="Действие" />
-                        <p class="text">{{ log.action }}</p>
-                    </div>
-                    <div class="card-item">
-                        <InputLabel for="date" value="Дата изменения" />
-                        <p class="text">{{ formatDate(log.created_at) }}</p>
+                <div class="logs">
+                    <ul class="thead-log align-center">
+                        <li class="order">№</li>
+                        <li>Создатель</li>
+                        <li>Что изменено</li>
+                        <li>Старое значение</li>
+                        <li>Новое значение</li>
+                        <li>Цель</li>
+                        <li>Действие</li>
+                        <li>Дата изменения</li>
+                    </ul>
+                    <div class="items flex align-center" v-for="log in props.logs" :key="log.id">
+                        <div class="card-item order">
+                            <p class="text">{{ log.id }}</p>
+                        </div>
+                        <div class="card-item">
+                            <p class="text">{{ log.creator.full_name }}</p>
+                        </div>
+                        <div class="card-item">
+                            <p class="text">{{ log.change }}</p>
+                        </div>
+                        <div class="card-item">
+                            <p class="text">{{ log.old_value }}</p>
+                        </div>
+                        <div class="card-item">
+                            <p class="text">{{ log.new_value }}</p>
+                        </div>
+                        <div class="card-item">
+                            <p class="text">{{ log.target.full_name }}</p>
+                        </div>
+                        <div class="card-item">
+                            <p class="text">{{ log.action }}</p>
+                        </div>
+                        <div class="card-item">
+                            <p class="text">{{ formatDate(log.created_at) }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -76,7 +81,6 @@ const props = defineProps({
 
 .card {
     background: #fff;
-    padding: 32px;
     border-radius: 32px;
     -webkit-box-shadow: 0px 0px 4px 0px #5c5c5c0a;
     box-shadow: 0px 0px 4px 0px #5c5c5c0a;
@@ -84,6 +88,7 @@ const props = defineProps({
     box-shadow: 0px 0px 8px 0px #5c5c5c14;
     -webkit-box-shadow: 0px 4px 12px 0px #5c5c5c14;
     box-shadow: 0px 4px 12px 0px #5c5c5c14;
+    overflow-x: auto;
 }
 
 .title-card {
@@ -91,17 +96,41 @@ const props = defineProps({
     font-size: 20px;
     font-weight: 600;
     line-height: 29px;
+    border-bottom: 1px solid #F3F5F6;
+    padding: 24px 32px 20px 32px;
+    width: 1606px;
 }
 
-.card-content {
-    margin-top: 32px;
+.logs {
+    padding: 20px 32px 32px 32px;
+    width: 1606px;
 }
 
-.card-item {
-    width: 33.33%;
+.thead-log {
+    height: 55px;
+    display: grid;
+    column-gap: 5px;
+    grid-template-columns: 50px 250px 150px 200px 200px 270px 250px 150px;
+    border-bottom: 1px solid #F3F5F6;
 }
 
-.text {
-    margin-bottom: 16px;
+.items {
+    padding: 16px 0;
+    display: grid;
+    column-gap: 5px;
+    grid-template-columns: 50px 250px 150px 200px 200px 270px 250px 150px;
+    border-bottom: 1px solid #F3F5F6;
+}
+
+.thead-log li {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 23.2px;
+    letter-spacing: 0.01em;
+    color: #969BA0;
+}
+
+.order {
+    padding-left: 12px;
 }
 </style>

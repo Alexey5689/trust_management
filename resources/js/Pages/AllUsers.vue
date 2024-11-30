@@ -285,28 +285,28 @@ const handleDropdownSelect = (user, type) => (option) => {
 .thead-manager {
     height: 55px;
     display: grid;
-    grid-template-columns: 50px 3fr 3fr 3fr 1fr;
+    grid-template-columns: 50px 3.5fr 3fr 3fr 1fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
 .items-manager {
-    height: 53px;
+    padding: 16px 0;
     display: grid;
-    grid-template-columns: 50px 3fr 3fr 3fr 1fr;
+    grid-template-columns: 50px 3.5fr 3fr 3fr 1fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
 .thead-client {
     height: 55px;
     display: grid;
-    grid-template-columns: 50px 3fr 2fr 3fr 3fr 1fr;
+    grid-template-columns: 50px 3fr 2.5fr 2.5fr 3fr 1fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
 .items-client {
-    height: 53px;
+    padding: 16px 0;
     display: grid;
-    grid-template-columns: 50px 3fr 2fr 3fr 3fr 1fr;
+    grid-template-columns: 50px 3fr 2.5fr 2.5fr 3fr 1fr;
     border-bottom: 1px solid #F3F5F6;
 }
 

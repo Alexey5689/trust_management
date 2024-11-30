@@ -1,4 +1,5 @@
 <script setup>
+import { computed, ref } from 'vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
@@ -8,7 +9,6 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import { Inertia } from '@inertiajs/inertia';
 import { format } from 'date-fns';
 import { formatDate, getYearDifference } from '@/helpers.js';
-import { computed, ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 const props = defineProps({
     contracts: {
@@ -72,14 +72,14 @@ const getDividends = (rate) => {
                         <li class="order">Клиент</li>
                         <li>Договор</li>
                         <li>Дата</li>
-                        <li>Срок договора</li>
                         <li>Ставка %</li>
+                        <li>Срок</li>
                         <li>Выплаты</li>
                         <li>Сумма</li>
                     </ul>
-                    <div v-if="props.contracts.length == 0">Договоров нет</div>
+                    <div class="title" v-if="props.contracts.length == 0">Договоров нет</div>
                     <div v-else class="contracts align-center" v-for="contract in props.contracts" :key="contract.id">
-                        <div v-if="props.role === 'admin' || props.role === 'manager'">
+                        <div class="order" v-if="props.role === 'admin' || props.role === 'manager'">
                             <p>{{ contract.user.full_name }}</p>
                         </div>
                         <div>
@@ -89,6 +89,9 @@ const getDividends = (rate) => {
                             <p>{{ formatDate(contract.create_date) }}</p>
                         </div>
                         <div>
+                            <p>{{ contract.procent }}</p>
+                        </div>
+                        <div>
                             <p>
                                 {{
                                     getYearDifference(contract.create_date, contract.deadline) === 1
@@ -96,9 +99,6 @@ const getDividends = (rate) => {
                                         : getYearDifference(contract.create_date, contract.deadline) + ' года'
                                 }}
                             </p>
-                        </div>
-                        <div>
-                            <p>{{ contract.procent }}</p>
                         </div>
                         <div v-if="(role === 'admin' || role === 'manager') && contract.payments">
                             <p>{{ contract.payments }}</p>
@@ -205,14 +205,14 @@ const getDividends = (rate) => {
 .thead-contracts {
     height: 55px;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1.1fr 0.5fr 0.7fr 0.5fr 0.4fr 0.8fr 0.7fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
 .contracts {
-    height: 53px;
+    padding: 16px 0;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1.1fr 0.5fr 0.7fr 0.5fr 0.4fr 0.8fr 0.7fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
@@ -241,5 +241,9 @@ const getDividends = (rate) => {
 
 .add_contracts:hover {
     background: #428569;
+}
+
+.order {
+    padding-left: 12px;
 }
 </style>
