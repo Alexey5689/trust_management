@@ -354,16 +354,28 @@ class AdminController extends Controller
 
 
      // изменение контактных данных user менеджер
-    public function editManagersByAdmin(User $manager): Response
+    public function editManagersByAdmin(User $manager)
     {
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
+        //dd($manager);
+        // $user = Auth::user(); // Получаем текущего пользователя
+        // $role = $user->role->title; // Получаем его роль
 
-        // dd($user, $role);
-        return Inertia::render('EditManager', [
-            'role' => $role,
-            'manager' => $manager
+        // // dd($user, $role);
+        // return Inertia::render('EditManager', [
+        //     'role' => $role,
+        //     'manager' => $manager
+        // ]);
+        return response()->json([
+            'manager' =>[
+                'id' => $manager->id,
+                'last_name' => $manager->last_name,
+                'first_name' => $manager->first_name,
+                'middle_name' => $manager->middle_name,
+                'email' => $manager->email,
+                'phone_number' => $manager->phone_number
+            ] 
         ]);
+
     }
     public function updateManagersByAdmin(Request $request, User $manager): RedirectResponse
     {

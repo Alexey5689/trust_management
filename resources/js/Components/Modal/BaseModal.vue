@@ -1,6 +1,7 @@
 <script setup>
 import { watch, ref, onMounted } from 'vue';
 import Close from '@/Components/Icon/Close.vue';
+import { router } from '@inertiajs/vue3';
 import { fetchData } from '@/helpers';
 
 const props = defineProps({
@@ -23,14 +24,30 @@ const emit = defineEmits(['close']);
 const isVisible = ref(false);
 const error = ref(null);
 
-watch(() => props.isOpen, (newVal) => {
-    isVisible.value = newVal;
-}, { immediate: true },);
+watch(
+    () => props.isOpen,
+    (newVal) => {
+        isVisible.value = newVal;
+    },
+    { immediate: true },
+);
 
 onMounted(async () => {
+    // const data = router.get(route('admin.edit.manager', { manager: 4 }));
+    // console.log(data);
+
+    // try {
+    //     const data = await fetchData(route('admin.edit.manager', { manager: 5 })); // Ожидаем завершения запроса
+    //     console.log(data);
+    //     //emit('response', data.user ? data.user : data);
+    // } catch (err) {
+    //     error.value = err; // Сохраняем ошибку
+    // } finally {
+    // }
     try {
-        const data = await fetchData(props.url); // Ожидаем завершения запроса
-        emit('response', data.user ? data.user : data);
+        const data = await fetchData('admin.edit.manager', { manager: 5 }); // Ожидаем завершения запроса
+        console.log(data);
+        //emit('response', data.user ? data.user : data);
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
