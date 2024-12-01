@@ -134,3 +134,11 @@ h6 {
     -ms-flex-pack: end;
     justify-content: end;
 }
+
+.c-gap {
+    column-gap: 16px;
+}
+
+.r-gap {
+    row-gap: 16px;
+}

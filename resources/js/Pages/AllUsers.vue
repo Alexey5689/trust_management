@@ -1,12 +1,12 @@
 <script setup>
-import InputLabel from '@/Components/InputLabel.vue';
+import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-// import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
+import BaseModal from '@/Components/Modal/BaseModal.vue';
+
+// import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 
 const props = defineProps({
     clients: {
@@ -27,27 +27,19 @@ const props = defineProps({
     },
 });
 
-// const deleteUser = (userId) => {
-//     if (confirm('Вы точно хотите удалить пользователя?')) {
-//         Inertia.delete(route('delete.user', { user: userId }));
-//     }
-// };
-
-// const resetPassword = (userId) => {
-//     if (confirm('Вы уверены, что хотите сбросить пароль пользователю?')) {
-//         Inertia.post(route('reset.password', { user: userId }));
-//     }
-// };
+const isModalOpen = ref(false);
+const currentModal = ref(null);
 
 const handleDropdownSelect = (option, userId, type) => {
     switch (option.action) {
         case 'edit':
             // Редирект на страницу редактирования
-            if (type === 'manager') {
-                router.get(route('admin.edit.manager', { manager: userId }));
-            } else if (type === 'client') {
-                router.get(route(`${props.role}.edit.client`, { client: userId }));
-            }
+            // if (type === 'manager') {
+            //     router.get(route('admin.edit.manager', { manager: userId }));
+            // } else if (type === 'client') {
+            //     router.get(route(`${props.role}.edit.client`, { client: userId }));
+            // }
+            openModal(type, userId, 'edit');
             break;
         case 'resetPassword':
             if (confirm('Вы уверены, что хотите сбросить пароль?')) {
@@ -63,21 +55,53 @@ const handleDropdownSelect = (option, userId, type) => {
             console.error('Неизвестное действие:', option.action);
     }
 };
+
+const modalTitles = {
+    manager: {
+        add: 'Добавление менеджера',
+        edit: 'Изменение менеджера',
+    },
+    client: {
+        add: 'Добавление клиента',
+        edit: 'Изменение клиента',
+    },
+};
+
+
+// const urls = {
+//     manager: 'manager-create',
+//     client: 'client-create',
+// };
+
+const openModal = (type, userId, action = 'add') => {
+    currentModal.value = { type, userId, action };
+    isModalOpen.value = true;
+};
+
+const closeModal = () => {
+    isModalOpen.value = false;
+    currentModal.value = null;
+};
 </script>
 
 <template>
+
     <Head title="All Users" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Пользователи</h2>
                 <div>
-                    <ResponsiveNavLink :href="route('admin.registration.client')" class="add_client">
+
+                    <!-- <ResponsiveNavLink :href="route('admin.registration.client')">Добавить клиента</ResponsiveNavLink> -->
+
+                    <button @click="openModal('client')" class="add_client link-btn">
                         Добавить клиента
-                    </ResponsiveNavLink>
-                    <ResponsiveNavLink :href="route('admin.registration.manager')" class="add_manager">
+                    </button>
+                    <!-- :href="route('admin.registration.manager')" -->
+                    <button @click="openModal('manager')" class="add_manager link-btn">
                         Добавить менеджера
-                    </ResponsiveNavLink>
+                    </button>
                 </div>
             </div>
         </template>
@@ -108,53 +132,19 @@ const handleDropdownSelect = (option, userId, type) => {
                                 <p class="text">{{ manager.email }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <Dropdown
-                                    :options="[
-                                        { label: 'Изменить', action: 'edit' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
-                                        { label: 'Удалить', action: 'delete' },
-                                    ]"
-                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
-                                >
+                                <Dropdown :options="[
+                                    { label: 'Изменить', action: 'edit' },
+                                    { label: 'Сбросить пароль', action: 'resetPassword' },
+                                    { label: 'Удалить', action: 'delete' },
+                                ]" @select="handleDropdownSelect($event, manager.id, 'manager')">
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
                                 </Dropdown>
                             </div>
-
-                            <!-- <Dropdown align="right" width="48">
-                            <template #trigger>
-                                <span class="inline-flex rounded-md">
-                                    <button type="button"
-                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                        {{ $page.props.auth.user.name }}
-
-                                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </span>
-                            </template>
-<template #content>
-                                <DropdownLink :href="route('admin.edit.manager', {
-                                    manager: manager.id,
-                                })
-                                    " :disabled="manager.active === false" as="button">
-                                    Изменить
-                                </DropdownLink>
-                                <DropdownLink @click="resetPassword(manager.id)" as="button">
-                                    Сбросить пароль
-                                </DropdownLink>
-                                <DropdownLink @click="deleteUser(manager.id)" as="button"> Удалить </DropdownLink>
-                            </template>
-</Dropdown> -->
                         </div>
                     </div>
                 </div>
-
                 <div class="card">
                     <header>
                         <h2 class="title-card">Клиенты</h2>
@@ -185,55 +175,190 @@ const handleDropdownSelect = (option, userId, type) => {
                                 <p class="text">{{ client.manager_full_name }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <Dropdown
-                                    :options="[
-                                        { label: 'Изменить', action: 'edit' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
-                                        { label: 'Удалить клиента', action: 'delete' },
-                                    ]"
-                                    @select="handleDropdownSelect($event, client, 'client')"
-                                >
+                                <Dropdown :options="[
+                                    { label: 'Изменить', action: 'edit' },
+                                    { label: 'Сбросить пароль', action: 'resetPassword' },
+                                    { label: 'Удалить клиента', action: 'delete' },
+                                ]" @select="handleDropdownSelect($event, client, 'client')">
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
                                 </Dropdown>
                             </div>
-
-                            <!-- <Dropdown align="right" width="48">
-                            <template #trigger>
-                                <span class="inline-flex rounded-md">
-                                    <button type="button"
-                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                        {{ $page.props.auth.user.name }}
-
-                                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </span>
-                            </template>
-                            <template #content>
-                                <DropdownLink :href="route(`${props.role}.edit.client`, { client: client.id })"
-                                    :disabled="client.active === false" as="button">
-                                    Изменить
-                                </DropdownLink>
-                                <DropdownLink @click="resetPassword(client.id)" as="button"> Сбросить пароль
-                                </DropdownLink>
-                                <DropdownLink v-if="role === 'admin'" @click="deleteUser(client.id)" as="button">
-                                    Удалить
-                                </DropdownLink>
-                            </template>
-                        </Dropdown> -->
                         </div>
                     </div>
                 </div>
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <!-- 
+    @response="userData = $event"
+    :url="urls[currentModal]"
+    -->
+    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal.type][currentModal.action]"
+        @close="closeModal">
+        <template #default>
+            <div v-if="currentModal.type === 'manager'">
+                <!-- <p>{{ currentModal.action === 'edit' ? 'Редактирование менеджера' : 'Добавление менеджера' }} с ID: {{ currentModal.userId }}</p> -->
+                <div v-if="currentModal.action === 'edit'">
+                    <form class="flex flex-column r-gap">
+                        <p class="c_data">Контактные данные</p>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="last_name">Фамилия*</label>
+                                <input type="text" id="last_name" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="first_name">Имя*</label>
+                                <input type="text" id="first_name" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="middle_name">Отчество*</label>
+                                <input type="text" id="middle_name" />
+                            </div>
+                        </div>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="phone">Номер телефона*</label>
+                                <input type="tel" id="phone" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="email">Email*</label>
+                                <input type="email" id="email" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div v-else>
+                    <form class="flex flex-column r-gap">
+                        <p class="c_data">Контактные данные</p>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="last_name">Фамилия*</label>
+                                <input type="text" id="last_name" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="first_name">Имя*</label>
+                                <input type="text" id="first_name" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="middle_name">Отчество*</label>
+                                <input type="text" id="middle_name" />
+                            </div>
+                        </div>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="phone">Номер телефона*</label>
+                                <input type="tel" id="phone" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="email">Email*</label>
+                                <input type="email" id="email" />
+                                <p class="warning">
+                                    На эту почту придет письмо c ссылкой на создание пароля
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div v-if="currentModal.type === 'client'">
+                <!-- <p>{{ currentModal.action === 'edit' ? 'Редактирование клиента' : 'Добавление клиента' }} с ID: {{ currentModal.userId }}</p> -->
+                <div v-if="currentModal.action === 'edit'">
+                    <form class="flex flex-column r-gap">
+                        <p class="c_data">Контактные данные</p>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="last_name">Фамилия*</label>
+                                <input type="text" id="last_name" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="first_name">Имя*</label>
+                                <input type="text" id="first_name" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="middle_name">Отчество*</label>
+                                <input type="text" id="middle_name" />
+                            </div>
+                        </div>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="phone">Номер телефона*</label>
+                                <input type="tel" id="phone" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="email">Email*</label>
+                                <input type="email" id="email" />
+                            </div>
+                        </div>
+                        <p class="c_data" style="margin-top: 16px;">Менеджер</p>
+                        <div class="input flex flex-column">
+                            <label for="manager">Выберите менеджера</label>
+                            <select id="manager"></select>
+                        </div>
+                    </form>
+                </div>
+                <div v-else>
+                    <form class="flex flex-column r-gap">
+                        <p class="c_data">Контактные данные</p>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="last_name">Фамилия*</label>
+                                <input type="text" id="last_name" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="first_name">Имя*</label>
+                                <input type="text" id="first_name" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="middle_name">Отчество*</label>
+                                <input type="text" id="middle_name" />
+                            </div>
+                        </div>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="phone">Номер телефона*</label>
+                                <input type="tel" id="phone" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="email">Email*</label>
+                                <input type="email" id="email" />
+                                <p class="warning">
+                                    На эту почту придет письмо c ссылкой на создание пароля
+                                </p>
+                            </div>
+                        </div>
+                        <p class="c_data" style="margin-top: 16px;">Менеджер</p>
+                        <div class="input flex flex-column">
+                            <label for="manager">Выберите менеджера</label>
+                            <select id="manager"></select>
+                        </div>
+                        <p class="c_data" style="margin-top: 16px;">Договор</p>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="contract">Номер договора*</label>
+                                <input type="text" id="contract" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="deadline">Срок договора*</label>
+                                <select id="deadline "></select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </template>
+        <template #footer>
+            <div class="flex justify-end">
+                <button @click="closeModal" class="btn-cancel">Отменить</button>
+                <button v-if="currentModal.action === 'edit'" class="btn-save">Сохранить</button>
+                <button v-else class="btn-save">Создать</button>
+            </div>
+        </template>
+    </BaseModal>
 </template>
+
 <style scoped>
 .client {
     display: flex;
@@ -317,6 +442,9 @@ const handleDropdownSelect = (option, userId, type) => {
     font-weight: 400;
     line-height: 21px;
     letter-spacing: 0.015em;
+    height: 45px;
+    padding: 0 20px;
+    border-radius: 12px;
 }
 
 .add_client {
@@ -332,10 +460,44 @@ const handleDropdownSelect = (option, userId, type) => {
 
 .add_manager {
     transition: 0.3s;
+    background: none;
 }
 
 .add_manager:hover {
     background: #e2e7e9;
+}
+
+.btn-cancel,
+.btn-save {
+    font-family: Onest;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    letter-spacing: 0.015em;
+    height: 45px;
+    padding: 0 20px;
+    border-radius: 12px;
+}
+
+.btn-save {
+    background: #4e9f7d;
+    color: #fff;
+    transition: 0.3s;
+}
+
+.btn-save:hover {
+    background: #428569;
+}
+
+.btn-cancel {
+    margin-right: 10px;
+    color: #242424;
+    background: #f3f5f6;
+    transition: 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #dfe4e7;
 }
 
 .main {
@@ -349,5 +511,32 @@ const handleDropdownSelect = (option, userId, type) => {
 
 .order {
     padding-left: 12px;
+}
+
+/* form {
+    column-gap: 16px;
+} */
+
+.input {
+    width: 100%;
+    row-gap: 8px;
+}
+
+.input label,
+.warning {
+    color: #969ba0;
+}
+
+.input input,
+.input select {
+    border: 1px solid #e8eaeb;
+    height: 45px;
+    border-radius: 12px;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.c_data {
+    font-weight: 500;
 }
 </style>

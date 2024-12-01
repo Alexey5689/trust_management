@@ -117,7 +117,7 @@ const props = defineProps({
                         <h2 class="title-card">Завершенные заявки</h2>
                     </header>
                     <div class="application">
-                        <div class="title">Нет завершённых заявок</div>
+                        <div class="title">Завершённых заявок нет</div>
                     </div>
                 </div>
             </div>

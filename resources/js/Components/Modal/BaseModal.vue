@@ -2,6 +2,7 @@
 import { watch, ref, onMounted } from 'vue';
 import Close from '@/Components/Icon/Close.vue';
 import { fetchData } from '@/helpers';
+
 const props = defineProps({
     isOpen: {
         type: Boolean,
@@ -22,13 +23,9 @@ const emit = defineEmits(['close']);
 const isVisible = ref(false);
 const error = ref(null);
 
-watch(
-    () => props.isOpen,
-    (newVal) => {
-        isVisible.value = newVal;
-    },
-    { immediate: true },
-);
+watch(() => props.isOpen, (newVal) => {
+    isVisible.value = newVal;
+}, { immediate: true },);
 
 onMounted(async () => {
     try {

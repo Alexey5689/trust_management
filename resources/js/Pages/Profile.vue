@@ -1,13 +1,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-
-// import Modal from '@/Components/Modal/ModelTest.vue';
-
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 
 const props = defineProps({
@@ -36,6 +31,7 @@ const form = useForm({
     password: '',
     password_confirmation: '',
 });
+
 watch(
     userData,
     (newData) => {
@@ -56,13 +52,12 @@ const modalTitles = {
     password: 'Изменение пароля',
     email: 'Изменение почты',
 };
+
 const urls = {
     contacts: 'profile-edit',
     password: 'password-edit',
     email: 'email-edit',
 };
-
-// Данные формы
 
 const openModal = (type) => {
     currentModal.value = type;
@@ -99,13 +94,11 @@ const saveChanges = () => {
                         <p class="text">{{ props.user.full_name }}</p>
                         <button class="link-btn" @click="openModal('contacts')">Изменить контактные данные</button>
                     </div>
-
                     <div class="card-item">
                         <InputLabel for="last_name" value="Пароль" />
                         <p class="text">********</p>
                         <button class="link-btn" @click="openModal('password')">Изменить пароль</button>
                     </div>
-
                     <div class="card-item">
                         <InputLabel for="last_name" value="Почта" />
                         <p class="text">{{ props.user.email }}</p>
@@ -117,7 +110,6 @@ const saveChanges = () => {
             </div>
         </template>
     </AuthenticatedLayout>
-
     <BaseModal
         v-if="isModalOpen"
         :isOpen="isModalOpen"
@@ -177,8 +169,6 @@ const saveChanges = () => {
             </div>
         </template>
     </BaseModal>
-
-    <!-- <Modal /> -->
 </template>
 
 <style scoped>
@@ -276,6 +266,7 @@ form {
     width: 100%;
     padding: 0 20px;
 }
+
 .link-btn {
     background: #f3f5f6;
     height: 45px;
