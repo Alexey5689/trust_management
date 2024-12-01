@@ -79,7 +79,17 @@ const closeModal = () => {
     border-radius: 32px;
     padding: 32px;
     width: 600px;
+    max-height: 700px;
     position: relative;
+    overflow-y: auto;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 0px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: transparent;
 }
 
 .modal-header {

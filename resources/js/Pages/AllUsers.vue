@@ -345,6 +345,32 @@ const closeModal = () => {
                                 <select id="deadline "></select>
                             </div>
                         </div>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="bank">Ставка, %*</label>
+                                <input type="text" id="bank" />
+                            </div>
+                            <div class="input flex checkbox">
+                                <input type="checkbox" id="checkbox" />
+                                <label for="checkbox">Вычислить дивиденды по истечению срока</label>
+                            </div>
+                        </div>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="date">Дата*</label>
+                                <input type="text" id="date" />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="deadline">Выплаты*</label>
+                                <select id="deadline "></select>
+                            </div>
+                        </div>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="sum">Сумма*</label>
+                                <input type="text" id="sum" />
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -534,6 +560,21 @@ const closeModal = () => {
     border-radius: 12px;
     width: 100%;
     padding: 0 20px;
+}
+
+.checkbox {
+    align-items: end;
+}
+
+.checkbox input {
+    margin-bottom: 11px;
+    margin-right: 12px;
+    width: 24px;
+    height: 24px;
+}
+
+.checkbox label {
+  color: #242424;
 }
 
 .c_data {
