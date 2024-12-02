@@ -1,11 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
-
+import { fetchData } from '@/helpers';
 // import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 
 const props = defineProps({
@@ -29,6 +29,29 @@ const props = defineProps({
 
 const isModalOpen = ref(false);
 const currentModal = ref(null);
+const error = ref(null);
+const userData = ref({});
+
+const modalTitles = {
+    manager: {
+        add: 'Добавление менеджера',
+        edit: 'Изменение менеджера',
+    },
+    client: {
+        add: 'Добавление клиента',
+        edit: 'Изменение клиента',
+    },
+};
+
+const getInfo = async (url, userId) => {
+    try {
+        const data = await fetchData(url, { user: userId }); // Ожидаем завершения запроса
+        userData.value = data.user ? data.user : data;
+    } catch (err) {
+        error.value = err; // Сохраняем ошибку
+    } finally {
+    }
+};
 
 const handleDropdownSelect = (option, userId, type) => {
     switch (option.action) {
@@ -39,7 +62,7 @@ const handleDropdownSelect = (option, userId, type) => {
             // } else if (type === 'client') {
             //     router.get(route(`${props.role}.edit.client`, { client: userId }));
             // }
-            openModal(type, userId, 'edit');
+            openModal(type, userId, 'edit', option.url);
             break;
         case 'resetPassword':
             if (confirm('Вы уверены, что хотите сбросить пароль?')) {
@@ -56,24 +79,8 @@ const handleDropdownSelect = (option, userId, type) => {
     }
 };
 
-const modalTitles = {
-    manager: {
-        add: 'Добавление менеджера',
-        edit: 'Изменение менеджера',
-    },
-    client: {
-        add: 'Добавление клиента',
-        edit: 'Изменение клиента',
-    },
-};
-
-
-// const urls = {
-//     manager: 'manager-create',
-//     client: 'client-create',
-// };
-
-const openModal = (type, userId, action = 'add') => {
+const openModal = (type, userId, action = 'add', url) => {
+    if (action === 'edit') getInfo(url, userId);
     currentModal.value = { type, userId, action };
     isModalOpen.value = true;
 };
@@ -81,27 +88,51 @@ const openModal = (type, userId, action = 'add') => {
 const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
+    form.reset('last_name', 'first_name', 'middle_name', 'email', 'phone_number');
+};
+
+const form = useForm({
+    last_name: '',
+    first_name: '',
+    middle_name: '',
+    email: '',
+    phone_number: '',
+    manager: '',
+});
+watch(
+    userData,
+    (newData) => {
+        form.last_name = newData.last_name;
+        form.first_name = newData.first_name;
+        form.middle_name = newData.middle_name;
+        form.email = newData.email;
+        form.phone_number = newData.phone_number;
+    },
+    { immediate: true },
+);
+
+const createUser = () => {
+    form.post(route(`admin.registration.${currentModal.value.type}`));
+    closeModal();
+};
+const updateUser = () => {
+    form.patch(route(`admin.edit.${currentModal.value.type}`, { user: currentModal.value.userId }));
+    closeModal();
 };
 </script>
 
 <template>
-
     <Head title="All Users" />
-    <AuthenticatedLayout :userRole="role">
+    <AuthenticatedLayout :userRole="role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Пользователи</h2>
                 <div>
-
                     <!-- <ResponsiveNavLink :href="route('admin.registration.client')">Добавить клиента</ResponsiveNavLink> -->
 
-                    <button @click="openModal('client')" class="add_client link-btn">
-                        Добавить клиента
-                    </button>
+                    <button @click="openModal('client')" class="add_client link-btn">Добавить клиента</button>
                     <!-- :href="route('admin.registration.manager')" -->
-                    <button @click="openModal('manager')" class="add_manager link-btn">
-                        Добавить менеджера
-                    </button>
+                    <button @click="openModal('manager')" class="add_manager link-btn">Добавить менеджера</button>
                 </div>
             </div>
         </template>
@@ -132,11 +163,14 @@ const closeModal = () => {
                                 <p class="text">{{ manager.email }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <Dropdown :options="[
-                                    { label: 'Изменить', action: 'edit' },
-                                    { label: 'Сбросить пароль', action: 'resetPassword' },
-                                    { label: 'Удалить', action: 'delete' },
-                                ]" @select="handleDropdownSelect($event, manager.id, 'manager')">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
+                                >
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
@@ -175,11 +209,14 @@ const closeModal = () => {
                                 <p class="text">{{ client.manager_full_name }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <Dropdown :options="[
-                                    { label: 'Изменить', action: 'edit' },
-                                    { label: 'Сбросить пароль', action: 'resetPassword' },
-                                    { label: 'Удалить клиента', action: 'delete' },
-                                ]" @select="handleDropdownSelect($event, client, 'client')">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить клиента', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, client, 'client')"
+                                >
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
@@ -196,8 +233,12 @@ const closeModal = () => {
     @response="userData = $event"
     :url="urls[currentModal]"
     -->
-    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal.type][currentModal.action]"
-        @close="closeModal">
+    <BaseModal
+        v-if="isModalOpen"
+        :isOpen="isModalOpen"
+        :title="modalTitles[currentModal.type][currentModal.action]"
+        @close="closeModal"
+    >
         <template #default>
             <div v-if="currentModal.type === 'manager'">
                 <!-- <p>{{ currentModal.action === 'edit' ? 'Редактирование менеджера' : 'Добавление менеджера' }} с ID: {{ currentModal.userId }}</p> -->
@@ -207,25 +248,26 @@ const closeModal = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
-                                <input type="text" id="last_name" />
+                                <input type="text" id="last_name" v-model="form.last_name" />
+                                <p>{{ form.errors.last_name }}</p>
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
-                                <input type="text" id="first_name" />
+                                <input type="text" id="first_name" v-model="form.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
-                                <input type="text" id="middle_name" />
+                                <input type="text" id="middle_name" v-model="form.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" />
+                                <input type="tel" id="phone" v-model="form.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
-                                <input type="email" id="email" />
+                                <input type="email" id="email" v-model="form.email" />
                             </div>
                         </div>
                     </form>
@@ -236,28 +278,26 @@ const closeModal = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
-                                <input type="text" id="last_name" />
+                                <input type="text" id="last_name" v-model="form.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
-                                <input type="text" id="first_name" />
+                                <input type="text" id="first_name" v-model="form.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
-                                <input type="text" id="middle_name" />
+                                <input type="text" id="middle_name" v-model="form.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" />
+                                <input type="tel" id="phone" v-model="form.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
-                                <input type="email" id="email" />
-                                <p class="warning">
-                                    На эту почту придет письмо c ссылкой на создание пароля
-                                </p>
+                                <input type="email" id="email" v-model="form.email" />
+                                <p class="warning">На эту почту придет письмо c ссылкой на создание пароля</p>
                             </div>
                         </div>
                     </form>
@@ -292,7 +332,7 @@ const closeModal = () => {
                                 <input type="email" id="email" />
                             </div>
                         </div>
-                        <p class="c_data" style="margin-top: 16px;">Менеджер</p>
+                        <p class="c_data" style="margin-top: 16px">Менеджер</p>
                         <div class="input flex flex-column">
                             <label for="manager">Выберите менеджера</label>
                             <select id="manager"></select>
@@ -324,17 +364,15 @@ const closeModal = () => {
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
                                 <input type="email" id="email" />
-                                <p class="warning">
-                                    На эту почту придет письмо c ссылкой на создание пароля
-                                </p>
+                                <p class="warning">На эту почту придет письмо c ссылкой на создание пароля</p>
                             </div>
                         </div>
-                        <p class="c_data" style="margin-top: 16px;">Менеджер</p>
+                        <p class="c_data" style="margin-top: 16px">Менеджер</p>
                         <div class="input flex flex-column">
                             <label for="manager">Выберите менеджера</label>
                             <select id="manager"></select>
                         </div>
-                        <p class="c_data" style="margin-top: 16px;">Договор</p>
+                        <p class="c_data" style="margin-top: 16px">Договор</p>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="contract">Номер договора*</label>
@@ -378,8 +416,8 @@ const closeModal = () => {
         <template #footer>
             <div class="flex justify-end">
                 <button @click="closeModal" class="btn-cancel">Отменить</button>
-                <button v-if="currentModal.action === 'edit'" class="btn-save">Сохранить</button>
-                <button v-else class="btn-save">Создать</button>
+                <button @click="updateUser" v-if="currentModal.action === 'edit'" class="btn-save">Сохранить</button>
+                <button @click="createUser" v-else class="btn-save">Создать</button>
             </div>
         </template>
     </BaseModal>
@@ -574,7 +612,7 @@ const closeModal = () => {
 }
 
 .checkbox label {
-  color: #242424;
+    color: #242424;
 }
 
 .c_data {

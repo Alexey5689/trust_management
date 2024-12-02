@@ -314,13 +314,13 @@ class AdminController extends Controller
     }
     public function storeManagersByAdmin(Request $request): RedirectResponse
     {
+        //dd($request->all());
         $request->validate([
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'middle_name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'phone_number' => 'required|string|max:20',
-            'role_id' => 'required|integer'
         ]);
 
         $user = User::create([
@@ -329,7 +329,7 @@ class AdminController extends Controller
             'middle_name' => $request->middle_name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
-            'role_id' => $request->role_id,
+            'role_id' => 2,
             'token' => Str::random(60),
             'refresh_token' => Str::random(60),
         ]);
@@ -354,7 +354,7 @@ class AdminController extends Controller
 
 
      // изменение контактных данных user менеджер
-    public function editManagersByAdmin(User $manager)
+    public function editManagersByAdmin(User $user)
     {
         //dd($manager);
         // $user = Auth::user(); // Получаем текущего пользователя
@@ -366,37 +366,38 @@ class AdminController extends Controller
         //     'manager' => $manager
         // ]);
         return response()->json([
-            'manager' =>[
-                'id' => $manager->id,
-                'last_name' => $manager->last_name,
-                'first_name' => $manager->first_name,
-                'middle_name' => $manager->middle_name,
-                'email' => $manager->email,
-                'phone_number' => $manager->phone_number
+            'user' =>[
+                'id' => $user->id,
+                'last_name' =>$user->last_name,
+                'first_name' =>$user->first_name,
+                'middle_name' =>$user->middle_name,
+                'email' =>$user->email,
+                'phone_number' =>$user->phone_number
             ] 
         ]);
 
     }
-    public function updateManagersByAdmin(Request $request, User $manager): RedirectResponse
+    public function updateManagersByAdmin(Request $request, User $user): RedirectResponse
     {
+        //dd($request->all(), $user);
         $request->validate([
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'middle_name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $manager->id,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $user->id,
             'phone_number' => 'required|string|max:20',
         ]);
 
       
         
-        $originalData = $manager->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
-        $manager->update($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
+        $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
+        $user->update($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
         foreach ($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']) as $field => $newValue) {
             $oldValue = $this->normalizeValue($originalData[$field]);
             $newValue = $this->normalizeValue($newValue);
             if ($oldValue !== $newValue) {
                 Log::create([
-                    'model_id' => $manager->id,
+                    'model_id' => $user->id,
                     'model_type' => User::class,
                     'change' => $field,
                     'action' => 'Обновление данных',
@@ -407,7 +408,7 @@ class AdminController extends Controller
             }
         }
 
-        $manager->userNotifications()->create([
+        $user->userNotifications()->create([
             'content'=> 'Ваши контактные данные были изменены',
         ]);
 

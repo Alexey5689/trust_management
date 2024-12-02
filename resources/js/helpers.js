@@ -71,7 +71,7 @@ export const calculateDeadlineDate = (years, createDate) => {
 export const fetchData = async (router, params = {}) => {
     try {
         // Проверка на наличие параметра "manager", если его нет, отправляем запрос без параметров
-        const url = params.manager ? route(router, { manager: params.manager }) : route(router); // Если параметр "manager" не передан, просто вызываем URL без него
+        const url = params.user ? route(router, { user: params.user }) : route(router); // Если параметр "manager" не передан, просто вызываем URL без него
 
         const response = await axios.get(url);
         return response.data; // Возвращаем данные

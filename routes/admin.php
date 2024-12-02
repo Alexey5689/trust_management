@@ -14,8 +14,8 @@
             Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager');
             Route::post('/registration-manager', [AdminController::class, 'storeManagersByAdmin']);
             //изменение менеджера
-            Route::get('/edit-manager/{manager}', [AdminController::class, 'editManagersByAdmin'])->name('admin.edit.manager');
-            Route::patch('/edit-manager/{manager}', [AdminController::class, 'updateManagersByAdmin']);
+            Route::get('/edit-manager/{user}', [AdminController::class, 'editManagersByAdmin'])->name('admin.edit.manager');
+            Route::patch('/edit-manager/{user}', [AdminController::class, 'updateManagersByAdmin']);
             //рег клиент
             Route::get('/registration-client', [AdminController::class, 'createClientsByAdmin'])->name('admin.registration.client');
             Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);
