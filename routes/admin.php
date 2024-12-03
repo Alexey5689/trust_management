@@ -20,8 +20,8 @@
             Route::get('/registration-client', [AdminController::class, 'createClientsByAdmin'])->name('admin.registration.client');
             Route::post('/registration-client', [AdminController::class, 'storeClientsByAdmin']);
             //изменение клиента
-            Route::get('/edit-client/{client}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client');
-            Route::patch('/edit-client/{client}', [AdminController::class, 'updateClientByAdmin']);
+            Route::get('/edit-client/{user}', [AdminController::class, 'editClientByAdmin'])->name('admin.edit.client');
+            Route::patch('/edit-client/{user}', [AdminController::class, 'updateClientByAdmin']);
             //Добавление договора
             Route::get('/add-contract', [AdminController::class, 'createAddContractByAdmin'])->name('admin.add.contract');
             Route::post('/add-contract', [AdminController::class, 'storeAddContractByAdmin']);

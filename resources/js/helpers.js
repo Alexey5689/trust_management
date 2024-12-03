@@ -58,21 +58,10 @@ export const calculateDeadlineDate = (years, createDate) => {
 
     return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
 };
-
-// export const fetchData = async (url) => {
-//     try {
-//         const response = await axios.get(url);
-//         return response.data; // Возвращаем данные
-//     } catch (error) {
-//         console.error('Ошибка при выполнении GET запроса:', error);
-//         throw error; // Бросаем ошибку для обработки в другом месте
-//     }
-// };
 export const fetchData = async (router, params = {}) => {
     try {
         // Проверка на наличие параметра "manager", если его нет, отправляем запрос без параметров
         const url = params.user ? route(router, { user: params.user }) : route(router); // Если параметр "manager" не передан, просто вызываем URL без него
-
         const response = await axios.get(url);
         return response.data; // Возвращаем данные
     } catch (error) {

@@ -167,7 +167,7 @@ const submit = () => {
                                     <InputLabel for="sum" value="Сумма*" />
                                     <TextInput
                                         id="sum"
-                                        type="tel"
+                                        type="number"
                                         class="mt-1 block w-full"
                                         v-model="form.sum"
                                         required

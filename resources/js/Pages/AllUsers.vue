@@ -6,7 +6,7 @@ import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData } from '@/helpers';
-// import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import { calculateDeadlineDate } from '@/helpers.js';
 
 const props = defineProps({
     clients: {
@@ -31,6 +31,7 @@ const isModalOpen = ref(false);
 const currentModal = ref(null);
 const error = ref(null);
 const userData = ref({});
+const selectedDuration = ref('');
 
 const modalTitles = {
     manager: {
@@ -81,6 +82,8 @@ const handleDropdownSelect = (option, userId, type) => {
 
 const openModal = (type, userId, action = 'add', url) => {
     if (action === 'edit') getInfo(url, userId);
+    if (action === 'add' && type === 'client') getInfo('admin.registration.client');
+
     currentModal.value = { type, userId, action };
     isModalOpen.value = true;
 };
@@ -88,16 +91,38 @@ const openModal = (type, userId, action = 'add', url) => {
 const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
-    form.reset('last_name', 'first_name', 'middle_name', 'email', 'phone_number');
+    form.reset(
+        'last_name',
+        'first_name',
+        'middle_name',
+        'email',
+        'phone_number',
+        'manager_id',
+        'contract_number',
+        'sum',
+        'deadline',
+        'procent',
+        'payments',
+        'agree_with_terms',
+        'create_date',
+    );
 };
 
 const form = useForm({
     last_name: '',
     first_name: '',
     middle_name: '',
-    email: '',
     phone_number: '',
-    manager: '',
+    email: '',
+    contract_number: null,
+    sum: null,
+    deadline: '', // Срок договора
+    procent: '', // Процентная ставка
+    agree_with_terms: false, // Для чекбокса
+    create_date: new Date().toISOString().substr(0, 10), // Дата заключения
+    contract_status: true,
+    payments: '', // Выплаты
+    manager_id: '', // Новое поле для выбора менеджера
 });
 watch(
     userData,
@@ -107,9 +132,23 @@ watch(
         form.middle_name = newData.middle_name;
         form.email = newData.email;
         form.phone_number = newData.phone_number;
+        form.contract_number = newData.contract_number;
+        form.sum = newData.sum;
+        form.deadline = newData.deadline;
+        form.procent = newData.procent;
+        form.payments = newData.payments;
+        form.manager_id = newData.manager_id;
     },
     { immediate: true },
 );
+const handleDeadlineChange = (event) => {
+    const selectedDuration = event.target.value;
+    if (selectedDuration === '1 год') {
+        form.deadline = calculateDeadlineDate(1, form.create_date);
+    } else {
+        form.deadline = calculateDeadlineDate(3, form.create_date);
+    }
+};
 
 const createUser = () => {
     form.post(route(`admin.registration.${currentModal.value.type}`));
@@ -149,9 +188,9 @@ const updateUser = () => {
                             <li>Номер телефона</li>
                             <li>Email</li>
                         </ul>
-                        <div class="items-manager align-center" v-for="manager in managers" :key="manager.id">
+                        <div class="items-manager align-center" v-for="(manager, index) in managers" :key="manager.id">
                             <div class="card-item order">
-                                <p class="text">{{ manager.id }}</p>
+                                <p class="text">{{ index + 1 }}</p>
                             </div>
                             <div class="card-item">
                                 <p class="text">{{ manager.full_name }}</p>
@@ -192,9 +231,13 @@ const updateUser = () => {
                             <li>Email</li>
                             <li>Менеджер</li>
                         </ul>
-                        <div class="items-client align-center" v-for="client in props.clients" :key="client.id">
+                        <div
+                            class="items-client align-center"
+                            v-for="(client, index) in props.clients"
+                            :key="client.id"
+                        >
                             <div class="card-item order">
-                                <p class="text">{{ client.id }}</p>
+                                <p class="text">{{ index + 1 }}</p>
                             </div>
                             <div class="card-item">
                                 <p class="text">{{ client.full_name }}</p>
@@ -211,11 +254,11 @@ const updateUser = () => {
                             <div class="card-item ellipsis">
                                 <Dropdown
                                     :options="[
-                                        { label: 'Изменить', action: 'edit' },
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.client' },
                                         { label: 'Сбросить пароль', action: 'resetPassword' },
                                         { label: 'Удалить клиента', action: 'delete' },
                                     ]"
-                                    @select="handleDropdownSelect($event, client, 'client')"
+                                    @select="handleDropdownSelect($event, client.id, 'client')"
                                 >
                                     <template #trigger>
                                         <Ellipsis />
@@ -248,26 +291,26 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
-                                <input type="text" id="last_name" v-model="form.last_name" />
+                                <input type="text" id="last_name" v-model.trim="form.last_name" />
                                 <p>{{ form.errors.last_name }}</p>
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
-                                <input type="text" id="first_name" v-model="form.first_name" />
+                                <input type="text" id="first_name" v-model.trim="form.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
-                                <input type="text" id="middle_name" v-model="form.middle_name" />
+                                <input type="text" id="middle_name" v-model.trim="form.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" v-model="form.phone_number" />
+                                <input type="tel" id="phone" v-model.trim="form.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
-                                <input type="email" id="email" v-model="form.email" />
+                                <input type="email" id="email" v-model.trim="form.email" />
                             </div>
                         </div>
                     </form>
@@ -278,25 +321,25 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
-                                <input type="text" id="last_name" v-model="form.last_name" />
+                                <input type="text" id="last_name" v-model.trim="form.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
-                                <input type="text" id="first_name" v-model="form.first_name" />
+                                <input type="text" id="first_name" v-model.trim="form.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
-                                <input type="text" id="middle_name" v-model="form.middle_name" />
+                                <input type="text" id="middle_name" v-model.trim="form.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" v-model="form.phone_number" />
+                                <input type="tel" id="phone" v-model.trim="form.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
-                                <input type="email" id="email" v-model="form.email" />
+                                <input type="email" id="email" v-model.trim="form.email" />
                                 <p class="warning">На эту почту придет письмо c ссылкой на создание пароля</p>
                             </div>
                         </div>
@@ -311,31 +354,36 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
-                                <input type="text" id="last_name" />
+                                <input type="text" id="last_name" v-model.trim="form.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
-                                <input type="text" id="first_name" />
+                                <input type="text" id="first_name" v-model.trim="form.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
-                                <input type="text" id="middle_name" />
+                                <input type="text" id="middle_name" v-model.trim="form.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" />
+                                <input type="tel" id="phone" v-model.trim="form.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
-                                <input type="email" id="email" />
+                                <input type="email" id="email" v-model.trim="form.email" />
                             </div>
                         </div>
                         <p class="c_data" style="margin-top: 16px">Менеджер</p>
                         <div class="input flex flex-column">
                             <label for="manager">Выберите менеджера</label>
-                            <select id="manager"></select>
+                            <select id="manager">
+                                <option disabled></option>
+                                <option v-for="manager in userData.managers" :key="manager.id" :value="manager.id">
+                                    {{ manager.full_name }}
+                                </option>
+                            </select>
                         </div>
                     </form>
                 </div>
@@ -345,68 +393,81 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
-                                <input type="text" id="last_name" />
+                                <input type="text" id="last_name" v-model.trim="form.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
-                                <input type="text" id="first_name" />
+                                <input type="text" id="first_name" v-model.trim="form.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
-                                <input type="text" id="middle_name" />
+                                <input type="text" id="middle_name" v-model.trim="form.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" />
+                                <input type="tel" id="phone" v-model.trim="form.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
-                                <input type="email" id="email" />
+                                <input type="email" id="email" v-model.trim="form.email" />
                                 <p class="warning">На эту почту придет письмо c ссылкой на создание пароля</p>
                             </div>
                         </div>
                         <p class="c_data" style="margin-top: 16px">Менеджер</p>
                         <div class="input flex flex-column">
                             <label for="manager">Выберите менеджера</label>
-                            <select id="manager"></select>
+                            <select id="manager" v-model="form.manager_id">
+                                <option disabled></option>
+                                <option v-for="manager in userData.managers" :key="manager.id" :value="manager.id">
+                                    {{ manager.full_name }}
+                                </option>
+                            </select>
                         </div>
                         <p class="c_data" style="margin-top: 16px">Договор</p>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="contract">Номер договора*</label>
-                                <input type="text" id="contract" />
+                                <input type="text" id="contract" v-model="form.contract_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="deadline">Срок договора*</label>
-                                <select id="deadline "></select>
+                                <select id="deadline " v-model="selectedDuration" @change="handleDeadlineChange">
+                                    <option disabled></option>
+                                    <option value="1 год">1 год</option>
+                                    <option value="3 года">3 года</option>
+                                </select>
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="bank">Ставка, %*</label>
-                                <input type="text" id="bank" />
+                                <input type="text" id="bank" v-model.trim="form.procent" />
                             </div>
                             <div class="input flex checkbox">
-                                <input type="checkbox" id="checkbox" />
+                                <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
                                 <label for="checkbox">Вычислить дивиденды по истечению срока</label>
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="date">Дата*</label>
-                                <input type="text" id="date" />
+                                <input type="date" id="date" v-model="form.create_date" />
                             </div>
-                            <div class="input flex flex-column">
+                            <div v-if="!form.agree_with_terms" class="input flex flex-column">
                                 <label for="deadline">Выплаты*</label>
-                                <select id="deadline "></select>
+                                <select id="deadline " v-model="form.payments">
+                                    <option disabled></option>
+                                    <option value="Ежеквартально">Ежеквартально</option>
+                                    <option value="Ежегодно">Ежегодно</option>
+                                </select>
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="sum">Сумма*</label>
-                                <input type="text" id="sum" />
+                                <input type="number" min="0" id="sum" v-model.trim="form.sum" />
                             </div>
                         </div>
                     </form>

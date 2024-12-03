@@ -118,8 +118,8 @@ class AdminController extends Controller
     // регистрация user как клиент
     public function createClientsByAdmin()
     {
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
+        // $user = Auth::user(); // Получаем текущего пользователя
+        // $role = $user->role->title; // Получаем его роль
         // Получаем всех пользователей с ролью менеджера (role_id = 2)
         $managers = User::where('role_id', 2)->get()->map(function ($manager) {
             return [
@@ -128,9 +128,14 @@ class AdminController extends Controller
             ];
         });
         // Передаем менеджеров на страницу регистрации
-        return Inertia::render('RegisterClient',[
-            'managers' => $managers,
-            'role' => $role,
+        // return Inertia::render('RegisterClient',[
+        //     'managers' => $managers,
+        //     'role' => $role,
+        // ]);
+        return response()->json([
+            'user' =>[
+                'managers' => $managers
+            ] 
         ]);
     }
     public function storeClientsByAdmin(Request $request ):RedirectResponse
@@ -154,7 +159,7 @@ class AdminController extends Controller
             'middle_name' => $request->middle_name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
-            'role_id' => $request->role_id, // Предполагаем, что 3 — это ID роли клиента
+            'role_id' => 3, // Предполагаем, что 3 — это ID роли клиента
             'token' => Str::random(60),
             'refresh_token' => Str::random(60),
         ]);
@@ -218,21 +223,20 @@ class AdminController extends Controller
                 'id' => $manager->id,
                 'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
             ];
-        });;
+        });
          $assignedManagerId = $client->userContracts()->first()->manager_id ?? 'Менеджер не назначен';
          //dd($user, $role, $assignedManager);
          return Inertia::render('EditClient', [
-             'role' => $role,
-             'client' =>[
-                 'id' => $client->id,
-                 'last_name' => $client->last_name,
-                 'first_name' => $client->first_name,
-                 'middle_name' => $client->middle_name,
-                 'email' => $client->email,
-                 'phone_number' => $client->phone_number
-             ] ,
-             'managers'=>$managers,
-             'assignedManager' => $assignedManagerId
+            'user'=> [
+                'id' => $client->id,
+                'last_name' => $client->last_name,
+                'first_name' => $client->first_name,
+                'middle_name' => $client->middle_name,
+                'email' => $client->email,
+                'phone_number' => $client->phone_number,
+                'managers'=>$managers,
+                'assignedManager' => $assignedManagerId
+            ],
          ]);
      }
      public function updateClientByAdmin(Request $request, User $client): RedirectResponse
