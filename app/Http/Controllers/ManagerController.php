@@ -114,8 +114,8 @@ class ManagerController extends Controller
         Log::create([
             'model_id' => $client->id,
             'model_type' => User::class,
-            'change' => null,
-            'action' => 'Регистрация клиента',
+            'change' => 'Добавление клиента',
+            'action' => 'Регистрация пользователя',
             'old_value' => null,
             'new_value' => $client->email,
             'created_by' => Auth::id(), // ID самого пользователя
@@ -145,8 +145,8 @@ class ManagerController extends Controller
         Log::create([
             'model_id' => $contract->user_id,
             'model_type' => Contract::class,
-            'change' => null,
-            'action' => 'Добавление договора',
+            'change' => 'Добавление договора',
+            'action' => 'Создание',
             'old_value' => null,
             'new_value' => 'Договор No' . $contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
@@ -195,7 +195,7 @@ class ManagerController extends Controller
             Log::create([
                 'model_id' => $client->id,
                 'model_type' => User::class,
-                'change' => 'phone_number',
+                'change' => 'Изменен номер телефона',
                 'action' => 'Обновление данных',
                 'old_value' => $oldPhone,
                 'new_value' => $newPhone,
@@ -253,8 +253,8 @@ class ManagerController extends Controller
         Log::create([
             'model_id' => $request->user_id,
             'model_type' => null,
-            'change' => null,
-            'action' => 'Добавление договора',
+            'change' =>'Добавление договора',
+            'action' => 'Создание',
             'old_value' => null,
             'new_value' =>'Договор No' . $request->contract_number,
             'created_by' => Auth::id(),

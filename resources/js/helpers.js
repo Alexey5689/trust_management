@@ -12,7 +12,7 @@ export const formatDate = (date) => {
 };
 export const formatDateLogs = (date) => {
     try {
-        return format(parseISO(date), 'dd/MM/yyyy HH:mm:ss');
+        return format(parseISO(date), 'dd/MM/yyyy, HH:mm:ss');
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
         return date; // Возвращаем исходное значение в случае ошибки
@@ -59,10 +59,14 @@ export const calculateDeadlineDate = (years, createDate) => {
     return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
 };
 export const fetchData = async (router, params = {}) => {
+    console.log(router, params);
+
     try {
         // Проверка на наличие параметра "manager", если его нет, отправляем запрос без параметров
         const url = params.user ? route(router, { user: params.user }) : route(router); // Если параметр "manager" не передан, просто вызываем URL без него
         const response = await axios.get(url);
+        console.log(response);
+
         return response.data; // Возвращаем данные
     } catch (error) {
         console.error('Ошибка при выполнении GET запроса:', error);

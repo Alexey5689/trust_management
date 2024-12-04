@@ -21,10 +21,10 @@ class DeleteController extends Controller
           Log::create([
                 'model_id' => $user->id,
                 'model_type' => User::class,
-                'change' => "active",
+                'change' => "Смена статуса пользователя",
                 'action' => 'Удаление пользователя',
-                'old_value' => true,
-                'new_value' => false,
+                'old_value' => 'Активный',
+                'new_value' => 'Удален',
                 'created_by' => Auth::id(),
             ]);
             return redirect('/')->with('status', 'Статус пользователя изменен');
@@ -36,10 +36,10 @@ class DeleteController extends Controller
           Log::create([
             'model_id' => $contract->user_id,
             'model_type' => Contract::class,
-            'change' => "contract_status",
+            'change' => "Смена статуса договора ",
             'action' => 'Удаление договора No ' . $contract->contract_number,
-            'old_value' => true,
-            'new_value' => false,
+            'old_value' => 'Активный',
+            'new_value' => 'Удален',
             'created_by' => Auth::id(),
         ]);
           return redirect(route('admin.contracts'))->with('success', 'Статус контракта изменен');

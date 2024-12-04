@@ -45,6 +45,7 @@ const modalTitles = {
 };
 
 const getInfo = async (url, userId) => {
+    console.log(url, userId);
     try {
         const data = await fetchData(url, { user: userId }); // Ожидаем завершения запроса
         userData.value = data.user ? data.user : data;
@@ -81,8 +82,9 @@ const handleDropdownSelect = (option, userId, type) => {
 };
 
 const openModal = (type, userId, action = 'add', url) => {
+    // console.log(type, userId, action, url);
+
     if (action === 'edit') getInfo(url, userId);
-    if (action === 'add' && type === 'client') getInfo('admin.registration.client');
 
     currentModal.value = { type, userId, action };
     isModalOpen.value = true;
@@ -378,9 +380,9 @@ const updateUser = () => {
                         <p class="c_data" style="margin-top: 16px">Менеджер</p>
                         <div class="input flex flex-column">
                             <label for="manager">Выберите менеджера</label>
-                            <select id="manager">
+                            <select id="manager" v-model.trim="form.manager_id">
                                 <option disabled></option>
-                                <option v-for="manager in userData.managers" :key="manager.id" :value="manager.id">
+                                <option v-for="manager in props.managers" :key="manager.id" :value="manager.id">
                                     {{ manager.full_name }}
                                 </option>
                             </select>
@@ -418,9 +420,9 @@ const updateUser = () => {
                         <p class="c_data" style="margin-top: 16px">Менеджер</p>
                         <div class="input flex flex-column">
                             <label for="manager">Выберите менеджера</label>
-                            <select id="manager" v-model="form.manager_id">
+                            <select id="manager" v-model.trim="form.manager_id">
                                 <option disabled></option>
-                                <option v-for="manager in userData.managers" :key="manager.id" :value="manager.id">
+                                <option v-for="manager in props.managers" :key="manager.id" :value="manager.id">
                                     {{ manager.full_name }}
                                 </option>
                             </select>
@@ -429,7 +431,7 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="contract">Номер договора*</label>
-                                <input type="text" id="contract" v-model="form.contract_number" />
+                                <input type="text" id="contract" v-model.trim="form.contract_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="deadline">Срок договора*</label>

@@ -1,7 +1,6 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import InputLabel from '@/Components/InputLabel.vue';
 import { formatDateLogs } from '@/helpers.js';
 const props = defineProps({
     logs: {
@@ -28,25 +27,32 @@ const props = defineProps({
                 <!-- {{ props.logs }} -->
                 <div class="logs">
                     <ul class="thead-log align-center">
-                        <li class="order">№</li>
+                        <!-- <li class="order">№</li> -->
+                        <li>Дата изменения</li>
                         <li>Создатель</li>
+                        <li>Действие</li>
                         <li>Что изменено</li>
                         <li>Старое значение</li>
                         <li>Новое значение</li>
                         <li>Цель</li>
-                        <li>Действие</li>
-                        <li>Дата изменения</li>
                     </ul>
                     <div class="items flex align-center" v-for="log in props.logs" :key="log.id">
-                        <div class="card-item order">
+                        <!-- <div class="card-item order">
                             <p class="text">{{ log.id }}</p>
+                        </div> -->
+                        <div class="card-item">
+                            <p class="text">{{ formatDateLogs(log.created_at) }}</p>
                         </div>
                         <div class="card-item">
                             <p class="text">{{ log.creator.full_name }}</p>
                         </div>
                         <div class="card-item">
+                            <p class="text">{{ log.action }}</p>
+                        </div>
+                        <div class="card-item">
                             <p class="text">{{ log.change }}</p>
                         </div>
+
                         <div class="card-item">
                             <p class="text">{{ log.old_value }}</p>
                         </div>
@@ -55,12 +61,6 @@ const props = defineProps({
                         </div>
                         <div class="card-item">
                             <p class="text">{{ log.target.full_name }}</p>
-                        </div>
-                        <div class="card-item">
-                            <p class="text">{{ log.action }}</p>
-                        </div>
-                        <div class="card-item">
-                            <p class="text">{{ formatDateLogs(log.created_at) }}</p>
                         </div>
                     </div>
                 </div>

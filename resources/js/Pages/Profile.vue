@@ -4,7 +4,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
-
+import { fetchData } from '@/helpers';
 const props = defineProps({
     user: {
         type: Object,
@@ -23,6 +23,16 @@ const props = defineProps({
 const isModalOpen = ref(false);
 const currentModal = ref(null);
 const userData = ref({});
+
+const getInfo = async (url) => {
+    try {
+        const data = await fetchData(url); // Ожидаем завершения запроса
+        userData.value = data.user ? data.user : data;
+    } catch (err) {
+        error.value = err; // Сохраняем ошибку
+    } finally {
+    }
+};
 const form = useForm({
     last_name: '',
     first_name: '',
@@ -53,13 +63,8 @@ const modalTitles = {
     email: 'Изменение почты',
 };
 
-const urls = {
-    contacts: 'profile-edit',
-    password: 'password-edit',
-    email: 'email-edit',
-};
-
-const openModal = (type) => {
+const openModal = (type, url) => {
+    getInfo(url);
     currentModal.value = type;
     isModalOpen.value = true;
 };
@@ -92,17 +97,25 @@ const saveChanges = () => {
                     <div class="card-item">
                         <InputLabel for="last_name" value="ФИО" />
                         <p class="text">{{ props.user.full_name }}</p>
-                        <button class="link-btn" @click="openModal('contacts')">Изменить контактные данные</button>
+                        <button class="link-btn" @click="openModal('contacts', 'profile.edit')">
+                            Изменить контактные данные
+                        </button>
                     </div>
                     <div class="card-item">
                         <InputLabel for="last_name" value="Пароль" />
                         <p class="text">********</p>
-                        <button class="link-btn" @click="openModal('password')">Изменить пароль</button>
+                        <button class="link-btn" @click="openModal('password', 'password.edit')">
+                            Изменить пароль
+                        </button>
                     </div>
                     <div class="card-item">
                         <InputLabel for="last_name" value="Почта" />
                         <p class="text">{{ props.user.email }}</p>
-                        <button v-if="props.role === 'admin'" class="link-btn" @click="openModal('email')">
+                        <button
+                            v-if="props.role === 'admin'"
+                            class="link-btn"
+                            @click="openModal('email', 'email.edit')"
+                        >
                             Изменить почту
                         </button>
                     </div>
@@ -110,14 +123,7 @@ const saveChanges = () => {
             </div>
         </template>
     </AuthenticatedLayout>
-    <BaseModal
-        v-if="isModalOpen"
-        :isOpen="isModalOpen"
-        :title="modalTitles[currentModal]"
-        :url="urls[currentModal]"
-        @close="closeModal"
-        @response="userData = $event"
-    >
+    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal]" @close="closeModal">
         <template #default>
             <div v-if="currentModal === 'contacts'">
                 <form class="flex">

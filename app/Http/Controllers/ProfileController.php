@@ -63,7 +63,7 @@ class ProfileController extends Controller
                 Log::create([
                     'model_id' => $user->id,
                     'model_type' => User::class,
-                    'change' => $field,
+                    'change' => 'Изменено поле'.$field,
                     'action' => 'Обновление данных',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
@@ -103,7 +103,7 @@ class ProfileController extends Controller
             'model_id' => $user->id,
             'model_type' => User::class,
             'change' => 'password',
-            'action' => 'Смена пароля',
+            'action' => 'Изменение пароля',
             'old_value' => '********', // Не указываем старое значение
             'new_value' => '********', // Указываем сообщение, а не пароль
             'created_by' => $user->id,
