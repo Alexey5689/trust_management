@@ -8,8 +8,16 @@ defineProps({
 
 <template>
     <div v-show="message">
-        <p class="text-sm text-red-600">
+        <p class="red">
             {{ message }}
         </p>
     </div>
 </template>
+
+<style scoped>
+.red {
+    color: red;
+    margin-top: 5px;
+    text-align: start;
+}
+</style>

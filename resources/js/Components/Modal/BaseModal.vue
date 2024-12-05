@@ -70,6 +70,8 @@ const closeModal = () => {
     max-height: 700px;
     position: relative;
     overflow-y: auto;
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
 }
 
 .modal-content::-webkit-scrollbar {

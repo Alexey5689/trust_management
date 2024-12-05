@@ -14,6 +14,7 @@ const props = defineProps({
 });
 </script>
 <template>
+
     <Head title="Logs" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
@@ -52,7 +53,6 @@ const props = defineProps({
                         <div class="card-item">
                             <p class="text">{{ log.change }}</p>
                         </div>
-
                         <div class="card-item">
                             <p class="text">{{ log.old_value }}</p>
                         </div>
@@ -88,6 +88,16 @@ const props = defineProps({
     -webkit-box-shadow: 0px 4px 12px 0px #5c5c5c14;
     box-shadow: 0px 4px 12px 0px #5c5c5c14;
     overflow-x: auto;
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+}
+
+.card::-webkit-scrollbar {
+    width: 0px;
+}
+
+.card::-webkit-scrollbar-thumb {
+    background: transparent;
 }
 
 .title-card {
@@ -109,7 +119,7 @@ const props = defineProps({
     height: 55px;
     display: grid;
     column-gap: 5px;
-    grid-template-columns: 50px 250px 150px 200px 200px 270px 250px 150px;
+    grid-template-columns: 200px 250px 210px 200px 200px 250px 240px;
     border-bottom: 1px solid #f3f5f6;
 }
 
@@ -117,7 +127,7 @@ const props = defineProps({
     padding: 16px 0;
     display: grid;
     column-gap: 5px;
-    grid-template-columns: 50px 250px 150px 200px 200px 270px 250px 150px;
+    grid-template-columns: 200px 250px 210px 200px 200px 250px 240px;
     border-bottom: 1px solid #f3f5f6;
 }
 
