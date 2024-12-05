@@ -24,6 +24,7 @@ class ManagerController extends Controller
           /** @var User $user */
         $role = $user->role->title; // Получаем его роль
         $clients = $user->managedUsers()
+        ->where('active', true)
         ->with('userContracts')
         ->get()
         ->map(function ($client) {
@@ -204,7 +205,7 @@ class ManagerController extends Controller
             $message = 'Телефон успешно обновлен';
           }
           
-          return redirect(route('manager.clients'))->with('info', $message);
+          return redirect(route('manager.clients'))->with('status', $message);
       }
 
       public function createAddContractByManager()
@@ -297,8 +298,5 @@ class ManagerController extends Controller
             'applications' => $applications,
         ]);
       }
-
-
-
 }
 

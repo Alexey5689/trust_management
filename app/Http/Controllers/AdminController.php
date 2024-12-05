@@ -28,28 +28,33 @@ class AdminController extends Controller
         $clients = User::whereHas('role', function ($query) {
         $query->where('title', 'client'); // Фильтрация по роли 'client'
         })
-            ->with(['userContracts']) // Предзагрузка контрактов
-            ->get()
-            ->map(function ($client) {
-                 // Получаем первый контракт
-                $contract = $client->userContracts->first();
+        ->where('active', true)
+        ->with(['userContracts']) // Предзагрузка контрактов
+        ->get()
+        ->map(function ($client) {
+                // Получаем первый контракт
+            $contract = $client->userContracts->first();
 
-                // Получаем данные менеджера, если контракт существует
-                $manager = $contract ? $contract->manager : null;
+            // Получаем данные менеджера, если контракт существует
+            $manager = $contract ? $contract->manager : null;
 
-                return [
-                    'id' => $client->id,
-                    'full_name' => $client->last_name . ' ' . $client->first_name . ' ' . $client->middle_name,
-                    'email' => $client->email,
-                    'phone_number' => $client->phone_number,
-                    'manager_full_name' => $manager
-                            ? $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name
-                            : 'Менеджер не назначен',
-                ];
+            return [
+                'id' => $client->id,
+                'full_name' => $client->last_name . ' ' . $client->first_name . ' ' . $client->middle_name,
+                'email' => $client->email,
+                'phone_number' => $client->phone_number,
+                'manager_full_name' => $manager
+                        ? $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name
+                        : 'Менеджер не назначен',
+            ];
         });
         $managers = User::whereHas('role', function($query) {
             $query->where('title', 'manager');
-        })->with('managerContracts')->get()->map(function ($manager) {
+        })
+        ->where('active', true)
+        ->with('managerContracts')
+        ->get()
+        ->map(function ($manager) {
             return [
                 'id' => $manager->id,
                 'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
@@ -57,6 +62,28 @@ class AdminController extends Controller
                 'phone_number' => $manager->phone_number,
             ];
         });
+
+    //     User::select(['id', 'last_name', 'first_name', 'middle_name', 'email', 'phone_number'])
+    // ->whereHas('role', function($query) {
+    //     $query->where('title', 'manager');
+    // })
+    // ->get()
+    // ->map(...);
+
+    // $managers = User::whereHas('role', function ($query) {
+    //     $query->where('title', 'manager'); // Фильтруем пользователей с ролью 'manager'
+    // })
+    // ->where('active', true) // Фильтруем только активных пользователей
+    // ->with('managerContracts') // Подгружаем связанные данные, если нужно
+    // ->get()
+    // ->map(function ($manager) {
+    //     return [
+    //         'id' => $manager->id,
+    //         'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
+    //         'email' => $manager->email,
+    //         'phone_number' => $manager->phone_number,
+    //     ];
+    // });
         return Inertia::render('AllUsers', [
            
             'clients' => $clients,
@@ -259,7 +286,7 @@ class AdminController extends Controller
                 Log::create([
                     'model_id' => $user->id,
                     'model_type' => User::class,
-                    'change' => 'Изменено поле '.$field,
+                    'change' => 'Изменено поле' . $field,
                     'action' => 'Обновление данных',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
@@ -281,7 +308,7 @@ class AdminController extends Controller
             Log::create([
                 'model_id' => $user->id,
                 'model_type' => User::class,
-                'change' => 'Изменено поле manager_id',
+                'change' => 'Изменено менеджера',
                 'action' => 'Обновление данных',
                 'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
                 'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
@@ -399,7 +426,7 @@ class AdminController extends Controller
                 Log::create([
                     'model_id' => $user->id,
                     'model_type' => User::class,
-                    'change' => 'Изменено поле'. $field,
+                    'change' => 'Изменено поле' . $field,
                     'action' => 'Обновление данных',
                     'old_value' => $originalData[$field],
                     'new_value' => $newValue,
