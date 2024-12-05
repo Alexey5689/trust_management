@@ -26,7 +26,7 @@
             Route::get('/add-contract', [AdminController::class, 'createAddContractByAdmin'])->name('admin.add.contract');
             Route::post('/add-contract', [AdminController::class, 'storeAddContractByAdmin']);
             //редактирование договора
-            Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('edit.contract');
+            Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('admin.edit.contract');
             Route::patch('/edit-contract/{contract}', [AdminController::class, 'updateContractByAdmin']);
             
         });

@@ -63,7 +63,14 @@ export const fetchData = async (router, params = {}) => {
 
     try {
         // Проверка на наличие параметра "manager", если его нет, отправляем запрос без параметров
-        const url = params.user ? route(router, { user: params.user }) : route(router); // Если параметр "manager" не передан, просто вызываем URL без него
+        //const url = params.user ? route(router, { user: params.user }) : route(router); // Если параметр "manager" не передан, просто вызываем URL без него
+        const url = params.user
+            ? route(router, { user: params.user })
+            : params.contract
+            ? route(router, { contract: params.contract })
+            : route(router);
+        // console.log(url);
+
         const response = await axios.get(url);
         console.log(response);
 

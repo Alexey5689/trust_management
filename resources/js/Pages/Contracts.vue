@@ -1,13 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
-// import { Inertia } from '@inertiajs/inertia';
-// import { format } from 'date-fns';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { formatDate, getYearDifference } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
+import { fetchData } from '@/helpers';
 
 const props = defineProps({
     contracts: {
@@ -26,15 +25,41 @@ const props = defineProps({
 
 const isModalOpen = ref(false);
 const currentModal = ref(null);
+const error = ref(null);
+const clients = ref({});
+const contractData = ref({});
 
-const handleDropdownSelect = (option, userId, type) => {
+const form = useForm({
+    user_id: '',
+    contract_number: null,
+    sum: null,
+    deadline: '', // Срок договора
+    procent: '', // Процентная ставка
+    agree_with_terms: false, // Для чекбокса
+    create_date: new Date().toISOString().substr(0, 10), // Дата заключения
+    contract_status: true,
+    payments: '', // Выплаты
+});
+
+const getInfo = async (url, contractId) => {
+    try {
+        const data = await fetchData(url, { contract: contractId }); // Ожидаем завершения запроса
+        contractData.value = data.contract;
+        clients.value = data.clients;
+    } catch (err) {
+        error.value = err; // Сохраняем ошибку
+    } finally {
+    }
+};
+
+const handleDropdownSelect = (option, contractId, type) => {
     switch (option.action) {
         case 'edit':
-            openModal(type, userId, 'edit');
+            openModal(type, contractId, 'edit', option.url);
             break;
         case 'delete':
             if (confirm('Вы уверены, что хотите удалить пользователя?')) {
-                router.delete(route('delete.user', { user: userId }));
+                router.delete(route('delete.contract', { contract: contractId }));
             }
             break;
         default:
@@ -42,13 +67,29 @@ const handleDropdownSelect = (option, userId, type) => {
     }
 };
 
+watch(
+    contractData,
+    (newData) => {
+        form.user_id = newData.user_id;
+        form.contract_number = newData.contract_number;
+        form.sum = newData.sum;
+        form.deadline = newData.deadline;
+        form.procent = newData.procent;
+        form.payments = newData.payments;
+        form.agree_with_terms = newData.agree_with_terms;
+        form.create_date = newData.create_date;
+    },
+    { immediate: true },
+);
+
 const modalTitles = {
     add: 'Добавление договора',
-    edit: 'Изменение договора'
+    edit: 'Изменение договора',
 };
 
-const openModal = (type, userId, action = 'add') => {
-    currentModal.value = { type, userId, action };
+const openModal = (type, contractId, action = 'add', url) => {
+    getInfo(url, contractId);
+    currentModal.value = { type, contractId, action };
     isModalOpen.value = true;
 };
 
@@ -82,7 +123,6 @@ const closeModal = () => {
 </script>
 
 <template>
-
     <Head title="Contracts" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
@@ -92,8 +132,11 @@ const closeModal = () => {
                     :href="route(`${props.role}.add.contract`)" class="add_contracts">
                     Добавить договор
                 </ResponsiveNavLink> -->
-                <button class="add_contracts link-btn" @click="openModal('add')"
-                    v-if="props.role === 'admin' || props.role === 'manager'">
+                <button
+                    class="add_contracts link-btn"
+                    @click="openModal('add')"
+                    v-if="props.role === 'admin' || props.role === 'manager'"
+                >
                     Добавить договор
                 </button>
             </div>
@@ -125,7 +168,7 @@ const closeModal = () => {
                         <div>
                             <p>{{ formatDate(contract.create_date) }}</p>
                         </div>
-                        <div style="padding-left: 30px;">
+                        <div style="padding-left: 30px">
                             <p>{{ contract.procent }}</p>
                         </div>
                         <div>
@@ -143,11 +186,14 @@ const closeModal = () => {
                         <div>
                             <p>{{ contract.sum }}</p>
                         </div>
-                        <div class="card-item ellipsis">
-                            <Dropdown :options="[
-                                { label: 'Изменить', action: 'edit' },
-                                { label: 'Удалить', action: 'delete' },
-                            ]" @select="handleDropdownSelect($event, contract.id, 'contract')">
+                        <div v-if="props.role === 'admin'" class="card-item ellipsis">
+                            <Dropdown
+                                :options="[
+                                    { label: 'Изменить', action: 'edit', url: 'admin.edit.contract' },
+                                    { label: 'Удалить', action: 'delete' },
+                                ]"
+                                @select="handleDropdownSelect($event, contract.id, 'contract')"
+                            >
                                 <template #trigger>
                                     <Ellipsis />
                                 </template>
@@ -208,7 +254,11 @@ const closeModal = () => {
                 <form class="flex flex-column r-gap">
                     <div class="input flex flex-column">
                         <label for="client">Клиент</label>
-                        <select id="client"></select>
+                        <select id="client" v-model="form.user_id">
+                            <option v-for="client in clients" :key="client.id">
+                                {{ client.full_name }}
+                            </option>
+                        </select>
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
@@ -217,7 +267,11 @@ const closeModal = () => {
                         </div>
                         <div class="input flex flex-column">
                             <label for="deadline">Срок договора*</label>
-                            <select id="deadline"></select>
+                            <select id="deadline">
+                                <option disabled></option>
+                                <option value="1 год">1 год</option>
+                                <option value="3 года">3 года</option>
+                            </select>
                         </div>
                     </div>
                     <div class="flex c-gap">
@@ -237,7 +291,11 @@ const closeModal = () => {
                         </div>
                         <div class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
-                            <select id="deadline"></select>
+                            <select id="deadline">
+                                <option disabled></option>
+                                <option value="Ежеквартально">Ежеквартально</option>
+                                <option value="Ежегодно">Ежегодно</option>
+                            </select>
                         </div>
                     </div>
                     <div class="flex c-gap">
@@ -289,7 +347,7 @@ const closeModal = () => {
     font-size: 20px;
     font-weight: 600;
     line-height: 29px;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
     padding: 24px 32px 20px 32px;
 }
 
@@ -297,14 +355,14 @@ const closeModal = () => {
     height: 55px;
     display: grid;
     grid-template-columns: 2.26fr 1.29fr 1.29fr 1.29fr 0.97fr 1.39fr 1.29fr 0.32fr;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .contracts {
     padding: 16px 0;
     display: grid;
     grid-template-columns: 2.26fr 1.29fr 1.29fr 1.29fr 0.97fr 1.39fr 1.29fr 0.32fr;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .thead-contracts li {
@@ -312,7 +370,7 @@ const closeModal = () => {
     font-weight: 600;
     line-height: 23.2px;
     letter-spacing: 0.01em;
-    color: #969BA0;
+    color: #969ba0;
 }
 
 .link-btn {
@@ -327,7 +385,7 @@ const closeModal = () => {
 }
 
 .add_contracts {
-    background: #4E9F7D;
+    background: #4e9f7d;
     color: #fff;
     transition: 0.3s;
 }

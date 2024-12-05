@@ -525,10 +525,11 @@ class AdminController extends Controller
 
 
       //редакция договора
-      public function editContractByAdmin(Contract $contract): Response
+      public function editContractByAdmin(Contract $contract)
       {
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
+        //dd($contract);
+        // $user = Auth::user(); // Получаем текущего пользователя
+        // $role = $user->role->title; // Получаем его роль
         $clients = User::whereHas('role', function ($query) {
             $query->where('title', 'client'); // Фильтрация по роли 'client'
         })->with('userContracts') // Загружаем контракты для клиентов
@@ -539,11 +540,14 @@ class AdminController extends Controller
                 'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
             ];
         });
-        // dd($contract);
-        return Inertia::render('EditContract', [
-            'role' => $role,
+        //dd($contract, $clients);
+        // return Inertia::render('EditContract', [
+        //     'contract' => $contract,
+        //     'clients' => $clients,
+        // ]);
+        return response()->json([
             'contract' => $contract,
-            'clients' => $clients,
+            'clients' => $clients
         ]);
       }
 
