@@ -640,10 +640,6 @@ const updateUser = () => {
     padding-left: 12px;
 }
 
-/* form {
-    column-gap: 16px;
-} */
-
 .input {
     width: 100%;
     row-gap: 8px;

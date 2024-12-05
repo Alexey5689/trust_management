@@ -1,15 +1,14 @@
 <script setup>
-import { computed, ref } from 'vue';
-import InputLabel from '@/Components/InputLabel.vue';
+import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import { Inertia } from '@inertiajs/inertia';
-import { format } from 'date-fns';
+// import { Inertia } from '@inertiajs/inertia';
+// import { format } from 'date-fns';
 import { formatDate, getYearDifference } from '@/helpers.js';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import BaseModal from '@/Components/Modal/BaseModal.vue';
+import Ellipsis from '@/Components/Icon/Ellipsis.vue';
+import Dropdown from '@/Components/Modal/Dropdown.vue';
+
 const props = defineProps({
     contracts: {
         type: Array,
@@ -25,29 +24,63 @@ const props = defineProps({
     },
 });
 
-const deleteContract = (contractId) => {
-    if (confirm('Вы точно хотите удалить договор?')) {
-        Inertia.delete(route('delete.contract', { contract: contractId }));
+const isModalOpen = ref(false);
+const currentModal = ref(null);
+
+const handleDropdownSelect = (option, userId, type) => {
+    switch (option.action) {
+        case 'edit':
+            openModal(type, userId, 'edit');
+            break;
+        case 'delete':
+            if (confirm('Вы уверены, что хотите удалить пользователя?')) {
+                router.delete(route('delete.user', { user: userId }));
+            }
+            break;
+        default:
+            console.error('Неизвестное действие:', option.action);
     }
 };
 
-const nowDate = format(new Date(), 'yyyy-MM-dd');
-// Вычисление основной суммы
-const sum = computed(() => {
-    return props.contracts.reduce((total, contract) => total + contract.sum, 0);
-});
+const modalTitles = {
+    add: 'Добавление договора',
+    edit: 'Изменение договора'
+};
 
-const dividents = ref(null);
+const openModal = (type, userId, action = 'add') => {
+    currentModal.value = { type, userId, action };
+    isModalOpen.value = true;
+};
+
+const closeModal = () => {
+    isModalOpen.value = false;
+    currentModal.value = null;
+};
+
+// const deleteContract = (contractId) => {
+//     if (confirm('Вы точно хотите удалить договор?')) {
+//         Inertia.delete(route('delete.contract', { contract: contractId }));
+//     }
+// };
+
+// const nowDate = format(new Date(), 'yyyy-MM-dd');
+// // Вычисление основной суммы
+// const sum = computed(() => {
+//     return props.contracts.reduce((total, contract) => total + contract.sum, 0);
+// });
+
+// const dividents = ref(null);
 
 // Вычисление дивидендов
-const getDividends = (rate) => {
-    dividents.value = 0;
-    props.contracts.forEach((contract) => {
-        const dailyRate = (contract.sum * (contract.procent / 100)) / rate;
-        dividents.value += dailyRate;
-    });
-};
+// const getDividends = (rate) => {
+//     dividents.value = 0;
+//     props.contracts.forEach((contract) => {
+//         const dailyRate = (contract.sum * (contract.procent / 100)) / rate;
+//         dividents.value += dailyRate;
+//     });
+// };
 </script>
+
 <template>
 
     <Head title="Contracts" />
@@ -55,10 +88,14 @@ const getDividends = (rate) => {
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>
-                <ResponsiveNavLink v-if="props.role === 'admin' || props.role === 'manager'"
+                <!-- <ResponsiveNavLink v-if="props.role === 'admin' || props.role === 'manager'"
                     :href="route(`${props.role}.add.contract`)" class="add_contracts">
                     Добавить договор
-                </ResponsiveNavLink>
+                </ResponsiveNavLink> -->
+                <button class="add_contracts link-btn" @click="openModal('add')"
+                    v-if="props.role === 'admin' || props.role === 'manager'">
+                    Добавить договор
+                </button>
             </div>
         </template>
         <!-- {{ props.contracts }} -->
@@ -88,7 +125,7 @@ const getDividends = (rate) => {
                         <div>
                             <p>{{ formatDate(contract.create_date) }}</p>
                         </div>
-                        <div>
+                        <div style="padding-left: 30px;">
                             <p>{{ contract.procent }}</p>
                         </div>
                         <div>
@@ -106,68 +143,122 @@ const getDividends = (rate) => {
                         <div>
                             <p>{{ contract.sum }}</p>
                         </div>
-
-
-                        <!-- <Dropdown v-if="role === 'admin'" align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button type="button"
-                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                                {{ $page.props.auth.user.name }}
-
-                                                <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
-<template #content>
-                                        <DropdownLink :href="route(`edit.contract`, {
-                                            contract: contract.id,
-                                        })
-                                            " as="button">
-                                            Изменить
-                                        </DropdownLink>
-                                        <DropdownLink @click="deleteContract(contract.id)" as="button">
-                                            Удалить
-                                        </DropdownLink>
-                                    </template>
-</Dropdown> -->
-
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- <div v-if="role === 'client'" class="py-12">
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div class="bg-white shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
-                            <header>
-                                <h2 class="text-lg font-medium text-gray-900">График начислений</h2>
-                            </header>
-                            <div class="flex items-center justify-end mt-4">
-                                <PrimaryButton @click="getDividends(365)" class="mt-4"> День </PrimaryButton>
-                                <PrimaryButton @click="getDividends(12)" class="mt-4"> Месяц </PrimaryButton>
-                                <PrimaryButton @click="getDividends(1)" class="mt-4"> Год </PrimaryButton>
-                                <PrimaryButton @click="getDividends(52)" class="mt-4"> Неделя </PrimaryButton>
-                            </div>
-                            <div class="flex gap-9">
-                                {{ sum }}
-                                {{ Math.round(dividents) }}
-                            </div>
+                        <div class="card-item ellipsis">
+                            <Dropdown :options="[
+                                { label: 'Изменить', action: 'edit' },
+                                { label: 'Удалить', action: 'delete' },
+                            ]" @select="handleDropdownSelect($event, contract.id, 'contract')">
+                                <template #trigger>
+                                    <Ellipsis />
+                                </template>
+                            </Dropdown>
                         </div>
                     </div>
                 </div>
-            </div> -->
-
-
+            </div>
         </template>
     </AuthenticatedLayout>
+    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal?.action]" @close="closeModal">
+        <template #default>
+            <div v-if="currentModal.type === 'add'">
+                <form class="flex flex-column r-gap">
+                    <div class="input flex flex-column">
+                        <label for="client">Клиент</label>
+                        <select id="client"></select>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="first_name">Номер договора*</label>
+                            <input type="text" id="first_name" />
+                        </div>
+                        <div class="input flex flex-column">
+                            <label for="deadline">Срок договора*</label>
+                            <select id="deadline"></select>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="bank">Ставка, %*</label>
+                            <input type="text" id="bank" />
+                        </div>
+                        <div class="input flex checkbox">
+                            <input type="checkbox" id="checkbox" />
+                            <label for="checkbox">Вычислить дивиденды по истечению срока</label>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="date">Дата*</label>
+                            <input type="date" id="date" />
+                        </div>
+                        <div class="input flex flex-column">
+                            <label for="deadline">Выплаты*</label>
+                            <select id="deadline"></select>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="sum">Сумма*</label>
+                            <input type="number" min="0" id="sum" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div v-else>
+                <form class="flex flex-column r-gap">
+                    <div class="input flex flex-column">
+                        <label for="client">Клиент</label>
+                        <select id="client"></select>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="first_name">Номер договора*</label>
+                            <input type="text" id="first_name" />
+                        </div>
+                        <div class="input flex flex-column">
+                            <label for="deadline">Срок договора*</label>
+                            <select id="deadline"></select>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="bank">Ставка, %*</label>
+                            <input type="text" id="bank" />
+                        </div>
+                        <div class="input flex checkbox">
+                            <input type="checkbox" id="checkbox" />
+                            <label for="checkbox">Вычислить дивиденды по истечению срока</label>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="date">Дата*</label>
+                            <input type="date" id="date" />
+                        </div>
+                        <div class="input flex flex-column">
+                            <label for="deadline">Выплаты*</label>
+                            <select id="deadline"></select>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="sum">Сумма*</label>
+                            <input type="number" min="0" id="sum" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </template>
+        <template #footer>
+            <div class="flex justify-end">
+                <button @click="closeModal" class="btn-cancel">Отменить</button>
+                <button @click="" v-if="currentModal.type === 'add'" class="btn-save">Создать</button>
+                <button @click="" v-else class="btn-save">Сохранить</button>
+            </div>
+        </template>
+    </BaseModal>
 </template>
+
 <style scoped>
 .client {
     padding: 20px 32px 32px 32px;
@@ -205,14 +296,14 @@ const getDividends = (rate) => {
 .thead-contracts {
     height: 55px;
     display: grid;
-    grid-template-columns: 1.1fr 0.5fr 0.7fr 0.5fr 0.4fr 0.8fr 0.7fr;
+    grid-template-columns: 2.26fr 1.29fr 1.29fr 1.29fr 0.97fr 1.39fr 1.29fr 0.32fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
 .contracts {
     padding: 16px 0;
     display: grid;
-    grid-template-columns: 1.1fr 0.5fr 0.7fr 0.5fr 0.4fr 0.8fr 0.7fr;
+    grid-template-columns: 2.26fr 1.29fr 1.29fr 1.29fr 0.97fr 1.39fr 1.29fr 0.32fr;
     border-bottom: 1px solid #F3F5F6;
 }
 
@@ -230,12 +321,14 @@ const getDividends = (rate) => {
     font-weight: 400;
     line-height: 21px;
     letter-spacing: 0.015em;
+    height: 45px;
+    padding: 0 20px;
+    border-radius: 12px;
 }
 
 .add_contracts {
     background: #4E9F7D;
     color: #fff;
-    margin-right: 16px;
     transition: 0.3s;
 }
 
@@ -245,5 +338,76 @@ const getDividends = (rate) => {
 
 .order {
     padding-left: 12px;
+}
+
+.btn-cancel,
+.btn-save {
+    font-family: Onest;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    letter-spacing: 0.015em;
+    height: 45px;
+    padding: 0 20px;
+    border-radius: 12px;
+}
+
+.btn-save {
+    background: #4e9f7d;
+    color: #fff;
+    transition: 0.3s;
+}
+
+.btn-save:hover {
+    background: #428569;
+}
+
+.btn-cancel {
+    margin-right: 10px;
+    color: #242424;
+    background: #f3f5f6;
+    transition: 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #dfe4e7;
+}
+
+.input {
+    width: 100%;
+    row-gap: 8px;
+}
+
+.input label,
+.warning {
+    color: #969ba0;
+}
+
+.input input,
+.input select {
+    border: 1px solid #e8eaeb;
+    height: 45px;
+    border-radius: 12px;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.checkbox {
+    align-items: end;
+}
+
+.checkbox input {
+    margin-bottom: 11px;
+    margin-right: 12px;
+    width: 24px;
+    height: 24px;
+}
+
+.checkbox label {
+    color: #242424;
+}
+
+.c_data {
+    font-weight: 500;
 }
 </style>
