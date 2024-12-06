@@ -142,11 +142,8 @@ onUnmounted(() => {
 }
 
 .dropdown-item {
-    
     color: #A7ADB2;
     cursor: pointer;
-    /* display: flex;
-    align-items: center; */
 }
 
 .dropdown-item:last-child {
