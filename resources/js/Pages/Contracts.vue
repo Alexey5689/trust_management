@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { formatDate, getYearDifference } from '@/helpers.js';
+import { formatDate, getYearDifference, calculateDeadlineDate } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
@@ -10,6 +10,10 @@ import { fetchData } from '@/helpers';
 
 const props = defineProps({
     contracts: {
+        type: Array,
+        required: true,
+    },
+    clients: {
         type: Array,
         required: true,
     },
@@ -26,8 +30,8 @@ const props = defineProps({
 const isModalOpen = ref(false);
 const currentModal = ref(null);
 const error = ref(null);
-const clients = ref({});
 const contractData = ref({});
+const selectedDuration = ref('');
 
 const form = useForm({
     user_id: '',
@@ -45,7 +49,6 @@ const getInfo = async (url, contractId) => {
     try {
         const data = await fetchData(url, { contract: contractId }); // Ожидаем завершения запроса
         contractData.value = data.contract;
-        clients.value = data.clients;
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
@@ -88,7 +91,7 @@ const modalTitles = {
 };
 
 const openModal = (type, contractId, action = 'add', url) => {
-    getInfo(url, contractId);
+    if (action === 'edit') getInfo(url, contractId);
     currentModal.value = { type, contractId, action };
     isModalOpen.value = true;
 };
@@ -96,8 +99,36 @@ const openModal = (type, contractId, action = 'add', url) => {
 const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
+    form.reset(
+        'user_id',
+        'contract_number',
+        'sum',
+        'deadline',
+        'procent',
+        'payments',
+        'agree_with_terms',
+        'create_date',
+    );
+    selectedDuration.value = '';
 };
 
+const handleDeadlineChange = (event) => {
+    const selectedDuration = event.target.value;
+    if (selectedDuration === '1 год') {
+        form.deadline = calculateDeadlineDate(1, form.create_date);
+    } else {
+        form.deadline = calculateDeadlineDate(3, form.create_date);
+    }
+};
+
+const createContract = () => {
+    form.post(route('admin.add.contract'));
+    closeModal();
+};
+const updateContract = () => {
+    form.patch(route('admin.edit.contract', { contract: currentModal.value.contractId }));
+    closeModal();
+};
 // const deleteContract = (contractId) => {
 //     if (confirm('Вы точно хотите удалить договор?')) {
 //         Inertia.delete(route('delete.contract', { contract: contractId }));
@@ -210,52 +241,8 @@ const closeModal = () => {
                 <form class="flex flex-column r-gap">
                     <div class="input flex flex-column">
                         <label for="client">Клиент</label>
-                        <select id="client"></select>
-                    </div>
-                    <div class="flex c-gap">
-                        <div class="input flex flex-column">
-                            <label for="first_name">Номер договора*</label>
-                            <input type="text" id="first_name" />
-                        </div>
-                        <div class="input flex flex-column">
-                            <label for="deadline">Срок договора*</label>
-                            <select id="deadline"></select>
-                        </div>
-                    </div>
-                    <div class="flex c-gap">
-                        <div class="input flex flex-column">
-                            <label for="bank">Ставка, %*</label>
-                            <input type="text" id="bank" />
-                        </div>
-                        <div class="input flex checkbox">
-                            <input type="checkbox" id="checkbox" />
-                            <label for="checkbox">Вычислить дивиденды по истечению срока</label>
-                        </div>
-                    </div>
-                    <div class="flex c-gap">
-                        <div class="input flex flex-column">
-                            <label for="date">Дата*</label>
-                            <input type="date" id="date" />
-                        </div>
-                        <div class="input flex flex-column">
-                            <label for="deadline">Выплаты*</label>
-                            <select id="deadline"></select>
-                        </div>
-                    </div>
-                    <div class="flex c-gap">
-                        <div class="input flex flex-column">
-                            <label for="sum">Сумма*</label>
-                            <input type="number" min="0" id="sum" />
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div v-else>
-                <form class="flex flex-column r-gap">
-                    <div class="input flex flex-column">
-                        <label for="client">Клиент</label>
                         <select id="client" v-model="form.user_id">
-                            <option v-for="client in clients" :key="client.id">
+                            <option v-for="client in props.clients" :key="client.id" :value="client.id">
                                 {{ client.full_name }}
                             </option>
                         </select>
@@ -263,12 +250,12 @@ const closeModal = () => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="first_name">Номер договора*</label>
-                            <input type="text" id="first_name" />
+                            <input type="text" id="first_name" v-model.trim="form.contract_number" />
                         </div>
                         <div class="input flex flex-column">
                             <label for="deadline">Срок договора*</label>
-                            <select id="deadline">
-                                <option disabled></option>
+                            <select id="deadline" v-model="selectedDuration" @change="handleDeadlineChange">
+                                <option value="" disabled></option>
                                 <option value="1 год">1 год</option>
                                 <option value="3 года">3 года</option>
                             </select>
@@ -277,21 +264,21 @@ const closeModal = () => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
-                            <input type="text" id="bank" />
+                            <input type="text" id="bank" v-model.trim="form.procent" />
                         </div>
                         <div class="input flex checkbox">
-                            <input type="checkbox" id="checkbox" />
+                            <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
                             <label for="checkbox">Вычислить дивиденды по истечению срока</label>
                         </div>
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="date">Дата*</label>
-                            <input type="date" id="date" />
+                            <input type="date" id="date" v-model.trim="form.create_date" />
                         </div>
                         <div class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
-                            <select id="deadline">
+                            <select id="deadline" v-model="form.payments">
                                 <option disabled></option>
                                 <option value="Ежеквартально">Ежеквартально</option>
                                 <option value="Ежегодно">Ежегодно</option>
@@ -301,7 +288,69 @@ const closeModal = () => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="sum">Сумма*</label>
-                            <input type="number" min="0" id="sum" />
+                            <input type="number" min="0" id="sum" v-model.trim="form.sum" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div v-else>
+                <form class="flex flex-column r-gap">
+                    <div class="input flex flex-column">
+                        <label for="client">Клиент</label>
+                        <select id="client" v-model="form.user_id">
+                            <option v-for="client in props.clients" :key="client.id" :value="client.id">
+                                {{ client.full_name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="first_name">Номер договора*</label>
+                            <input type="text" id="first_name" v-model.trim="form.contract_number" />
+                        </div>
+                        <div class="input flex flex-column">
+                            <label for="deadline">Срок договора*</label>
+                            <select id="deadline" v-model="selectedDuration" @change="handleDeadlineChange">
+                                <option value="" disabled>
+                                    {{
+                                        getYearDifference(form.create_date, form.deadline) === 1
+                                            ? getYearDifference(form.create_date, form.deadline) + ' год'
+                                            : getYearDifference(form.create_date, form.deadline) + ' года'
+                                    }}
+                                </option>
+                                <option value="1 год">1 год</option>
+                                <option value="3 года">3 года</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="bank">Ставка, %*</label>
+                            <input type="text" id="bank" v-model.trim="form.procent" />
+                        </div>
+                        <div class="input flex checkbox">
+                            <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
+                            <label for="checkbox">Вычислить дивиденды по истечению срока</label>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="date">Дата*</label>
+                            <input type="date" id="date" v-model.trim="form.create_date" />
+                        </div>
+                        <div class="input flex flex-column">
+                            <label for="deadline">Выплаты*</label>
+                            <select id="deadline" v-model="form.payments">
+                                <option disabled></option>
+                                <option value="Ежеквартально">Ежеквартально</option>
+                                <option value="Ежегодно">Ежегодно</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="sum">Сумма*</label>
+                            <input type="number" min="0" id="sum" v-model.trim="form.sum" />
                         </div>
                     </div>
                 </form>
@@ -310,8 +359,8 @@ const closeModal = () => {
         <template #footer>
             <div class="flex justify-end">
                 <button @click="closeModal" class="btn-cancel">Отменить</button>
-                <button @click="" v-if="currentModal.type === 'add'" class="btn-save">Создать</button>
-                <button @click="" v-else class="btn-save">Сохранить</button>
+                <button @click="createContract" v-if="currentModal.type === 'add'" class="btn-save">Создать</button>
+                <button @click="updateContract" v-else class="btn-save">Сохранить</button>
             </div>
         </template>
     </BaseModal>

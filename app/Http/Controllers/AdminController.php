@@ -111,9 +111,20 @@ class AdminController extends Controller
                 ]
             ];
         });
+        $clients = User::whereHas('role', function ($query) {
+            $query->where('title', 'client'); // Фильтрация по роли 'client'
+        })->with('userContracts') // Загружаем контракты для клиентов
+        ->get() // Получаем коллекцию пользователей
+        ->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+            ];
+        });
         return Inertia::render('Contracts', [
             'role' => $role, // Передаем роль пользователя в Vue-компонент
-            'contracts'=> $contracts
+            'contracts'=> $contracts,
+            'clients' => $clients
         ]);
     }
     //все заявки
@@ -472,7 +483,7 @@ class AdminController extends Controller
 
       public function storeAddContractByAdmin(Request $request)
       {
-        // dd($request->all());
+        //dd($request->all());
         $request->validate([
             'contract_number' => 'required|integer|unique:'. Contract::class,
             'procent' => 'required|integer',
@@ -530,16 +541,16 @@ class AdminController extends Controller
         //dd($contract);
         // $user = Auth::user(); // Получаем текущего пользователя
         // $role = $user->role->title; // Получаем его роль
-        $clients = User::whereHas('role', function ($query) {
-            $query->where('title', 'client'); // Фильтрация по роли 'client'
-        })->with('userContracts') // Загружаем контракты для клиентов
-        ->get() // Получаем коллекцию пользователей
-        ->map(function ($client) {
-            return [
-                'id' => $client->id,
-                'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
-            ];
-        });
+        // $clients = User::whereHas('role', function ($query) {
+        //     $query->where('title', 'client'); // Фильтрация по роли 'client'
+        // })->with('userContracts') // Загружаем контракты для клиентов
+        // ->get() // Получаем коллекцию пользователей
+        // ->map(function ($client) {
+        //     return [
+        //         'id' => $client->id,
+        //         'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+        //     ];
+        // });
         //dd($contract, $clients);
         // return Inertia::render('EditContract', [
         //     'contract' => $contract,
@@ -547,13 +558,13 @@ class AdminController extends Controller
         // ]);
         return response()->json([
             'contract' => $contract,
-            'clients' => $clients
+            // 'clients' => $clients
         ]);
       }
 
       public function updateContractByAdmin(Request $request, Contract $contract)
       {
-        // dd($request->all());
+       // dd($request->all());
         $request->validate([
             'contract_number' => 'required|integer',
             'procent' => 'required|integer',
@@ -580,7 +591,8 @@ class AdminController extends Controller
                 ]);
             }
         }
-        $contract->user_id->userNotifications()->create([
+        $user = $contract->user; 
+        $user->userNotifications()->create([
             'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
         ]);
         // dd($manager_id);
