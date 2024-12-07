@@ -44,15 +44,9 @@ class ApplicationController extends Controller
       public function storeAddApplication(Request $request){
         //dd($request->all());
         $request->validate([
-            'create_date' => 'required|date_format:Y-m-d',
-            'date_of_payments' => 'required|date_format:Y-m-d|after_or_equal:create_date', // Дата платежа не должна быть раньше даты создания
-            'user_id' => 'required|exists:users,id', // Убедиться, что пользователь существует
-            'manager_id' => 'required|exists:users,id', // Убедиться, что менеджер существует
-            'contract_id' => 'required|exists:contracts,id', // Проверить существование контракта
-            'condition' => 'required|string|max:255', // Проверка условия
-            'status' => 'required|string|max:50', // Проверка статуса
-            'type_of_processing' => 'required|string|max:255', // Проверка типа обработки
-            'sum' => 'required|integer',
+            'create_date' => ['required', 'date_format:Y-m-d'],
+            'date_of_payments' => ['required', 'date_format:Y-m-d', 'after_or_equal:create_date'], // Дата платежа не должна быть раньше даты создания
+            'sum' => ['required', 'integer'],
         ]);
         $user = Auth::user();
         $role = $user->role->title;

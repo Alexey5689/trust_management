@@ -28,7 +28,7 @@ class CreatingPasswordController extends Controller
         //dd($request->all());
         // Валидация только нового пароля и его подтверждения
          $validated = $request->validate([
-            'email' => 'required|email',
+            'email' => ['required','string','email'],
             'password' => ['required', Password::defaults(), 'confirmed'],
             'token' => 'required'
         ]);

@@ -1,0 +1,36 @@
+<?php
+
+return [
+    'required' => 'Поле :attribute обязательно для заполнения.',
+    'string' => 'Поле :attribute должно быть строкой.',
+    'max' => 'Поле :attribute не должно превышать :max символов.',
+    'min' => 'Поле :attribute должно быть не менее :min символов.',
+    'email' => 'Поле :attribute должно быть валидным адресом электронной почты.',
+    'unique' => 'Поле :attribute должно быть уникальным.',
+    'integer' => 'Поле :attribute должно быть числом.',
+    'date_forma' => 'Поле :attribute должно быть датой.',
+    'create_date' => 'Поле :attribute должно быть датой.',
+    'password' => 'Поле :attribute должно быть паролем.',
+    'password_confirmation' => 'Поле :attribute должно быть паролем.',
+    'procent' => 'Поле :attribute должно быть в диапазоне от 0 до 100.',
+    'date_of_payments' => 'Поле :attribute должно быть датой.',
+    'after_or_equal' => 'Поле :attribute должно быть позже или равно полю :create_date.',
+    'attributes' => [
+        'first_name' => 'Имя',
+        'last_name' => 'Фамилия',
+        'middle_name' => 'Отчество',
+        'email' => 'Электронная почта',
+        'phone_number' => 'Номер телефона',
+        'contract_number' => 'Номер договора',
+        'password' => 'Пароль',
+        'password_confirmation' => 'Подтверждение пароля',
+        'sum' => 'Сумма',
+        'deadline' => 'Срок договора',
+        'procent' => 'Процентная ставка',
+        'payments' => 'Выплаты',
+        'manager_id' => 'Менеджер',
+        'contract_status' => 'Статус договора',
+        'create_date' => 'Дата заключения',
+        'date_of_payments' => 'Дата выплаты',
+    ]
+];

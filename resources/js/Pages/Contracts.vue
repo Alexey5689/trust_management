@@ -7,6 +7,7 @@ import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import { fetchData } from '@/helpers';
+import InputError from '@/Components/InputError.vue';
 
 const props = defineProps({
     contracts: {
@@ -159,10 +160,6 @@ const updateContract = () => {
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>
-                <!-- <ResponsiveNavLink v-if="props.role === 'admin' || props.role === 'manager'"
-                    :href="route(`${props.role}.add.contract`)" class="add_contracts">
-                    Добавить договор
-                </ResponsiveNavLink> -->
                 <button
                     class="add_contracts link-btn"
                     @click="openModal('add')"
@@ -172,7 +169,6 @@ const updateContract = () => {
                 </button>
             </div>
         </template>
-        <!-- {{ props.contracts }} -->
         <template #main>
             <div class="card">
                 <header>
@@ -246,11 +242,13 @@ const updateContract = () => {
                                 {{ client.full_name }}
                             </option>
                         </select>
+                        <InputError :message="form.errors.user_id" />
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="first_name">Номер договора*</label>
                             <input type="text" id="first_name" v-model.trim="form.contract_number" />
+                            <InputError :message="form.errors.contract_number" />
                         </div>
                         <div class="input flex flex-column">
                             <label for="deadline">Срок договора*</label>
@@ -259,12 +257,14 @@ const updateContract = () => {
                                 <option value="1 год">1 год</option>
                                 <option value="3 года">3 года</option>
                             </select>
+                            <InputError :message="form.errors.deadline" />
                         </div>
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
                             <input type="text" id="bank" v-model.trim="form.procent" />
+                            <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex checkbox">
                             <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
@@ -275,6 +275,7 @@ const updateContract = () => {
                         <div class="input flex flex-column">
                             <label for="date">Дата*</label>
                             <input type="date" id="date" v-model.trim="form.create_date" />
+                            <InputError :message="form.errors.create_date" />
                         </div>
                         <div class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
@@ -283,12 +284,14 @@ const updateContract = () => {
                                 <option value="Ежеквартально">Ежеквартально</option>
                                 <option value="Ежегодно">Ежегодно</option>
                             </select>
+                            <InputError :message="form.errors.payments" />
                         </div>
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="sum">Сумма*</label>
                             <input type="number" min="0" id="sum" v-model.trim="form.sum" />
+                            <InputError :message="form.errors.sum" />
                         </div>
                     </div>
                 </form>
@@ -302,11 +305,13 @@ const updateContract = () => {
                                 {{ client.full_name }}
                             </option>
                         </select>
+                        <InputError :message="form.errors.user_id" />
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="first_name">Номер договора*</label>
                             <input type="text" id="first_name" v-model.trim="form.contract_number" />
+                            <InputError :message="form.errors.contract_number" />
                         </div>
                         <div class="input flex flex-column">
                             <label for="deadline">Срок договора*</label>
@@ -321,12 +326,14 @@ const updateContract = () => {
                                 <option value="1 год">1 год</option>
                                 <option value="3 года">3 года</option>
                             </select>
+                            <InputError :message="form.errors.deadline" />
                         </div>
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
                             <input type="text" id="bank" v-model.trim="form.procent" />
+                            <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex checkbox">
                             <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
@@ -337,6 +344,7 @@ const updateContract = () => {
                         <div class="input flex flex-column">
                             <label for="date">Дата*</label>
                             <input type="date" id="date" v-model.trim="form.create_date" />
+                            <InputError :message="form.errors.create_date" />
                         </div>
                         <div class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
@@ -345,12 +353,14 @@ const updateContract = () => {
                                 <option value="Ежеквартально">Ежеквартально</option>
                                 <option value="Ежегодно">Ежегодно</option>
                             </select>
+                            <InputError :message="form.errors.payments" />
                         </div>
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="sum">Сумма*</label>
                             <input type="number" min="0" id="sum" v-model.trim="form.sum" />
+                            <InputError :message="form.errors.sum" />
                         </div>
                     </div>
                 </form>

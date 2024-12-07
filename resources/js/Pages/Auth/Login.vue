@@ -3,9 +3,9 @@ import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Icon_logo from '@/Components/Icon/Logo.vue';
-import Icon_logo_name from '@/Components/Icon/LogoName.vue'
+import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 
-defineProps({
+const props = defineProps({
     canResetPassword: {
         type: Boolean,
     },
@@ -29,7 +29,6 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-
         <Head title="Log in" />
 
         <!-- <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
@@ -46,8 +45,13 @@ const submit = () => {
                 </div>
                 <div class="flex flex-column">
                     <label for="password">Пароль</label>
-                    <input id="password" type="password" v-model="form.password" required
-                        autocomplete="current-password" />
+                    <input
+                        id="password"
+                        type="password"
+                        v-model="form.password"
+                        required
+                        autocomplete="current-password"
+                    />
                     <InputError :message="form.errors.password" />
                 </div>
                 <div>
@@ -69,10 +73,9 @@ const submit = () => {
     width: 500px;
     padding: 24px 32px 32px 32px;
     text-align: center;
-    box-shadow: 0px 0px 4px 0px #5C5C5C0A;
-    box-shadow: 0px 0px 8px 0px #5C5C5C14;
-    box-shadow: 0px 4px 12px 0px #5C5C5C14;
-
+    box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    box-shadow: 0px 4px 12px 0px #5c5c5c14;
 }
 
 .login-container h1 {
@@ -92,14 +95,14 @@ const submit = () => {
 
 .login-container label {
     text-align: start;
-    color: #969BA0;
+    color: #969ba0;
     margin-bottom: 8px;
 }
 
 .login-container input {
     height: 40px;
     padding: 8px;
-    border: 1px solid #E8EAEB;
+    border: 1px solid #e8eaeb;
     border-radius: 12px;
     font-size: 16px;
     width: 100%;
@@ -108,7 +111,7 @@ const submit = () => {
 .login-container button {
     height: 45px;
     width: 100%;
-    background-color: #4E9F7D;
+    background-color: #4e9f7d;
     color: #fff;
     font-size: 14px;
     line-height: 21px;

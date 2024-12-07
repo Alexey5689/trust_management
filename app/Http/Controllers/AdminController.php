@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Contract;
+use Illuminate\Validation\Rule;
 use App\Models\Notification;
 use App\Models\Log;
 use App\Models\Application;
@@ -180,15 +181,16 @@ class AdminController extends Controller
     {
         //dd($request->all());
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'middle_name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email',
-            'phone_number' => 'required|string|max:20|unique:' . User::class . ',phone_number',
-            'contract_number' => 'required|integer|unique:' . Contract::class . ',contract_number',
-            'deadline' => 'required|date_format:Y-m-d',
-            'create_date' => 'required|date_format:Y-m-d',
-            'sum' => 'required|integer',
+            'first_name' => ['required','string' ,'max:255', 'min:2'],
+            'last_name' => ['required','string','max:255', 'min:2'],
+            'middle_name' => ['required','string','max:255', 'min:2'],
+            'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number,'],
+            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
+            'deadline' => ['required', 'date_format:Y-m-d'],
+            'create_date' => ['required', 'date_format:Y-m-d'],
+            'sum' => ['required', 'integer'],
+            'procent' => ['required', 'integer', 'min:1', 'max:100'],
         ]);
         //dd($request->all());
         $user = User::create([
@@ -263,7 +265,7 @@ class AdminController extends Controller
         //         'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
         //     ];
         // });
-         $assignedManagerId = $user->userContracts()->first()->manager_id ?? 'Менеджер не назначен';
+         $assignedManagerId = $user->userContracts()->first()->manager_id;
          return response()->json([
            'user'=> [
                 'id' => $user->id,
@@ -280,11 +282,18 @@ class AdminController extends Controller
      {
        //dd($request->all());
          $request->validate([
-             'last_name' => 'required|string|max:255',
-             'first_name' => 'required|string|max:255',
-             'middle_name' => 'required|string|max:255',
-             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $user->id,
-             'phone_number' => 'required|string|max:20',
+            'first_name' => ['required','string' ,'max:255', 'min:2'],
+            'last_name' => ['required','string','max:255', 'min:2'],
+            'middle_name' => ['required','string','max:255', 'min:2'],
+             'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'min:6',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
          ]);
 
          $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
@@ -341,24 +350,24 @@ class AdminController extends Controller
 
 
     // регистрация user как менеджера
-    public function createManagersByAdmin(): Response
-    {
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
-        // dd($user, $role);
-        return Inertia::render('RegisterManager', [
-            'role' => $role,
-        ]);
-    }
+    // public function createManagersByAdmin(): Response
+    // {
+    //     $user = Auth::user(); // Получаем текущего пользователя
+    //     $role = $user->role->title; // Получаем его роль
+    //     // dd($user, $role);
+    //     return Inertia::render('RegisterManager', [
+    //         'role' => $role,
+    //     ]);
+    // }
     public function storeManagersByAdmin(Request $request): RedirectResponse
     {
         //dd($request->all());
         $request->validate([
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
-            'phone_number' => 'required|string|max:20',
+            'first_name' => ['required','string' ,'max:255', 'min:2'],
+            'last_name' => ['required','string','max:255', 'min:2'],
+            'middle_name' => ['required','string','max:255', 'min:2'],
+            'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number,'],
         ]);
 
         $user = User::create([
@@ -419,15 +428,13 @@ class AdminController extends Controller
     {
         //dd($request->all(), $user);
         $request->validate([
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $user->id,
-            'phone_number' => 'required|string|max:20',
+            'first_name' => ['required','string' ,'max:255', 'min:2'],
+            'last_name' => ['required','string','max:255', 'min:2'],
+            'middle_name' => ['required','string','max:255', 'min:2'],
+            'email' => ['required','string','email','max:255','min:6', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
         ]);
 
-      
-        
         $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
         $user->update($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
         foreach ($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']) as $field => $newValue) {
@@ -459,37 +466,42 @@ class AdminController extends Controller
 
 
     //новый договор
-      public function createAddContractByAdmin()
-      {
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
-        $clients = User::whereHas('role', function ($query) {
-            $query->where('title', 'client'); // Фильтрация по роли 'client'
-        })->with('userContracts') // Загружаем контракты для клиентов
-        ->get() // Получаем коллекцию пользователей
-        ->map(function ($client) {
-            return [
-                'id' => $client->id,
-                'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
-            ];
-        });
-        // dd($clients);
-        return Inertia::render('AddContract', [
-            'role' => $role,
-            'clients' => $clients,
-        ]);
-      }
+    //   public function createAddContractByAdmin()
+    //   {
+    //     $user = Auth::user(); // Получаем текущего пользователя
+    //     $role = $user->role->title; // Получаем его роль
+    //     $clients = User::whereHas('role', function ($query) {
+    //         $query->where('title', 'client'); // Фильтрация по роли 'client'
+    //     })->with('userContracts') // Загружаем контракты для клиентов
+    //     ->get() // Получаем коллекцию пользователей
+    //     ->map(function ($client) {
+    //         return [
+    //             'id' => $client->id,
+    //             'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+    //         ];
+    //     });
+    //     // dd($clients);
+    //     return Inertia::render('AddContract', [
+    //         'role' => $role,
+    //         'clients' => $clients,
+    //     ]);
+    //   }
 
 
       public function storeAddContractByAdmin(Request $request)
       {
         //dd($request->all());
         $request->validate([
-            'contract_number' => 'required|integer|unique:'. Contract::class,
-            'procent' => 'required|integer',
-            'deadline' => 'required|date_format:Y-m-d',
-            'create_date' => 'required|date_format:Y-m-d',
-            'sum' => 'required|integer',
+            // 'contract_number' => 'required|integer|unique:'. Contract::class,
+            // 'procent' => 'required|integer',
+            // 'deadline' => 'required|date_format:Y-m-d',
+            // 'create_date' => 'required|date_format:Y-m-d',
+            // 'sum' => 'required|integer',
+            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
+            'deadline' => ['required', 'date_format:Y-m-d'],
+            'create_date' => ['required', 'date_format:Y-m-d'],
+            'sum' => ['required', 'integer'],
+            'procent' => ['required', 'integer', 'min:0', 'max:100'],
         ]);
         //dd($request->all());
          // Находим клиента по user_id из запроса
@@ -566,11 +578,16 @@ class AdminController extends Controller
       {
        // dd($request->all());
         $request->validate([
-            'contract_number' => 'required|integer',
-            'procent' => 'required|integer',
-            'deadline' => 'required|date_format:Y-m-d',
-            'create_date' => 'required|date_format:Y-m-d',
-            'sum' => 'required|integer',
+            // 'contract_number' => 'required|integer',
+            // 'procent' => 'required|integer',
+            // 'deadline' => 'required|date_format:Y-m-d',
+            // 'create_date' => 'required|date_format:Y-m-d',
+            // 'sum' => 'required|integer',
+            'contract_number' =>['required', 'integer', Rule::unique('contracts', 'contract_number')->ignore($contract->id)],
+            'deadline' => ['required', 'date_format:Y-m-d'],
+            'create_date' => ['required', 'date_format:Y-m-d'],
+            'sum' => ['required', 'integer'],
+            'procent' => ['required', 'integer', 'min:0', 'max:100'],
         ]);
        
         $originalData = $contract->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']);

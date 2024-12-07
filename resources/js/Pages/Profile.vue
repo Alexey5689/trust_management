@@ -5,6 +5,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData } from '@/helpers';
+import InputError from '@/Components/InputError.vue';
 const props = defineProps({
     user: {
         type: Object,
@@ -130,14 +131,17 @@ const saveChanges = () => {
                     <div class="input flex flex-column">
                         <label for="last_name">Фамилия</label>
                         <input type="text" id="last_name" v-model="form.last_name" />
+                        <InputError :message="form.errors.last_name" />
                     </div>
                     <div class="input flex flex-column">
                         <label for="first_name">Имя</label>
                         <input type="text" id="first_name" v-model="form.first_name" />
+                        <InputError :message="form.errors.first_name" />
                     </div>
                     <div class="input flex flex-column">
                         <label for="middle_name">Отчество</label>
                         <input type="text" id="middle_name" v-model="form.middle_name" />
+                        <InputError :message="form.errors.middle_name" />
                     </div>
                 </form>
             </div>
@@ -146,10 +150,12 @@ const saveChanges = () => {
                     <div class="input flex flex-column">
                         <label for="password">Новый пароль</label>
                         <input type="password" id="password" v-model="form.password" />
+                        <InputError :message="form.errors.password" />
                     </div>
                     <div class="input flex flex-column">
                         <label for="confirm_password">Подтвердите пароль</label>
                         <input type="password" id="confirm_password" v-model="form.password_confirmation" />
+                        <InputError :message="form.errors.password_confirmation" />
                     </div>
                 </form>
                 <p class="warning" style="margin-top: 16px">
@@ -161,6 +167,7 @@ const saveChanges = () => {
                     <div class="input flex flex-column">
                         <label for="email">Новая почта</label>
                         <input type="email" id="email" v-model="form.email" />
+                        <InputError :message="form.errors.email" />
                     </div>
                     <div style="width: 100%">
                         <p class="warning">Description что сделать после изменения почты</p>

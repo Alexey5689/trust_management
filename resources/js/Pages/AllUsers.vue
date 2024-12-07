@@ -7,6 +7,7 @@ import Dropdown from '@/Components/Modal/Dropdown.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData } from '@/helpers';
 import { calculateDeadlineDate } from '@/helpers.js';
+import InputError from '@/Components/InputError.vue';
 
 const props = defineProps({
     clients: {
@@ -58,12 +59,6 @@ const getInfo = async (url, userId) => {
 const handleDropdownSelect = (option, userId, type) => {
     switch (option.action) {
         case 'edit':
-            // Редирект на страницу редактирования
-            // if (type === 'manager') {
-            //     router.get(route('admin.edit.manager', { manager: userId }));
-            // } else if (type === 'client') {
-            //     router.get(route(`${props.role}.edit.client`, { client: userId }));
-            // }
             openModal(type, userId, 'edit', option.url);
             break;
         case 'resetPassword':
@@ -114,7 +109,7 @@ const form = useForm({
     last_name: '',
     first_name: '',
     middle_name: '',
-    phone_number: '',
+    phone_number: '+7',
     email: '',
     contract_number: null,
     sum: null,
@@ -151,6 +146,11 @@ const handleDeadlineChange = (event) => {
         form.deadline = calculateDeadlineDate(3, form.create_date);
     }
 };
+const addCountryCode = () => {
+    if (!form.phone_number.startsWith('+7')) {
+        form.phone_number = '+7'; // Принудительно добавляем код страны
+    }
+};
 
 const createUser = () => {
     form.post(route(`admin.registration.${currentModal.value.type}`));
@@ -169,10 +169,7 @@ const updateUser = () => {
             <div class="flex align-center justify-between title">
                 <h2>Пользователи</h2>
                 <div>
-                    <!-- <ResponsiveNavLink :href="route('admin.registration.client')">Добавить клиента</ResponsiveNavLink> -->
-
                     <button @click="openModal('client')" class="add_client link-btn">Добавить клиента</button>
-                    <!-- :href="route('admin.registration.manager')" -->
                     <button @click="openModal('manager')" class="add_manager link-btn">Добавить менеджера</button>
                 </div>
             </div>
@@ -224,7 +221,6 @@ const updateUser = () => {
                     <header>
                         <h2 class="title-card">Клиенты</h2>
                     </header>
-                    <!-- {{ props.clients }} -->
                     <div class="card-content">
                         <ul class="thead-client align-center">
                             <li class="order">№</li>
@@ -274,10 +270,6 @@ const updateUser = () => {
         </template>
     </AuthenticatedLayout>
 
-    <!-- 
-    @response="userData = $event"
-    :url="urls[currentModal]"
-    -->
     <BaseModal
         v-if="isModalOpen"
         :isOpen="isModalOpen"
@@ -286,7 +278,6 @@ const updateUser = () => {
     >
         <template #default>
             <div v-if="currentModal.type === 'manager'">
-                <!-- <p>{{ currentModal.action === 'edit' ? 'Редактирование менеджера' : 'Добавление менеджера' }} с ID: {{ currentModal.userId }}</p> -->
                 <div v-if="currentModal.action === 'edit'">
                     <form class="flex flex-column r-gap">
                         <p class="c_data">Контактные данные</p>
@@ -294,25 +285,36 @@ const updateUser = () => {
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
                                 <input type="text" id="last_name" v-model.trim="form.last_name" />
-                                <p>{{ form.errors.last_name }}</p>
+                                <InputError :message="form.errors.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
                                 <input type="text" id="first_name" v-model.trim="form.first_name" />
+                                <InputError :message="form.errors.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
                                 <input type="text" id="middle_name" v-model.trim="form.middle_name" />
+                                <InputError :message="form.errors.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" v-model.trim="form.phone_number" />
+                                <input
+                                    type="tel"
+                                    maxlength="12"
+                                    placeholder="+7XXXXXXXXXX"
+                                    id="phone"
+                                    @input="addCountryCode"
+                                    v-model.trim="form.phone_number"
+                                />
+                                <InputError :message="form.errors.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
                                 <input type="email" id="email" v-model.trim="form.email" />
+                                <InputError :message="form.errors.email" />
                             </div>
                         </div>
                     </form>
@@ -324,24 +326,36 @@ const updateUser = () => {
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
                                 <input type="text" id="last_name" v-model.trim="form.last_name" />
+                                <InputError :message="form.errors.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
                                 <input type="text" id="first_name" v-model.trim="form.first_name" />
+                                <InputError :message="form.errors.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
                                 <input type="text" id="middle_name" v-model.trim="form.middle_name" />
+                                <InputError :message="form.errors.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" v-model.trim="form.phone_number" />
+                                <input
+                                    type="tel"
+                                    maxlength="12"
+                                    placeholder="+7XXXXXXXXXX"
+                                    id="phone"
+                                    @input="addCountryCode"
+                                    v-model.trim="form.phone_number"
+                                />
+                                <InputError :message="form.errors.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
                                 <input type="email" id="email" v-model.trim="form.email" />
+                                <InputError :message="form.errors.email" />
                                 <p class="warning">На эту почту придет письмо c ссылкой на создание пароля</p>
                             </div>
                         </div>
@@ -349,7 +363,6 @@ const updateUser = () => {
                 </div>
             </div>
             <div v-if="currentModal.type === 'client'">
-                <!-- <p>{{ currentModal.action === 'edit' ? 'Редактирование клиента' : 'Добавление клиента' }} с ID: {{ currentModal.userId }}</p> -->
                 <div v-if="currentModal.action === 'edit'">
                     <form class="flex flex-column r-gap">
                         <p class="c_data">Контактные данные</p>
@@ -357,24 +370,36 @@ const updateUser = () => {
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
                                 <input type="text" id="last_name" v-model.trim="form.last_name" />
+                                <InputError :message="form.errors.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
                                 <input type="text" id="first_name" v-model.trim="form.first_name" />
+                                <InputError :message="form.errors.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
                                 <input type="text" id="middle_name" v-model.trim="form.middle_name" />
+                                <InputError :message="form.errors.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" v-model.trim="form.phone_number" />
+                                <input
+                                    type="tel"
+                                    maxlength="12"
+                                    placeholder="+7XXXXXXXXXX"
+                                    id="phone"
+                                    @input="addCountryCode"
+                                    v-model.trim="form.phone_number"
+                                />
+                                <InputError :message="form.errors.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
                                 <input type="email" id="email" v-model.trim="form.email" />
+                                <InputError :message="form.errors.email" />
                             </div>
                         </div>
                         <p class="c_data" style="margin-top: 16px">Менеджер</p>
@@ -386,6 +411,7 @@ const updateUser = () => {
                                     {{ manager.full_name }}
                                 </option>
                             </select>
+                            <InputError :message="form.errors.manager_id" />
                         </div>
                     </form>
                 </div>
@@ -396,24 +422,36 @@ const updateUser = () => {
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
                                 <input type="text" id="last_name" v-model.trim="form.last_name" />
+                                <InputError :message="form.errors.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
                                 <input type="text" id="first_name" v-model.trim="form.first_name" />
+                                <InputError :message="form.errors.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
                                 <input type="text" id="middle_name" v-model.trim="form.middle_name" />
+                                <InputError :message="form.errors.middle_name" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input type="tel" id="phone" v-model.trim="form.phone_number" />
+                                <input
+                                    type="tel"
+                                    maxlength="12"
+                                    placeholder="+7XXXXXXXXXX"
+                                    id="phone"
+                                    @input="addCountryCode"
+                                    v-model.trim="form.phone_number"
+                                />
+                                <InputError :message="form.errors.phone_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
                                 <input type="email" id="email" v-model.trim="form.email" />
+                                <InputError :message="form.errors.email" />
                                 <p class="warning">На эту почту придет письмо c ссылкой на создание пароля</p>
                             </div>
                         </div>
@@ -426,12 +464,14 @@ const updateUser = () => {
                                     {{ manager.full_name }}
                                 </option>
                             </select>
+                            <InputError :message="form.errors.manager_id" />
                         </div>
                         <p class="c_data" style="margin-top: 16px">Договор</p>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="contract">Номер договора*</label>
                                 <input type="text" id="contract" v-model.trim="form.contract_number" />
+                                <InputError :message="form.errors.contract_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="deadline">Срок договора*</label>
@@ -440,22 +480,26 @@ const updateUser = () => {
                                     <option value="1 год">1 год</option>
                                     <option value="3 года">3 года</option>
                                 </select>
+                                <InputError :message="form.errors.deadline" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="bank">Ставка, %*</label>
                                 <input type="text" id="bank" v-model.trim="form.procent" />
+                                <InputError :message="form.errors.procent" />
                             </div>
                             <div class="input flex checkbox">
                                 <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
                                 <label for="checkbox">Вычислить дивиденды по истечению срока</label>
+                                <InputError :message="form.errors.agree_with_terms" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="date">Дата*</label>
                                 <input type="date" id="date" v-model="form.create_date" />
+                                <InputError :message="form.errors.create_date" />
                             </div>
                             <div v-if="!form.agree_with_terms" class="input flex flex-column">
                                 <label for="deadline">Выплаты*</label>
@@ -464,12 +508,14 @@ const updateUser = () => {
                                     <option value="Ежеквартально">Ежеквартально</option>
                                     <option value="Ежегодно">Ежегодно</option>
                                 </select>
+                                <InputError :message="form.errors.payments" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="sum">Сумма*</label>
                                 <input type="number" min="0" id="sum" v-model.trim="form.sum" />
+                                <InputError :message="form.errors.sum" />
                             </div>
                         </div>
                     </form>
