@@ -130,6 +130,9 @@ const updateContract = () => {
     form.patch(route('admin.edit.contract', { contract: currentModal.value.contractId }));
     closeModal();
 };
+const handleCheckboxChange = () => {
+    form.payments = 'По истечению срока';
+};
 // const deleteContract = (contractId) => {
 //     if (confirm('Вы точно хотите удалить договор?')) {
 //         Inertia.delete(route('delete.contract', { contract: contractId }));
@@ -156,7 +159,7 @@ const updateContract = () => {
 
 <template>
     <Head title="Contracts" />
-    <AuthenticatedLayout :userRole="role">
+    <AuthenticatedLayout :userRole="role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>
@@ -267,7 +270,12 @@ const updateContract = () => {
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex checkbox">
-                            <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
+                            <input
+                                type="checkbox"
+                                @change="handleCheckboxChange"
+                                id="checkbox"
+                                v-model="form.agree_with_terms"
+                            />
                             <label for="checkbox">Вычислить дивиденды по истечению срока</label>
                         </div>
                     </div>
@@ -277,7 +285,7 @@ const updateContract = () => {
                             <input type="date" id="date" v-model.trim="form.create_date" />
                             <InputError :message="form.errors.create_date" />
                         </div>
-                        <div class="input flex flex-column">
+                        <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
                             <select id="deadline" v-model="form.payments">
                                 <option disabled></option>
@@ -336,7 +344,12 @@ const updateContract = () => {
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex checkbox">
-                            <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
+                            <input
+                                type="checkbox"
+                                id="checkbox"
+                                @change="handleCheckboxChange"
+                                v-model="form.agree_with_terms"
+                            />
                             <label for="checkbox">Вычислить дивиденды по истечению срока</label>
                         </div>
                     </div>
@@ -346,7 +359,7 @@ const updateContract = () => {
                             <input type="date" id="date" v-model.trim="form.create_date" />
                             <InputError :message="form.errors.create_date" />
                         </div>
-                        <div class="input flex flex-column">
+                        <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
                             <select id="deadline" v-model="form.payments">
                                 <option disabled></option>

@@ -17,7 +17,6 @@ const props = defineProps({
 const form = useForm({
     email: '',
     password: '',
-    remember: false,
 });
 
 const submit = () => {
@@ -30,11 +29,6 @@ const submit = () => {
 <template>
     <GuestLayout>
         <Head title="Log in" />
-
-        <!-- <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-            {{ status }}
-        </div> -->
-
         <div class="login-container">
             <h1>Авторизация</h1>
             <form @submit.prevent="submit">

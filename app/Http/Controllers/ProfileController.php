@@ -44,9 +44,9 @@ class ProfileController extends Controller
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'last_name' => ['required', 'string', 'max:255'],
-            'first_name' => ['required', 'string', 'max:255'],
-            'middle_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required','string' ,'max:255', 'min:2'],
+            'last_name' => ['required','string','max:255', 'min:2'],
+            'middle_name' => ['required','string','max:255', 'min:2'],
         ]);
 
         // Явно указываем тип переменной $user
@@ -126,7 +126,7 @@ class ProfileController extends Controller
     public function updateEmailByAdmin(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+           'email' => ['required','string','email','max:255','min:6', 'unique:users'],
         ]);
 
         // Явно указываем тип переменной $user

@@ -29,8 +29,20 @@ class CreatingPasswordController extends Controller
         // Валидация только нового пароля и его подтверждения
          $validated = $request->validate([
             'email' => ['required','string','email'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
-            'token' => 'required'
+           // 'password' => ['required', Password::defaults(), 'confirmed'],
+            'token' => 'required',
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+            ],
+            
         ]);
 
         $status = PasswordFacade::reset(
