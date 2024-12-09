@@ -18,6 +18,7 @@ class Application extends Model
         'sum',
         'type_of_processing',
         'date_of_payments',
+        'dividends',
     ];
 
      /**

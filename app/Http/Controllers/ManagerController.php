@@ -167,7 +167,7 @@ class ManagerController extends Controller
         $client->notify(new PasswordEmail($token, $client->email));
 
         event(new Registered($client));
-        return redirect(route('manager.clients'))->with('status', 'Клиент успешно зарегистрирован!');
+        return redirect()->route('manager.clients')->with('status', 'Клиент успешно зарегистрирован!');
     }
 
     public function editClientByManager(User $client): Response
@@ -204,8 +204,11 @@ class ManagerController extends Controller
             ]);
             $message = 'Телефон успешно обновлен';
           }
+          $client->userNotifications()->create([
+            'content'=> 'Номер вашего телефона был изменен на '.$request->phone_number,
+        ]);
           
-          return redirect(route('manager.clients'))->with('status', $message);
+          return redirect()->route('manager.clients')->with('status', $message);
       }
 
       public function createAddContractByManager()
@@ -269,7 +272,10 @@ class ManagerController extends Controller
             'sum_transition' => $request->sum,
             'sourse' =>'Договор'
         ]);
-        return redirect(route('manager.contracts'))->with('status', 'Договор успешно создан!');
+        $client->userNotifications()->create([
+            'content'=> 'Был создан договор No '.$request->contract_number,
+        ]);
+        return redirect()->route('manager.contracts')->with('status', 'Договор успешно создан!');
       }
 
       public function createApplications(){

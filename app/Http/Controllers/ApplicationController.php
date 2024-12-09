@@ -19,15 +19,24 @@ class ApplicationController extends Controller
         if($role === 'admin'){
             $clients = User::whereHas('role', function($query) {
                 $query->where('title', 'client'); // Фильтрация по роли 'client'
-            })->with('userContracts')->get()->map(function ($client) {
+            })
+            ->with(['userContracts' => function ($query) {
+                $query->where('contract_status', true); // Выбираем только активные договоры
+            }])
+            ->get()
+            ->map(function ($client) {
                 return [
                     'id' => $client->id,
                     'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
                     'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
                 ];
             });
+            
         }else{
-            $clients = $user->managedUsers->load('userContracts')->map(function ($client) {
+            $clients = $user->managedUsers->load(['userContracts' => function ($query) {
+                $query->where('contract_status', true); // Выбираем только активные договоры
+            }])
+            ->map(function ($client) {
                 return [
                     'id' => $client->id,
                     'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
@@ -82,7 +91,11 @@ class ApplicationController extends Controller
             'new_value' => 'Заявка No' . $application->id,
             'created_by' => Auth::id(),
         ]);
-        return redirect(route($role . '.applications'))->with('status', 'Заявка успешно создана!');
+        $client = $application->user;
+        $client->userNotifications()->create([
+            'content'=> 'Создана заявки No' . $application->id ,
+        ]);
+        return redirect()->route($role . '.applications')->with('status', 'Заявка успешно создана!');
       }
     public function showApplication(Application $application){
         $user = Auth::user();

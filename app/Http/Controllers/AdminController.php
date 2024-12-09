@@ -250,7 +250,7 @@ class AdminController extends Controller
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect(route('admin.users'))->with('status', 'Клиент успешно зарегистрирован!');
+        return redirect()->route('admin.users')->with('status', 'Клиент успешно зарегистрирован!');
     }
 
      // изменение контактных данных user клиент
@@ -341,7 +341,7 @@ class AdminController extends Controller
         $user->userContracts()->update([
             'manager_id' => $request->manager_id,
         ]);
-         return redirect(route('admin.users'))->with('status', 'Данные пользователя успешно обновлены');
+         return redirect()->route('admin.users')->with('status', 'Данные пользователя успешно обновлены');
      }
 
 
@@ -396,7 +396,7 @@ class AdminController extends Controller
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect(route('admin.users'))->with('status', 'Менеджер успешно зарегистрирован!');
+        return redirect()->route('admin.users')->with('status', 'Менеджер успешно зарегистрирован!');
     }
 
 
@@ -457,7 +457,7 @@ class AdminController extends Controller
             'content'=> 'Ваши контактные данные были изменены',
         ]);
 
-        return redirect(route('admin.users'))->with('status', 'Данные пользователя успешно обновлены');
+        return redirect()->route('admin.users')->with('status', 'Данные пользователя успешно обновлены');
     }
 
 
@@ -542,7 +542,7 @@ class AdminController extends Controller
             'new_value' => 'Договор No ' . $contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
-        return redirect(route('admin.contracts'))->with('status', 'Договор успешно создан!');
+        return redirect()->route('admin.contracts')->with('status', 'Договор успешно создан!');
       }
 
 
@@ -613,7 +613,7 @@ class AdminController extends Controller
             'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
         ]);
         // dd($manager_id);
-        return redirect(route('admin.contracts'))->with('status', 'Договор успешно обновлен!');
+        return redirect()->route('admin.contracts')->with('status', 'Договор успешно обновлен!');
       }
 
       public function changeStatusApplication(Application $application){
@@ -670,7 +670,8 @@ class AdminController extends Controller
             'created_by' => Auth::id(),
         ]);
     }
-    $application->user_id->userNotifications()->create([
+    $user = $application->user;
+    $user->userNotifications()->create([
         'content'=> 'Статус заявки No' . $application->id . ' был изменен',
     ]);
 

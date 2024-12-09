@@ -80,6 +80,7 @@ const form = useForm({
     type_of_processing: '',
     date_of_payments: '',
     sum: null,
+    dividends: null,
 });
 
 const submit = () => {
@@ -249,7 +250,7 @@ const submit = () => {
                                             <TextInput
                                                 id="dividends"
                                                 :disabled="processing === 1"
-                                                v-model="form.sum"
+                                                v-model="form.dividends"
                                                 type="text"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             />
@@ -283,6 +284,7 @@ const submit = () => {
                                                 id="dividends"
                                                 type="text"
                                                 disabled
+                                                v-model="form.dividends"
                                                 :placeholder="dividends"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             />
