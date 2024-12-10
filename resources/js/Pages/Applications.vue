@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { formatDate } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
+import InputError from '@/Components/InputError.vue';
 
 const props = defineProps({
     role: {
@@ -21,12 +22,20 @@ const props = defineProps({
         type: String,
         required: false,
     },
+    clients: {
+        type: Array,
+        required: true,
+    },
 });
 
 const isModalOpen = ref(false);
 const currentModal = ref(null);
 const selectedOffTime = ref(null);
 const selectedPartlyOption = ref(null);
+const userContract = ref({});
+const handleGetClient = (id) => {
+    userContract.value = props.clients.find((client) => client.id === id);
+};
 
 // const handleDropdownSelect = (option, applicationId, type) => {
 //     switch (option.action) {
@@ -60,6 +69,19 @@ const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
 };
+
+const form = useForm({
+    create_date: new Date().toISOString().substr(0, 10),
+    user_id: '',
+    contract_id: '',
+    manager_id: '',
+    condition: '',
+    status: 'В обработке',
+    type_of_processing: '',
+    date_of_payments: '',
+    sum: null,
+    dividends: null,
+});
 </script>
 
 <template>
@@ -162,12 +184,25 @@ const closeModal = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="client">Клиент</label>
-                                <select id="client">
+                                <select id="client" v-model="form.user_id"  @change="handleGetClient(form.user_id)" required>
+                                    <option value="" disabled>Выберите клиента</option>
+                                    <option v-for="client in props.clients" :key="client.id" :value="client.id">
+                                        {{ client.full_name }}
+                                    </option>
                                 </select>
+                                <InputError :message="form.errors.user_id" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="contract">Договор</label>
-                                <select id="contract">
+                                <select id="contract"  v-model="form.contract_id">
+                                    <option value="" disabled>Выберите номер договора</option>
+                                    <option
+                                        v-for="contract in userContract.user_contracts"
+                                        :key="contract.id"
+                                        :value="contract.id"
+                                    >
+                                        {{ contract.contract_number }}
+                                    </option>
                                 </select>
                             </div>
                         </div>

@@ -123,12 +123,24 @@ const handleDeadlineChange = (event) => {
 };
 
 const createContract = () => {
-    form.post(route('admin.add.contract'));
-    closeModal();
+    form.post(route('admin.add.contract'), {
+        onSuccess: () => {
+            closeModal(); // Закрыть модал при успешной отправке
+        },
+        onError: () => {
+            console.error('Ошибка:', form.errors); // Лог ошибок
+        },
+    });
 };
 const updateContract = () => {
-    form.patch(route('admin.edit.contract', { contract: currentModal.value.contractId }));
-    closeModal();
+    form.patch(route('admin.edit.contract', { contract: currentModal.value.contractId }), {
+        onSuccess: () => {
+            closeModal(); // Закрыть модал при успешной отправке
+        },
+        onError: () => {
+            console.error('Ошибка:', form.errors); // Лог ошибок
+        },
+    });
 };
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
@@ -158,14 +170,16 @@ const handleCheckboxChange = () => {
 </script>
 
 <template>
-
     <Head title="Contracts" />
     <AuthenticatedLayout :userRole="role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>
-                <button class="add_contracts link-btn" @click="openModal('add')"
-                    v-if="props.role === 'admin' || props.role === 'manager'">
+                <button
+                    class="add_contracts link-btn"
+                    @click="openModal('add')"
+                    v-if="props.role === 'admin' || props.role === 'manager'"
+                >
                     Добавить договор
                 </button>
             </div>
@@ -215,10 +229,13 @@ const handleCheckboxChange = () => {
                             <p>{{ contract.sum }}</p>
                         </div>
                         <div v-if="props.role === 'admin'" class="card-item ellipsis">
-                            <Dropdown :options="[
-                                { label: 'Изменить', action: 'edit', url: 'admin.edit.contract' },
-                                { label: 'Удалить', action: 'delete' },
-                            ]" @select="handleDropdownSelect($event, contract.id, 'contract')">
+                            <Dropdown
+                                :options="[
+                                    { label: 'Изменить', action: 'edit', url: 'admin.edit.contract' },
+                                    { label: 'Удалить', action: 'delete' },
+                                ]"
+                                @select="handleDropdownSelect($event, contract.id, 'contract')"
+                            >
                                 <template #trigger>
                                     <Ellipsis />
                                 </template>
@@ -261,8 +278,12 @@ const handleCheckboxChange = () => {
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex checkbox">
-                            <input type="checkbox" @change="handleCheckboxChange" id="checkbox"
-                                v-model="form.agree_with_terms" />
+                            <input
+                                type="checkbox"
+                                @change="handleCheckboxChange"
+                                id="checkbox"
+                                v-model="form.agree_with_terms"
+                            />
                             <label for="checkbox">Вычислить дивиденды по истечению срока</label>
                         </div>
                     </div>
@@ -325,8 +346,12 @@ const handleCheckboxChange = () => {
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex checkbox">
-                            <input type="checkbox" id="checkbox" @change="handleCheckboxChange"
-                                v-model="form.agree_with_terms" />
+                            <input
+                                type="checkbox"
+                                id="checkbox"
+                                @change="handleCheckboxChange"
+                                v-model="form.agree_with_terms"
+                            />
                             <label for="checkbox">Вычислить дивиденды по истечению срока</label>
                         </div>
                     </div>

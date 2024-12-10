@@ -5,12 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Contract;
 use Illuminate\Validation\Rule;
-use App\Models\Notification;
 use App\Models\Log;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Password;
@@ -29,7 +27,7 @@ class AdminController extends Controller
         $clients = User::whereHas('role', function ($query) {
         $query->where('title', 'client'); // Фильтрация по роли 'client'
         })
-        ->where('active', true)
+        // ->where('active', true)
         ->with(['userContracts']) // Предзагрузка контрактов
         ->get()
         ->map(function ($client) {
@@ -44,6 +42,7 @@ class AdminController extends Controller
                 'full_name' => $client->last_name . ' ' . $client->first_name . ' ' . $client->middle_name,
                 'email' => $client->email,
                 'phone_number' => $client->phone_number,
+                'active' => $client->active,
                 'manager_full_name' => $manager
                         ? $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name
                         : 'Менеджер не назначен',
@@ -52,7 +51,7 @@ class AdminController extends Controller
         $managers = User::whereHas('role', function($query) {
             $query->where('title', 'manager');
         })
-        ->where('active', true)
+        // ->where('active', true)
         ->with('managerContracts')
         ->get()
         ->map(function ($manager) {
@@ -61,6 +60,7 @@ class AdminController extends Controller
                 'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
                 'email' => $manager->email,
                 'phone_number' => $manager->phone_number,
+                'active' => $manager->active
             ];
         });
 
@@ -132,6 +132,20 @@ class AdminController extends Controller
     public function showApplications(){
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
+        $clients = User::whereHas('role', function($query) {
+            $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
+        })
+        ->with(['userContracts' => function ($query) {
+            $query->where('contract_status', true); // Выбираем только активные договоры
+        }])
+        ->get()
+        ->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+            ];
+        });
         $applications = Application::with(['user', 'contract'])->get()->map(function ($application) {
             return [
                 'id' => $application->id,
@@ -147,7 +161,8 @@ class AdminController extends Controller
         });
         return Inertia::render('Applications', [
             'role' => $role, // Передаем роль пользователя в Vue-компонент
-            'applications'=> $applications
+            'applications'=> $applications,
+            'clients' => $clients
         ]);
 
     }
@@ -185,10 +200,7 @@ class AdminController extends Controller
             'last_name' => ['required','string','max:255', 'min:2'],
             'middle_name' => ['required','string','max:255', 'min:2'],
             'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
-            'phone_number' => ['required', 'string', 'max:12', 'min:6', 
-            // 'unique:users,phone_number,'
-            Rule::unique('users', 'phone_number')->ignore($request->id)
-            ],
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number'],
             'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
@@ -370,7 +382,7 @@ class AdminController extends Controller
             'last_name' => ['required','string','max:255', 'min:2'],
             'middle_name' => ['required','string','max:255', 'min:2'],
             'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
-            'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number,'],
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number'],
         ]);
 
         $user = User::create([
@@ -581,11 +593,6 @@ class AdminController extends Controller
       {
        // dd($request->all());
         $request->validate([
-            // 'contract_number' => 'required|integer',
-            // 'procent' => 'required|integer',
-            // 'deadline' => 'required|date_format:Y-m-d',
-            // 'create_date' => 'required|date_format:Y-m-d',
-            // 'sum' => 'required|integer',
             'contract_number' =>['required', 'integer', Rule::unique('contracts', 'contract_number')->ignore($contract->id)],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],

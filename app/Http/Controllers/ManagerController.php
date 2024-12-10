@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use App\Notifications\PasswordEmail;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Validation\Rule;
 
 class ManagerController extends Controller
 {
@@ -24,7 +25,7 @@ class ManagerController extends Controller
           /** @var User $user */
         $role = $user->role->title; // Получаем его роль
         $clients = $user->managedUsers()
-        ->where('active', true)
+        //->where('active', true)
         ->with('userContracts')
         ->get()
         ->map(function ($client) {
@@ -88,15 +89,16 @@ class ManagerController extends Controller
         //dd($request->all());
 
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'middle_name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email',
-            'phone_number' => 'required|string|max:20|unique:' . User::class . ',phone_number',
-            'contract_number' => 'required|integer|unique:' . Contract::class . ',contract_number',
-            'deadline' => 'required|date_format:Y-m-d',
-            'create_date' => 'required|date_format:Y-m-d',
-            'sum' => 'required|integer',
+           'first_name' => ['required','string' ,'max:255', 'min:2'],
+            'last_name' => ['required','string','max:255', 'min:2'],
+            'middle_name' => ['required','string','max:255', 'min:2'],
+            'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number'],
+            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
+            'deadline' => ['required', 'date_format:Y-m-d'],
+            'create_date' => ['required', 'date_format:Y-m-d'],
+            'sum' => ['required', 'integer'],
+            'procent' => ['required', 'integer', 'min:1', 'max:100'],
         ]);
         
 
@@ -186,7 +188,7 @@ class ManagerController extends Controller
       {
         // dd($request->all());
           $request->validate([
-              'phone_number' => 'required|string|max:20',
+              'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($client->id)],
           ]);
           $message = 'Изменений не было';
           $oldPhone = $this->normalizeValue($client->phone_number);
@@ -232,11 +234,11 @@ class ManagerController extends Controller
       {
         //dd($request->all());
         $request->validate([
-            'contract_number' => 'required|integer|unique:'. Contract::class,
-            'procent' => 'required|integer',
-            'deadline' => 'required|date_format:Y-m-d',
-            'create_date' => 'required|date_format:Y-m-d',
-            'sum' => 'required|integer',
+            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
+            'deadline' => ['required', 'date_format:Y-m-d'],
+            'create_date' => ['required', 'date_format:Y-m-d'],
+            'sum' => ['required', 'integer'],
+            'procent' => ['required', 'integer', 'min:0', 'max:100'],
         ]);
 
         $user = Auth::user();

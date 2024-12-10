@@ -7,7 +7,6 @@ use Inertia\Inertia;
 use App\Models\Application;
 use App\Models\User;
 use App\Models\Log;
-use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
@@ -18,7 +17,7 @@ class ApplicationController extends Controller
         $role = $user->role->title;
         if($role === 'admin'){
             $clients = User::whereHas('role', function($query) {
-                $query->where('title', 'client'); // Фильтрация по роли 'client'
+                $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
             })
             ->with(['userContracts' => function ($query) {
                 $query->where('contract_status', true); // Выбираем только активные договоры
@@ -97,9 +96,41 @@ class ApplicationController extends Controller
         ]);
         return redirect()->route($role . '.applications')->with('status', 'Заявка успешно создана!');
       }
-    public function showApplication(Application $application){
+    
+    
+      public function showApplication(Application $application){
         $user = Auth::user();
         $role = $user->role->title;
+
+        if($role === 'admin'){
+            $clients = User::whereHas('role', function($query) {
+                $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
+            })
+            ->with(['userContracts' => function ($query) {
+                $query->where('contract_status', true); // Выбираем только активные договоры
+            }])
+            ->get()
+            ->map(function ($client) {
+                return [
+                    'id' => $client->id,
+                    'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+                    'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                ];
+            });
+            
+        }else{
+            $clients = $user->managedUsers->load(['userContracts' => function ($query) {
+                $query->where('contract_status', true); // Выбираем только активные договоры
+            }])
+            ->map(function ($client) {
+                return [
+                    'id' => $client->id,
+                    'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+                    'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                ];
+            });
+        }
+
         return Inertia::render('ShowApplication', [
             'role' => $role,
             'application' => [
@@ -123,6 +154,7 @@ class ApplicationController extends Controller
                     'procent' => $application->contract->procent,
                 ]
             ],
+            'clients' => $clients
         ]);
     }
     
