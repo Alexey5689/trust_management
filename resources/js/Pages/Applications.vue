@@ -25,6 +25,8 @@ const props = defineProps({
 
 const isModalOpen = ref(false);
 const currentModal = ref(null);
+const selectedOffTime = ref(null);
+const selectedPartlyOption = ref(null);
 
 // const handleDropdownSelect = (option, applicationId, type) => {
 //     switch (option.action) {
@@ -155,7 +157,129 @@ const closeModal = () => {
     <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal?.action]" @close="closeModal">
         <template #default>
             <div v-if="currentModal.type === 'add'">
-                Новая заявка
+                <form>
+                    <div class="flex flex-column r-gap">
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="client">Клиент</label>
+                                <select id="client">
+                                </select>
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="contract">Договор</label>
+                                <select id="contract">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex" style="column-gap: 8px;">
+                            <div class="information_contract">
+                                <label>Дата заключения</label>
+                                <p>25 Марта 2024</p>
+                            </div>
+                            <div class="information_contract">
+                                <label>Срок договора</label>
+                                <p>1 год</p>
+                            </div>
+                            <div class="information_contract">
+                                <label>Ставка</label>
+                                <p>20%</p>
+                            </div>
+                        </div>
+                        <div class="flex c-gap">
+                            <div class="contract_sum">
+                                <label>Основная сумма</label>
+                                <p>10 000 000 ₽</p>
+                            </div>
+                            <div class="contract_sum">
+                                <label>Дивиденды</label>
+                                <p>200 000 ₽</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Условия списания</p>
+                    <div class="radio-buttons flex c-gap">
+                        <div class="input flex">
+                            <input type="radio" id="off_time" name="off_time" value="1" v-model="selectedOffTime">
+                            <label for="off_time" class="button">Раньше срока</label>
+                        </div>
+                        <div class="input flex">
+                            <input type="radio" id="on_time" name="on_time" value="2" v-model="selectedOffTime">
+                            <label for="on_time" class="button">В срок</label>
+                        </div>
+                    </div>
+                    <div class="for_off_time" v-if="selectedOffTime === '1'">
+                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                        <div class="flex c-gap">
+                            <div class="input flex flex-column">
+                                <label for="write_downs">Сумма списания</label>
+                                <input type="text" id="write_downs" disabled />
+                            </div>
+                            <div class="input flex flex-column">
+                                <label for="payment_date">Дата планируемой выплаты</label>
+                                <input type="date" id="payment_date" />
+                            </div>
+                        </div>
+                        <p class="warning" style="margin-top: 16px;">Комиссия за вывод раньше срока, 30%</p>
+                        <p class="warning" style="margin-top: 4px;">3 000 000 ₽</p>
+                    </div>
+                    <div class="for_on_time" v-if="selectedOffTime === '2'">
+                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Варианты списания</p>
+                        <div class="radio-buttons flex flex-column r-gap">
+                            <div class="flex c-gap">
+                                <input type="radio" id="partly" name="partly" value="3" v-model="selectedPartlyOption">
+                                <label for="partly" class="button">Забрать дивиденды частично</label>
+                                <input type="radio" id="wholly" name="wholly" value="4" v-model="selectedPartlyOption">
+                                <label for="wholly" class="button">Забрать дивиденды целиком</label>
+                            </div>
+                            <input type="radio" id="take_everything" name="take_everything" value="5"
+                                v-model="selectedPartlyOption">
+                            <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
+                        </div>
+                        <div class="for_partly" v-if="selectedPartlyOption === '3'">
+                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                            <div class="flex c-gap">
+                                <div class="input flex flex-column">
+                                    <label for="dividends_partly">Дивиденты</label>
+                                    <input type="text" id="dividends_partly" />
+                                </div>
+                                <div class="input flex flex-column">
+                                    <label for="dividends_partly_date">Дата планируемой выплаты</label>
+                                    <input type="date" id="dividends_partly_date" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="for_wholly" v-if="selectedPartlyOption === '4'">
+                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                            <div class="flex c-gap">
+                                <div class="input flex flex-column">
+                                    <label for="dividends_wholly">Дивиденты</label>
+                                    <input type="text" id="dividends_wholly" disabled />
+                                </div>
+                                <div class="input flex flex-column">
+                                    <label for="dividends_wholly_date">Дата планируемой выплаты</label>
+                                    <input type="date" id="dividends_wholly_date" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="for_take_everything" v-if="selectedPartlyOption === '5'">
+                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                            <div class="flex c-gap">
+                                <div class="input flex flex-column">
+                                    <label for="sum_take_everything">Основная сумма</label>
+                                    <input type="text" id="sum_take_everything" disabled />
+                                </div>
+                                <div class="input flex flex-column">
+                                    <label for="dividends_take_everything">Дивиденты</label>
+                                    <input type="text" id="dividends_take_everything" disabled />
+                                </div>
+                            </div>
+                            <div class="input flex flex-column" style="margin-top: 16px;">
+                                <label for="dividends_take_everything_date">Дата планируемой выплаты</label>
+                                <input type="date" id="dividends_take_everything_date" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div v-else-if="currentModal.type === 'information'">
                 information
@@ -177,6 +301,7 @@ const closeModal = () => {
 <style scoped>
 .application {
     padding: 20px 32px 32px 32px;
+    width: 1606px;
 }
 
 .main {
@@ -193,6 +318,7 @@ const closeModal = () => {
 }
 
 .card {
+    padding-bottom: 30px;
     background: #fff;
     border-radius: 32px;
     -webkit-box-shadow: 0px 0px 4px 0px #5c5c5c0a;
@@ -201,6 +327,17 @@ const closeModal = () => {
     box-shadow: 0px 0px 8px 0px #5c5c5c14;
     -webkit-box-shadow: 0px 4px 12px 0px #5c5c5c14;
     box-shadow: 0px 4px 12px 0px #5c5c5c14;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+}
+
+.card::-webkit-scrollbar {
+    width: 0px;
+}
+
+.card::-webkit-scrollbar-thumb {
+    background: transparent;
 }
 
 .title-card {
@@ -210,14 +347,14 @@ const closeModal = () => {
     line-height: 29px;
     border-bottom: 1px solid #F3F5F6;
     padding: 24px 32px 20px 32px;
+    width: 1606px;
 }
 
 .thead-application {
     height: 55px;
     display: grid;
     column-gap: 5px;
-    /* grid-template-columns: 170px 200px 150px 130px 140px 230px 170px 130px 130px 50px; */
-    grid-template-columns: 1.17fr 1.38fr 1.03fr 0.9fr 0.97fr 1.59fr 1.17fr 0.9fr 0.9fr 0.34fr;
+    grid-template-columns: 170px 200px 150px 130px 140px 230px 170px 130px 130px 50px;
     border-bottom: 1px solid #F3F5F6;
 }
 
@@ -225,8 +362,7 @@ const closeModal = () => {
     padding: 16px 0;
     display: grid;
     column-gap: 5px;
-    /* grid-template-columns: 170px 200px 150px 130px 140px 230px 170px 130px 130px 50px; */
-    grid-template-columns: 1.17fr 1.38fr 1.03fr 0.9fr 0.97fr 1.59fr 1.17fr 0.9fr 0.9fr 0.34fr;
+    grid-template-columns: 170px 200px 150px 130px 140px 230px 170px 130px 130px 50px;
     border-bottom: 1px solid #F3F5F6;
 }
 
@@ -311,5 +447,78 @@ const closeModal = () => {
 
 .btn-cancel:hover {
     background: #dfe4e7;
+}
+
+:deep(.modal-content) {
+    width: 500px;
+}
+
+.input {
+    width: 100%;
+    row-gap: 8px;
+}
+
+.input label,
+.warning,
+.information_contract label,
+.information_contract p {
+    color: #969ba0;
+}
+
+.input input,
+.input select {
+    border: 1px solid #e8eaeb;
+    height: 45px;
+    border-radius: 12px;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.c_data {
+    font-weight: 500;
+}
+
+.information_contract {
+    background: #F3F5F6;
+    padding: 16px 26px;
+    border-radius: 24px;
+}
+
+.contract_sum {
+    width: 100%;
+    background: #F3F5F6;
+    border-radius: 24px;
+    padding: 16px 20px;
+}
+
+.radio-buttons input[type="radio"] {
+    display: none;
+}
+
+.radio-buttons .button {
+    width: 100%;
+    display: inline-block;
+    padding: 16px 20px;
+    /* margin: 5px; */
+    border-radius: 24px;
+    background: #F3F5F6;
+    color: #969BA0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.radio-buttons .button:hover {
+    background-color: #4E9F7D1A;
+    color: #4E9F7D;
+}
+
+.radio-buttons input[type="radio"]:checked+.button {
+    background: #4E9F7D1A;
+    color: #4E9F7D;
+}
+
+#write_downs {
+    background: #F3F5F6;
+    color: #969BA0;
 }
 </style>

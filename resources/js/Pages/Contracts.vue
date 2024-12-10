@@ -158,16 +158,14 @@ const handleCheckboxChange = () => {
 </script>
 
 <template>
+
     <Head title="Contracts" />
     <AuthenticatedLayout :userRole="role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>
-                <button
-                    class="add_contracts link-btn"
-                    @click="openModal('add')"
-                    v-if="props.role === 'admin' || props.role === 'manager'"
-                >
+                <button class="add_contracts link-btn" @click="openModal('add')"
+                    v-if="props.role === 'admin' || props.role === 'manager'">
                     Добавить договор
                 </button>
             </div>
@@ -217,13 +215,10 @@ const handleCheckboxChange = () => {
                             <p>{{ contract.sum }}</p>
                         </div>
                         <div v-if="props.role === 'admin'" class="card-item ellipsis">
-                            <Dropdown
-                                :options="[
-                                    { label: 'Изменить', action: 'edit', url: 'admin.edit.contract' },
-                                    { label: 'Удалить', action: 'delete' },
-                                ]"
-                                @select="handleDropdownSelect($event, contract.id, 'contract')"
-                            >
+                            <Dropdown :options="[
+                                { label: 'Изменить', action: 'edit', url: 'admin.edit.contract' },
+                                { label: 'Удалить', action: 'delete' },
+                            ]" @select="handleDropdownSelect($event, contract.id, 'contract')">
                                 <template #trigger>
                                     <Ellipsis />
                                 </template>
@@ -254,13 +249,9 @@ const handleCheckboxChange = () => {
                             <InputError :message="form.errors.contract_number" />
                         </div>
                         <div class="input flex flex-column">
-                            <label for="deadline">Срок договора*</label>
-                            <select id="deadline" v-model="selectedDuration" @change="handleDeadlineChange">
-                                <option value="" disabled></option>
-                                <option value="1 год">1 год</option>
-                                <option value="3 года">3 года</option>
-                            </select>
-                            <InputError :message="form.errors.deadline" />
+                            <label for="date">Дата*</label>
+                            <input type="date" id="date" v-model.trim="form.create_date" />
+                            <InputError :message="form.errors.create_date" />
                         </div>
                     </div>
                     <div class="flex c-gap">
@@ -270,20 +261,20 @@ const handleCheckboxChange = () => {
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex checkbox">
-                            <input
-                                type="checkbox"
-                                @change="handleCheckboxChange"
-                                id="checkbox"
-                                v-model="form.agree_with_terms"
-                            />
+                            <input type="checkbox" @change="handleCheckboxChange" id="checkbox"
+                                v-model="form.agree_with_terms" />
                             <label for="checkbox">Вычислить дивиденды по истечению срока</label>
                         </div>
                     </div>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
-                            <label for="date">Дата*</label>
-                            <input type="date" id="date" v-model.trim="form.create_date" />
-                            <InputError :message="form.errors.create_date" />
+                            <label for="deadline">Срок договора*</label>
+                            <select id="deadline" v-model="selectedDuration" @change="handleDeadlineChange">
+                                <option value="" disabled></option>
+                                <option value="1 год">1 год</option>
+                                <option value="3 года">3 года</option>
+                            </select>
+                            <InputError :message="form.errors.deadline" />
                         </div>
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
@@ -322,6 +313,25 @@ const handleCheckboxChange = () => {
                             <InputError :message="form.errors.contract_number" />
                         </div>
                         <div class="input flex flex-column">
+                            <label for="date">Дата*</label>
+                            <input type="date" id="date" v-model.trim="form.create_date" />
+                            <InputError :message="form.errors.create_date" />
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
+                            <label for="bank">Ставка, %*</label>
+                            <input type="text" id="bank" v-model.trim="form.procent" />
+                            <InputError :message="form.errors.procent" />
+                        </div>
+                        <div class="input flex checkbox">
+                            <input type="checkbox" id="checkbox" @change="handleCheckboxChange"
+                                v-model="form.agree_with_terms" />
+                            <label for="checkbox">Вычислить дивиденды по истечению срока</label>
+                        </div>
+                    </div>
+                    <div class="flex c-gap">
+                        <div class="input flex flex-column">
                             <label for="deadline">Срок договора*</label>
                             <select id="deadline" v-model="selectedDuration" @change="handleDeadlineChange">
                                 <option value="" disabled>
@@ -335,29 +345,6 @@ const handleCheckboxChange = () => {
                                 <option value="3 года">3 года</option>
                             </select>
                             <InputError :message="form.errors.deadline" />
-                        </div>
-                    </div>
-                    <div class="flex c-gap">
-                        <div class="input flex flex-column">
-                            <label for="bank">Ставка, %*</label>
-                            <input type="text" id="bank" v-model.trim="form.procent" />
-                            <InputError :message="form.errors.procent" />
-                        </div>
-                        <div class="input flex checkbox">
-                            <input
-                                type="checkbox"
-                                id="checkbox"
-                                @change="handleCheckboxChange"
-                                v-model="form.agree_with_terms"
-                            />
-                            <label for="checkbox">Вычислить дивиденды по истечению срока</label>
-                        </div>
-                    </div>
-                    <div class="flex c-gap">
-                        <div class="input flex flex-column">
-                            <label for="date">Дата*</label>
-                            <input type="date" id="date" v-model.trim="form.create_date" />
-                            <InputError :message="form.errors.create_date" />
                         </div>
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
@@ -535,9 +522,5 @@ const handleCheckboxChange = () => {
 
 .checkbox label {
     color: #242424;
-}
-
-.c_data {
-    font-weight: 500;
 }
 </style>

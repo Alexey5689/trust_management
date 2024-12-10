@@ -163,6 +163,7 @@ const updateUser = () => {
 </script>
 
 <template>
+
     <Head title="All Users" />
     <AuthenticatedLayout :userRole="role" :notifications="props.status">
         <template #header>
@@ -201,14 +202,11 @@ const updateUser = () => {
                                 <p class="text">{{ manager.email }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <Dropdown
-                                    :options="[
-                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
-                                        { label: 'Удалить', action: 'delete' },
-                                    ]"
-                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
-                                >
+                                <Dropdown :options="[
+                                    { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
+                                    { label: 'Сбросить пароль', action: 'resetPassword' },
+                                    { label: 'Удалить', action: 'delete' },
+                                ]" @select="handleDropdownSelect($event, manager.id, 'manager')">
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
@@ -229,11 +227,8 @@ const updateUser = () => {
                             <li>Email</li>
                             <li>Менеджер</li>
                         </ul>
-                        <div
-                            class="items-client align-center"
-                            v-for="(client, index) in props.clients"
-                            :key="client.id"
-                        >
+                        <div class="items-client align-center" v-for="(client, index) in props.clients"
+                            :key="client.id">
                             <div class="card-item order">
                                 <p class="text">{{ index + 1 }}</p>
                             </div>
@@ -250,14 +245,11 @@ const updateUser = () => {
                                 <p class="text">{{ client.manager_full_name }}</p>
                             </div>
                             <div class="card-item ellipsis">
-                                <Dropdown
-                                    :options="[
-                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.client' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
-                                        { label: 'Удалить клиента', action: 'delete' },
-                                    ]"
-                                    @select="handleDropdownSelect($event, client.id, 'client')"
-                                >
+                                <Dropdown :options="[
+                                    { label: 'Изменить', action: 'edit', url: 'admin.edit.client' },
+                                    { label: 'Сбросить пароль', action: 'resetPassword' },
+                                    { label: 'Удалить клиента', action: 'delete' },
+                                ]" @select="handleDropdownSelect($event, client.id, 'client')">
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
@@ -270,12 +262,8 @@ const updateUser = () => {
         </template>
     </AuthenticatedLayout>
 
-    <BaseModal
-        v-if="isModalOpen"
-        :isOpen="isModalOpen"
-        :title="modalTitles[currentModal.type][currentModal.action]"
-        @close="closeModal"
-    >
+    <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal.type][currentModal.action]"
+        @close="closeModal">
         <template #default>
             <div v-if="currentModal.type === 'manager'">
                 <div v-if="currentModal.action === 'edit'">
@@ -301,14 +289,8 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input
-                                    type="tel"
-                                    maxlength="12"
-                                    placeholder="+7XXXXXXXXXX"
-                                    id="phone"
-                                    @input="addCountryCode"
-                                    v-model.trim="form.phone_number"
-                                />
+                                <input type="tel" maxlength="12" placeholder="+7XXXXXXXXXX" id="phone"
+                                    @input="addCountryCode" v-model.trim="form.phone_number" />
                                 <InputError :message="form.errors.phone_number" />
                             </div>
                             <div class="input flex flex-column">
@@ -342,14 +324,8 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input
-                                    type="tel"
-                                    maxlength="12"
-                                    placeholder="+7XXXXXXXXXX"
-                                    id="phone"
-                                    @input="addCountryCode"
-                                    v-model.trim="form.phone_number"
-                                />
+                                <input type="tel" maxlength="12" placeholder="+7XXXXXXXXXX" id="phone"
+                                    @input="addCountryCode" v-model.trim="form.phone_number" />
                                 <InputError :message="form.errors.phone_number" />
                             </div>
                             <div class="input flex flex-column">
@@ -386,14 +362,8 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input
-                                    type="tel"
-                                    maxlength="12"
-                                    placeholder="+7XXXXXXXXXX"
-                                    id="phone"
-                                    @input="addCountryCode"
-                                    v-model.trim="form.phone_number"
-                                />
+                                <input type="tel" maxlength="12" placeholder="+7XXXXXXXXXX" id="phone"
+                                    @input="addCountryCode" v-model.trim="form.phone_number" />
                                 <InputError :message="form.errors.phone_number" />
                             </div>
                             <div class="input flex flex-column">
@@ -438,14 +408,8 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="phone">Номер телефона*</label>
-                                <input
-                                    type="tel"
-                                    maxlength="12"
-                                    placeholder="+7XXXXXXXXXX"
-                                    id="phone"
-                                    @input="addCountryCode"
-                                    v-model.trim="form.phone_number"
-                                />
+                                <input type="tel" maxlength="12" placeholder="+7XXXXXXXXXX" id="phone"
+                                    @input="addCountryCode" v-model.trim="form.phone_number" />
                                 <InputError :message="form.errors.phone_number" />
                             </div>
                             <div class="input flex flex-column">
@@ -474,13 +438,9 @@ const updateUser = () => {
                                 <InputError :message="form.errors.contract_number" />
                             </div>
                             <div class="input flex flex-column">
-                                <label for="deadline">Срок договора*</label>
-                                <select id="deadline " v-model="selectedDuration" @change="handleDeadlineChange">
-                                    <option disabled></option>
-                                    <option value="1 год">1 год</option>
-                                    <option value="3 года">3 года</option>
-                                </select>
-                                <InputError :message="form.errors.deadline" />
+                                <label for="date">Дата*</label>
+                                <input type="date" id="date" v-model="form.create_date" />
+                                <InputError :message="form.errors.create_date" />
                             </div>
                         </div>
                         <div class="flex c-gap">
@@ -497,9 +457,13 @@ const updateUser = () => {
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
-                                <label for="date">Дата*</label>
-                                <input type="date" id="date" v-model="form.create_date" />
-                                <InputError :message="form.errors.create_date" />
+                                <label for="deadline">Срок договора*</label>
+                                <select id="deadline " v-model="selectedDuration" @change="handleDeadlineChange">
+                                    <option disabled></option>
+                                    <option value="1 год">1 год</option>
+                                    <option value="3 года">3 года</option>
+                                </select>
+                                <InputError :message="form.errors.deadline" />
                             </div>
                             <div v-if="!form.agree_with_terms" class="input flex flex-column">
                                 <label for="deadline">Выплаты*</label>

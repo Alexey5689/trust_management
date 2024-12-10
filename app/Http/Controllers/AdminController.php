@@ -185,7 +185,10 @@ class AdminController extends Controller
             'last_name' => ['required','string','max:255', 'min:2'],
             'middle_name' => ['required','string','max:255', 'min:2'],
             'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
-            'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number,'],
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', 
+            // 'unique:users,phone_number,'
+            Rule::unique('users', 'phone_number')->ignore($request->id)
+            ],
             'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
