@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { formatDate } from '@/helpers.js';
+import { formatDate, getYearDifference } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
@@ -33,10 +33,59 @@ const currentModal = ref(null);
 const selectedOffTime = ref(null);
 const selectedPartlyOption = ref(null);
 const userContract = ref({});
+const procent = ref('');
+const sum = ref(null);
+const dividends = ref(null);
+const create_date = ref('');
+const term = ref('');
+const condition = ref('');
+const processing = ref('');
+
+const offTime = () => {
+    form.sum = null;
+    form.condition = 'Раньше срока';
+    form.type_of_processing = 'Основная сумма';
+    form.sum = Number((sum.value - sum.value * 0.3).toFixed(2));
+}
+const onTime = () => {
+    form.sum = null;
+    form.condition = 'В срок';
+}
+const takeEverythin = () => {
+    form.sum = null;
+    form.dividends = null;
+    form.type_of_processing = 'Забрать дивиденды и сумму';
+    form.sum = Number(sum.value);
+    form.dividends = Number(dividends.value);
+}
+const takeDividends = () => {
+    form.dividends = null;
+    form.sum = null;
+    form.type_of_processing = 'Забрать дивиденды целиком';
+    form.dividends = Number(dividends.value);
+}
+
+const takePartlyDividends = () => {
+    form.dividends = null;
+    form.sum = null;
+    form.type_of_processing = 'Забрать дивиденды частично';
+}
 const handleGetClient = (id) => {
     userContract.value = props.clients.find((client) => client.id === id);
 };
+const handleGetContract = (contract_id) => {
+    sum.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).sum;
+    let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date;
+    let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline;
+    procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent;
+    form.manager_id = userContract.value.user_contracts.find((contract) => contract.id === contract_id).manager_id;
 
+    const termYears = getYearDifference(tmpCreate, tmpDeadline);
+
+    dividends.value = (sum.value * (procent.value / 100) * termYears).toFixed(2);
+    create_date.value = formatDate(tmpCreate);
+    term.value = termYears === 1 ? termYears + ' год' : termYears + ' года';
+};
 // const handleDropdownSelect = (option, applicationId, type) => {
 //     switch (option.action) {
 //         case 'information':
@@ -68,6 +117,29 @@ const openModal = (type, applicationId, action = 'add') => {
 const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
+    dividends.value = null;
+    sum.value = null;
+   
+    form.user_id = ''; 
+    term.value = ''; 
+    create_date.value = '';
+    procent.value = '';
+   
+    selectedOffTime.value = null;
+    selectedPartlyOption.value = null;
+    form.reset(
+        'user_id',
+        'contract_id',
+        'manager_id',
+        'condition',
+        'status',
+        'type_of_processing',
+        'date_of_payments',
+        'sum',
+        'dividends',
+    );
+
+
 };
 
 const form = useForm({
@@ -82,6 +154,17 @@ const form = useForm({
     sum: null,
     dividends: null,
 });
+const createAplication = () => {
+    form.post(route('add.application'),{
+        onSuccess: () => {
+            closeModal(); // Закрыть модал при успешной отправке
+        },
+        onError: () => {
+            console.error('Ошибка:', form.errors); // Лог ошибок
+        },
+    });
+    
+}
 </script>
 
 <template>
@@ -107,7 +190,6 @@ const form = useForm({
                     <header>
                         <h2 class="title-card">Активные заявки</h2>
                     </header>
-
                     <div class="application">
                         <ul class="thead-application align-center">
                             <li class="order">Дата заявки</li>
@@ -145,10 +227,10 @@ const form = useForm({
                                 <p>{{ formatDate(application.date_of_payments) }}</p>
                             </div>
                             <div>
-                                <p>300 000</p>
+                                <p>{{ application.sum }}</p>
                             </div>
                             <div>
-                                <p>50 000</p>
+                                <p>{{ application.dividends }}</p>
                             </div>
                             <div>
                                 <Dropdown :options="[
@@ -194,7 +276,9 @@ const form = useForm({
                             </div>
                             <div class="input flex flex-column">
                                 <label for="contract">Договор</label>
-                                <select id="contract"  v-model="form.contract_id">
+                                <select id="contract" 
+                                        v-model="form.contract_id" 
+                                        @change="handleGetContract(form.contract_id)">
                                     <option value="" disabled>Выберите номер договора</option>
                                     <option
                                         v-for="contract in userContract.user_contracts"
@@ -209,36 +293,36 @@ const form = useForm({
                         <div class="flex" style="column-gap: 8px;">
                             <div class="information_contract">
                                 <label>Дата заключения</label>
-                                <p>25 Марта 2024</p>
+                                <p> {{ create_date }}</p>
                             </div>
                             <div class="information_contract">
                                 <label>Срок договора</label>
-                                <p>1 год</p>
+                                <p> {{ term }}</p>
                             </div>
                             <div class="information_contract">
                                 <label>Ставка</label>
-                                <p>20%</p>
+                                <p>{{ procent }}</p>
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="contract_sum">
                                 <label>Основная сумма</label>
-                                <p>10 000 000 ₽</p>
+                                <p>{{ sum }}</p>
                             </div>
                             <div class="contract_sum">
                                 <label>Дивиденды</label>
-                                <p>200 000 ₽</p>
+                                <p>{{ dividends }}</p>
                             </div>
                         </div>
                     </div>
                     <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Условия списания</p>
                     <div class="radio-buttons flex c-gap">
                         <div class="input flex">
-                            <input type="radio" id="off_time" name="off_time" value="1" v-model="selectedOffTime">
+                            <input type="radio" id="off_time" name="off_time" @click="offTime"  value="1" v-model="selectedOffTime">
                             <label for="off_time" class="button">Раньше срока</label>
                         </div>
                         <div class="input flex">
-                            <input type="radio" id="on_time" name="on_time" value="2" v-model="selectedOffTime">
+                            <input type="radio" id="on_time" name="on_time" @click="onTime" value="2" v-model="selectedOffTime">
                             <label for="on_time" class="button">В срок</label>
                         </div>
                     </div>
@@ -247,27 +331,27 @@ const form = useForm({
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="write_downs">Сумма списания</label>
-                                <input type="text" id="write_downs" disabled />
+                                <input type="text" id="write_downs" v-model.trim="sum" disabled />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="payment_date">Дата планируемой выплаты</label>
-                                <input type="date" id="payment_date" />
+                                <input type="date" id="payment_date" v-model="form.date_of_payments" />
                             </div>
                         </div>
                         <p class="warning" style="margin-top: 16px;">Комиссия за вывод раньше срока, 30%</p>
-                        <p class="warning" style="margin-top: 4px;">3 000 000 ₽</p>
+                        <p class="warning" style="margin-top: 4px;">{{ (sum * 0.3).toFixed(2) }}</p>
                     </div>
                     <div class="for_on_time" v-if="selectedOffTime === '2'">
                         <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Варианты списания</p>
                         <div class="radio-buttons flex flex-column r-gap">
                             <div class="flex c-gap">
-                                <input type="radio" id="partly" name="partly" value="3" v-model="selectedPartlyOption">
+                                <input type="radio" id="partly" name="partly" @click="takePartlyDividends" value="3" v-model="selectedPartlyOption">
                                 <label for="partly" class="button">Забрать дивиденды частично</label>
-                                <input type="radio" id="wholly" name="wholly" value="4" v-model="selectedPartlyOption">
+                                <input type="radio" id="wholly" name="wholly" @click="takeDividends" value="4" v-model="selectedPartlyOption">
                                 <label for="wholly" class="button">Забрать дивиденды целиком</label>
                             </div>
                             <input type="radio" id="take_everything" name="take_everything" value="5"
-                                v-model="selectedPartlyOption">
+                                v-model="selectedPartlyOption" @click="takeEverythin">
                             <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                         </div>
                         <div class="for_partly" v-if="selectedPartlyOption === '3'">
@@ -275,11 +359,11 @@ const form = useForm({
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly">Дивиденты</label>
-                                    <input type="text" id="dividends_partly" />
+                                    <input type="text" id="dividends_partly" v-model="form.dividends"  />
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly_date">Дата планируемой выплаты</label>
-                                    <input type="date" id="dividends_partly_date" />
+                                    <input type="date" id="dividends_partly_date"  v-model="form.date_of_payments"/>
                                 </div>
                             </div>
                         </div>
@@ -288,11 +372,11 @@ const form = useForm({
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="dividends_wholly">Дивиденты</label>
-                                    <input type="text" id="dividends_wholly" disabled />
+                                    <input type="text" id="dividends_wholly" v-model="form.dividends" disabled />
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_wholly_date">Дата планируемой выплаты</label>
-                                    <input type="date" id="dividends_wholly_date" />
+                                    <input type="date" id="dividends_wholly_date"v-model="form.date_of_payments" />
                                 </div>
                             </div>
                         </div>
@@ -301,16 +385,16 @@ const form = useForm({
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="sum_take_everything">Основная сумма</label>
-                                    <input type="text" id="sum_take_everything" disabled />
+                                    <input type="text" id="sum_take_everything" v-model="form.sum" disabled />
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_take_everything">Дивиденты</label>
-                                    <input type="text" id="dividends_take_everything" disabled />
+                                    <input type="text" id="dividends_take_everything" v-model="form.dividends" disabled />
                                 </div>
                             </div>
                             <div class="input flex flex-column" style="margin-top: 16px;">
                                 <label for="dividends_take_everything_date">Дата планируемой выплаты</label>
-                                <input type="date" id="dividends_take_everything_date" />
+                                <input type="date" id="dividends_take_everything_date" v-model="form.date_of_payments"/>
                             </div>
                         </div>
                     </div>
@@ -452,7 +536,7 @@ const form = useForm({
         <template #footer>
             <div v-if="currentModal.type !== 'information'" class="flex justify-end">
                 <button @click="closeModal" class="btn-cancel">Отменить</button>
-                <button @click="" v-if="currentModal.type === 'add'" class="btn-save">Создать</button>
+                <button @click="createAplication" v-if="currentModal.type === 'add'" class="btn-save">Создать</button>
                 <button @click="" v-else class="btn-save">Сохранить</button>
             </div>
         </template>

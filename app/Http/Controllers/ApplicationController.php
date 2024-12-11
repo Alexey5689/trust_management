@@ -54,7 +54,9 @@ class ApplicationController extends Controller
         $request->validate([
             'create_date' => ['required', 'date_format:Y-m-d'],
             'date_of_payments' => ['required', 'date_format:Y-m-d', 'after_or_equal:create_date'], // Дата платежа не должна быть раньше даты создания
-            'sum' => ['required', 'integer'],
+            // 'sum' => [ 'numeric', 'min:0.01' ], // Сумма должна быть больше 0.01
+            'dividends' => [ 'nullable', 'numeric' ], // Сумма должна быть больше 0.01
+            
         ]);
         $user = Auth::user();
         $role = $user->role->title;
@@ -80,6 +82,7 @@ class ApplicationController extends Controller
             'type_of_processing'=>$request->type_of_processing,
             'date_of_payments'=>$request->date_of_payments,
             'sum'=>$request->sum,
+            'dividends'=>$request->dividends
         ]);
         Log::create([
             'model_id' => $application->user_id,
@@ -101,36 +104,6 @@ class ApplicationController extends Controller
       public function showApplication(Application $application){
         $user = Auth::user();
         $role = $user->role->title;
-
-        if($role === 'admin'){
-            $clients = User::whereHas('role', function($query) {
-                $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
-            })
-            ->with(['userContracts' => function ($query) {
-                $query->where('contract_status', true); // Выбираем только активные договоры
-            }])
-            ->get()
-            ->map(function ($client) {
-                return [
-                    'id' => $client->id,
-                    'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
-                    'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
-                ];
-            });
-            
-        }else{
-            $clients = $user->managedUsers->load(['userContracts' => function ($query) {
-                $query->where('contract_status', true); // Выбираем только активные договоры
-            }])
-            ->map(function ($client) {
-                return [
-                    'id' => $client->id,
-                    'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
-                    'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
-                ];
-            });
-        }
-
         return Inertia::render('ShowApplication', [
             'role' => $role,
             'application' => [
@@ -154,7 +127,7 @@ class ApplicationController extends Controller
                     'procent' => $application->contract->procent,
                 ]
             ],
-            'clients' => $clients
+            
         ]);
     }
     

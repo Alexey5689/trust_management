@@ -66,7 +66,7 @@ const handleGetContract = (contract_id) => {
 
     const termYears = getYearDifference(tmpCreate, tmpDeadline);
 
-    dividends.value = sum.value * (procent.value / 100) * termYears;
+    form.dividends = sum.value * (procent.value / 100) * termYears;
     create_date.value = formatDate(tmpCreate);
     term.value = termYears === 1 ? termYears + ' год' : termYears + ' года';
 };
