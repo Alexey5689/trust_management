@@ -217,7 +217,7 @@ const handleCheckboxChange = () => {
                             <p>
                                 {{
                                     getYearDifference(contract.create_date, contract.deadline) === 1
-                                        ? getYearDifference(contract.create_date, contract.deadline) + ' год'
+                                        ? '1 год'
                                         : getYearDifference(contract.create_date, contract.deadline) + ' года'
                                 }}
                             </p>

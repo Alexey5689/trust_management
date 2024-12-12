@@ -102,10 +102,35 @@ class ApplicationController extends Controller
     
     
       public function showApplication(Application $application){
-        $user = Auth::user();
-        $role = $user->role->title;
-        return Inertia::render('ShowApplication', [
-            'role' => $role,
+        // $user = Auth::user();
+        // $role = $user->role->title;
+        // return Inertia::render('ShowApplication', [
+        //     'role' => $role,
+        //     'application' => [
+        //         'id' => $application->id,
+        //         'create_date' => $application->create_date,
+        //         'date_of_payments' => $application->date_of_payments,
+        //         'condition' => $application->condition,
+        //         'status' => $application->status,
+        //         'type_of_processing' => $application->type_of_processing,
+        //         'sum' => $application->sum,
+        //         'user' => [
+        //             'id' => $application->user->id,
+        //             'full_name' => $application->user->first_name . ' ' . $application->user->last_name . ' ' . $application->user->middle_name,
+        //         ],
+        //         'contract' => [
+        //             'id' => $application->contract->id,
+        //             'contract_number' => $application->contract->contract_number,
+        //             'sum' => $application->contract->sum,
+        //             'create_date' => $application->contract->create_date,
+        //             'deadline' => $application->contract->deadline,
+        //             'procent' => $application->contract->procent,
+        //         ]
+        //     ],
+            
+        // ]);
+
+        return response()->json([
             'application' => [
                 'id' => $application->id,
                 'create_date' => $application->create_date,
@@ -114,9 +139,10 @@ class ApplicationController extends Controller
                 'status' => $application->status,
                 'type_of_processing' => $application->type_of_processing,
                 'sum' => $application->sum,
+                'dividends' => $application->dividends,
                 'user' => [
                     'id' => $application->user->id,
-                    'full_name' => $application->user->first_name . ' ' . $application->user->last_name . ' ' . $application->user->middle_name,
+                    'full_name' =>$application->user->last_name  . ' ' . $application->user->first_name . ' ' . $application->user->middle_name,
                 ],
                 'contract' => [
                     'id' => $application->contract->id,
@@ -127,7 +153,6 @@ class ApplicationController extends Controller
                     'procent' => $application->contract->procent,
                 ]
             ],
-            
         ]);
     }
     

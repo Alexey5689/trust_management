@@ -23,7 +23,7 @@ export const getYearDifference = (startDate, endDate) => {
     try {
         return differenceInYears(parseISO(endDate), parseISO(startDate));
     } catch (error) {
-        console.error('Ошибка вычисления разницы в годах:', error);
+        //console.error('Ошибка вычисления разницы в годах:', error);
         return null; // Возвращаем null в случае ошибки
     }
 };
@@ -68,6 +68,8 @@ export const fetchData = async (router, params = {}) => {
             ? route(router, { user: params.user })
             : params.contract
             ? route(router, { contract: params.contract })
+            : params.application
+            ? route(router, { application: params.application })
             : route(router);
         // console.log(url);
 

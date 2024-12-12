@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
@@ -8,6 +8,7 @@ import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import InputError from '@/Components/InputError.vue';
+import { fetchData } from '@/helpers';
 
 const props = defineProps({
     role: {
@@ -38,41 +39,75 @@ const sum = ref(null);
 const dividends = ref(null);
 const create_date = ref('');
 const term = ref('');
+const applicationData = ref({});
+const aplicationStatus = ref('');
+const error = ref('');
+const userInfo = ref({});
+const contractInfo = ref({});
 const condition = ref('');
 const processing = ref('');
+const modalTitles = ref({
+    add: 'Новая заявка',
+    information: '',
+    edit: 'Название заявки',
+});
+const applicationStatuses = ref(['В обработке', 'Согласована', 'Исполнена', 'Отменена']);
+
+const calcDividends = (sum, procent, term) => {
+    return (sum * (procent / 100) * term).toFixed(2);
+};
+
+const getInfo = async (url, applicationId) => {
+    console.log(url, applicationId);
+    try {
+        const data = await fetchData(url, { application: applicationId }); // Ожидаем завершения запроса
+        applicationData.value = data.application ? data.application : data;
+        userInfo.value = applicationData.value.user ?? '';
+        contractInfo.value = applicationData.value.contract ?? '';
+        modalTitles.value.information = formatDate(applicationData.value.create_date) ?? '';
+        selectedOffTime.value = applicationData.value.condition ?? '';
+        selectedPartlyOption.value = applicationData.value.type_of_processing ?? '';
+        formStatus.status = applicationData.value.status;
+        console.log(applicationData.value);
+    } catch (err) {
+        error.value = err; // Сохраняем ошибку
+    } finally {
+    }
+};
 
 const offTime = () => {
     form.sum = null;
     form.condition = 'Раньше срока';
     form.type_of_processing = 'Основная сумма';
     form.sum = Number((sum.value - sum.value * 0.3).toFixed(2));
-}
+};
 const onTime = () => {
     form.sum = null;
     form.condition = 'В срок';
-}
+};
 const takeEverythin = () => {
     form.sum = null;
     form.dividends = null;
     form.type_of_processing = 'Забрать дивиденды и сумму';
     form.sum = Number(sum.value);
     form.dividends = Number(dividends.value);
-}
+};
 const takeDividends = () => {
     form.dividends = null;
     form.sum = null;
     form.type_of_processing = 'Забрать дивиденды целиком';
     form.dividends = Number(dividends.value);
-}
+};
 
 const takePartlyDividends = () => {
     form.dividends = null;
     form.sum = null;
     form.type_of_processing = 'Забрать дивиденды частично';
-}
+};
 const handleGetClient = (id) => {
     userContract.value = props.clients.find((client) => client.id === id);
 };
+
 const handleGetContract = (contract_id) => {
     sum.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).sum;
     let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date;
@@ -82,7 +117,8 @@ const handleGetContract = (contract_id) => {
 
     const termYears = getYearDifference(tmpCreate, tmpDeadline);
 
-    dividends.value = (sum.value * (procent.value / 100) * termYears).toFixed(2);
+    // dividends.value = (sum.value * (procent.value / 100) * termYears).toFixed(2);
+    dividends.value = calcDividends(sum.value, procent.value, termYears);
     create_date.value = formatDate(tmpCreate);
     term.value = termYears === 1 ? termYears + ' год' : termYears + ' года';
 };
@@ -99,14 +135,11 @@ const handleGetContract = (contract_id) => {
 //     }
 // };
 
-const handleDropdownSelect = (option, applicationId, type) => {
-    openModal(type, applicationId, type);
-};
+const handleDropdownSelect = (option, applicationId, type, url) => {
+    // console.log(option, applicationId, type, url);
 
-const modalTitles = {
-    add: 'Новая заявка',
-    information: '25 Сентября 2024',
-    edit: 'Название заявки'
+    getInfo(option.url, applicationId);
+    openModal(type, applicationId, type);
 };
 
 const openModal = (type, applicationId, action = 'add') => {
@@ -119,12 +152,10 @@ const closeModal = () => {
     currentModal.value = null;
     dividends.value = null;
     sum.value = null;
-   
-    form.user_id = ''; 
-    term.value = ''; 
+    form.user_id = '';
+    term.value = '';
     create_date.value = '';
     procent.value = '';
-   
     selectedOffTime.value = null;
     selectedPartlyOption.value = null;
     form.reset(
@@ -138,8 +169,6 @@ const closeModal = () => {
         'sum',
         'dividends',
     );
-
-
 };
 
 const form = useForm({
@@ -154,8 +183,12 @@ const form = useForm({
     sum: null,
     dividends: null,
 });
+const formStatus = useForm({
+    status: '',
+});
+
 const createAplication = () => {
-    form.post(route('add.application'),{
+    form.post(route('add.application'), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
         },
@@ -163,23 +196,37 @@ const createAplication = () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
         },
     });
-    
-}
+};
+const changeStatus = () => {
+    formStatus.patch(route('change.status.application', applicationData.value.id), {
+        onSuccess: () => {
+            closeModal(); // Закрыть модал при успешной отправке
+        },
+        onError: () => {
+            console.error('Ошибка:', formStatus.errors); // Лог ошибок
+        },
+    });
+};
 </script>
 
 <template>
-
     <Head title="Applications" />
     <AuthenticatedLayout :userRole="role">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Заявки</h2>
-                <ResponsiveNavLink class="add_application" v-if="role === 'admin' || role === 'manager'"
-                    :href="route('add.application')">
+                <ResponsiveNavLink
+                    class="add_application"
+                    v-if="role === 'admin' || role === 'manager'"
+                    :href="route('add.application')"
+                >
                     Новая заявка
                 </ResponsiveNavLink>
-                <button class="add_application link-btn" @click="openModal('add')"
-                    v-if="role === 'admin' || role === 'manager'">
+                <button
+                    class="add_application link-btn"
+                    @click="openModal('add')"
+                    v-if="role === 'admin' || role === 'manager'"
+                >
                     Новая заявка
                 </button>
             </div>
@@ -203,8 +250,12 @@ const createAplication = () => {
                             <li>Дивиденды</li>
                         </ul>
                         <div class="title" v-if="props.applications.length === 0">Заявок нет</div>
-                        <div v-else class="applications align-center" v-for="application in props.applications"
-                            :key="application.id">
+                        <div
+                            v-else
+                            class="applications align-center"
+                            v-for="application in props.applications"
+                            :key="application.id"
+                        >
                             <div class="order">
                                 <p>{{ formatDate(application.create_date) }}</p>
                             </div>
@@ -233,11 +284,18 @@ const createAplication = () => {
                                 <p>{{ application.dividends }}</p>
                             </div>
                             <div>
-                                <Dropdown :options="[
-                                    { label: 'Подробная информация', action: 'information' },
-                                    { label: 'Изменить статус', action: 'edit' },
-                                ]" class="applications_dropdown"
-                                    @select="handleDropdownSelect($event, application.id, $event.action)">
+                                <Dropdown
+                                    :options="[
+                                        {
+                                            label: 'Подробная информация',
+                                            action: 'information',
+                                            url: 'show.application',
+                                        },
+                                        { label: 'Изменить статус', action: 'edit', url: 'change.status.application' },
+                                    ]"
+                                    class="applications_dropdown"
+                                    @select="handleDropdownSelect($event, application.id, $event.action)"
+                                >
                                     <template #trigger>
                                         <Ellipsis />
                                     </template>
@@ -266,7 +324,12 @@ const createAplication = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="client">Клиент</label>
-                                <select id="client" v-model="form.user_id"  @change="handleGetClient(form.user_id)" required>
+                                <select
+                                    id="client"
+                                    v-model="form.user_id"
+                                    @change="handleGetClient(form.user_id)"
+                                    required
+                                >
                                     <option value="" disabled>Выберите клиента</option>
                                     <option v-for="client in props.clients" :key="client.id" :value="client.id">
                                         {{ client.full_name }}
@@ -276,9 +339,11 @@ const createAplication = () => {
                             </div>
                             <div class="input flex flex-column">
                                 <label for="contract">Договор</label>
-                                <select id="contract" 
-                                        v-model="form.contract_id" 
-                                        @change="handleGetContract(form.contract_id)">
+                                <select
+                                    id="contract"
+                                    v-model="form.contract_id"
+                                    @change="handleGetContract(form.contract_id)"
+                                >
                                     <option value="" disabled>Выберите номер договора</option>
                                     <option
                                         v-for="contract in userContract.user_contracts"
@@ -290,14 +355,14 @@ const createAplication = () => {
                                 </select>
                             </div>
                         </div>
-                        <div class="flex" style="column-gap: 8px;">
+                        <div class="flex" style="column-gap: 8px">
                             <div class="information_contract">
                                 <label>Дата заключения</label>
-                                <p> {{ create_date }}</p>
+                                <p>{{ create_date }}</p>
                             </div>
                             <div class="information_contract">
                                 <label>Срок договора</label>
-                                <p> {{ term }}</p>
+                                <p>{{ term }}</p>
                             </div>
                             <div class="information_contract">
                                 <label>Ставка</label>
@@ -315,19 +380,33 @@ const createAplication = () => {
                             </div>
                         </div>
                     </div>
-                    <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Условия списания</p>
+                    <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Условия списания</p>
                     <div class="radio-buttons flex c-gap">
                         <div class="input flex">
-                            <input type="radio" id="off_time" name="off_time" @click="offTime"  value="1" v-model="selectedOffTime">
+                            <input
+                                type="radio"
+                                id="off_time"
+                                name="off_time"
+                                @click="offTime"
+                                value="1"
+                                v-model="selectedOffTime"
+                            />
                             <label for="off_time" class="button">Раньше срока</label>
                         </div>
                         <div class="input flex">
-                            <input type="radio" id="on_time" name="on_time" @click="onTime" value="2" v-model="selectedOffTime">
+                            <input
+                                type="radio"
+                                id="on_time"
+                                name="on_time"
+                                @click="onTime"
+                                value="2"
+                                v-model="selectedOffTime"
+                            />
                             <label for="on_time" class="button">В срок</label>
                         </div>
                     </div>
                     <div class="for_off_time" v-if="selectedOffTime === '1'">
-                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="write_downs">Сумма списания</label>
@@ -338,37 +417,57 @@ const createAplication = () => {
                                 <input type="date" id="payment_date" v-model="form.date_of_payments" />
                             </div>
                         </div>
-                        <p class="warning" style="margin-top: 16px;">Комиссия за вывод раньше срока, 30%</p>
-                        <p class="warning" style="margin-top: 4px;">{{ (sum * 0.3).toFixed(2) }}</p>
+                        <p class="warning" style="margin-top: 16px">Комиссия за вывод раньше срока, 30%</p>
+                        <p class="warning" style="margin-top: 4px">{{ (sum * 0.3).toFixed(2) }}</p>
                     </div>
                     <div class="for_on_time" v-if="selectedOffTime === '2'">
-                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Варианты списания</p>
+                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Варианты списания</p>
                         <div class="radio-buttons flex flex-column r-gap">
                             <div class="flex c-gap">
-                                <input type="radio" id="partly" name="partly" @click="takePartlyDividends" value="3" v-model="selectedPartlyOption">
+                                <input
+                                    type="radio"
+                                    id="partly"
+                                    name="partly"
+                                    @click="takePartlyDividends"
+                                    value="3"
+                                    v-model="selectedPartlyOption"
+                                />
                                 <label for="partly" class="button">Забрать дивиденды частично</label>
-                                <input type="radio" id="wholly" name="wholly" @click="takeDividends" value="4" v-model="selectedPartlyOption">
+                                <input
+                                    type="radio"
+                                    id="wholly"
+                                    name="wholly"
+                                    @click="takeDividends"
+                                    value="4"
+                                    v-model="selectedPartlyOption"
+                                />
                                 <label for="wholly" class="button">Забрать дивиденды целиком</label>
                             </div>
-                            <input type="radio" id="take_everything" name="take_everything" value="5"
-                                v-model="selectedPartlyOption" @click="takeEverythin">
+                            <input
+                                type="radio"
+                                id="take_everything"
+                                name="take_everything"
+                                value="5"
+                                v-model="selectedPartlyOption"
+                                @click="takeEverythin"
+                            />
                             <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                         </div>
                         <div class="for_partly" v-if="selectedPartlyOption === '3'">
-                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly">Дивиденты</label>
-                                    <input type="text" id="dividends_partly" v-model="form.dividends"  />
+                                    <input type="text" id="dividends_partly" v-model="form.dividends" />
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly_date">Дата планируемой выплаты</label>
-                                    <input type="date" id="dividends_partly_date"  v-model="form.date_of_payments"/>
+                                    <input type="date" id="dividends_partly_date" v-model="form.date_of_payments" />
                                 </div>
                             </div>
                         </div>
                         <div class="for_wholly" v-if="selectedPartlyOption === '4'">
-                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="dividends_wholly">Дивиденты</label>
@@ -376,12 +475,12 @@ const createAplication = () => {
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_wholly_date">Дата планируемой выплаты</label>
-                                    <input type="date" id="dividends_wholly_date"v-model="form.date_of_payments" />
+                                    <input type="date" id="dividends_wholly_date" v-model="form.date_of_payments" />
                                 </div>
                             </div>
                         </div>
                         <div class="for_take_everything" v-if="selectedPartlyOption === '5'">
-                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                            <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="sum_take_everything">Основная сумма</label>
@@ -389,12 +488,21 @@ const createAplication = () => {
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_take_everything">Дивиденты</label>
-                                    <input type="text" id="dividends_take_everything" v-model="form.dividends" disabled />
+                                    <input
+                                        type="text"
+                                        id="dividends_take_everything"
+                                        v-model="form.dividends"
+                                        disabled
+                                    />
                                 </div>
                             </div>
-                            <div class="input flex flex-column" style="margin-top: 16px;">
+                            <div class="input flex flex-column" style="margin-top: 16px">
                                 <label for="dividends_take_everything_date">Дата планируемой выплаты</label>
-                                <input type="date" id="dividends_take_everything_date" v-model="form.date_of_payments"/>
+                                <input
+                                    type="date"
+                                    id="dividends_take_everything_date"
+                                    v-model="form.date_of_payments"
+                                />
                             </div>
                         </div>
                     </div>
@@ -405,120 +513,175 @@ const createAplication = () => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="client">Клиент</label>
-                            <input id="client" disabled>
-                            </input>
+                            <input id="client" :value="userInfo.full_name" disabled />
                         </div>
                         <div class="input flex flex-column">
                             <label for="contract">Договор</label>
-                            <input id="contract" disabled>
-                            </input>
+                            <input id="contract" :value="contractInfo.contract_number" disabled />
                         </div>
                     </div>
-                    <div class="flex" style="column-gap: 8px;">
+                    <div class="flex" style="column-gap: 8px">
                         <div class="information_contract">
                             <label>Дата заключения</label>
-                            <p>25 Марта 2024</p>
+                            <p>{{ formatDate(contractInfo.create_date) }}</p>
                         </div>
                         <div class="information_contract">
                             <label>Срок договора</label>
-                            <p>1 год</p>
+                            <p>
+                                {{
+                                    getYearDifference(contractInfo.create_date, contractInfo.deadline) === 1
+                                        ? '1 год'
+                                        : getYearDifference(contractInfo.create_date, contractInfo.deadline) + ' года'
+                                }}
+                            </p>
                         </div>
                         <div class="information_contract">
                             <label>Ставка</label>
-                            <p>20%</p>
+                            <p>{{ contractInfo.procent }}%</p>
                         </div>
                     </div>
                     <div class="flex c-gap">
                         <div class="contract_sum">
                             <label>Основная сумма</label>
-                            <p>10 000 000 ₽</p>
+                            <p>{{ contractInfo.sum }}₽</p>
                         </div>
                         <div class="contract_sum">
                             <label>Дивиденды</label>
-                            <p>200 000 ₽</p>
+                            <p>
+                                {{
+                                    calcDividends(
+                                        contractInfo.sum,
+                                        contractInfo.procent,
+                                        getYearDifference(contractInfo.create_date, contractInfo.deadline),
+                                    )
+                                }}
+                            </p>
                         </div>
                     </div>
                 </div>
-                <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Условия списания</p>
+                <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Условия списания</p>
                 <div class="radio-buttons flex c-gap">
                     <div class="input flex">
-                        <input type="radio" id="off_time" name="off_time" value="1" v-model="selectedOffTime">
+                        <input
+                            type="radio"
+                            id="off_time"
+                            name="off_time"
+                            value="Раньше срока"
+                            v-model="selectedOffTime"
+                        />
                         <label for="off_time" class="button">Раньше срока</label>
                     </div>
                     <div class="input flex">
-                        <input type="radio" id="on_time" name="on_time" value="2" v-model="selectedOffTime">
+                        <input type="radio" id="on_time" name="on_time" value="В срок" v-model="selectedOffTime" />
                         <label for="on_time" class="button">В срок</label>
                     </div>
                 </div>
-                <div class="for_off_time" v-if="selectedOffTime === '1'">
-                    <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                <div class="for_off_time" v-if="selectedOffTime === 'Раньше срока'">
+                    <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="write_downs">Сумма списания</label>
-                            <input type="text" id="write_downs" disabled />
+                            <input type="text" id="write_downs" :value="contractInfo.sum" disabled />
                         </div>
                         <div class="input flex flex-column">
                             <label for="payment_date">Дата планируемой выплаты</label>
-                            <input type="text" id="payment_date" disabled />
+                            <input type="date" id="payment_date" :value="applicationData.date_of_payments" disabled />
                         </div>
                     </div>
-                    <p class="warning" style="margin-top: 16px;">Комиссия за вывод раньше срока, 30%</p>
-                    <p class="warning" style="margin-top: 4px;">3 000 000 ₽</p>
+                    <p class="warning" style="margin-top: 16px">Комиссия за вывод раньше срока, 30%</p>
+                    <p class="warning" style="margin-top: 4px">{{ (contractInfo.sum * 0.3).toFixed(2) }}</p>
                 </div>
-                <div class="for_on_time" v-if="selectedOffTime === '2'">
-                    <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Варианты списания</p>
+                <div class="for_on_time" v-if="selectedOffTime === 'В срок'">
+                    <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Варианты списания</p>
                     <div class="radio-buttons flex flex-column r-gap">
                         <div class="flex c-gap">
-                            <input type="radio" id="partly" name="partly" value="3" v-model="selectedPartlyOption">
+                            <input
+                                type="radio"
+                                id="partly"
+                                name="partly"
+                                value="Забрать дивиденды частично"
+                                v-model="selectedPartlyOption"
+                            />
                             <label for="partly" class="button">Забрать дивиденды частично</label>
-                            <input type="radio" id="wholly" name="wholly" value="4" v-model="selectedPartlyOption">
+                            <input
+                                type="radio"
+                                id="wholly"
+                                name="wholly"
+                                value="Забрать дивиденды целиком"
+                                v-model="selectedPartlyOption"
+                            />
                             <label for="wholly" class="button">Забрать дивиденды целиком</label>
                         </div>
-                        <input type="radio" id="take_everything" name="take_everything" value="5"
-                            v-model="selectedPartlyOption">
+                        <input
+                            type="radio"
+                            id="take_everything"
+                            name="take_everything"
+                            value="Забрать дивиденды и сумму"
+                            v-model="selectedPartlyOption"
+                        />
                         <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                     </div>
-                    <div class="for_partly" v-if="selectedPartlyOption === '3'">
-                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                    <div class="for_partly" v-if="selectedPartlyOption === 'Забрать дивиденды частично'">
+                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="dividends_partly">Дивиденты</label>
-                                <input type="text" id="dividends_partly" disabled />
+                                <input type="text" id="dividends_partly" :value="applicationData.dividends" disabled />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="dividends_partly_date">Дата планируемой выплаты</label>
-                                <input type="text" id="dividends_partly_date" disabled />
+                                <input
+                                    type="date"
+                                    id="dividends_partly_date"
+                                    :value="applicationData.date_of_payments"
+                                    disabled
+                                />
                             </div>
                         </div>
                     </div>
-                    <div class="for_wholly" v-if="selectedPartlyOption === '4'">
-                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                    <div class="for_wholly" v-if="selectedPartlyOption === 'Забрать дивиденды целиком'">
+                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="dividends_wholly">Дивиденты</label>
-                                <input type="text" id="dividends_wholly" disabled />
+                                <input type="text" id="dividends_wholly" :value="applicationData.dividends" disabled />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="dividends_wholly_date">Дата планируемой выплаты</label>
-                                <input type="text" id="dividends_wholly_date" disabled />
+                                <input
+                                    type="date"
+                                    id="dividends_wholly_date"
+                                    :value="applicationData.date_of_payments"
+                                    disabled
+                                />
                             </div>
                         </div>
                     </div>
-                    <div class="for_take_everything" v-if="selectedPartlyOption === '5'">
-                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px;">Вывод средств</p>
+                    <div class="for_take_everything" v-if="selectedPartlyOption === 'Забрать дивиденды и сумму'">
+                        <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="sum_take_everything">Основная сумма</label>
-                                <input type="text" id="sum_take_everything" disabled />
+                                <input type="text" id="sum_take_everything" :value="applicationData.sum" disabled />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="dividends_take_everything">Дивиденты</label>
-                                <input type="text" id="dividends_take_everything" disabled />
+                                <input
+                                    type="text"
+                                    id="dividends_take_everything"
+                                    :value="applicationData.dividends"
+                                    disabled
+                                />
                             </div>
                         </div>
-                        <div class="input flex flex-column" style="margin-top: 16px;">
+                        <div class="input flex flex-column" style="margin-top: 16px">
                             <label for="dividends_take_everything_date">Дата планируемой выплаты</label>
-                            <input type="text" id="dividends_take_everything_date" disabled />
+                            <input
+                                type="date"
+                                id="dividends_take_everything_date"
+                                :value="applicationData.date_of_payments"
+                                disabled
+                            />
                         </div>
                     </div>
                 </div>
@@ -527,7 +690,10 @@ const createAplication = () => {
                 <form>
                     <div class="input flex flex-column">
                         <label for="status">Статус</label>
-                        <select id="status">
+                        <select id="status" v-model="formStatus.status">
+                            <option v-for="(status, index) in applicationStatuses" :key="index" :value="status">
+                                {{ status }}
+                            </option>
                         </select>
                     </div>
                 </form>
@@ -537,7 +703,7 @@ const createAplication = () => {
             <div v-if="currentModal.type !== 'information'" class="flex justify-end">
                 <button @click="closeModal" class="btn-cancel">Отменить</button>
                 <button @click="createAplication" v-if="currentModal.type === 'add'" class="btn-save">Создать</button>
-                <button @click="" v-else class="btn-save">Сохранить</button>
+                <button @click="changeStatus" v-else class="btn-save">Сохранить</button>
             </div>
         </template>
     </BaseModal>
@@ -590,7 +756,7 @@ const createAplication = () => {
     font-size: 20px;
     font-weight: 600;
     line-height: 29px;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
     padding: 24px 32px 20px 32px;
     width: 1606px;
 }
@@ -600,7 +766,7 @@ const createAplication = () => {
     display: grid;
     column-gap: 5px;
     grid-template-columns: 170px 200px 150px 130px 140px 230px 170px 130px 130px 50px;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .applications {
@@ -608,7 +774,7 @@ const createAplication = () => {
     display: grid;
     column-gap: 5px;
     grid-template-columns: 170px 200px 150px 130px 140px 230px 170px 130px 130px 50px;
-    border-bottom: 1px solid #F3F5F6;
+    border-bottom: 1px solid #f3f5f6;
 }
 
 .thead-application li {
@@ -616,7 +782,7 @@ const createAplication = () => {
     font-weight: 600;
     line-height: 23.2px;
     letter-spacing: 0.01em;
-    color: #969BA0;
+    color: #969ba0;
 }
 
 .link-btn {
@@ -631,7 +797,7 @@ const createAplication = () => {
 }
 
 .add_application {
-    background: #4E9F7D;
+    background: #4e9f7d;
     color: #fff;
     transition: 0.3s;
 }
@@ -649,7 +815,7 @@ const createAplication = () => {
 }
 
 :deep(.applications_dropdown .dropdown-item:last-child) {
-    color: #A7ADB2;
+    color: #a7adb2;
     border-top: none;
 }
 
@@ -724,19 +890,19 @@ const createAplication = () => {
 }
 
 .information_contract {
-    background: #F3F5F6;
+    background: #f3f5f6;
     padding: 16px 26px;
     border-radius: 24px;
 }
 
 .contract_sum {
     width: 100%;
-    background: #F3F5F6;
+    background: #f3f5f6;
     border-radius: 24px;
     padding: 16px 20px;
 }
 
-.radio-buttons input[type="radio"] {
+.radio-buttons input[type='radio'] {
     display: none;
 }
 
@@ -745,28 +911,28 @@ const createAplication = () => {
     display: inline-block;
     padding: 16px 20px;
     border-radius: 24px;
-    background: #F3F5F6;
-    color: #969BA0;
+    background: #f3f5f6;
+    color: #969ba0;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .radio-buttons .button:hover {
-    background-color: #4E9F7D1A;
-    color: #4E9F7D;
+    background-color: #4e9f7d1a;
+    color: #4e9f7d;
 }
 
-.radio-buttons input[type="radio"]:checked+.button {
-    background: #4E9F7D1A;
-    color: #4E9F7D;
+.radio-buttons input[type='radio']:checked + .button {
+    background: #4e9f7d1a;
+    color: #4e9f7d;
 }
 
 #write_downs {
-    background: #F3F5F6;
-    color: #969BA0;
+    background: #f3f5f6;
+    color: #969ba0;
 }
 
 input[disabled] {
-    background-color: #F3F5F6;
+    background-color: #f3f5f6;
 }
 </style>

@@ -631,8 +631,14 @@ class AdminController extends Controller
       public function changeStatusApplication(Application $application){
         $user = Auth::user();
         $role = $user->role->title;
-        return Inertia::render('ChangeStatusApplication', [
-            'role' => $role,
+        // return Inertia::render('ChangeStatusApplication', [
+        //     'role' => $role,
+        //     'application' => [
+        //         'id' => $application->id,
+        //         'status' => $application->status,
+        //     ],
+        // ]);
+        return response()->json([
             'application' => [
                 'id' => $application->id,
                 'status' => $application->status,
