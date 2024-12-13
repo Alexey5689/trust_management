@@ -10,6 +10,7 @@ use Inertia\Response;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Password as PasswordFacade;
 use App\Models\User;
+use App\Models\Log;
 
 class CreatingPasswordController extends Controller
 {
@@ -51,6 +52,15 @@ class CreatingPasswordController extends Controller
                 $user->password = Hash::make($password);
                 $user->active = true;
                 $user->save();
+                Log::create([
+                    'model_id' => $user->id,
+                    'model_type' => User::class,
+                    'change' => 'Активация пользователя',
+                    'action' => 'Создание пароля пользователем' ,
+                    'old_value' => "*******",
+                    'new_value' =>  "*******",
+                    'created_by' => $user->id, // ID самого пользователя
+                ]);
             }
         );
         //dd($status);

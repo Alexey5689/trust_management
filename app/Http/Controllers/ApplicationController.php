@@ -87,7 +87,7 @@ class ApplicationController extends Controller
         Log::create([
             'model_id' => $application->user_id,
             'model_type' => Application::class,
-            'change' => null ,
+            'change' =>  $application->type_of_processing,
             'action' => "Создание заявки",
             'old_value' => null,
             'new_value' => 'Заявка No' . $application->id,
@@ -151,6 +151,7 @@ class ApplicationController extends Controller
                     'create_date' => $application->contract->create_date,
                     'deadline' => $application->contract->deadline,
                     'procent' => $application->contract->procent,
+                    'dividends' => $application->contract->dividends
                 ]
             ],
         ]);

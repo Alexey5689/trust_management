@@ -5,7 +5,7 @@ import { Head, router, useForm } from '@inertiajs/vue3';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
-import { fetchData } from '@/helpers';
+import { fetchData, getYearDifference, calculateDividends } from '@/helpers';
 import { calculateDeadlineDate } from '@/helpers.js';
 import InputError from '@/Components/InputError.vue';
 
@@ -106,9 +106,9 @@ const closeModal = () => {
         'payments',
         'agree_with_terms',
         'create_date',
+        'dividends',
     );
 };
-
 const form = useForm({
     last_name: '',
     first_name: '',
@@ -118,12 +118,13 @@ const form = useForm({
     contract_number: null,
     sum: null,
     deadline: '', // Срок договора
-    procent: '', // Процентная ставка
+    procent: null, // Процентная ставка
     agree_with_terms: false, // Для чекбокса
     create_date: new Date().toISOString().substr(0, 10), // Дата заключения
     contract_status: true,
     payments: '', // Выплаты
     manager_id: '', // Новое поле для выбора менеджера
+    dividends: null,
 });
 watch(
     userData,
@@ -142,6 +143,16 @@ watch(
     },
     { immediate: true },
 );
+
+watch(
+    [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
+    ([newSum, newProcent, newDeadline, newCreateDate]) => {
+        form.dividends = calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline));
+    },
+);
+const handleCheckboxChange = () => {
+    form.payments = 'По истечению срока';
+};
 const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;
     if (selectedDuration === '1 год') {
@@ -220,7 +231,7 @@ const updateUser = () => {
                                 <Dropdown
                                     :options="[
                                         { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Сбросить пароль', action: 'reset.password' },
                                         { label: 'Удалить', action: 'delete' },
                                     ]"
                                     @select="handleDropdownSelect($event, manager.id, 'manager')"
@@ -486,7 +497,7 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="contract">Номер договора*</label>
-                                <input type="text" id="contract" v-model.trim="form.contract_number" />
+                                <input type="number" id="contract" v-model.trim="form.contract_number" />
                                 <InputError :message="form.errors.contract_number" />
                             </div>
                             <div class="input flex flex-column">
@@ -498,11 +509,16 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="bank">Ставка, %*</label>
-                                <input type="text" id="bank" v-model.trim="form.procent" />
+                                <input type="number" id="bank" v-model.trim="form.procent" />
                                 <InputError :message="form.errors.procent" />
                             </div>
                             <div class="input flex checkbox">
-                                <input type="checkbox" id="checkbox" v-model="form.agree_with_terms" />
+                                <input
+                                    type="checkbox"
+                                    id="checkbox"
+                                    @change="handleCheckboxChange"
+                                    v-model="form.agree_with_terms"
+                                />
                                 <label for="checkbox">Вычислить дивиденды по истечению срока</label>
                                 <InputError :message="form.errors.agree_with_terms" />
                             </div>

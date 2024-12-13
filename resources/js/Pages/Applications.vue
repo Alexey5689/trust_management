@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
@@ -46,6 +46,13 @@ const userInfo = ref({});
 const contractInfo = ref({});
 const condition = ref('');
 const processing = ref('');
+
+const activeApplication = computed(() =>
+    props.applications.filter((application) => application.status !== 'Отменена' && application.status !== 'Исполнена'),
+);
+const noactiveCApplication = computed(() =>
+    props.applications.filter((application) => application.status === 'Отменена' || application.status === 'Исполнена'),
+);
 const modalTitles = ref({
     add: 'Новая заявка',
     information: '',
@@ -61,7 +68,7 @@ const getInfo = async (url, applicationId) => {
     console.log(url, applicationId);
     try {
         const data = await fetchData(url, { application: applicationId }); // Ожидаем завершения запроса
-        applicationData.value = data.application ? data.application : data;
+        applicationData.value = data.application;
         userInfo.value = applicationData.value.user ?? '';
         contractInfo.value = applicationData.value.contract ?? '';
         modalTitles.value.information = formatDate(applicationData.value.create_date) ?? '';
@@ -112,13 +119,10 @@ const handleGetContract = (contract_id) => {
     sum.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).sum;
     let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date;
     let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline;
-    procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent;
+    procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent + '%';
     form.manager_id = userContract.value.user_contracts.find((contract) => contract.id === contract_id).manager_id;
-
     const termYears = getYearDifference(tmpCreate, tmpDeadline);
-
-    // dividends.value = (sum.value * (procent.value / 100) * termYears).toFixed(2);
-    dividends.value = calcDividends(sum.value, procent.value, termYears);
+    dividends.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).dividends;
     create_date.value = formatDate(tmpCreate);
     term.value = termYears === 1 ? termYears + ' год' : termYears + ' года';
 };
@@ -372,11 +376,11 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="contract_sum">
                                 <label>Основная сумма</label>
-                                <p>{{ sum }}</p>
+                                <p>{{ sum }}₽</p>
                             </div>
                             <div class="contract_sum">
                                 <label>Дивиденды</label>
-                                <p>{{ dividends }}</p>
+                                <p>{{ dividends }}₽</p>
                             </div>
                         </div>
                     </div>
@@ -388,7 +392,7 @@ const changeStatus = () => {
                                 id="off_time"
                                 name="off_time"
                                 @click="offTime"
-                                value="1"
+                                value="Раньше срока"
                                 v-model="selectedOffTime"
                             />
                             <label for="off_time" class="button">Раньше срока</label>
@@ -399,13 +403,13 @@ const changeStatus = () => {
                                 id="on_time"
                                 name="on_time"
                                 @click="onTime"
-                                value="2"
+                                value="В срок"
                                 v-model="selectedOffTime"
                             />
                             <label for="on_time" class="button">В срок</label>
                         </div>
                     </div>
-                    <div class="for_off_time" v-if="selectedOffTime === '1'">
+                    <div class="for_off_time" v-if="selectedOffTime === 'Раньше срока'">
                         <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
@@ -420,7 +424,7 @@ const changeStatus = () => {
                         <p class="warning" style="margin-top: 16px">Комиссия за вывод раньше срока, 30%</p>
                         <p class="warning" style="margin-top: 4px">{{ (sum * 0.3).toFixed(2) }}</p>
                     </div>
-                    <div class="for_on_time" v-if="selectedOffTime === '2'">
+                    <div class="for_on_time" v-if="selectedOffTime === 'В срок'">
                         <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Варианты списания</p>
                         <div class="radio-buttons flex flex-column r-gap">
                             <div class="flex c-gap">
@@ -429,7 +433,7 @@ const changeStatus = () => {
                                     id="partly"
                                     name="partly"
                                     @click="takePartlyDividends"
-                                    value="3"
+                                    value="Забрать дивиденды частично"
                                     v-model="selectedPartlyOption"
                                 />
                                 <label for="partly" class="button">Забрать дивиденды частично</label>
@@ -438,7 +442,7 @@ const changeStatus = () => {
                                     id="wholly"
                                     name="wholly"
                                     @click="takeDividends"
-                                    value="4"
+                                    value="Забрать дивиденды целиком"
                                     v-model="selectedPartlyOption"
                                 />
                                 <label for="wholly" class="button">Забрать дивиденды целиком</label>
@@ -447,13 +451,13 @@ const changeStatus = () => {
                                 type="radio"
                                 id="take_everything"
                                 name="take_everything"
-                                value="5"
+                                value="Забрать дивиденды и сумму"
                                 v-model="selectedPartlyOption"
                                 @click="takeEverythin"
                             />
                             <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                         </div>
-                        <div class="for_partly" v-if="selectedPartlyOption === '3'">
+                        <div class="for_partly" v-if="selectedPartlyOption === 'Забрать дивиденды частично'">
                             <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
@@ -466,7 +470,7 @@ const changeStatus = () => {
                                 </div>
                             </div>
                         </div>
-                        <div class="for_wholly" v-if="selectedPartlyOption === '4'">
+                        <div class="for_wholly" v-if="selectedPartlyOption === 'Забрать дивиденды целиком'">
                             <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
@@ -479,7 +483,7 @@ const changeStatus = () => {
                                 </div>
                             </div>
                         </div>
-                        <div class="for_take_everything" v-if="selectedPartlyOption === '5'">
+                        <div class="for_take_everything" v-if="selectedPartlyOption === 'Забрать дивиденды и сумму'">
                             <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
@@ -547,15 +551,7 @@ const changeStatus = () => {
                         </div>
                         <div class="contract_sum">
                             <label>Дивиденды</label>
-                            <p>
-                                {{
-                                    calcDividends(
-                                        contractInfo.sum,
-                                        contractInfo.procent,
-                                        getYearDifference(contractInfo.create_date, contractInfo.deadline),
-                                    )
-                                }}
-                            </p>
+                            <p>{{ contractInfo.dividends }}₽</p>
                         </div>
                     </div>
                 </div>

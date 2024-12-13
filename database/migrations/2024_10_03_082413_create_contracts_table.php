@@ -23,8 +23,9 @@ return new class extends Migration
             $table->integer('sum')->unsigned();
             $table->integer('procent')->unsigned();
             $table->string('payments')->nullable();
+            $table->decimal('dividends')->nullable();
             $table->boolean('contract_status')->default(true);
-            $table->boolean('agree_with_terms');
+            $table->boolean('agree_with_terms')->default(false);
             $table->timestamps();
         });
     }

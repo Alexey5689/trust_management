@@ -1,8 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { formatDate, getYearDifference, calculateDeadlineDate } from '@/helpers.js';
+import { formatDate, getYearDifference, calculateDeadlineDate, calculateDividends } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
@@ -33,18 +33,7 @@ const currentModal = ref(null);
 const error = ref(null);
 const contractData = ref({});
 const selectedDuration = ref('');
-
-const form = useForm({
-    user_id: '',
-    contract_number: null,
-    sum: null,
-    deadline: '', // Срок договора
-    procent: '', // Процентная ставка
-    agree_with_terms: false, // Для чекбокса
-    create_date: new Date().toISOString().substr(0, 10), // Дата заключения
-    contract_status: true,
-    payments: '', // Выплаты
-});
+const activeClient = computed(() => props.clients.filter((client) => client.active));
 
 const getInfo = async (url, contractId) => {
     try {
@@ -71,6 +60,19 @@ const handleDropdownSelect = (option, contractId, type) => {
     }
 };
 
+const form = useForm({
+    user_id: '',
+    contract_number: null,
+    sum: null,
+    deadline: '', // Срок договора
+    procent: null, // Процентная ставка // Для чекбокса
+    create_date: new Date().toISOString().substr(0, 10), // Дата заключения
+    contract_status: true,
+    payments: '', // Выплаты
+    agree_with_terms: false,
+    dividends: null,
+});
+
 watch(
     contractData,
     (newData) => {
@@ -84,6 +86,12 @@ watch(
         form.create_date = newData.create_date;
     },
     { immediate: true },
+);
+watch(
+    [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
+    ([newSum, newProcent, newDeadline, newCreateDate]) => {
+        form.dividends = calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline));
+    },
 );
 
 const modalTitles = {
@@ -123,6 +131,8 @@ const handleDeadlineChange = (event) => {
 };
 
 const createContract = () => {
+    console.log(form);
+
     form.post(route('admin.add.contract'), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
@@ -253,7 +263,7 @@ const handleCheckboxChange = () => {
                     <div class="input flex flex-column">
                         <label for="client">Клиент</label>
                         <select id="client" v-model="form.user_id">
-                            <option v-for="client in props.clients" :key="client.id" :value="client.id">
+                            <option v-for="client in activeClient" :key="client.id" :value="client.id">
                                 {{ client.full_name }}
                             </option>
                         </select>
@@ -262,7 +272,7 @@ const handleCheckboxChange = () => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="first_name">Номер договора*</label>
-                            <input type="text" id="first_name" v-model.trim="form.contract_number" />
+                            <input type="number" id="first_name" v-model.trim="form.contract_number" />
                             <InputError :message="form.errors.contract_number" />
                         </div>
                         <div class="input flex flex-column">
@@ -274,7 +284,7 @@ const handleCheckboxChange = () => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
-                            <input type="text" id="bank" v-model.trim="form.procent" />
+                            <input type="number" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex checkbox">

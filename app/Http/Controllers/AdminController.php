@@ -120,6 +120,7 @@ class AdminController extends Controller
             return [
                 'id' => $client->id,
                 'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+                'active' => $client->active,
             ];
         });
         return Inertia::render('Contracts', [
@@ -221,7 +222,7 @@ class AdminController extends Controller
             'refresh_token' => Str::random(60),
         ]);
          // Логируем событие регистрации
-         Log::create([
+        Log::create([
             'model_id' => $user->id,
             'model_type' => User::class,
             'change' => 'Добавление клиента',
@@ -245,6 +246,7 @@ class AdminController extends Controller
             'payments' => $request->payments,
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
+            'dividends' => $request->dividends
         ]);
         Log::create([
             'model_id' => $contract->user_id,
@@ -345,7 +347,7 @@ class AdminController extends Controller
             Log::create([
                 'model_id' => $user->id,
                 'model_type' => User::class,
-                'change' => 'Изменено менеджера',
+                'change' => 'Изменен менеджер',
                 'action' => 'Обновление данных',
                 'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
                 'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
@@ -535,8 +537,9 @@ class AdminController extends Controller
             'deadline' => $request->deadline,
             'procent' => $request->procent,
             'payments' => $request->payments,
-            'agree_with_terms' => $request->agree_with_terms,
+            'agree_with_terms' => $request->agree_with_terms ?? false,
             'contract_status' => $request->contract_status,
+            'dividends' => $request->dividends,
         ]);
         $client->userTransactions()->create([
             'contract_id'=>$contract->id,
@@ -602,8 +605,8 @@ class AdminController extends Controller
             'procent' => ['required', 'integer', 'min:0', 'max:100'],
         ]);
        
-        $originalData = $contract->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']);
-        $contract->update($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']));
+        $originalData = $contract->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status', 'dividends']);
+        $contract->update($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status', 'dividends']));
 
         foreach ($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']) as $field => $newValue) {
             $oldValue = $this->normalizeValue($originalData[$field]);
@@ -646,7 +649,8 @@ class AdminController extends Controller
         ]);
     }
     public function updateStatusApplication(Request $request, Application $application)
-{
+{   
+    //dd($application);
     $user = Auth::user();
     $role = $user->role->title;
 
@@ -662,10 +666,13 @@ class AdminController extends Controller
             'manager_id' => $application->manager_id,
             'user_id' => $application->user_id,
             'date_transition' => $application->date_of_payments,
-            'sum_transition' => $application->sum,
+            'sum_transition' => $application->sum + $application->dividends,
             'sourse' => 'Заявка',
         ]);
-
+        if ($application->type_of_processing === 'Забрать дивиденды частично') {
+            $application->user->update(['avaliable_balance' => $application->dividends]);
+        }
+        
         $message = 'Статус заявки успешно изменен! Транзакция создана.';
 
         if ($application->condition === 'Раньше срока') {
@@ -679,13 +686,13 @@ class AdminController extends Controller
     // Логирование изменения статуса
     if ($originalStatus !== $application->status) {
         Log::create([
-            'model_id' => $application->id,
+            'model_id' => $application->user_id,
             'model_type' => Application::class,
-            'change' => 'Изменен стату',
+            'change' => 'Изменен статус',
             'action' => 'Изменение статуса заявки',
             'old_value' => $originalStatus,
             'new_value' => $application->status,
-            'created_by' => Auth::id(),
+            'created_by' => $user->id,
         ]);
     }
     $user = $application->user;
