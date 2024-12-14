@@ -155,6 +155,9 @@ const updateContract = () => {
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
 };
+const handleGetClient = (id) => {
+    form.sum = props.clients.find((client) => client.id === id).avaliable_balance;
+};
 // const deleteContract = (contractId) => {
 //     if (confirm('Вы точно хотите удалить договор?')) {
 //         Inertia.delete(route('delete.contract', { contract: contractId }));
@@ -262,7 +265,7 @@ const handleCheckboxChange = () => {
                 <form class="flex flex-column r-gap">
                     <div class="input flex flex-column">
                         <label for="client">Клиент</label>
-                        <select id="client" v-model="form.user_id">
+                        <select id="client" v-model="form.user_id" @click="handleGetClient(form.user_id)">
                             <option v-for="client in activeClient" :key="client.id" :value="client.id">
                                 {{ client.full_name }}
                             </option>

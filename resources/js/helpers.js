@@ -59,7 +59,7 @@ export const calculateDeadlineDate = (years, createDate) => {
     return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
 };
 export const calculateDividends = (sum, procent, term) => {
-    return (sum * (procent / 100) * term).toFixed(2);
+    return (sum * (procent / 100) * term).toFixed(1);
 };
 export const fetchData = async (router, params = {}) => {
     console.log(router, params);

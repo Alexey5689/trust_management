@@ -60,6 +60,7 @@ class ApplicationController extends Controller
         ]);
         $user = Auth::user();
         $role = $user->role->title;
+        $balance = $request->available_balance;
         /** @var User $user */
         // Проверка, что менеджер имеет право работать с пользователем
         if (!$user->managedUsers()->where('id', $request->user_id)->exists() && $role !== 'admin') {
@@ -94,6 +95,11 @@ class ApplicationController extends Controller
             'created_by' => Auth::id(),
         ]);
         $client = $application->user;
+        $currentBalance = $client->avaliable_balance;
+        $newBalance = $currentBalance + $balance;
+        $client->update([
+            'avaliable_balance' => $newBalance
+        ]);
         $client->userNotifications()->create([
             'content'=> 'Создана заявки No' . $application->id ,
         ]);

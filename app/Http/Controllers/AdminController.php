@@ -120,6 +120,7 @@ class AdminController extends Controller
             return [
                 'id' => $client->id,
                 'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+                'avaliable_balance' => $client->avaliable_balance,
                 'active' => $client->active,
             ];
         });
@@ -658,7 +659,6 @@ class AdminController extends Controller
 
     // Обновляем статус заявки
     $application->update(['status' => $request->status]);
-
     // Если статус "Исполнена", создаем транзакцию
     if ($request->status === 'Исполнена') {
         $application->user->userTransactions()->create([
@@ -669,17 +669,17 @@ class AdminController extends Controller
             'sum_transition' => $application->sum + $application->dividends,
             'sourse' => 'Заявка',
         ]);
-        if ($application->type_of_processing === 'Забрать дивиденды частично') {
-            $application->user->update(['avaliable_balance' => $application->dividends]);
-        }
-        
         $message = 'Статус заявки успешно изменен! Транзакция создана.';
-
         if ($application->condition === 'Раньше срока') {
             $contract = Contract::find($application->contract_id);
             $contract->update(['contract_status' => false]);
         }
-    } else {
+    } else if ($request->status === 'Отменена') {
+       // dd($application->user);
+        $application->user->update(['avaliable_balance' => null]);
+        $message = 'Статус заявки успешно изменен!';
+    }
+    else {
         $message = 'Статус заявки успешно изменен!';
     }
 
@@ -700,7 +700,7 @@ class AdminController extends Controller
         'content'=> 'Статус заявки No' . $application->id . ' был изменен',
     ]);
 
-    return redirect(route($role . '.applications'))->with('status', $message);
+    return redirect()->route($role . '.applications')->with('status', $message);
 } 
     public function createLogs(){
         $user = Auth::user();

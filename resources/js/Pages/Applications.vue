@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
@@ -40,12 +40,11 @@ const dividends = ref(null);
 const create_date = ref('');
 const term = ref('');
 const applicationData = ref({});
-const aplicationStatus = ref('');
 const error = ref('');
 const userInfo = ref({});
 const contractInfo = ref({});
-const condition = ref('');
-const processing = ref('');
+const payments = ref('');
+const dividendsTerm = ref(null);
 
 const activeApplication = computed(() =>
     props.applications.filter((application) => application.status !== 'Отменена' && application.status !== 'Исполнена'),
@@ -106,11 +105,6 @@ const takeDividends = () => {
     form.dividends = Number(dividends.value);
 };
 
-const takePartlyDividends = () => {
-    form.dividends = null;
-    form.sum = null;
-    form.type_of_processing = 'Забрать дивиденды частично';
-};
 const handleGetClient = (id) => {
     userContract.value = props.clients.find((client) => client.id === id);
 };
@@ -121,11 +115,22 @@ const handleGetContract = (contract_id) => {
     let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline;
     procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent + '%';
     form.manager_id = userContract.value.user_contracts.find((contract) => contract.id === contract_id).manager_id;
-    const termYears = getYearDifference(tmpCreate, tmpDeadline);
+    // const termYears = getYearDifference(tmpCreate, tmpDeadline);
     dividends.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).dividends;
     create_date.value = formatDate(tmpCreate);
-    term.value = termYears === 1 ? termYears + ' год' : termYears + ' года';
+    // term.value = termYears === 1 ? termYears + ' год' : termYears + ' года';
+    term.value = getYearDifference(tmpCreate, tmpDeadline);
+    payments.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).payments;
 };
+
+const takePartlyDividends = () => {
+    form.dividends = null;
+    form.sum = null;
+    form.type_of_processing = 'Забрать дивиденды частично';
+    dividendsTerm.value = dividends.value / (payments.value === 'Ежеквартально' ? 4 : 1) / term.value;
+    console.log(dividendsTerm.value);
+};
+
 // const handleDropdownSelect = (option, applicationId, type) => {
 //     switch (option.action) {
 //         case 'information':
@@ -186,10 +191,17 @@ const form = useForm({
     date_of_payments: '',
     sum: null,
     dividends: null,
+    available_balance: null,
 });
 const formStatus = useForm({
     status: '',
 });
+watch(
+    () => form.dividends,
+    (newValue) => {
+        form.available_balance = dividendsTerm.value - newValue;
+    },
+);
 
 const createAplication = () => {
     form.post(route('add.application'), {
@@ -366,7 +378,7 @@ const changeStatus = () => {
                             </div>
                             <div class="information_contract">
                                 <label>Срок договора</label>
-                                <p>{{ term }}</p>
+                                <p>{{ term === 1 ? '1 год' : term === 3 ? '3 года' : term + '' }}</p>
                             </div>
                             <div class="information_contract">
                                 <label>Ставка</label>
@@ -462,7 +474,7 @@ const changeStatus = () => {
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly">Дивиденты</label>
-                                    <input type="text" id="dividends_partly" v-model="form.dividends" />
+                                    <input type="number" id="dividends_partly" v-model="form.dividends" />
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly_date">Дата планируемой выплаты</label>
