@@ -25,7 +25,7 @@ class ClientController extends Controller
 
             ];
         });
-        return Inertia::render('Contracts', [
+        return Inertia::render('ContractsClient', [
             'role' => $role,
             'contracts' => $contracts
         ]);
@@ -63,6 +63,8 @@ class ClientController extends Controller
                                 'type_of_processing' => $application->type_of_processing,
                                 'date_of_payments' => $application->date_of_payments,
                                 'create_date' => $application->create_date,
+                                'sum' => $application->contract->sum,
+                                'dividends'=> $application->contract->dividends
                             ];
                         });
         //dd($applications);
