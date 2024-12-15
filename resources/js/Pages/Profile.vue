@@ -129,7 +129,7 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
                         <p class="text">+7 (922) 857-45-65</p>
                     </div>
                 </div>
-                <div v-if="props.role !== 'admin'">
+                <div v-if="props.role !== 'admin'" class="div_warning">
                     <p v-if="props.role === 'client'" class="warning">Для изменения номера телефона и почты обратитесь к своему менеджеру </p>
                     <p v-if="props.role === 'manager'" class="warning">Для изменения почты и номера телефона обратитесь к администратору</p>
                 </div>
@@ -307,7 +307,22 @@ form {
 
 .grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    row-gap: 32px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.div_warning {
+    margin-top: 20px;
+}
+
+@media (max-width: 1500px) {
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        row-gap: 32px;
+    }
+
+    .div_warning {
+        margin-top: 0;
+    }
 }
 </style>
