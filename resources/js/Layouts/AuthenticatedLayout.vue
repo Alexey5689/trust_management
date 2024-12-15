@@ -11,7 +11,6 @@ import Icon_applications from '@/Components/Icon/Applications.vue';
 import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 import Icon_logs from '@/Components/Icon/Logs.vue';
-import profileImage from '../../img/profile.png';
 import { useUserInfo } from '@/store/hooks.js';
 
 const { user_Name_Email } = useUserInfo();
@@ -51,9 +50,6 @@ const remote = () => {
                 </div>
             </div>
             <div class="profile flex flex-column align-center">
-                <div class="profile_img flex align-center justify-center">
-                    <img :src="profileImage" alt="profile" />
-                </div>
                 <!-- {{ props.userInfo?.email }}  {{ props.userInfo?.full_name }} -->
                 <transition name="fade-height">
                     <div class="flex flex-column align-center">
