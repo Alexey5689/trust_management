@@ -87,6 +87,7 @@ watch(
     },
     { immediate: true },
 );
+
 watch(
     [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
     ([newSum, newProcent, newDeadline, newCreateDate]) => {
