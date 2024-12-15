@@ -63,8 +63,8 @@ class ClientController extends Controller
                                 'type_of_processing' => $application->type_of_processing,
                                 'date_of_payments' => $application->date_of_payments,
                                 'create_date' => $application->create_date,
-                                'sum' => $application->contract->sum,
-                                'dividends'=> $application->contract->dividends
+                                'sum' => $application->sum,
+                                'dividends'=> $application->dividends
                             ];
                         });
         //dd($applications);

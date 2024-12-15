@@ -7,7 +7,7 @@
             Route::get('/profile', [ProfileController::class, 'createProfile'])->name('admin.profile');
             Route::get('/users', [AdminController::class, 'showAllUsers'])->name('admin.users');
             Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts');
-            Route::get('/applications', [AdminController::class, 'showApplications'])->name('admin.applications');
+            Route::get('/applications', [AdminController::class, 'showAllApplications'])->name('admin.applications');
             Route::get('/logs', [AdminController::class, 'createLogs'])->name('admin.logs');
             //рег менеджер
             Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager');

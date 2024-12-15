@@ -131,7 +131,7 @@ class AdminController extends Controller
         ]);
     }
     //все заявки
-    public function showApplications(){
+    public function showAllApplications(){
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
         $clients = User::whereHas('role', function($query) {
@@ -673,6 +673,15 @@ class AdminController extends Controller
         if ($application->condition === 'Раньше срока') {
             $contract = Contract::find($application->contract_id);
             $contract->update(['contract_status' => false]);
+            $sumTransition = $application->sum  - ($application->sum*0.3);
+            $application->user->userTransactions()->create([
+                'contract_id' => $application->contract_id,
+                'manager_id' => $application->manager_id,
+                'user_id' => $application->user_id,
+                'date_transition' => $application->date_of_payments,
+                'sum_transition' => $sumTransition,
+                'sourse' => 'Заявка',
+            ]);
         }
     } else if ($request->status === 'Отменена') {
        // dd($application->user);

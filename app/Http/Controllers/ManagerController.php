@@ -66,23 +66,95 @@ class ManagerController extends Controller
                 ]
             ];
         });
+
+        $clients = $user->managedUsers()
+            //->where('active', true)
+            ->with('userContracts')
+            ->get()  //олучаем коллекцию пользователей
+            ->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+                'avaliable_balance' => $client->avaliable_balance,
+                'active' => $client->active,
+            ];
+        });
         return Inertia::render('Contracts', [
             'contracts' => $contracts,
             'role' => $role,
+            'clients' => $clients
         ]);
     }
 
-    public function createClientsByManager()
-    {
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
-        // Получаем всех пользователей с ролью менеджера (role_id = 2)
-        // Передаем менеджеров на страницу регистрации
-        return Inertia::render('RegisterClient', [
-            'managers' => [],
+    // $clients = User::whereHas('role', function($query) {
+    //     $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
+    // })
+    // ->with(['userContracts' => function ($query) {
+    //     $query->where('contract_status', true); // Выбираем только активные договоры
+    // }])
+    // ->get()
+    // ->map(function ($client) {
+    //     return [
+    //         'id' => $client->id,
+    //         'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+    //         'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+    //     ];
+    // });
+    public function showApplications(){
+        $user = Auth::user();
+        $role = $user->role->title;
+         /** @var User $user */
+
+        $clients = $user->managedUsers()
+        //->where('active', true)
+        ->with('userContracts')
+        ->get()
+        ->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], 
+            ];
+        });
+        $applications = $user ->managerApplications()
+                        ->with('user',  'contract')
+                        ->get()
+                        ->map(function ($application) {
+                            return [
+                                'id' => $application->id,
+                                'user_id' => $application->user_id,
+                                'full_name' => $application->user->first_name. ' ' .$application->user->last_name. ' ' .$application->user->middle_name,
+                                'contract_number' => $application->contract->contract_number,
+                                'condition' => $application->condition,
+                                'status' => $application->status,
+                                'type_of_processing' => $application->type_of_processing,
+                                'date_of_payments' => $application->date_of_payments,
+                                'create_date' => $application->create_date,
+                                'sum' => $application->sum,
+                                'dividends'=> $application->dividends
+                            ];
+                        });
+        //dd($applications);
+        return Inertia::render('Applications', [
             'role' => $role,
+            'applications' => $applications,
+            'clients' => $clients
         ]);
-    }
+      }
+
+    
+
+    // public function createClientsByManager()
+    // {
+    //     $user = Auth::user(); // Получаем текущего пользователя
+    //     $role = $user->role->title; // Получаем его роль
+    //     // Получаем всех пользователей с ролью менеджера (role_id = 2)
+    //     // Передаем менеджеров на страницу регистрации
+    //     return Inertia::render('RegisterClient', [
+    //         'managers' => [],
+    //         'role' => $role,
+    //     ]);
+    // }
 
     public function storeClientsByManager(Request $request): RedirectResponse
     {
@@ -280,31 +352,6 @@ class ManagerController extends Controller
         return redirect()->route('manager.contracts')->with('status', 'Договор успешно создан!');
       }
 
-      public function createApplications(){
-        $user = Auth::user();
-        $role = $user->role->title;
-         /** @var User $user */
-        $applications = $user ->managerApplications()
-                        ->with('user',  'contract')
-                        ->get()
-                        ->map(function ($application) {
-                            return [
-                                'id' => $application->id,
-                                'user_id' => $application->user_id,
-                                'full_name' => $application->user->first_name. ' ' .$application->user->last_name. ' ' .$application->user->middle_name,
-                                'contract_number' => $application->contract->contract_number,
-                                'condition' => $application->condition,
-                                'status' => $application->status,
-                                'type_of_processing' => $application->type_of_processing,
-                                'date_of_payments' => $application->date_of_payments,
-                                'create_date' => $application->create_date,
-                            ];
-                        });
-        //dd($applications);
-        return Inertia::render('Applications', [
-            'role' => $role,
-            'applications' => $applications,
-        ]);
-      }
+     
 }
 
