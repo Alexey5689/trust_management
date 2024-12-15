@@ -1,11 +1,12 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData } from '@/helpers';
 import InputError from '@/Components/InputError.vue';
+
 const props = defineProps({
     user: {
         type: Object,
@@ -24,6 +25,7 @@ const props = defineProps({
 const isModalOpen = ref(false);
 const currentModal = ref(null);
 const userData = ref({});
+const role = ref('manager');
 
 const getInfo = async (url) => {
     try {
@@ -81,6 +83,8 @@ const saveChanges = () => {
     else form.patch(route('email.update'));
     closeModal();
 };
+
+const isGridRole = computed(() => props.role === 'manager' || props.role === 'client');
 </script>
 
 <template>
@@ -94,7 +98,7 @@ const saveChanges = () => {
                 <header>
                     <h2 class="title-card">Контактные данные</h2>
                 </header>
-                <div class="card-content flex">
+                <div class="card-content flex" :class="{ grid: isGridRole }">
                     <div class="card-item">
                         <InputLabel for="last_name" value="ФИО" />
                         <p class="text">{{ props.user.full_name }}</p>
@@ -120,6 +124,14 @@ const saveChanges = () => {
                             Изменить почту
                         </button>
                     </div>
+                    <div class="card-item" v-if="props.role !== 'admin'">
+                        <InputLabel for="last_name" value="Номер телефона" />
+                        <p class="text">+7 (922) 857-45-65</p>
+                    </div>
+                </div>
+                <div v-if="props.role !== 'admin'">
+                    <p v-if="props.role === 'client'" class="warning">Для изменения номера телефона и почты обратитесь к своему менеджеру </p>
+                    <p v-if="props.role === 'manager'" class="warning">Для изменения почты и номера телефона обратитесь к администратору</p>
                 </div>
             </div>
         </template>
@@ -221,6 +233,10 @@ const saveChanges = () => {
     width: 33.33%;
 }
 
+.grid .card-item {
+    width: 100%;
+}
+
 .text {
     margin-bottom: 16px;
 }
@@ -287,5 +303,11 @@ form {
     padding: 12px 20px;
     border-radius: 12px;
     align-items: center;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 32px;
 }
 </style>

@@ -135,9 +135,15 @@ h6 {
 }
 
 .c-gap {
+    -webkit-column-gap: 16px;
+    -moz-column-gap: 16px;
     column-gap: 16px;
 }
 
 .r-gap {
     row-gap: 16px;
+}
+
+.w-100 {
+    width: 100%;
 }

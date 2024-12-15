@@ -11,6 +11,7 @@ import Icon_applications from '@/Components/Icon/Applications.vue';
 import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 import Icon_logs from '@/Components/Icon/Logs.vue';
+import Icon_balance from '@/Components/Icon/Balance.vue';
 import { useUserInfo } from '@/store/hooks.js';
 
 const { user_Name_Email } = useUserInfo();
@@ -52,7 +53,7 @@ const remote = () => {
             <div class="profile flex flex-column align-center">
                 <!-- {{ props.userInfo?.email }}  {{ props.userInfo?.full_name }} -->
                 <transition name="fade-height">
-                    <div class="flex flex-column align-center">
+                    <div class="flex flex-column align-center w-100">
                         <p class="profile_name">
                             {{ props.userInfo?.full_name ? props.userInfo.full_name : user_Name_Email.full_name }}
                         </p>
@@ -94,18 +95,19 @@ const remote = () => {
                     <span>Договоры</span>
                 </NavLink>
                 <NavLink
+                    v-if="props.userRole === 'client'"
+                    :href="route('client.balance-transactions')"
+                    :active="route().current('client.balance-transactions')"
+                >
+                    <Icon_balance />
+                    <span>Баланс и транзакции</span>
+                </NavLink>
+                <NavLink
                     :href="route(`${props.userRole}.applications`)"
                     :active="route().current(`${props.userRole}.applications`)"
                 >
                     <Icon_applications />
                     <span>Заявки</span>
-                </NavLink>
-                <NavLink
-                    v-if="props.userRole === 'client'"
-                    :href="route('client.balance-transactions')"
-                    :active="route().current('client.balance-transactions')"
-                >
-                    <span>Баланс и транзакции</span>
                 </NavLink>
                 <NavLink
                     class="logs"
@@ -178,10 +180,10 @@ const remote = () => {
 .nav_box a {
     height: 60px;
     width: 100%;
-    padding: 0 30px;
+    padding: 0 18px;
     -webkit-column-gap: 20px;
     -moz-column-gap: 20px;
-    column-gap: 20px;
+    column-gap: 10px;
     -webkit-transition: 0.3s;
     -o-transition: 0.3s;
     transition: 0.3s;
@@ -217,12 +219,12 @@ const remote = () => {
     margin-right: 4px;
 }
 
-.profile_img {
+/* .profile_img {
     width: 90px;
     height: 90px;
     background: #f3f5f6;
     border-radius: 205px;
-}
+} */
 
 .profile_name {
     margin-top: 16px;
