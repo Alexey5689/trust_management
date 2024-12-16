@@ -71,10 +71,11 @@ export const fetchData = async (router, params = {}) => {
             ? route(router, { user: params.user })
             : params.contract
             ? route(router, { contract: params.contract })
+            : params.client
+            ? route(router, { client: params.client })
             : params.application
             ? route(router, { application: params.application })
             : route(router);
-        // console.log(url);
 
         const response = await axios.get(url);
         console.log(response);

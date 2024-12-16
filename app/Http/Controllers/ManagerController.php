@@ -180,7 +180,7 @@ class ManagerController extends Controller
             'middle_name' => $request->middle_name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
-            'role_id' => $request->role_id, // Предполагаем, что 3 — это ID роли клиента
+            'role_id' => 3, // Предполагаем, что 3 — это ID роли клиента
             'token' => Str::random(60),
             'refresh_token' => Str::random(60),
         ]);
@@ -215,6 +215,7 @@ class ManagerController extends Controller
             'payments' => $request->payments,
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
+            'dividends' => $request->dividends,
         ]);
 
         Log::create([
@@ -244,31 +245,33 @@ class ManagerController extends Controller
         return redirect()->route('manager.clients')->with('status', 'Клиент успешно зарегистрирован!');
     }
 
-    public function editClientByManager(User $client): Response
-      {
-          $user = Auth::user(); // Получаем текущего пользователя
-          $role = $user->role->title; // Получаем его роль
+    public function editClientByManager(User $user) {
+        return response()->json([
+            'client'=> [
+                 'id' => $user->id,
+                 'last_name' => $user->last_name,
+                 'first_name' => $user->first_name,
+                 'middle_name' => $user->middle_name,
+                 'email' => $user->email,
+                 'phone_number' => $user->phone_number,
+             ],
+         ]);
        
-          return Inertia::render('EditClient', [
-              'role' => $role,
-              'client' => $client,
-              'managers'=>[],
-              'assignedManager' => $user->id
-          ]);
-      }
-      public function updateClientByManager(Request $request, User $client): RedirectResponse
+
+    }
+      public function updateClientByManager(Request $request, User $user): RedirectResponse
       {
-        // dd($request->all());
+        //dd($user);
           $request->validate([
-              'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($client->id)],
+              'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
           ]);
           $message = 'Изменений не было';
-          $oldPhone = $this->normalizeValue($client->phone_number);
+          $oldPhone = $this->normalizeValue($user->phone_number);
           $newPhone = $this->normalizeValue($request->phone_number);
           if($oldPhone !== $newPhone){
-            $client->update($request->only(['phone_number']));
+            $user->update($request->only(['phone_number']));
             Log::create([
-                'model_id' => $client->id,
+                'model_id' => $user->id,
                 'model_type' => User::class,
                 'change' => 'Изменен номер телефона',
                 'action' => 'Обновление данных',
@@ -278,30 +281,30 @@ class ManagerController extends Controller
             ]);
             $message = 'Телефон успешно обновлен';
           }
-          $client->userNotifications()->create([
+          $user->userNotifications()->create([
             'content'=> 'Номер вашего телефона был изменен на '.$request->phone_number,
         ]);
           
           return redirect()->route('manager.clients')->with('status', $message);
       }
 
-      public function createAddContractByManager()
-      {
-        
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
-        $clients = $user->managedUsers->map(function ($client) {
-            return [
-                'id' => $client->id,
-                'full_name' => $client->first_name. ' ' .$client->last_name. ' ' .$client->middle_name,
-            ];
-        });
-        return Inertia::render('AddContract', [
-            'role' => $role,
-            'clients' => $clients,
-            'managers'=>[],
-        ]);
-      }
+    //   public function createAddContractByManager()
+    //   {
+       
+    //     $user = Auth::user(); // Получаем текущего пользователя
+    //     $role = $user->role->title; // Получаем его роль
+    //     $clients = $user->managedUsers->map(function ($client) {
+    //         return [
+    //             'id' => $client->id,
+    //             'full_name' => $client->first_name. ' ' .$client->last_name. ' ' .$client->middle_name,
+    //         ];
+    //     });
+    //     return Inertia::render('AddContract', [
+    //         'role' => $role,
+    //         'clients' => $clients,
+    //         'managers'=>[],
+    //     ]);
+    //   }
       public function storeAddContractByManager(Request $request)
       {
         //dd($request->all());
@@ -325,17 +328,18 @@ class ManagerController extends Controller
             'deadline' => $request->deadline,
             'procent' => $request->procent,
             'payments' => $request->payments,
-            'agree_with_terms' => $request->agree_with_terms,
+            'agree_with_terms' => $request->agree_with_terms ?? false,
             'contract_status' => $request->contract_status,
+            'dividends' => $request->dividends
         ]);
         Log::create([
-            'model_id' => $request->user_id,
-            'model_type' => null,
-            'change' =>'Добавление договора',
+            'model_id' => $contract->user_id,
+            'model_type' => Contract::class,
+            'change' =>  'Добавление договора',
             'action' => 'Создание',
             'old_value' => null,
-            'new_value' =>'Договор No' . $request->contract_number,
-            'created_by' => Auth::id(),
+            'new_value' => 'Договор No ' . $contract->contract_number,
+            'created_by' => Auth::id(), // ID самого пользователя
         ]);
         
        

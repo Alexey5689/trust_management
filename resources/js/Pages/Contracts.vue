@@ -51,7 +51,7 @@ const handleDropdownSelect = (option, contractId, type) => {
             openModal(type, contractId, 'edit', option.url);
             break;
         case 'delete':
-            if (confirm('Вы уверены, что хотите удалить пользователя?')) {
+            if (confirm('Вы уверены, что хотите удалить договор?')) {
                 router.delete(route('delete.contract', { contract: contractId }));
             }
             break;
@@ -134,7 +134,7 @@ const handleDeadlineChange = (event) => {
 const createContract = () => {
     console.log(form);
 
-    form.post(route('admin.add.contract'), {
+    form.post(route(`${props.role}.add.contract`), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
         },

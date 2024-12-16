@@ -27,7 +27,7 @@ const props = defineProps({
 const isModalOpen = ref(false);
 const currentModal = ref(null);
 const error = ref(null);
-const userData = ref({});
+const clientData = ref({});
 const selectedDuration = ref('');
 const activeClient = computed(() => props.clients.filter((client) => client.active));
 const noactiveClient = computed(() => props.clients.filter((client) => !client.active));
@@ -39,24 +39,24 @@ const modalTitles = {
     },
 };
 
-const getInfo = async (url, userId) => {
-    console.log(url, userId);
+const getInfo = async (url, clientId) => {
+    console.log(url, clientId);
     try {
-        const data = await fetchData(url, { user: userId }); // Ожидаем завершения запроса
-        userData.value = data.user ? data.user : data;
+        const data = await fetchData(url, { user: clientId }); // Ожидаем завершения запроса
+        clientData.value = data.client;
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
     }
 };
-const handleDropdownSelect = (option, userId, type) => {
+const handleDropdownSelect = (option, clientId, type) => {
     switch (option.action) {
         case 'edit':
-            openModal(type, userId, 'edit', option.url);
+            openModal(type, clientId, 'edit');
             break;
         case 'resetPassword':
             if (confirm('Вы уверены, что хотите сбросить пароль?')) {
-                router.post(route('reset.password', { user: userId }));
+                router.post(route('reset.password', { user: clientId }));
             }
             break;
         default:
@@ -64,10 +64,10 @@ const handleDropdownSelect = (option, userId, type) => {
     }
 };
 
-const openModal = (type, userId, action = 'add', url) => {
-    if (action === 'edit') getInfo(url, userId);
+const openModal = (type, clientId, action = 'add') => {
+    if (action === 'edit') getInfo('manager.edit.client', clientId);
 
-    currentModal.value = { type, userId, action };
+    currentModal.value = { type, clientId, action };
     isModalOpen.value = true;
 };
 const closeModal = () => {
@@ -106,7 +106,7 @@ const form = useForm({
     dividends: null,
 });
 watch(
-    userData,
+    clientData,
     (newData) => {
         form.last_name = newData.last_name;
         form.first_name = newData.first_name;
@@ -118,7 +118,6 @@ watch(
         form.deadline = newData.deadline;
         form.procent = newData.procent;
         form.payments = newData.payments;
-        form.manager_id = newData.manager_id;
     },
     { immediate: true },
 );
@@ -145,7 +144,7 @@ const addCountryCode = () => {
     }
 };
 const createUser = () => {
-    form.post(route(`manager.registration.${currentModal.value.type}`), {
+    form.post(route(`manager.registration.client`), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
         },
@@ -155,7 +154,9 @@ const createUser = () => {
     });
 };
 const updateUser = () => {
-    form.patch(route(`admin.edit.${currentModal.value.type}`, { user: currentModal.value.userId }), {
+    console.log(currentModal.value.userId);
+
+    form.patch(route(`manager.edit.client`, { user: currentModal.value.clientId }), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
         },
@@ -213,7 +214,7 @@ const updateUser = () => {
                             <div class="card-item ellipsis">
                                 <Dropdown
                                     :options="[
-                                        { label: 'Изменить', action: 'edit', url: 'manager.edit.client' },
+                                        { label: 'Изменить', action: 'edit' },
                                         { label: 'Сбросить пароль', action: 'resetPassword' },
                                     ]"
                                     @select="handleDropdownSelect($event, client.id, 'client')"
@@ -243,17 +244,17 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="last_name">Фамилия*</label>
-                                <input type="text" id="last_name" v-model.trim="form.last_name" />
+                                <input type="text" id="last_name" v-model.trim="form.last_name" disabled />
                                 <InputError :message="form.errors.last_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="first_name">Имя*</label>
-                                <input type="text" id="first_name" v-model.trim="form.first_name" />
+                                <input type="text" id="first_name" v-model.trim="form.first_name" disabled />
                                 <InputError :message="form.errors.first_name" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="middle_name">Отчество*</label>
-                                <input type="text" id="middle_name" v-model.trim="form.middle_name" />
+                                <input type="text" id="middle_name" v-model.trim="form.middle_name" disabled />
                                 <InputError :message="form.errors.middle_name" />
                             </div>
                         </div>
@@ -272,7 +273,7 @@ const updateUser = () => {
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
-                                <input type="email" id="email" v-model.trim="form.email" />
+                                <input type="email" id="email" v-model.trim="form.email" disabled />
                                 <InputError :message="form.errors.email" />
                             </div>
                         </div>
