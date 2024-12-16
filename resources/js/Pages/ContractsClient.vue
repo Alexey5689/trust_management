@@ -4,6 +4,7 @@ import { Head, router, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { formatDate, getYearDifference } from '@/helpers.js';
 import Icon_contract from '@/Components/Icon/Contract.vue';
+import Icon_schedule from '@/Components/Icon/Schedule.vue';
 
 const props = defineProps({
     contracts: {
@@ -63,6 +64,57 @@ const props = defineProps({
             </div>
 
 
+            <div class="accruals card">
+                <div class="accruals_title flex justify-between align-center">
+                    <h3>График начислений</h3>
+                    <ul class="accruals_tab flex justify-between">
+                        <li class="flex align-center">По годам</li>
+                        <li class="flex align-center active">По месяцам</li>
+                        <li class="flex align-center">По неделям</li>
+                        <li class="flex align-center">По дням</li>
+                    </ul>
+                </div>
+                <div class="accruals_schedule">
+                    <div class="schedule_item flex justify-between align-center">
+                        <div>
+                            <Icon_schedule />
+                        </div>
+                        <div>
+                            <p>09/01/2024</p>
+                            <span>Январь 2024</span>
+                        </div>
+                        <div>
+                            <p style="font-weight: 500;">+55.555,55</p>
+                        </div>
+                    </div>
+                    <div class="schedule_item flex justify-between align-center">
+                        <div>
+                            <Icon_schedule />
+                        </div>
+                        <div>
+                            <p>09/01/2024</p>
+                            <span>Январь 2024</span>
+                        </div>
+                        <div>
+                            <p style="font-weight: 500;">+55.555,55</p>
+                        </div>
+                    </div>
+                    <div class="schedule_item flex justify-between align-center">
+                        <div>
+                            <Icon_schedule />
+                        </div>
+                        <div>
+                            <p>09/01/2024</p>
+                            <span>Январь 2024</span>
+                        </div>
+                        <div>
+                            <p style="font-weight: 500;">+55.555,55</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
 
 
         </template>
@@ -99,10 +151,17 @@ const props = defineProps({
     flex: 0 0 auto;
     height: 265px;
     width: 450px;
-    background: #4E9F7D;
+    background: #BCC4CC;
     border-radius: 24px;
     padding: 24px;
     row-gap: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.contract_item:hover,
+.contract_item.active {
+    background: #4E9F7D;
 }
 
 .icon_contract {
@@ -113,6 +172,12 @@ const props = defineProps({
 }
 
 .icon_contract svg {
+    fill: #BCC4CC;
+    transition: 0.3s;
+}
+
+.contract_item:hover .icon_contract svg,
+.active .icon_contract svg {
     fill: #4E9F7D
 }
 
@@ -132,5 +197,64 @@ const props = defineProps({
 
 .contract_item {
     color: #fff;
+}
+
+.card {
+    margin-top: 16px;
+    padding: 24px 32px;
+    background: #fff;
+    border-radius: 32px;
+    -webkit-box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    -webkit-box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    -webkit-box-shadow: 0px 4px 12px 0px #5c5c5c14;
+    box-shadow: 0px 4px 12px 0px #5c5c5c14;
+}
+
+.accruals_title {
+    height: 45px;
+}
+
+.accruals_title h3 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 29px;
+}
+
+.accruals_tab {
+    border: 1px solid #F3F5F6;
+    border-radius: 100px;
+    height: 100%;
+    column-gap: 4px;
+}
+
+.accruals_tab li {
+    height: 100%;
+    padding: 0 20px;
+    font-weight: 500;
+    color: #969BA0;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.accruals_tab li:hover,
+.accruals_tab .active {
+    background: #4E9F7D;
+    color: #fff;
+    border-radius: 100px;
+}
+
+.accruals_schedule {
+    margin-top: 32px;
+}
+
+.schedule_item {
+    height: 76px;
+    padding: 0 20px;
+}
+
+.schedule_item span {
+    color: #969BA0;
 }
 </style>
