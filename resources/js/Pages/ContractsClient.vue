@@ -20,6 +20,32 @@ const props = defineProps({
         required: false,
     },
 });
+
+const activeTab = ref('months')
+
+const yearAccruals = ref([
+    { id: 1, date: '09/10/2024', month: 'Октябрь 2024', amount: '+555.555,55' },
+    { id: 2, date: '09/10/2025', month: 'Октябрь 2025', amount: '+605.000,00' },
+    { id: 3, date: '09/10/2026', month: 'Октябрь 2026', amount: '+705.123,45' },
+]);
+
+const monthAccruals = ref([
+    { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+55.555,55' },
+    { id: 2, date: '09/02/2024', month: 'Февраль 2024', amount: '+60.000,00' },
+    { id: 3, date: '09/03/2024', month: 'Март 2024', amount: '+70.123,45' },
+]);
+
+const weekAccruals = ref([
+    { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+1.555,55' },
+    { id: 2, date: '16/01/2024', month: 'Январь 2024', amount: '+1.000,00' },
+    { id: 3, date: '23/01/2024', month: 'Январь 2024', amount: '+1.123,45' },
+]);
+
+const dayAccruals = ref([
+    { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+55,55' },
+    { id: 2, date: '10/01/2024', month: 'Январь 2024', amount: '+50,00' },
+    { id: 3, date: '11/01/2024', month: 'Январь 2024', amount: '+60,45' },
+]);
 </script>
 
 <template>
@@ -32,9 +58,6 @@ const props = defineProps({
             </div>
         </template>
         <template #main>
-
-
-
             <!-- {{ contracts }} -->
             <div class="contracts_client flex">
                 <div class="contract_item flex flex-column" v-for="contract in props.contracts" :key="contract.id">
@@ -62,61 +85,77 @@ const props = defineProps({
                     </div>
                 </div>
             </div>
-
-
             <div class="accruals card">
                 <div class="accruals_title flex justify-between align-center">
                     <h3>График начислений</h3>
                     <ul class="accruals_tab flex justify-between">
-                        <li class="flex align-center">По годам</li>
-                        <li class="flex align-center active">По месяцам</li>
-                        <li class="flex align-center">По неделям</li>
-                        <li class="flex align-center">По дням</li>
+                        <li class="flex align-center years" :class="{ active: activeTab === 'years' }" @click="activeTab = 'years'">По годам</li>
+                        <li class="flex align-center months" :class="{ active: activeTab === 'months' }" @click="activeTab = 'months'">По месяцам</li>
+                        <li class="flex align-center weeks" :class="{ active: activeTab === 'weeks' }" @click="activeTab = 'weeks'">По неделям</li>
+                        <li class="flex align-center days" :class="{ active: activeTab === 'days' }" @click="activeTab = 'days'">По дням</li>
                     </ul>
                 </div>
-                <div class="accruals_schedule">
-                    <div class="schedule_item flex justify-between align-center">
+                <div class="accruals_schedule years" v-show="activeTab === 'years'">
+                    <div v-for="accrual in yearAccruals" :key="accrual.id"
+                        class="schedule_item flex justify-between align-center">
                         <div>
                             <Icon_schedule />
                         </div>
-                        <div>
-                            <p>09/01/2024</p>
-                            <span>Январь 2024</span>
+                        <div style="width: 150px;">
+                            <p>{{ accrual.date }}</p>
+                            <span>{{ accrual.month }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500;">+55.555,55</p>
+                            <p style="font-weight: 500;">{{ accrual.amount }}</p>
                         </div>
                     </div>
-                    <div class="schedule_item flex justify-between align-center">
+                </div>
+                <div class="accruals_schedule months" v-show="activeTab === 'months'">
+                    <div v-for="accrual in monthAccruals" :key="accrual.id"
+                        class="schedule_item flex justify-between align-center">
                         <div>
                             <Icon_schedule />
                         </div>
-                        <div>
-                            <p>09/01/2024</p>
-                            <span>Январь 2024</span>
+                        <div style="width: 150px;">
+                            <p>{{ accrual.date }}</p>
+                            <span>{{ accrual.month }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500;">+55.555,55</p>
+                            <p style="font-weight: 500;">{{ accrual.amount }}</p>
                         </div>
                     </div>
-                    <div class="schedule_item flex justify-between align-center">
+                </div>
+                <div class="accruals_schedule weeks" v-show="activeTab === 'weeks'">
+                    <div v-for="accrual in weekAccruals" :key="accrual.id"
+                        class="schedule_item flex justify-between align-center">
                         <div>
                             <Icon_schedule />
                         </div>
-                        <div>
-                            <p>09/01/2024</p>
-                            <span>Январь 2024</span>
+                        <div style="width: 150px;">
+                            <p>{{ accrual.date }}</p>
+                            <span>{{ accrual.month }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500;">+55.555,55</p>
+                            <p style="font-weight: 500;">{{ accrual.amount }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="accruals_schedule days" v-show="activeTab === 'days'">
+                    <div v-for="accrual in dayAccruals" :key="accrual.id"
+                        class="schedule_item flex justify-between align-center">
+                        <div>
+                            <Icon_schedule />
+                        </div>
+                        <div style="width: 150px;">
+                            <p>{{ accrual.date }}</p>
+                            <span>{{ accrual.month }}</span>
+                        </div>
+                        <div>
+                            <p style="font-weight: 500;">{{ accrual.amount }}</p>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-
-
         </template>
     </AuthenticatedLayout>
 </template>
