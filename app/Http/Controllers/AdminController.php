@@ -198,7 +198,7 @@ class AdminController extends Controller
    // }
     public function storeClientsByAdmin(Request $request ):RedirectResponse
     {
-        //dd($request->all());
+        dd($request->all());
         $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
@@ -247,7 +247,8 @@ class AdminController extends Controller
             'payments' => $request->payments,
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
-            'dividends' => $request->dividends
+            'dividends' => $request->dividends,
+            'number_Of_payments'=> $request->number_Of_payments
         ]);
         Log::create([
             'model_id' => $contract->user_id,
@@ -541,6 +542,7 @@ class AdminController extends Controller
             'agree_with_terms' => $request->agree_with_terms ?? false,
             'contract_status' => $request->contract_status,
             'dividends' => $request->dividends,
+            'number_Of_payments'=> $request->number_Of_payments
         ]);
         $client->userTransactions()->create([
             'contract_id'=>$contract->id,

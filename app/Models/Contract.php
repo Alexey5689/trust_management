@@ -25,6 +25,7 @@ class Contract extends Model
         'contract_status',
         'agree_with_terms',
         'dividends',
+        'number_of_payments'
     ];
 
     /**

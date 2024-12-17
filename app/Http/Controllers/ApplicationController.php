@@ -95,11 +95,11 @@ class ApplicationController extends Controller
             'created_by' => Auth::id(),
         ]);
         $client = $application->user;
-        $currentBalance = $client->avaliable_balance;
-        $newBalance = $currentBalance + $balance;
-        $client->update([
-            'avaliable_balance' => $newBalance
-        ]);
+        // $currentBalance = $client->avaliable_balance;
+        // $newBalance = $currentBalance + $balance;
+        // $client->update([
+        //     'avaliable_balance' => $newBalance
+        // ]);
         $client->userNotifications()->create([
             'content'=> 'Создана заявки No' . $application->id ,
         ]);

@@ -125,6 +125,7 @@ const form = useForm({
     payments: '', // Выплаты
     manager_id: '', // Новое поле для выбора менеджера
     dividends: null,
+    number_Of_payments: null,
 });
 watch(
     userData,
@@ -150,6 +151,12 @@ watch(
         form.dividends = calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline));
     },
 );
+watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
+    form.number_Of_payments =
+        form.payments === 'Ежеквартально'
+            ? getYearDifference(form.create_date, newDeadline) * 4
+            : getYearDifference(form.create_date, newDeadline) * 1;
+});
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
 };

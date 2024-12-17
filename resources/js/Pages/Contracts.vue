@@ -71,6 +71,7 @@ const form = useForm({
     payments: '', // Выплаты
     agree_with_terms: false,
     dividends: null,
+    number_Of_payments: null,
 });
 
 watch(
@@ -94,6 +95,12 @@ watch(
         form.dividends = calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline));
     },
 );
+watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
+    form.count_Of_payments =
+        form.payments === 'Ежеквартально'
+            ? getYearDifference(form.create_date, newDeadline) * 4
+            : getYearDifference(form.create_date, newDeadline) * 1;
+});
 
 const modalTitles = {
     add: 'Добавление договора',
@@ -118,6 +125,7 @@ const closeModal = () => {
         'payments',
         'agree_with_terms',
         'create_date',
+        'dividends',
     );
     selectedDuration.value = '';
 };
@@ -156,9 +164,9 @@ const updateContract = () => {
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
 };
-const handleGetClient = (id) => {
-    form.sum = props.clients.find((client) => client.id === id).avaliable_balance;
-};
+// const handleGetClient = (id) => {
+//     form.sum = props.clients.find((client) => client.id === id).avaliable_balance;
+// };
 // const deleteContract = (contractId) => {
 //     if (confirm('Вы точно хотите удалить договор?')) {
 //         Inertia.delete(route('delete.contract', { contract: contractId }));
@@ -266,7 +274,8 @@ const handleGetClient = (id) => {
                 <form class="flex flex-column r-gap">
                     <div class="input flex flex-column">
                         <label for="client">Клиент</label>
-                        <select id="client" v-model="form.user_id" @click="handleGetClient(form.user_id)">
+                        <select id="client" v-model="form.user_id">
+                            <!-- @click="handleGetClient(form.user_id)" -->
                             <option v-for="client in activeClient" :key="client.id" :value="client.id">
                                 {{ client.full_name }}
                             </option>
@@ -387,7 +396,7 @@ const handleGetClient = (id) => {
                         </div>
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
-                            <select id="deadline" v-model="form.payments">
+                            <select id="deadline" v-model="form.payments" @change="handlePaymentsChange">
                                 <option disabled></option>
                                 <option value="Ежеквартально">Ежеквартально</option>
                                 <option value="Ежегодно">Ежегодно</option>

@@ -45,6 +45,7 @@ const userInfo = ref({});
 const contractInfo = ref({});
 const payments = ref('');
 const dividendsTerm = ref(null);
+const x = ref(null);
 
 const activeApplication = computed(() =>
     props.applications.filter((application) => application.status !== 'Отменена' && application.status !== 'Исполнена'),
@@ -59,9 +60,9 @@ const modalTitles = ref({
 });
 const applicationStatuses = ref(['В обработке', 'Согласована', 'Исполнена', 'Отменена']);
 
-const calcDividends = (sum, procent, term) => {
-    return (sum * (procent / 100) * term).toFixed(2);
-};
+// const calcDividends = (sum, procent, term) => {
+//     return (sum * (procent / 100) * term).toFixed(2);
+// };
 
 const getInfo = async (url, applicationId) => {
     console.log(url, applicationId);
@@ -115,12 +116,15 @@ const handleGetContract = (contract_id) => {
     let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline;
     procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent + '%';
     form.manager_id = userContract.value.user_contracts.find((contract) => contract.id === contract_id).manager_id;
-    // const termYears = getYearDifference(tmpCreate, tmpDeadline);
-    dividends.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).dividends;
     create_date.value = formatDate(tmpCreate);
-    // term.value = termYears === 1 ? termYears + ' год' : termYears + ' года';
     term.value = getYearDifference(tmpCreate, tmpDeadline);
+    dividends.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).dividends / 12;
     payments.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).payments;
+    let contrNumb = userContract.value.user_contracts.find((contract) => contract.id === contract_id).contract_number;
+
+    x.value = props.applications.reduce((total, application) => {
+        return application.contract_number === contrNumb ? total + 1 : total;
+    }, 0);
 };
 
 const takePartlyDividends = () => {
@@ -301,6 +305,7 @@ const changeStatus = () => {
                             </div>
                             <div>
                                 <Dropdown
+                                    v-if="role === 'admin'"
                                     :options="[
                                         {
                                             label: 'Подробная информация',
@@ -308,6 +313,22 @@ const changeStatus = () => {
                                             url: 'show.application',
                                         },
                                         { label: 'Изменить статус', action: 'edit', url: 'change.status.application' },
+                                    ]"
+                                    class="applications_dropdown"
+                                    @select="handleDropdownSelect($event, application.id, $event.action)"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                                <Dropdown
+                                    v-else
+                                    :options="[
+                                        {
+                                            label: 'Подробная информация',
+                                            action: 'information',
+                                            url: 'show.application',
+                                        },
                                     ]"
                                     class="applications_dropdown"
                                     @select="handleDropdownSelect($event, application.id, $event.action)"

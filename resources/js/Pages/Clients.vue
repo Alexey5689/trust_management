@@ -104,6 +104,7 @@ const form = useForm({
     contract_status: true,
     payments: '', // Выплаты
     dividends: null,
+    number_Of_payments: null,
 });
 watch(
     clientData,
@@ -127,6 +128,12 @@ watch(
         form.dividends = calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline));
     },
 );
+watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
+    form.number_Of_payments =
+        form.payments === 'Ежеквартально'
+            ? getYearDifference(form.create_date, newDeadline) * 4
+            : getYearDifference(form.create_date, newDeadline) * 1;
+});
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
 };
@@ -138,6 +145,13 @@ const handleDeadlineChange = (event) => {
         form.deadline = calculateDeadlineDate(3, form.create_date);
     }
 };
+// const handlePaymentsChange = () => {
+//     if (form.payments === 'Ежеквартально') {
+//         form.count_Of_payments = getYearDifference(form.create_date, form.deadline) * 4;
+//     } else {
+//         form.count_Of_payments = getYearDifference(form.create_date, form.deadline) * 1;
+//     }
+// };
 const addCountryCode = () => {
     if (!form.phone_number.startsWith('+7')) {
         form.phone_number = '+7'; // Принудительно добавляем код страны
@@ -323,19 +337,19 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="contract">Номер договора*</label>
-                                <input type="number" id="contract" v-model.trim="form.contract_number" />
+                                <input type="number" id="contract" v-model.trim.number="form.contract_number" />
                                 <InputError :message="form.errors.contract_number" />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="date">Дата*</label>
-                                <input type="date" id="date" v-model="form.create_date" />
+                                <input type="date" id="date" v-model.trim="form.create_date" />
                                 <InputError :message="form.errors.create_date" />
                             </div>
                         </div>
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="bank">Ставка, %*</label>
-                                <input type="number" id="bank" v-model.trim="form.procent" />
+                                <input type="number" id="bank" v-model.trim.number="form.procent" />
                                 <InputError :message="form.errors.procent" />
                             </div>
                             <div class="input flex checkbox">
@@ -372,7 +386,7 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="sum">Сумма*</label>
-                                <input type="number" min="0" id="sum" v-model.trim="form.sum" />
+                                <input type="number" min="0" id="sum" v-model.trim.number="form.sum" />
                                 <InputError :message="form.errors.sum" />
                             </div>
                         </div>
