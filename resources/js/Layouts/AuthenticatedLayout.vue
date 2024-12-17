@@ -104,7 +104,15 @@ const remote = () => {
         <div class="flex flex-column content_box">
             <header v-if="$slots.header">
                 <div class="flex align-center justify-end">
-                    <div v-if="props.userRole === 'client'" class="info_client flex align-center">
+                    <div v-if="props.userRole === 'client'" class="info_client flex align-center justify-end w-100">
+                        <div class="your_manager flex align-center">
+                            <p>Ваш менеджер</p>
+                            <Icon_personal_account />
+                            <div>
+                                <p>Владлен Антонов</p>
+                                <span>vladlenantonov@gmail.ru</span>
+                            </div>
+                        </div>
                         <Icon_balance />
                         <div style="margin-right: 40px;">
                             <p class="fw">Дивиденты</p>
@@ -205,13 +213,6 @@ const remote = () => {
     margin-right: 4px;
 }
 
-/* .profile_img {
-    width: 90px;
-    height: 90px;
-    background: #f3f5f6;
-    border-radius: 205px;
-} */
-
 .profile_name {
     margin-top: 16px;
     font-weight: 500;
@@ -235,6 +236,21 @@ const remote = () => {
 }
 
 .fw  {
+    font-weight: 500;
+}
+
+.your_manager {
+    color: #969BA0;
+    column-gap: 18px;
+    margin-right: auto;
+}
+
+.your_manager svg {
+    fill: #969BA0;
+    margin-right: 0;
+}
+
+.your_manager p {
     font-weight: 500;
 }
 </style>
