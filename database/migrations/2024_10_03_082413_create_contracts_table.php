@@ -15,18 +15,18 @@ return new class extends Migration
             $table->id();
             $table->string('title')->nullable();
             // Связь с таблицей пользователей (user_id и manager_id)
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
-            $table->integer('contract_number')->unique()->unsigned();
-            $table->date('create_date');
-            $table->date('deadline');
-            $table->integer('sum')->unsigned();
-            $table->integer('procent')->unsigned();
-            $table->string('payments')->nullable();
-            $table->integer('number_of_payments')->nullable();
-            $table->decimal('dividends',16,2)->nullable();
-            $table->boolean('contract_status')->default(true);
-            $table->boolean('agree_with_terms')->default(false);
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('Внешний ключ на таблицу пользователей. Клиент');
+            $table->foreignId('manager_id')->constrained('users')->onDelete('cascade')->comment('Внешний ключ на таблицу пользователей. Менеджер');
+            $table->integer('contract_number')->unique()->unsigned()->comment('Номер договора');
+            $table->date('create_date')->comment('Дата подписания договора');
+            $table->date('deadline')->comment('Дата окончания договора');
+            $table->integer('sum')->unsigned()->comment('Сумма договора');
+            $table->integer('procent')->unsigned()->comment('Ставка в процентах');
+            $table->string('payments')->comment('Периодичность платежей');
+            $table->integer('number_of_payments')->unsigned()->comment('Количество платежей');
+            $table->decimal('dividends',16,2)->unsigned()->nullable()->comment('Сумма дивидендов');
+            $table->boolean('contract_status')->default(true)->comment('Статус договора');
+            $table->boolean('agree_with_terms')->default(false)->comment('Выплаты в конце срока');
             $table->timestamps();
         });
     }

@@ -71,7 +71,7 @@ const form = useForm({
     payments: '', // Выплаты
     agree_with_terms: false,
     dividends: null,
-    number_Of_payments: null,
+    number_of_payments: null,
 });
 
 watch(
@@ -92,13 +92,15 @@ watch(
 watch(
     [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
     ([newSum, newProcent, newDeadline, newCreateDate]) => {
-        form.dividends = calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline));
+        form.dividends = Number(calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline)));
     },
 );
 watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
-    form.count_Of_payments =
+    form.number_of_payments =
         form.payments === 'Ежеквартально'
             ? getYearDifference(form.create_date, newDeadline) * 4
+            : form.payments === 'По истечению срока'
+            ? 1
             : getYearDifference(form.create_date, newDeadline) * 1;
 });
 
@@ -116,6 +118,7 @@ const openModal = (type, contractId, action = 'add', url) => {
 const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
+    selectedDuration.value = '';
     form.reset(
         'user_id',
         'contract_number',

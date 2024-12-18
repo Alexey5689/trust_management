@@ -332,7 +332,7 @@ class ManagerController extends Controller
             'agree_with_terms' => $request->agree_with_terms ?? false,
             'contract_status' => $request->contract_status,
             'dividends' => $request->dividends,
-            'number_Of_payments'=> $request->number_Of_payments
+            'number_of_payments'=> $request->number_of_payments
         ]);
         Log::create([
             'model_id' => $contract->user_id,

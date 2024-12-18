@@ -73,6 +73,7 @@ const openModal = (type, clientId, action = 'add') => {
 const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
+    selectedDuration.value = '';
     form.reset(
         'last_name',
         'first_name',
@@ -104,7 +105,7 @@ const form = useForm({
     contract_status: true,
     payments: '', // Выплаты
     dividends: null,
-    number_Of_payments: null,
+    number_of_payments: null,
 });
 watch(
     clientData,
@@ -129,9 +130,11 @@ watch(
     },
 );
 watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
-    form.number_Of_payments =
+    form.number_of_payments =
         form.payments === 'Ежеквартально'
             ? getYearDifference(form.create_date, newDeadline) * 4
+            : form.payments === 'По истечению срока'
+            ? 1
             : getYearDifference(form.create_date, newDeadline) * 1;
 });
 const handleCheckboxChange = () => {
@@ -145,13 +148,6 @@ const handleDeadlineChange = (event) => {
         form.deadline = calculateDeadlineDate(3, form.create_date);
     }
 };
-// const handlePaymentsChange = () => {
-//     if (form.payments === 'Ежеквартально') {
-//         form.count_Of_payments = getYearDifference(form.create_date, form.deadline) * 4;
-//     } else {
-//         form.count_Of_payments = getYearDifference(form.create_date, form.deadline) * 1;
-//     }
-// };
 const addCountryCode = () => {
     if (!form.phone_number.startsWith('+7')) {
         form.phone_number = '+7'; // Принудительно добавляем код страны

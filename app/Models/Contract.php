@@ -25,9 +25,8 @@ class Contract extends Model
         'contract_status',
         'agree_with_terms',
         'dividends',
-        'number_of_payments'
+        'number_of_payments',
     ];
-
     /**
      * Связь с транзакциями (один ко многим)
      */

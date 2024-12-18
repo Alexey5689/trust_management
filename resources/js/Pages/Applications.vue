@@ -45,7 +45,9 @@ const userInfo = ref({});
 const contractInfo = ref({});
 const payments = ref('');
 const dividendsTerm = ref(null);
-const x = ref(null);
+const count_of_applications = ref(null);
+const number_of_payments = ref(null);
+const x = ref(true);
 
 const activeApplication = computed(() =>
     props.applications.filter((application) => application.status !== 'Отменена' && application.status !== 'Исполнена'),
@@ -121,10 +123,13 @@ const handleGetContract = (contract_id) => {
     dividends.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).dividends / 12;
     payments.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).payments;
     let contrNumb = userContract.value.user_contracts.find((contract) => contract.id === contract_id).contract_number;
-
-    x.value = props.applications.reduce((total, application) => {
+    number_of_payments.value = userContract.value.user_contracts.find(
+        (contract) => contract.id === contract_id,
+    ).number_of_payments;
+    count_of_applications.value = props.applications.reduce((total, application) => {
         return application.contract_number === contrNumb ? total + 1 : total;
     }, 0);
+    number_of_payments.value - 1 > count_of_applications.value ? (x.value = true) : (x.value = false);
 };
 
 const takePartlyDividends = () => {
@@ -171,6 +176,8 @@ const closeModal = () => {
     procent.value = '';
     selectedOffTime.value = null;
     selectedPartlyOption.value = null;
+    count_of_applications.value = null;
+    number_of_payments.value = null;
     form.reset(
         'user_id',
         'contract_id',
@@ -468,6 +475,7 @@ const changeStatus = () => {
                                     @click="takePartlyDividends"
                                     value="Забрать дивиденды частично"
                                     v-model="selectedPartlyOption"
+                                    :disabled="x === true"
                                 />
                                 <label for="partly" class="button">Забрать дивиденды частично</label>
                                 <input
@@ -487,6 +495,7 @@ const changeStatus = () => {
                                 value="Забрать дивиденды и сумму"
                                 v-model="selectedPartlyOption"
                                 @click="takeEverythin"
+                                :disabled="x === true"
                             />
                             <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                         </div>

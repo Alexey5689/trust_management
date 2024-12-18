@@ -92,6 +92,7 @@ const openModal = (type, userId, action = 'add', url) => {
 const closeModal = () => {
     isModalOpen.value = false;
     currentModal.value = null;
+    selectedDuration.value = '';
     form.reset(
         'last_name',
         'first_name',
@@ -107,6 +108,7 @@ const closeModal = () => {
         'agree_with_terms',
         'create_date',
         'dividends',
+        'number_of_payments',
     );
 };
 const form = useForm({
@@ -125,7 +127,7 @@ const form = useForm({
     payments: '', // Выплаты
     manager_id: '', // Новое поле для выбора менеджера
     dividends: null,
-    number_Of_payments: null,
+    number_of_payments: null,
 });
 watch(
     userData,
@@ -148,13 +150,15 @@ watch(
 watch(
     [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
     ([newSum, newProcent, newDeadline, newCreateDate]) => {
-        form.dividends = calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline));
+        form.dividends = Number(calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline)));
     },
 );
 watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
-    form.number_Of_payments =
+    form.number_of_payments =
         form.payments === 'Ежеквартально'
             ? getYearDifference(form.create_date, newDeadline) * 4
+            : form.payments === 'По истечению срока'
+            ? 1
             : getYearDifference(form.create_date, newDeadline) * 1;
 });
 const handleCheckboxChange = () => {
