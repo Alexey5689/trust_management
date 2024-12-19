@@ -106,16 +106,63 @@ class ManagerController extends Controller
          /** @var User $user */
 
         $clients = $user->managedUsers()
-        //->where('active', true)
-        ->with('userContracts')
+        ->where('active', true)
+        ->with(['userContracts' => function ($query) {
+            $query->where('contract_status', true); // Выбираем только активные договоры
+        }])
+        ->get()
         ->get()
         ->map(function ($client) {
             return [
                 'id' => $client->id,
-                'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
-                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], 
+                'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+                'user_contracts' => $client->userContracts->map(function ($contract) {
+                    $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
+                    $dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
+                    return [
+                        'id' => $contract->id,
+                        'contract_number' => $contract->contract_number,
+                        'sum' => $contract->sum,
+                        'create_date' => $contract->create_date,
+                        'deadline' => $contract->deadline,
+                        'procent' => $contract->procent,
+                        'manager_id' => $contract->manager_id,
+                        'dividends' => $dividends,
+                        'term' => $term
+                    ];
+                }),
             ];
         });
+        // ->map(function ($client) {
+        //     return [
+        //         'id' => $client->id,
+        //         'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+        //         'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], 
+        //     ];
+        // });
+        // $clients = $user->managedUsers->load(['userContracts' => function ($query) {
+        //     $query->where('contract_status', true)->where('active', true);// Выбираем только активные договоры
+        // }])
+        // ->map(function ($client) {
+        //     return [
+        //         'id' => $client->id,
+        //         'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
+        //         // 'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+        //         'user_contracts' => $client->userContracts->map(function ($contract) {
+        //             return [
+        //                 'id' => $contract->id,
+        //                 'contract_number' => $contract->contract_number,
+        //                 'sum' => $contract->sum,
+        //                 'create_date' => $contract->create_date,
+        //                 'deadline' => $contract->deadline,
+        //                 'procent' => $contract->procent,
+        //                 'manager_id' => $contract->manager_id,
+        //                 'dividends' => $contract->sum * ($contract->procent / 100) * $this->termOfTheContract($contract->create_date, $contract->deadline) / $contract->number_of_payments,
+        //                 'term' => $this->termOfTheContract($contract->create_date, $contract->deadline)
+        //             ];
+        //         }),
+        //     ];
+        // });
         $applications = $user ->managerApplications()
                         ->with('user',  'contract')
                         ->get()
@@ -216,7 +263,7 @@ class ManagerController extends Controller
             'agree_with_terms' => $request->agree_with_terms,
             'contract_status' => $request->contract_status,
             'dividends' => $request->dividends,
-            'number_Of_payments'=> $request->number_Of_payments
+            'number_of_payments'=> $request->number_of_payments
         ]);
 
         Log::create([

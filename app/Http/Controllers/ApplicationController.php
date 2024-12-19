@@ -27,19 +27,45 @@ class ApplicationController extends Controller
                 return [
                     'id' => $client->id,
                     'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
-                    'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                    // 'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                    'user_contracts' => $client->userContracts->map(function ($contract) {
+                        return [
+                            'id' => $contract->id,
+                            'contract_number' => $contract->contract_number,
+                            'sum' => $contract->sum,
+                            'create_date' => $contract->create_date,
+                            'deadline' => $contract->deadline,
+                            'procent' => $contract->procent,
+                            'manager_id' => $contract->manager_id,
+                            'dividends' => $contract->sum * ($contract->procent / 100) * $this->termOfTheContract($contract->create_date, $contract->deadline) / $contract->number_of_payments,
+                            'term' => $this->termOfTheContract($contract->create_date, $contract->deadline)
+                        ];
+                    }),
                 ];
             });
             
         }else{
             $clients = $user->managedUsers->load(['userContracts' => function ($query) {
-                $query->where('contract_status', true); // Выбираем только активные договоры
+                $query->where('contract_status', true)->where('active', true);// Выбираем только активные договоры
             }])
             ->map(function ($client) {
                 return [
                     'id' => $client->id,
                     'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
-                    'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                    // 'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                    'user_contracts' => $client->userContracts->map(function ($contract) {
+                        return [
+                            'id' => $contract->id,
+                            'contract_number' => $contract->contract_number,
+                            'sum' => $contract->sum,
+                            'create_date' => $contract->create_date,
+                            'deadline' => $contract->deadline,
+                            'procent' => $contract->procent,
+                            'manager_id' => $contract->manager_id,
+                            'dividends' => $contract->sum * ($contract->procent / 100) * $this->termOfTheContract($contract->create_date, $contract->deadline) / $contract->number_of_payments,
+                            'term' => $this->termOfTheContract($contract->create_date, $contract->deadline)
+                        ];
+                    }),
                 ];
             });
         }
@@ -95,11 +121,11 @@ class ApplicationController extends Controller
             'created_by' => Auth::id(),
         ]);
         $client = $application->user;
-        // $currentBalance = $client->avaliable_balance;
-        // $newBalance = $currentBalance + $balance;
-        // $client->update([
-        //     'avaliable_balance' => $newBalance
-        // ]);
+        $currentBalance = $client->avaliable_balance;
+        $newBalance = $currentBalance + $balance;
+        $client->update([
+            'avaliable_balance' => $newBalance
+        ]);
         $client->userNotifications()->create([
             'content'=> 'Создана заявки No' . $application->id ,
         ]);
@@ -135,7 +161,8 @@ class ApplicationController extends Controller
         //     ],
             
         // ]);
-
+        $term = $this->termOfTheContract($application->contract->create_date, $application->contract->deadline);
+        $dividends = $application->contract->sum * ($application->contract->procent / 100) * $term / $application->contract->number_of_payments;
         return response()->json([
             'application' => [
                 'id' => $application->id,
@@ -155,9 +182,9 @@ class ApplicationController extends Controller
                     'contract_number' => $application->contract->contract_number,
                     'sum' => $application->contract->sum,
                     'create_date' => $application->contract->create_date,
-                    'deadline' => $application->contract->deadline,
+                    'term' => $term,
                     'procent' => $application->contract->procent,
-                    'dividends' => $application->contract->dividends
+                    'dividends' =>$dividends
                 ]
             ],
         ]);

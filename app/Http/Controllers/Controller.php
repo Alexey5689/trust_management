@@ -15,4 +15,12 @@ abstract class Controller
     {
         return trim(strtolower((string) $value));
     }
+    protected function termOfTheContract($start, $end)
+{
+    $startDate = new \DateTime($start);
+    $endDate = new \DateTime($end);
+
+    // Разница в годах
+    return $startDate->diff($endDate)->y;
+}
 }

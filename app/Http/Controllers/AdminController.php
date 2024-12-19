@@ -144,8 +144,22 @@ class AdminController extends Controller
         ->map(function ($client) {
             return [
                 'id' => $client->id,
-                'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
-                'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
+                'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,               
+                'user_contracts' => $client->userContracts->map(function ($contract) {
+                    $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
+                    $dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
+                    return [
+                        'id' => $contract->id,
+                        'contract_number' => $contract->contract_number,
+                        'sum' => $contract->sum,
+                        'create_date' => $contract->create_date,
+                        'deadline' => $contract->deadline,
+                        'procent' => $contract->procent,
+                        'manager_id' => $contract->manager_id,
+                        'dividends' => $dividends,
+                        'term' => $term
+                    ];
+                }),
             ];
         });
         $applications = Application::with(['user', 'contract'])->get()->map(function ($application) {
@@ -658,19 +672,28 @@ class AdminController extends Controller
     $application->update(['status' => $request->status]);
     // Если статус "Исполнена", создаем транзакцию
     if ($request->status === 'Исполнена') {
-        $application->user->userTransactions()->create([
-            'contract_id' => $application->contract_id,
-            'manager_id' => $application->manager_id,
-            'user_id' => $application->user_id,
-            'date_transition' => $application->date_of_payments,
-            'sum_transition' => $application->sum + $application->dividends,
-            'sourse' => 'Заявка',
-        ]);
         $message = 'Статус заявки успешно изменен! Транзакция создана.';
+        if( $application->condition === 'В срок' ) {
+            if($application->type_of_processing === 'Забрать дивиденды частично') {
+                $application->user->userTransactions()->create([
+                    'contract_id' => $application->contract_id,
+                    'manager_id' => $application->manager_id,
+                    'user_id' => $application->user_id,
+                    'date_transition' => $application->date_of_payments,
+                    'sum_transition' => $application->dividends,
+                    'sourse' => 'Заявка',
+                ]);
+                $contract = Contract::find($application->contract_id);
+                $mainSum = $contract->sum;
+                $avalible_balance = $application->user->avaliable_balance;
+                $contract->update(['sum' => $mainSum + $avalible_balance]);
+                $application->user->update(['avaliable_balance' => null]);
+            }
+        }
         if ($application->condition === 'Раньше срока') {
             $contract = Contract::find($application->contract_id);
             $contract->update(['contract_status' => false]);
-            $sumTransition = $application->sum  - ($application->sum*0.3);
+            $sumTransition = $application->sum;
             $application->user->userTransactions()->create([
                 'contract_id' => $application->contract_id,
                 'manager_id' => $application->manager_id,
@@ -680,6 +703,7 @@ class AdminController extends Controller
                 'sourse' => 'Заявка',
             ]);
         }
+        
     } else if ($request->status === 'Отменена') {
        // dd($application->user);
         $application->user->update(['avaliable_balance' => null]);

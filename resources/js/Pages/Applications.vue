@@ -44,7 +44,7 @@ const error = ref('');
 const userInfo = ref({});
 const contractInfo = ref({});
 const payments = ref('');
-const dividendsTerm = ref(null);
+const partOfDividends = ref(null);
 const count_of_applications = ref(null);
 const number_of_payments = ref(null);
 const x = ref(true);
@@ -67,7 +67,6 @@ const applicationStatuses = ref(['В обработке', 'Согласован�
 // };
 
 const getInfo = async (url, applicationId) => {
-    console.log(url, applicationId);
     try {
         const data = await fetchData(url, { application: applicationId }); // Ожидаем завершения запроса
         applicationData.value = data.application;
@@ -77,52 +76,24 @@ const getInfo = async (url, applicationId) => {
         selectedOffTime.value = applicationData.value.condition ?? '';
         selectedPartlyOption.value = applicationData.value.type_of_processing ?? '';
         formStatus.status = applicationData.value.status;
-        console.log(applicationData.value);
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
     }
 };
 
-const offTime = () => {
-    form.sum = null;
-    form.condition = 'Раньше срока';
-    form.type_of_processing = 'Основная сумма';
-    form.sum = Number((sum.value - sum.value * 0.3).toFixed(2));
-};
-const onTime = () => {
-    form.sum = null;
-    form.condition = 'В срок';
-};
-const takeEverythin = () => {
-    form.sum = null;
-    form.dividends = null;
-    form.type_of_processing = 'Забрать дивиденды и сумму';
-    form.sum = Number(sum.value);
-    form.dividends = Number(dividends.value);
-};
-const takeDividends = () => {
-    form.dividends = null;
-    form.sum = null;
-    form.type_of_processing = 'Забрать дивиденды целиком';
-    form.dividends = Number(dividends.value);
-};
-
 const handleGetClient = (id) => {
     userContract.value = props.clients.find((client) => client.id === id);
 };
-
 const handleGetContract = (contract_id) => {
     sum.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).sum;
-    let tmpCreate = userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date;
-    let tmpDeadline = userContract.value.user_contracts.find((contract) => contract.id === contract_id).deadline;
     procent.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).procent + '%';
     form.manager_id = userContract.value.user_contracts.find((contract) => contract.id === contract_id).manager_id;
-    create_date.value = formatDate(tmpCreate);
-    term.value = getYearDifference(tmpCreate, tmpDeadline);
-    dividends.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).dividends / 12;
-    payments.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).payments;
-    let contrNumb = userContract.value.user_contracts.find((contract) => contract.id === contract_id).contract_number;
+    create_date.value = formatDate(
+        userContract.value.user_contracts.find((contract) => contract.id === contract_id).create_date,
+    );
+    term.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).term;
+    dividends.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).dividends;
     number_of_payments.value = userContract.value.user_contracts.find(
         (contract) => contract.id === contract_id,
     ).number_of_payments;
@@ -132,12 +103,33 @@ const handleGetContract = (contract_id) => {
     number_of_payments.value - 1 > count_of_applications.value ? (x.value = true) : (x.value = false);
 };
 
-const takePartlyDividends = () => {
+const offTime = () => {
+    form.sum = null;
+    form.condition = 'Раньше срока';
+    form.type_of_processing = 'Основная сумма';
+    form.sum = Number(sum.value - sum.value * 0.3);
+};
+const onTime = () => {
+    form.sum = null;
+    form.condition = 'В срок';
+};
+const takeEverythin = () => {
+    form.sum = null;
+    form.dividends = null;
+    form.type_of_processing = 'Забрать дивиденды и сумму';
+    form.sum = sum.value;
+    form.dividends = dividends.value;
+};
+const takeDividends = () => {
     form.dividends = null;
     form.sum = null;
+    form.type_of_processing = 'Забрать дивиденды целиком';
+    form.dividends = dividends.value;
+};
+
+const takePartlyDividends = () => {
+    form.dividends = null;
     form.type_of_processing = 'Забрать дивиденды частично';
-    dividendsTerm.value = dividends.value / (payments.value === 'Ежеквартально' ? 4 : 1) / term.value;
-    console.log(dividendsTerm.value);
 };
 
 // const handleDropdownSelect = (option, applicationId, type) => {
@@ -210,7 +202,7 @@ const formStatus = useForm({
 watch(
     () => form.dividends,
     (newValue) => {
-        form.available_balance = dividendsTerm.value - newValue;
+        form.available_balance = dividends.value - newValue;
     },
 );
 
@@ -416,11 +408,11 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="contract_sum">
                                 <label>Основная сумма</label>
-                                <p>{{ sum }}₽</p>
+                                <p>{{ sum ? sum + '₽' : '' }}</p>
                             </div>
                             <div class="contract_sum">
                                 <label>Дивиденды</label>
-                                <p>{{ dividends }}₽</p>
+                                <p>{{ dividends ? dividends + '₽' : '' }}</p>
                             </div>
                         </div>
                     </div>
@@ -462,7 +454,7 @@ const changeStatus = () => {
                             </div>
                         </div>
                         <p class="warning" style="margin-top: 16px">Комиссия за вывод раньше срока, 30%</p>
-                        <p class="warning" style="margin-top: 4px">{{ (sum * 0.3).toFixed(2) }}</p>
+                        <p class="warning" style="margin-top: 4px">{{ sum * 0.3 }}₽</p>
                     </div>
                     <div class="for_on_time" v-if="selectedOffTime === 'В срок'">
                         <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Варианты списания</p>
@@ -475,7 +467,6 @@ const changeStatus = () => {
                                     @click="takePartlyDividends"
                                     value="Забрать дивиденды частично"
                                     v-model="selectedPartlyOption"
-                                    :disabled="x === true"
                                 />
                                 <label for="partly" class="button">Забрать дивиденды частично</label>
                                 <input
@@ -495,7 +486,6 @@ const changeStatus = () => {
                                 value="Забрать дивиденды и сумму"
                                 v-model="selectedPartlyOption"
                                 @click="takeEverythin"
-                                :disabled="x === true"
                             />
                             <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                         </div>
@@ -575,9 +565,11 @@ const changeStatus = () => {
                             <label>Срок договора</label>
                             <p>
                                 {{
-                                    getYearDifference(contractInfo.create_date, contractInfo.deadline) === 1
+                                    contractInfo.term === 1
                                         ? '1 год'
-                                        : getYearDifference(contractInfo.create_date, contractInfo.deadline) + ' года'
+                                        : contractInfo.term === 3
+                                        ? '3 года'
+                                        : contractInfo.term + ''
                                 }}
                             </p>
                         </div>
@@ -627,7 +619,7 @@ const changeStatus = () => {
                         </div>
                     </div>
                     <p class="warning" style="margin-top: 16px">Комиссия за вывод раньше срока, 30%</p>
-                    <p class="warning" style="margin-top: 4px">{{ (contractInfo.sum * 0.3).toFixed(2) }}</p>
+                    <p class="warning" style="margin-top: 4px">{{ contractInfo.sum * 0.3 }}</p>
                 </div>
                 <div class="for_on_time" v-if="selectedOffTime === 'В срок'">
                     <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Варианты списания</p>
