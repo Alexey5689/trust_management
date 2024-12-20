@@ -43,8 +43,7 @@ const applicationData = ref({});
 const error = ref('');
 const userInfo = ref({});
 const contractInfo = ref({});
-const payments = ref('');
-const partOfDividends = ref(null);
+
 const count_of_applications = ref(null);
 const number_of_payments = ref(null);
 const x = ref(true);
@@ -268,11 +267,11 @@ const changeStatus = () => {
                             <li>Сумма</li>
                             <li>Дивиденды</li>
                         </ul>
-                        <div class="title" v-if="props.applications.length === 0">Заявок нет</div>
+                        <div class="title" v-if="activeApplication.length === 0">Заявок нет</div>
                         <div
                             v-else
                             class="applications align-center"
-                            v-for="application in props.applications"
+                            v-for="application in activeApplication"
                             :key="application.id"
                         >
                             <div class="order">
@@ -302,7 +301,7 @@ const changeStatus = () => {
                             <div>
                                 <p>{{ application.dividends }}</p>
                             </div>
-                            <div>
+                            <div v-if="role === 'admin' || role === 'manager'">
                                 <Dropdown
                                     v-if="role === 'admin'"
                                     :options="[
@@ -346,7 +345,88 @@ const changeStatus = () => {
                         <h2 class="title-card">Завершенные заявки</h2>
                     </header>
                     <div class="application">
-                        <div class="title">Завершённых заявок нет</div>
+                        <ul class="thead-application align-center">
+                            <li class="order">Дата заявки</li>
+                            <li>Клиент</li>
+                            <li>Договор</li>
+                            <li>Условие</li>
+                            <li>Статус</li>
+                            <li>Вид списания</li>
+                            <li>Дата выплаты</li>
+                            <li>Сумма</li>
+                            <li>Дивиденды</li>
+                        </ul>
+                        <div class="title" v-if="noactiveCApplication.length === 0">Заявок нет</div>
+                        <div
+                            v-else
+                            class="applications align-center"
+                            v-for="application in noactiveCApplication"
+                            :key="application.id"
+                        >
+                            <div class="order">
+                                <p>{{ formatDate(application.create_date) }}</p>
+                            </div>
+                            <div>
+                                <p>{{ application.full_name }}</p>
+                            </div>
+                            <div>
+                                <p>{{ application.contract_number }}</p>
+                            </div>
+                            <div>
+                                <p>{{ application.condition }}</p>
+                            </div>
+                            <div>
+                                <p>{{ application.status }}</p>
+                            </div>
+                            <div>
+                                <p>{{ application.type_of_processing }}</p>
+                            </div>
+                            <div>
+                                <p>{{ formatDate(application.date_of_payments) }}</p>
+                            </div>
+                            <div>
+                                <p>{{ application.sum }}</p>
+                            </div>
+                            <div>
+                                <p>{{ application.dividends }}</p>
+                            </div>
+                            <div v-if="role === 'admin' || role === 'manager'">
+                                <Dropdown
+                                    v-if="role === 'admin'"
+                                    :options="[
+                                        {
+                                            label: 'Подробная информация',
+                                            action: 'information',
+                                            url: 'show.application',
+                                        },
+                                        { label: 'Изменить статус', action: 'edit', url: 'change.status.application' },
+                                    ]"
+                                    class="applications_dropdown"
+                                    @select="handleDropdownSelect($event, application.id, $event.action)"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                                <Dropdown
+                                    v-else
+                                    :options="[
+                                        {
+                                            label: 'Подробная информация',
+                                            action: 'information',
+                                            url: 'show.application',
+                                        },
+                                    ]"
+                                    class="applications_dropdown"
+                                    @select="handleDropdownSelect($event, application.id, $event.action)"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div>
+                        </div>
+                        <!-- {{ props.applications }} -->
                     </div>
                 </div>
             </div>

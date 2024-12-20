@@ -14,7 +14,7 @@ import Icon_logs from '@/Components/Icon/Logs.vue';
 import Icon_balance from '@/Components/Icon/Balance.vue';
 import { useUserInfo } from '@/store/hooks.js';
 
-const { user_Name_Email } = useUserInfo();
+const { user_Info } = useUserInfo();
 
 const props = defineProps({
     userRole: {
@@ -51,50 +51,70 @@ const remote = () => {
                 </div>
             </div>
             <div class="profile flex flex-column align-center">
-                <!-- {{ props.userInfo?.email }}  {{ props.userInfo?.full_name }} -->
+                <!-- {{ user_Info }} -->
                 <transition name="fade-height">
                     <div class="flex flex-column align-center w-100">
                         <p class="profile_name">
-                            {{ props.userInfo?.full_name ? props.userInfo.full_name : user_Name_Email.full_name }}
+                            {{ props.userInfo?.full_name ? props.userInfo.full_name : user_Info.full_name }}
                         </p>
                         <span class="profile_mail">
-                            {{ props.userInfo?.email ? props.userInfo.email : user_Name_Email.email }}</span>
+                            {{ props.userInfo?.email ? props.userInfo.email : user_Info.email }}</span
+                        >
                     </div>
                 </transition>
             </div>
             <nav class="flex flex-column nav_box">
-                <NavLink :href="route(`${props.userRole}.profile`)"
-                    :active="route().current(`${props.userRole}.profile`)">
+                <NavLink
+                    :href="route(`${props.userRole}.profile`)"
+                    :active="route().current(`${props.userRole}.profile`)"
+                >
                     <Icon_personal_account />
                     <span>Личный кабинет</span>
                 </NavLink>
-                <NavLink v-if="props.userRole === 'admin'" :href="route('admin.users')"
-                    :active="route().current('admin.users')">
+                <NavLink
+                    v-if="props.userRole === 'admin'"
+                    :href="route('admin.users')"
+                    :active="route().current('admin.users')"
+                >
                     <Icon_users />
                     <span>Пользователи</span>
                 </NavLink>
-                <NavLink v-if="props.userRole === 'manager'" :href="route(`${props.userRole}.clients`)"
-                    :active="route().current(`${props.userRole}.clients`)">
+                <NavLink
+                    v-if="props.userRole === 'manager'"
+                    :href="route(`${props.userRole}.clients`)"
+                    :active="route().current(`${props.userRole}.clients`)"
+                >
                     <Icon_users />
                     <span>Клиенты</span>
                 </NavLink>
-                <NavLink :href="route(`${props.userRole}.contracts`)"
-                    :active="route().current(`${props.userRole}.contracts`)">
+                <NavLink
+                    :href="route(`${props.userRole}.contracts`)"
+                    :active="route().current(`${props.userRole}.contracts`)"
+                >
                     <Icon_contract />
                     <span>Договоры</span>
                 </NavLink>
-                <NavLink v-if="props.userRole === 'client'" :href="route('client.balance-transactions')"
-                    :active="route().current('client.balance-transactions')">
+                <NavLink
+                    v-if="props.userRole === 'client'"
+                    :href="route('client.balance-transactions')"
+                    :active="route().current('client.balance-transactions')"
+                >
                     <Icon_balance />
                     <span>Баланс и транзакции</span>
                 </NavLink>
-                <NavLink :href="route(`${props.userRole}.applications`)"
-                    :active="route().current(`${props.userRole}.applications`)">
+                <NavLink
+                    :href="route(`${props.userRole}.applications`)"
+                    :active="route().current(`${props.userRole}.applications`)"
+                >
                     <Icon_applications />
                     <span>Заявки</span>
                 </NavLink>
-                <NavLink class="logs" v-if="props.userRole === 'admin' || props.userRole === 'manager'"
-                    :href="route('admin.logs')" :active="route().current('admin.logs')">
+                <NavLink
+                    class="logs"
+                    v-if="props.userRole === 'admin' || props.userRole === 'manager'"
+                    :href="route('admin.logs')"
+                    :active="route().current('admin.logs')"
+                >
                     <Icon_logs />
                     <span>Логи</span>
                 </NavLink>
@@ -109,25 +129,30 @@ const remote = () => {
                             <p>Ваш менеджер</p>
                             <Icon_personal_account />
                             <div>
-                                <p>Владлен Антонов</p>
-                                <span>vladlenantonov@gmail.ru</span>
+                                <p>{{ props.userInfo?.manager ?? user_Info.manager }}</p>
+                                <span>{{ props.userInfo?.managerEmail ?? user_Info.managerEmail }}</span>
                             </div>
                         </div>
                         <Icon_balance />
-                        <div style="margin-right: 40px;">
+                        <div style="margin-right: 40px">
                             <p class="fw">Дивиденты</p>
-                            <p>5 200 ₽</p>
+                            <p>{{ props.userInfo?.dividends ?? user_Info.dividends }} ₽</p>
                         </div>
-                        <div style="margin-right: 20px;">
+                        <div style="margin-right: 20px">
                             <p class="fw">Основная сумма</p>
-                            <p>10 000 000 ₽</p>
+                            <p>{{ props.userInfo?.main_sum ?? user_Info.main_sum }} ₽</p>
                         </div>
                     </div>
-                    {{ props.userRole }}
-                    {{ props.notifications }}
+                    <!-- {{ props.userRole }}
+                    {{ props.notifications }} -->
                     <Icon_notifications />
-                    <ResponsiveNavLink :href="route('logout')" @click="remote()" method="post" as="button"
-                        class="flex align-center justify-center btn">
+                    <ResponsiveNavLink
+                        :href="route('logout')"
+                        @click="remote()"
+                        method="post"
+                        as="button"
+                        class="flex align-center justify-center btn"
+                    >
                         <Icon_exit />
                         Выйти
                     </ResponsiveNavLink>
@@ -235,18 +260,18 @@ const remote = () => {
     margin-right: 18px;
 }
 
-.fw  {
+.fw {
     font-weight: 500;
 }
 
 .your_manager {
-    color: #969BA0;
+    color: #969ba0;
     column-gap: 18px;
     margin-right: auto;
 }
 
 .your_manager svg {
-    fill: #969BA0;
+    fill: #969ba0;
     margin-right: 0;
 }
 

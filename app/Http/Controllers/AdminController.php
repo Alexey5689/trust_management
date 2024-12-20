@@ -660,9 +660,95 @@ class AdminController extends Controller
             ],
         ]);
     }
-    public function updateStatusApplication(Request $request, Application $application)
-{   
-    //dd($application);
+//     public function updateStatusApplication(Request $request, Application $application)
+// {   
+//     //dd($application);
+//     $user = Auth::user();
+//     $role = $user->role->title;
+
+//     $originalStatus = $application->status;
+
+//     // Обновляем статус заявки
+//     $application->update(['status' => $request->status]);
+//     // Если статус "Исполнена", создаем транзакцию
+//     if ($request->status === 'Исполнена') {
+//         $message = 'Статус заявки успешно изменен! Транзакция создана.';
+//         if( $application->condition === 'В срок' ) {
+//             if($application->type_of_processing === 'Забрать дивиденды частично') {
+//                 $application->user->userTransactions()->create([
+//                     'contract_id' => $application->contract_id,
+//                     'manager_id' => $application->manager_id,
+//                     'user_id' => $application->user_id,
+//                     'date_transition' => $application->date_of_payments,
+//                     'sum_transition' => $application->dividends,
+//                     'sourse' => 'Заявка',
+//                 ]);
+
+
+                
+//                 $contract = Contract::find($application->contract_id);
+//                 $mainSum = $contract->sum;
+//                 $avalible_balance = $application->user->avaliable_balance;
+//                 $contract->update(['sum' => $mainSum + $avalible_balance]);
+
+//                 $application->user->userTransactions()->create([
+//                     'contract_id' => $application->contract_id,
+//                     'manager_id' => $application->manager_id,
+//                     'user_id' => $application->user_id,
+//                     'date_transition' => $application->date_of_payments,
+//                     'sum_transition' => $avalible_balance,
+//                     'sourse' => 'Договор',
+//                 ]);
+//                 $application->user->update(['avaliable_balance' => null]);
+//                 $contract->update(['last_payment_date' => now()]);
+
+//             }
+//         }
+//         if ($application->condition === 'Раньше срока') {
+//             $contract = Contract::find($application->contract_id);
+//             $contract->update(['contract_status' => false]);
+//             $sumTransition = $application->sum;
+//             $application->user->userTransactions()->create([
+//                 'contract_id' => $application->contract_id,
+//                 'manager_id' => $application->manager_id,
+//                 'user_id' => $application->user_id,
+//                 'date_transition' => $application->date_of_payments,
+//                 'sum_transition' => $sumTransition,
+//                 'sourse' => 'Заявка',
+//             ]);
+//         }
+        
+//     } else if ($request->status === 'Отменена') {
+//        // dd($application->user);
+//         $application->user->update(['avaliable_balance' => null]);
+//         $message = 'Статус заявки успешно изменен!';
+//     }
+//     else {
+//         $message = 'Статус заявки успешно изменен!';
+//     }
+
+//     // Логирование изменения статуса
+//     if ($originalStatus !== $application->status) {
+//         Log::create([
+//             'model_id' => $application->user_id,
+//             'model_type' => Application::class,
+//             'change' => 'Изменен статус',
+//             'action' => 'Изменение статуса заявки',
+//             'old_value' => $originalStatus,
+//             'new_value' => $application->status,
+//             'created_by' => $user->id,
+//         ]);
+//     }
+//     $user = $application->user;
+//     $user->userNotifications()->create([
+//         'content'=> 'Статус заявки No' . $application->id . ' был изменен',
+//     ]);
+
+//     return redirect()->route($role . '.applications')->with('status', $message);
+// } 
+
+public function updateStatusApplication(Request $request, Application $application)
+{
     $user = Auth::user();
     $role = $user->role->title;
 
@@ -670,46 +756,35 @@ class AdminController extends Controller
 
     // Обновляем статус заявки
     $application->update(['status' => $request->status]);
-    // Если статус "Исполнена", создаем транзакцию
+
     if ($request->status === 'Исполнена') {
         $message = 'Статус заявки успешно изменен! Транзакция создана.';
-        if( $application->condition === 'В срок' ) {
-            if($application->type_of_processing === 'Забрать дивиденды частично') {
-                $application->user->userTransactions()->create([
-                    'contract_id' => $application->contract_id,
-                    'manager_id' => $application->manager_id,
-                    'user_id' => $application->user_id,
-                    'date_transition' => $application->date_of_payments,
-                    'sum_transition' => $application->dividends,
-                    'sourse' => 'Заявка',
+        $contract = Contract::find($application->contract_id);
+
+        if (!$contract) {
+            return redirect()->back()->withErrors(['message' => 'Договор не найден.']);
+        }
+
+        if ($application->condition === 'В срок') {
+            if ($application->type_of_processing === 'Забрать дивиденды частично') {
+                $this->createTransaction($application, $application->dividends, 'Заявка');
+
+                $contract->update([
+                    'sum' => $contract->sum + $application->user->available_balance,
+                    'last_payment_date' => now(),
                 ]);
-                $contract = Contract::find($application->contract_id);
-                $mainSum = $contract->sum;
-                $avalible_balance = $application->user->avaliable_balance;
-                $contract->update(['sum' => $mainSum + $avalible_balance]);
-                $application->user->update(['avaliable_balance' => null]);
+
+                $this->createTransaction($application, $application->user->available_balance, 'Договор');
+                $application->user->update(['available_balance' => null]);
             }
-        }
-        if ($application->condition === 'Раньше срока') {
-            $contract = Contract::find($application->contract_id);
+        } elseif ($application->condition === 'Раньше срока') {
             $contract->update(['contract_status' => false]);
-            $sumTransition = $application->sum;
-            $application->user->userTransactions()->create([
-                'contract_id' => $application->contract_id,
-                'manager_id' => $application->manager_id,
-                'user_id' => $application->user_id,
-                'date_transition' => $application->date_of_payments,
-                'sum_transition' => $sumTransition,
-                'sourse' => 'Заявка',
-            ]);
+            $this->createTransaction($application, $application->sum, 'Заявка');
         }
-        
-    } else if ($request->status === 'Отменена') {
-       // dd($application->user);
-        $application->user->update(['avaliable_balance' => null]);
+    } elseif ($request->status === 'Отменена') {
+        $application->user->update(['available_balance' => null]);
         $message = 'Статус заявки успешно изменен!';
-    }
-    else {
+    } else {
         $message = 'Статус заявки успешно изменен!';
     }
 
@@ -725,13 +800,15 @@ class AdminController extends Controller
             'created_by' => $user->id,
         ]);
     }
-    $user = $application->user;
-    $user->userNotifications()->create([
-        'content'=> 'Статус заявки No' . $application->id . ' был изменен',
+
+    // Уведомление пользователя
+    $application->user->userNotifications()->create([
+        'content' => 'Статус заявки No' . $application->id . ' был изменен',
     ]);
 
     return redirect()->route($role . '.applications')->with('status', $message);
-} 
+}
+
     public function createLogs(){
         $user = Auth::user();
         $role = $user->role->title;

@@ -26,6 +26,7 @@ const isModalOpen = ref(false);
 const currentModal = ref(null);
 const userData = ref({});
 const role = ref('manager');
+const error = ref(null);
 
 const getInfo = async (url) => {
     try {
@@ -57,7 +58,17 @@ watch(
 );
 
 onMounted(() => {
-    localStorage.setItem('userInfo', JSON.stringify({ full_name: props.user.full_name, email: props.user.email }));
+    localStorage.setItem(
+        'userInfo',
+        JSON.stringify({
+            full_name: props.user.full_name,
+            email: props.user.email,
+            manager: props.user.manager ?? '',
+            managerEmail: props.user.managerEmail ?? '',
+            main_sum: props.user.main_sum ?? null,
+            dividends: props.user.dividends ?? null,
+        }),
+    );
 });
 
 const modalTitles = {
@@ -130,8 +141,12 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
                     </div>
                 </div>
                 <div v-if="props.role !== 'admin'" class="div_warning">
-                    <p v-if="props.role === 'client'" class="warning">Для изменения номера телефона и почты обратитесь к своему менеджеру </p>
-                    <p v-if="props.role === 'manager'" class="warning">Для изменения почты и номера телефона обратитесь к администратору</p>
+                    <p v-if="props.role === 'client'" class="warning">
+                        Для изменения номера телефона и почты обратитесь к своему менеджеру
+                    </p>
+                    <p v-if="props.role === 'manager'" class="warning">
+                        Для изменения почты и номера телефона обратитесь к администратору
+                    </p>
                 </div>
             </div>
         </template>

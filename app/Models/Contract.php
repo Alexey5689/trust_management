@@ -26,6 +26,7 @@ class Contract extends Model
         'agree_with_terms',
         'dividends',
         'number_of_payments',
+        'last_payment_date',
     ];
     /**
      * Связь с транзакциями (один ко многим)
