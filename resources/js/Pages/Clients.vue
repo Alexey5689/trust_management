@@ -219,7 +219,7 @@ const updateUser = () => {
                                 <p class="text">{{ client.email }}</p>
                             </div>
                             <div class="card-item">
-                                <p class="text">{{ client.user_contracts.length }}</p>
+                                <p class="text">{{ client.user_contracts }}</p>
                             </div>
                             <div class="card-item ellipsis">
                                 <Dropdown

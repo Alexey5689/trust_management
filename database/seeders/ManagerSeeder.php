@@ -36,7 +36,6 @@ class ManagerSeeder extends Seeder
                 'token' => Str::random(60),
                 'refresh_token' => Str::random(60),
                 'role_id' => 2, // Менеджерская роль
-                'avaliable_balance' =>null
             ]);
         }
     }

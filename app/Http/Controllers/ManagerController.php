@@ -26,7 +26,9 @@ class ManagerController extends Controller
         $role = $user->role->title; // Получаем его роль
         $clients = $user->managedUsers()
         //->where('active', true)
-        ->with('userContracts')
+        ->with(['userContracts' => function ($query) {
+            $query->where('contract_status', true);  // Загружаем только активные контракты
+        }])
         ->get()
         ->map(function ($client) {
             return [
@@ -35,7 +37,7 @@ class ManagerController extends Controller
                 'email' => $client->email,
                 'phone_number' => $client->phone_number,
                 'active' => $client->active,
-                'user_contracts' => $client->userContracts->toArray(),
+                'user_contracts' => $client->userContracts->count(),
             ];
         });
 

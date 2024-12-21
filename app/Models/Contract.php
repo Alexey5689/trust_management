@@ -24,7 +24,7 @@ class Contract extends Model
         'payments',
         'contract_status',
         'agree_with_terms',
-        'dividends',
+        'avaliable_dividends',
         'number_of_payments',
         'last_payment_date',
     ];

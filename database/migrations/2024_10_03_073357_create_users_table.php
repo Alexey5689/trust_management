@@ -24,7 +24,6 @@ return new class extends Migration
             $table->boolean('active')->default(false);
             $table->string('refresh_token');
             $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('set null'); // Внешний ключ на таблицу ролей
-            $table->decimal('avaliable_balance', 16, 2)->nullable()->comment('Доступный баланс');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Contract;
 
 use DateTime;
 
@@ -57,6 +58,93 @@ abstract class Controller
             'sum_transition' => $sum,
             'sourse' => $source,
         ]);
+    }
+    
+    protected function handleInProgressApplication($application) {
+        $application->update([
+            'status' => 'В обработке',
+        ]);
+        $message = 'Статус заявки успешно изменен!';
+        return  $message;
+    }
+
+
+    protected function handleAgreedApplication($application) {
+         // Маппинг действий в зависимости от состояния заявки
+    $actions = [
+        'Раньше срока' => fn() => $this->beforeTheDeadline($application),
+        'В срок' => fn() => $this->onTimePayout($application),  // Добавляем "В срок"
+    ];
+
+    // Выполняем действие в зависимости от состояния (по умолчанию — "В срок")
+        $action = $actions[$application->condition]; 
+        $message = $action();
+
+        return $message;
+    }
+
+
+
+    protected function handleExecutedApplication($application) {
+        $actions = [
+            'Раньше срока' => fn() => $this->beforeTheDeadline($application),
+            'В срок' => fn() => $this->onTimePayout($application),  // Добавляем "В срок"
+        ];
+        $action = $actions[$application->condition]; 
+        $message = $action();
+
+        return $message;
+    }
+
+    protected function handleCancelledApplication($application) {
+        $actions = [
+            'Раньше срока' => fn() => $this->beforeTheDeadline($application, true),
+            'В срок' => fn() => $this->onTimePayout($application),  // Добавляем "В срок"
+        ];
+        $action = $actions[$application->condition]; 
+        $message = $action();
+
+        return $message;
+    }
+
+
+
+    protected function beforeTheDeadline($application, $isCancelled = false) {
+       // Определяем новый статус заявки
+        if ($isCancelled) {
+            $application->update(['status' => 'Отменена']);
+            return 'Заявка отменена.';
+        }
+
+        $newStatus = match ($application->status) {
+            'В обработке' => 'Согласована',
+            'Согласована' => 'Исполнена',
+            default => $application->status,
+        };
+
+        // Обновляем статус заявки
+        $application->update(['status' => $newStatus]);
+
+        // Если заявка переходит в "Исполнена", обрабатываем транзакцию и договор
+        if ($newStatus === 'Исполнена') {
+            $contract = Contract::find($application->contract_id);
+
+            if (!$contract) {
+                $message = 'Ошибка: Договор не найден.';
+            }
+
+            // Завершаем договор и создаём транзакцию
+            $contract->update(['contract_status' => false]);
+            $this->createTransaction($application, $application->sum, 'Заявка');
+        }
+
+       
+        $message = 'Статус заявки успешно изменен!';
+        return $message;
+    }
+
+    protected function onTimePayout($application) {
+        
     }
     
     

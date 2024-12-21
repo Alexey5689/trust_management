@@ -104,6 +104,7 @@ const handleGetContract = (contract_id) => {
 
 const offTime = () => {
     form.sum = null;
+    form.dividends = null;
     form.condition = 'Раньше срока';
     form.type_of_processing = 'Основная сумма';
     form.sum = Number(sum.value - sum.value * 0.3);

@@ -70,7 +70,6 @@ const form = useForm({
     contract_status: true,
     payments: '', // Выплаты
     agree_with_terms: false,
-    dividends: null,
     number_of_payments: null,
 });
 

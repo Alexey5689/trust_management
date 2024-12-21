@@ -20,7 +20,6 @@ class User extends Authenticatable
         'password',
         'token',
         'refresh_token',
-        'avaliable_balance',
         'role_id'
     ];
 

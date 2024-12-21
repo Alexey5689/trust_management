@@ -550,7 +550,6 @@ class AdminController extends Controller
             'payments' => $request->payments,
             'agree_with_terms' => $request->agree_with_terms ?? false,
             'contract_status' => $request->contract_status,
-            'dividends' => $request->dividends,
             'number_of_payments'=> $request->number_of_payments
         ]);
         $client->userTransactions()->create([
@@ -749,49 +748,21 @@ class AdminController extends Controller
 
 public function updateStatusApplication(Request $request, Application $application)
 {
+    
     $user = Auth::user();
     $role = $user->role->title;
-
     $originalStatus = $application->status;
+    $actions = [
+        'В обработке' => fn() => $this->handleInProgressApplication($application),
+        'Согласована' => fn() => $this->handleAgreedApplication($application),
+        'Исполнена' => fn() => $this->handleExecutedApplication($application),
+        'Отменена' => fn() => $this->handleCancelledApplication($application),
+    ];
+    $action = $actions[$request->status];
 
-    // Обновляем статус заявки
-    $application->update(['status' => $request->status]);
+    $message = $action();
 
-    if ($request->status === 'Исполнена') {
-        $message = 'Статус заявки успешно изменен! Транзакция создана.';
-        $contract = Contract::find($application->contract_id);
-
-        if (!$contract) {
-            return redirect()->back()->withErrors(['message' => 'Договор не найден.']);
-        }
-
-        if ($application->condition === 'В срок') {
-            if ($application->type_of_processing === 'Забрать дивиденды частично') {
-                // $this->createTransaction($application, $application->dividends, 'Заявка');
-                $contract = Contract::find($application->contract_id);
-                $mainSum = $contract->sum;
-                $avalible_balance = round($application->user->avaliable_balance);
-                $contract->update([
-                    'sum' => $mainSum + $avalible_balance,
-                    'last_payment_date' => now(),
-                ]);
-                //dd($application->user->available_balance);
-                $this->createTransaction($application, $avalible_balance, 'Договор');
-                $application->user->update(['avaliable_balance' => null]);
-                //dd($contract->sum, $avalible_balance); 
-            }
-        } elseif ($application->condition === 'Раньше срока') {
-            $contract->update(['contract_status' => false]);
-            $this->createTransaction($application, $application->sum, 'Заявка');
-        }
-    } elseif ($request->status === 'Отменена') {
-        $application->user->update(['available_balance' => null]);
-        $message = 'Статус заявки успешно изменен!';
-    } else {
-        $message = 'Статус заявки успешно изменен!';
-    }
-
-    // Логирование изменения статуса
+    
     if ($originalStatus !== $application->status) {
         Log::create([
             'model_id' => $application->user_id,
@@ -804,10 +775,54 @@ public function updateStatusApplication(Request $request, Application $applicati
         ]);
     }
 
+    // Обновляем статус заявки
+    // $application->update(['status' => $request->status]);
+
+   
+   
+
+    
+    //dd($message);
+    // if ($request->status === 'Исполнена') {
+    //     $message = 'Статус заявки успешно изменен! Транзакция создана.';
+    //     $contract = Contract::find($application->contract_id);
+
+    //     if (!$contract) {
+    //         return redirect()->back()->withErrors(['message' => 'Договор не найден.']);
+    //     }
+
+    //     if ($application->condition === 'В срок') {
+    //         if ($application->type_of_processing === 'Забрать дивиденды частично') {
+    //             // $this->createTransaction($application, $application->dividends, 'Заявка');
+    //             $contract = Contract::find($application->contract_id);
+    //             $mainSum = $contract->sum;
+    //             $avalible_balance = round($application->user->avaliable_balance);
+    //             $contract->update([
+    //                 'sum' => $mainSum + $avalible_balance,
+    //                 'last_payment_date' => now(),
+    //             ]);
+    //             //dd($application->user->available_balance);
+    //             $this->createTransaction($application, $avalible_balance, 'Договор');
+    //             $application->user->update(['avaliable_balance' => null]);
+    //             //dd($contract->sum, $avalible_balance); 
+    //         }
+    //     } elseif ($application->condition === 'Раньше срока') {
+    //         $contract->update(['contract_status' => false]);
+    //         $this->createTransaction($application, $application->sum, 'Заявка');
+    //     }
+    // } elseif ($request->status === 'Отменена') {
+    //     $application->user->update(['available_balance' => null]);
+    //     $message = 'Статус заявки успешно изменен!';
+    // } else {
+    //     $message = 'Статус заявки успешно изменен!';
+    // }
+
+    // Логирование изменения статуса
+
     // Уведомление пользователя
-    $application->user->userNotifications()->create([
-        'content' => 'Статус заявки No' . $application->id . ' был изменен',
-    ]);
+    // $application->user->userNotifications()->create([
+    //     'content' => 'Статус заявки No' . $application->id . ' был изменен',
+    // ]);
 
     return redirect()->route($role . '.applications')->with('status', $message);
 }

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('procent')->unsigned()->comment('Ставка в процентах');
             $table->string('payments')->comment('Периодичность платежей');
             $table->integer('number_of_payments')->unsigned()->comment('Количество платежей');
-            $table->decimal('dividends',16,2)->unsigned()->nullable()->comment('Сумма дивидендов');
+            $table->decimal('avaliable_dividends',16,2)->unsigned()->nullable()->comment('Доступный остаток от дивидендов');
             $table->date('last_payment_date')->nullable()->after('deadline');
             $table->boolean('contract_status')->default(true)->comment('Статус договора');
             $table->boolean('agree_with_terms')->default(false)->comment('Выплаты в конце срока');

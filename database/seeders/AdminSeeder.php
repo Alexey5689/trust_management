@@ -24,7 +24,6 @@ class AdminSeeder extends Seeder
             'token' => Str::random(60),
             'active'=>true,
             'refresh_token' => Str::random(60),
-            'avaliable_balance' => null,
             'role_id' => 1, // ID роли администратора
         ]);
         User::factory()->admin()->create([
@@ -37,7 +36,6 @@ class AdminSeeder extends Seeder
             'token' => Str::random(60),
             'active'=>true,
             'refresh_token' => Str::random(60),
-            'avaliable_balance' =>null,
             'role_id' => 1, // ID роли администратора
         ]);
     }

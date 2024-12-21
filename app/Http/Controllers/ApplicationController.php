@@ -80,13 +80,13 @@ class ApplicationController extends Controller
         $request->validate([
             'create_date' => ['required', 'date_format:Y-m-d'],
             'date_of_payments' => ['required', 'date_format:Y-m-d', 'after_or_equal:create_date'], // Дата платежа не должна быть раньше даты создания
-            // 'sum' => [ 'numeric', 'min:0.01' ], // Сумма должна быть больше 0.01
+            'sum' => [ 'numeric', 'min:0.01' ], // Сумма должна быть больше 0.01
             'dividends' => [ 'nullable', 'numeric' ], // Сумма должна быть больше 0.01
             
         ]);
         $user = Auth::user();
         $role = $user->role->title;
-        $balance = $request->available_balance;
+       
         /** @var User $user */
         // Проверка, что менеджер имеет право работать с пользователем
         if (!$user->managedUsers()->where('id', $request->user_id)->exists() && $role !== 'admin') {
@@ -121,11 +121,15 @@ class ApplicationController extends Controller
             'created_by' => Auth::id(),
         ]);
         $client = $application->user;
-        $currentBalance = $client->avaliable_balance;
-        $newBalance = $currentBalance + $balance;
-        $client->update([
-            'avaliable_balance' => $newBalance
-        ]);
+        if ($request->available_balance) {
+            $contract = $application->contract;
+            $balance = $request->available_balance;
+            $currentBalance = $contract->avaliable_dividends;
+            $newBalance = $currentBalance + $balance;
+            $contract->update([
+                'avaliable_dividends' => $newBalance
+            ]);
+        }
         $client->userNotifications()->create([
             'content'=> 'Создана заявки No' . $application->id ,
         ]);
