@@ -767,15 +767,18 @@ public function updateStatusApplication(Request $request, Application $applicati
 
         if ($application->condition === 'В срок') {
             if ($application->type_of_processing === 'Забрать дивиденды частично') {
-                $this->createTransaction($application, $application->dividends, 'Заявка');
-
+                // $this->createTransaction($application, $application->dividends, 'Заявка');
+                $contract = Contract::find($application->contract_id);
+                $mainSum = $contract->sum;
+                $avalible_balance = round($application->user->avaliable_balance);
                 $contract->update([
-                    'sum' => $contract->sum + $application->user->available_balance,
+                    'sum' => $mainSum + $avalible_balance,
                     'last_payment_date' => now(),
                 ]);
-
-                $this->createTransaction($application, $application->user->available_balance, 'Договор');
-                $application->user->update(['available_balance' => null]);
+                //dd($application->user->available_balance);
+                $this->createTransaction($application, $avalible_balance, 'Договор');
+                $application->user->update(['avaliable_balance' => null]);
+                //dd($contract->sum, $avalible_balance); 
             }
         } elseif ($application->condition === 'Раньше срока') {
             $contract->update(['contract_status' => false]);

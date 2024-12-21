@@ -47,16 +47,17 @@ abstract class Controller
     }
 
     protected function createTransaction($application, $sum, $source)
-{
-    $application->user->userTransactions()->create([
-        'contract_id' => $application->contract_id,
-        'manager_id' => $application->manager_id,
-        'user_id' => $application->user_id,
-        'date_transition' => $application->date_of_payments,
-        'sum_transition' => $sum,
-        'sourse' => $source,
-    ]);
-}
+    {
+        //dd($application, $sum, $source);
+        $application->user->userTransactions()->create([
+            'contract_id' => $application->contract_id,
+            'manager_id' => $application->manager_id,
+            'user_id' => $application->user_id,
+            'date_transition' => $application->date_of_payments,
+            'sum_transition' => $sum,
+            'sourse' => $source,
+        ]);
+    }
     
     
     
