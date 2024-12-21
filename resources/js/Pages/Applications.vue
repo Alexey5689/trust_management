@@ -256,7 +256,7 @@ const changeStatus = () => {
                         <h2 class="title-card">Активные заявки</h2>
                     </header>
                     <div class="application">
-                        <ul class="thead-application align-center">
+                        <ul class="thead-application align-center" v-if="activeApplication.length > 0">
                             <li class="order">Дата заявки</li>
                             <li>Клиент</li>
                             <li>Договор</li>
@@ -345,7 +345,7 @@ const changeStatus = () => {
                         <h2 class="title-card">Завершенные заявки</h2>
                     </header>
                     <div class="application">
-                        <ul class="thead-application align-center">
+                        <ul class="thead-application align-center" v-if="noactiveCApplication.length > 0">
                             <li class="order">Дата заявки</li>
                             <li>Клиент</li>
                             <li>Договор</li>
