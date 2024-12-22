@@ -1,8 +1,8 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
+import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { formatDate, getYearDifference } from '@/helpers.js';
+import { formatDate } from '@/helpers.js';
 import Icon_contract from '@/Components/Icon/Contract.vue';
 import Icon_schedule from '@/Components/Icon/Schedule.vue';
 
@@ -21,7 +21,7 @@ const props = defineProps({
     },
 });
 
-const activeTab = ref('months')
+const activeTab = ref('months');
 
 const yearAccruals = ref([
     { id: 1, date: '09/10/2024', month: 'Октябрь 2024', amount: '+555.555,55' },
@@ -46,6 +46,26 @@ const dayAccruals = ref([
     { id: 2, date: '10/01/2024', month: 'Январь 2024', amount: '+50,00' },
     { id: 3, date: '11/01/2024', month: 'Январь 2024', amount: '+60,45' },
 ]);
+
+// Храним id выбранного договора
+const openContractId = ref(null);
+
+// При клике устанавливаем (или сбрасываем) id выбранного договора
+function handleContractClick(contractId) {
+    openContractId.value = contractId;
+}
+
+// Вычисляем «активный» (выбранный) договор, чтобы использовать его данные
+const selectedContract = computed(() => {
+    return props.contracts.find(contract => contract.id === openContractId.value);
+});
+
+// При монтировании (или сразу в setup) выберем первый договор, если список не пуст
+onMounted(() => {
+    if (props.contracts.length > 0) {
+        openContractId.value = props.contracts[0].id;
+    }
+});
 </script>
 
 <template>
@@ -58,9 +78,10 @@ const dayAccruals = ref([
             </div>
         </template>
         <template #main>
-            <!-- {{ contracts }} -->
+            <!-- Список договоров -->
             <div class="contracts_client flex">
-                <div class="contract_item flex flex-column" v-for="contract in props.contracts" :key="contract.id">
+                <div class="contract_item flex flex-column" v-for="contract in props.contracts" :key="contract.id"
+                    @click="handleContractClick(contract.id)" :class="{ active: openContractId === contract.id }">
                     <div class="icon_contract flex justify-center align-center">
                         <Icon_contract />
                     </div>
@@ -85,16 +106,32 @@ const dayAccruals = ref([
                     </div>
                 </div>
             </div>
-            <div class="accruals card">
+
+            <!-- Единый блок Графика: показываем, если есть выбранный договор -->
+            <div class="accruals card" v-if="selectedContract">
                 <div class="accruals_title flex justify-between align-center">
-                    <h3>График начислений</h3>
+                    <h3>График начислений для договора #{{ selectedContract.contract_number }}</h3>
                     <ul class="accruals_tab flex justify-between">
-                        <li class="flex align-center years" :class="{ active: activeTab === 'years' }" @click="activeTab = 'years'">По годам</li>
-                        <li class="flex align-center months" :class="{ active: activeTab === 'months' }" @click="activeTab = 'months'">По месяцам</li>
-                        <li class="flex align-center weeks" :class="{ active: activeTab === 'weeks' }" @click="activeTab = 'weeks'">По неделям</li>
-                        <li class="flex align-center days" :class="{ active: activeTab === 'days' }" @click="activeTab = 'days'">По дням</li>
+                        <li class="flex align-center years" :class="{ active: activeTab === 'years' }"
+                            @click.stop="activeTab = 'years'">
+                            По годам
+                        </li>
+                        <li class="flex align-center months" :class="{ active: activeTab === 'months' }"
+                            @click.stop="activeTab = 'months'">
+                            По месяцам
+                        </li>
+                        <li class="flex align-center weeks" :class="{ active: activeTab === 'weeks' }"
+                            @click.stop="activeTab = 'weeks'">
+                            По неделям
+                        </li>
+                        <li class="flex align-center days" :class="{ active: activeTab === 'days' }"
+                            @click.stop="activeTab = 'days'">
+                            По дням
+                        </li>
                     </ul>
                 </div>
+
+                <!-- Таб "По годам" -->
                 <div class="accruals_schedule years" v-show="activeTab === 'years'">
                     <div v-for="accrual in yearAccruals" :key="accrual.id"
                         class="schedule_item flex justify-between align-center">
@@ -110,6 +147,8 @@ const dayAccruals = ref([
                         </div>
                     </div>
                 </div>
+
+                <!-- Таб "По месяцам" -->
                 <div class="accruals_schedule months" v-show="activeTab === 'months'">
                     <div v-for="accrual in monthAccruals" :key="accrual.id"
                         class="schedule_item flex justify-between align-center">
@@ -125,6 +164,8 @@ const dayAccruals = ref([
                         </div>
                     </div>
                 </div>
+
+                <!-- Таб "По неделям" -->
                 <div class="accruals_schedule weeks" v-show="activeTab === 'weeks'">
                     <div v-for="accrual in weekAccruals" :key="accrual.id"
                         class="schedule_item flex justify-between align-center">
@@ -140,6 +181,8 @@ const dayAccruals = ref([
                         </div>
                     </div>
                 </div>
+
+                <!-- Таб "По дням" -->
                 <div class="accruals_schedule days" v-show="activeTab === 'days'">
                     <div v-for="accrual in dayAccruals" :key="accrual.id"
                         class="schedule_item flex justify-between align-center">
@@ -156,9 +199,13 @@ const dayAccruals = ref([
                     </div>
                 </div>
             </div>
+            <!-- /График -->
         </template>
     </AuthenticatedLayout>
 </template>
+
+
+
 
 <style scoped>
 .title {
@@ -172,7 +219,7 @@ const dayAccruals = ref([
 
 .contracts_client {
     flex-wrap: nowrap;
-    column-gap: 24px;
+    column-gap: 16px;
     overflow-x: scroll;
     scrollbar-width: none;
     scrollbar-color: transparent transparent;
