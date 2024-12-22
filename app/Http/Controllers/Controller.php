@@ -27,6 +27,7 @@ abstract class Controller
         return $startDate->diff($endDate)->y;
     }
     protected function calculateAccumulatedDividends($contractStartDate, $currentDate, $quarterlyPayment, $lastPaymentDate = null) {
+       // dd($contractStartDate, $currentDate, $quarterlyPayment, $lastPaymentDate);
         $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
         $currentDate = new DateTime($currentDate);
     
@@ -99,7 +100,7 @@ abstract class Controller
     protected function handleCancelledApplication($application) {
         $actions = [
             'Раньше срока' => fn() => $this->beforeTheDeadline($application, true),
-            'В срок' => fn() => $this->onTimePayout($application),  // Добавляем "В срок"
+            'В срок' => fn() => $this->onTimePayout($application, true),  // Добавляем "В срок"
         ];
         $action = $actions[$application->condition]; 
         $message = $action();
@@ -143,10 +144,111 @@ abstract class Controller
         return $message;
     }
 
-    protected function onTimePayout($application) {
+    // protected function onTimePayout($application, $isCancelled = false) {
+       
+
+    //     $actions = [
+    //         'Забрать дивиденды частично' => fn() => $this->partialPayout($application, $isCancelled),
+    //     ];
+    //     $action = $actions[$application->type_of_processing];
+    //     $message = $action();
+
+    //     return $message;
+    // }
+
+
+    // protected function partialPayout($application,  $isCancelled = false) {
+    //     $contract = Contract::find($application->contract_id);
+    //     if ($isCancelled) {
+    //         $application->update(['status' => 'Отменена']);
+    //         $contract->avalible_dividends->update(['avaliable_dividends' => null]);
+    //         return 'Заявка отменена.';
+
+    //     }
+    //     $newStatus = match ($application->status) {
+    //         'В обработке' => 'Согласована',
+    //         'Согласована' => 'Исполнена',
+    //         default => $application->status,
+    //     };
+    //     // Обновляем статус заявки
+    //     $application->update(['status' => $newStatus]);
+    //     $mainSum = $contract->sum;
+    //     $avalible_dividends = round($contract->avalible_dividends);
+    //     $contract->update([
+    //         'sum' => $mainSum + $avalible_dividends,
+    //         'last_payment_date' => now(),
+    //     ]);
+
+    //     if ($newStatus === 'Исполнена') {
+    //         $contract->avalible_dividends->update(['avaliable_dividends' => null]);
+    //         $this->createTransaction($application, $avalible_dividends, 'Договор');
+    //     }
+
+    //     $message = 'Статус заявки успешно изменен!';
+       
+       
         
+    //     return  $message;
+    // }
+    protected function onTimePayout($application, $isCancelled = false)
+    {
+        $actions = [
+            'Забрать дивиденды частично' => fn() => $this->partialPayout($application, $isCancelled),
+        ];
+
+        // Обрабатываем заявку в зависимости от типа
+        $action = $actions[$application->type_of_processing] ?? fn() => 'Тип обработки не предусмотрен.';
+        $message = $action();
+
+        return $message;
     }
-    
-    
+
+    protected function partialPayout($application, $isCancelled = false)
+    {
+        $contract = Contract::find($application->contract_id);
+
+        if (!$contract) {
+            return 'Ошибка: Договор не найден.';
+        }
+
+        // Отмена заявки
+        if ($isCancelled) {
+            $application->update(['status' => 'Отменена']);
+            $contract->update(['avaliable_dividends' => null]);
+            return 'Заявка отменена.';
+        }
+
+        // Определяем новый статус заявки
+        $newStatus = match ($application->status) {
+            'В обработке' => 'Согласована',
+            'Согласована' => 'Исполнена',
+            default => $application->status,
+        };
+
+        // Обновляем статус заявки
+        $application->update(['status' => $newStatus]);
+
+        $mainSum = $contract->sum;
+        $avalible_dividends = round($contract->avaliable_dividends ?? 0);
+        // dd($newStatus);
+        // Обновляем сумму по договору и сбрасываем доступные дивиденды
+        // Если заявка исполнена, создаём транзакцию
+        if ($newStatus === 'Исполнена') {
+            $contract->update([
+                'sum' => $mainSum + $avalible_dividends,
+                'last_payment_date' => now(),
+                'avaliable_dividends' =>  null,
+            ]);
+            $this->createTransaction($application, $avalible_dividends, 'Договор');
+            $this->createTransaction($application, $application->dividends, 'Заявка');
+
+        }
+
+        return 'Статус заявки успешно изменен!';
+    }
+
+
+        
+        
     
 }

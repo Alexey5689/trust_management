@@ -54,8 +54,18 @@ class ClientController extends Controller
 
     // Рассчитываем накопленные дивиденды
     $dividends = $userContracts->reduce(function ($carry, $contract) {
-        $quarter_dividends = $contract->sum * ($contract->procent / 100);
-        return $carry + $this->calculateAccumulatedDividends($contract->create_date, now(), $quarter_dividends);
+        $divisor = $contract->payments === 'Ежеквартально' ? 4 : 1;
+        $sum = $contract->sum ?? 0;  // Страхуемся от null
+        $procent = $contract->procent ?? 0;  // Страхуемся от null
+    
+        $quarter_dividends = ($sum * ($procent / 100)) / $divisor;
+    
+        // Приводим create_date к Carbon, если это строка
+        $createDate = $contract->create_date instanceof \Carbon\Carbon 
+            ? $contract->create_date 
+            : \Carbon\Carbon::parse($contract->create_date);
+    
+        return $carry + $this->calculateAccumulatedDividends($createDate, now(), $quarter_dividends);
     }, 0);
 
     // Получаем менеджера
@@ -72,7 +82,7 @@ class ClientController extends Controller
                 : 'Менеджер не назначен',
             'managerEmail' => $manager ? $manager->email : '—',
             'main_sum' => $sum_all_contracts,
-            'dividends' => round($dividends, 2), // Округляем до 2 знаков
+            'dividends' => round($dividends, 2),// Округляем до 2 знаков
         ],
         'role' => $role,
         'status' => session('status'),

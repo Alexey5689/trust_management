@@ -80,7 +80,6 @@ class ApplicationController extends Controller
         $request->validate([
             'create_date' => ['required', 'date_format:Y-m-d'],
             'date_of_payments' => ['required', 'date_format:Y-m-d', 'after_or_equal:create_date'], // Дата платежа не должна быть раньше даты создания
-            'sum' => [ 'numeric', 'min:0.01' ], // Сумма должна быть больше 0.01
             'dividends' => [ 'nullable', 'numeric' ], // Сумма должна быть больше 0.01
             
         ]);

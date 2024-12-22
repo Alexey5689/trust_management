@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { formatDate, getYearDifference } from '@/helpers.js';
+import { formatDate } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
@@ -96,10 +96,10 @@ const handleGetContract = (contract_id) => {
     number_of_payments.value = userContract.value.user_contracts.find(
         (contract) => contract.id === contract_id,
     ).number_of_payments;
-    count_of_applications.value = props.applications.reduce((total, application) => {
-        return application.contract_number === contrNumb ? total + 1 : total;
-    }, 0);
-    number_of_payments.value - 1 > count_of_applications.value ? (x.value = true) : (x.value = false);
+    // count_of_applications.value = props.applications.reduce((total, application) => {
+    //     return application.contract_number === contrNumb ? total + 1 : total;
+    // }, 0);
+    // number_of_payments.value - 1 > count_of_applications.value ? (x.value = true) : (x.value = false);
 };
 
 const offTime = () => {
@@ -111,6 +111,7 @@ const offTime = () => {
 };
 const onTime = () => {
     form.sum = null;
+    form.dividends = null;
     form.condition = 'В срок';
 };
 const takeEverythin = () => {
@@ -234,13 +235,7 @@ const changeStatus = () => {
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Заявки</h2>
-                <ResponsiveNavLink
-                    class="add_application"
-                    v-if="role === 'admin' || role === 'manager'"
-                    :href="route('add.application')"
-                >
-                    Новая заявка
-                </ResponsiveNavLink>
+
                 <button
                     class="add_application link-btn"
                     @click="openModal('add')"
@@ -297,10 +292,10 @@ const changeStatus = () => {
                                 <p>{{ formatDate(application.date_of_payments) }}</p>
                             </div>
                             <div>
-                                <p>{{ application.sum }}</p>
+                                <p>{{ application.sum ? parseFloat(application.sum).toFixed() : '' }}</p>
                             </div>
                             <div>
-                                <p>{{ application.dividends }}</p>
+                                <p>{{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}</p>
                             </div>
                             <div v-if="role === 'admin' || role === 'manager'">
                                 <Dropdown
@@ -386,45 +381,10 @@ const changeStatus = () => {
                                 <p>{{ formatDate(application.date_of_payments) }}</p>
                             </div>
                             <div>
-                                <p>{{ application.sum }}</p>
+                                <p>{{ application.sum ? parseFloat(application.sum).toFixed() : '' }}</p>
                             </div>
                             <div>
-                                <p>{{ application.dividends }}</p>
-                            </div>
-                            <div v-if="role === 'admin' || role === 'manager'">
-                                <Dropdown
-                                    v-if="role === 'admin'"
-                                    :options="[
-                                        {
-                                            label: 'Подробная информация',
-                                            action: 'information',
-                                            url: 'show.application',
-                                        },
-                                        { label: 'Изменить статус', action: 'edit', url: 'change.status.application' },
-                                    ]"
-                                    class="applications_dropdown"
-                                    @select="handleDropdownSelect($event, application.id, $event.action)"
-                                >
-                                    <template #trigger>
-                                        <Ellipsis />
-                                    </template>
-                                </Dropdown>
-                                <Dropdown
-                                    v-else
-                                    :options="[
-                                        {
-                                            label: 'Подробная информация',
-                                            action: 'information',
-                                            url: 'show.application',
-                                        },
-                                    ]"
-                                    class="applications_dropdown"
-                                    @select="handleDropdownSelect($event, application.id, $event.action)"
-                                >
-                                    <template #trigger>
-                                        <Ellipsis />
-                                    </template>
-                                </Dropdown>
+                                <p>{{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}</p>
                             </div>
                         </div>
                         <!-- {{ props.applications }} -->
@@ -489,11 +449,13 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="contract_sum">
                                 <label>Основная сумма</label>
-                                <p>{{ sum ? sum + '₽' : '' }}</p>
+                                <p>{{ sum ? parseFloat(sum).toFixed() + '₽' : '' }}</p>
                             </div>
                             <div class="contract_sum">
                                 <label>Дивиденды</label>
-                                <p>{{ dividends ? dividends + '₽' : '' }}</p>
+                                <p>
+                                    {{ dividends ? parseFloat(dividends).toFixed(2) + '₽' : '' }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -737,7 +699,12 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="dividends_partly">Дивиденты</label>
-                                <input type="text" id="dividends_partly" :value="applicationData.dividends" disabled />
+                                <input
+                                    type="text"
+                                    id="dividends_partly"
+                                    :value="parseFloat(applicationData.dividends).toFixed()"
+                                    disabled
+                                />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="dividends_partly_date">Дата планируемой выплаты</label>
@@ -755,7 +722,12 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="dividends_wholly">Дивиденты</label>
-                                <input type="text" id="dividends_wholly" :value="applicationData.dividends" disabled />
+                                <input
+                                    type="text"
+                                    id="dividends_wholly"
+                                    :value="parseFloat(applicationData.dividends).toFixed(1)"
+                                    disabled
+                                />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="dividends_wholly_date">Дата планируемой выплаты</label>
@@ -773,14 +745,20 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="sum_take_everything">Основная сумма</label>
-                                <input type="text" id="sum_take_everything" :value="applicationData.sum" disabled />
+                                <input
+                                    type="text"
+                                    id="sum_take_everything"
+                                    :value="parseFloat(applicationData.sum).toFixed()"
+                                    disabled
+                                />
                             </div>
+
                             <div class="input flex flex-column">
                                 <label for="dividends_take_everything">Дивиденты</label>
                                 <input
                                     type="text"
                                     id="dividends_take_everything"
-                                    :value="applicationData.dividends"
+                                    :value="parseFloat(applicationData.dividends).toFixed()"
                                     disabled
                                 />
                             </div>
