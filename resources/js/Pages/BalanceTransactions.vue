@@ -20,6 +20,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    balance: {
+        type: Array,
+        required: true,
+    },
 });
 
 const nowDate = format(new Date(), 'yyyy-MM-dd');
@@ -38,26 +42,35 @@ const formatDate = (date) => format(parseISO(date), 'dd/MM/yyyy');
 
 // Вычисление основной суммы
 const sum = computed(() => {
-    return props.contracts.reduce((total, contract) => total + contract.sum, 0);
+    return props.contracts.length ? props.contracts.reduce((total, contract) => total + contract.sum, 0) : null;
 });
 
 // Вычисление дивидендов
 const dividends = computed(() => {
     let totalDividends = 0;
 
-    props.contracts.forEach((contract) => {
+    const contracts = Array.isArray(props.contracts) ? props.contracts : [];
+
+    // props.contracts.forEach((contract) => {
+    //     const termYears = differenceInYears(parseISO(contract.deadline), parseISO(contract.create_date));
+    //     //console.log(termYears);
+
+    //     const dailyRate = (contract.sum * (contract.procent / 100)) / 365;
+    //     //console.log(dailyRate);
+
+    //     const daysSinceStart = differenceInDays(parseISO(nowDate), parseISO(contract.create_date));
+    //     //console.log(daysSinceStart);
+
+    //     const dividendsForContract = dailyRate * Math.min(daysSinceStart, termYears * 365);
+    //     //console.log(dividendsForContract);
+
+    //     totalDividends += dividendsForContract;
+    // });
+    contracts.forEach((contract) => {
         const termYears = differenceInYears(parseISO(contract.deadline), parseISO(contract.create_date));
-        //console.log(termYears);
-
         const dailyRate = (contract.sum * (contract.procent / 100)) / 365;
-        //console.log(dailyRate);
-
         const daysSinceStart = differenceInDays(parseISO(nowDate), parseISO(contract.create_date));
-        //console.log(daysSinceStart);
-
         const dividendsForContract = dailyRate * Math.min(daysSinceStart, termYears * 365);
-        //console.log(dividendsForContract);
-
         totalDividends += dividendsForContract;
     });
 
@@ -69,13 +82,13 @@ function formatNumber(num) {
     return Number(num)
         .toLocaleString('ru-RU', {
             minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).replace(',', '.');
+            maximumFractionDigits: 2,
+        })
+        .replace(',', '.');
 }
 </script>
 
 <template>
-
     <Head title="Transaction" />
     <AuthenticatedLayout :userRole="props.role">
         <template #header>
@@ -85,27 +98,30 @@ function formatNumber(num) {
         </template>
         <!-- {{ props.transactions }} -->
         <template #main>
-            <div class="card" style="width: 354px;">
+            <div class="card" style="width: 354px">
                 <p class="info_date">Актуальный на {{ currentDate }}</p>
                 <h1 class="title-card">Баланс</h1>
                 <div class="client">
                     <div class="client_info">
-                        <p style="font-weight: 500;">Основная сумма</p>
-                        <p>{{ formatNumber(sum) }} ₽</p>
+                        <p style="font-weight: 500">Основная сумма</p>
+                        <p>{{ formatNumber(props.balance.main_sum) }} ₽</p>
                     </div>
                     <div class="client_info">
-                        <p style="font-weight: 500;">Дивиденды</p>
-                        <p>{{ formatNumber(dividends) }} ₽</p>
+                        <p style="font-weight: 500">Дивиденды</p>
+                        <p>{{ formatNumber(props.balance.dividends) }} ₽</p>
                     </div>
                 </div>
             </div>
-            <div class="card" style="margin-top: 32px;">
+            <div class="card" style="margin-top: 32px">
                 <h1 class="title-card">Транзакции</h1>
 
-                <div class="flex flex-column" style="row-gap: 28px;">
-                    <div class="flex align-center justify-between" v-for="transaction in transactions"
-                        :key="transaction.id">
-                        <div style="width: 164px;">
+                <div class="flex flex-column" style="row-gap: 28px">
+                    <div
+                        class="flex align-center justify-between"
+                        v-for="transaction in transactions"
+                        :key="transaction.id"
+                    >
+                        <div style="width: 164px">
                             <div v-if="transaction.sourse === 'Договор'" class="input flex justify-center align-center">
                                 <Icon_input />
                             </div>
@@ -113,16 +129,18 @@ function formatNumber(num) {
                                 <Icon_output />
                             </div>
                         </div>
-                        <div style="width: 164px;">
+                        <div style="width: 164px">
                             <p>
                                 {{ formatDate(transaction.date_transition) }}
                             </p>
                             <span class="month_year">{{
-                                format(parseISO(transaction.date_transition), "LLLL yyyy", { locale: ru })
-                                    .replace(/^./, (str) => str.toUpperCase())
+                                format(parseISO(transaction.date_transition), 'LLLL yyyy', { locale: ru }).replace(
+                                    /^./,
+                                    (str) => str.toUpperCase(),
+                                )
                             }}</span>
                         </div>
-                        <div style="width: 164px; font-weight: 500;">
+                        <div style="width: 164px; font-weight: 500">
                             <p>
                                 {{
                                     transaction.sourse === 'Договор'
@@ -131,19 +149,20 @@ function formatNumber(num) {
                                 }}
                             </p>
                         </div>
-                        <div style="width: 164px; text-align: center; color: #969BA0;">
+                        <div style="width: 164px; text-align: center; color: #969ba0">
                             {{ transaction.sourse }}
                         </div>
-                        <div style="width: 164px;" class="flex justify-end">
-                            <p class="flex align-center justify-center"
-                                :class="transaction.sourse === 'Договор' ? 'green' : 'red'">
+                        <div style="width: 164px" class="flex justify-end">
+                            <p
+                                class="flex align-center justify-center"
+                                :class="transaction.sourse === 'Договор' ? 'green' : 'red'"
+                            >
                                 {{ transaction.sourse === 'Договор' ? 'Пополнение' : 'Вывод' }}
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-
         </template>
     </AuthenticatedLayout>
 </template>
@@ -171,7 +190,7 @@ function formatNumber(num) {
 }
 
 .info_date {
-    color: #A7ADB2;
+    color: #a7adb2;
     margin-bottom: 4px;
 }
 
@@ -189,27 +208,27 @@ function formatNumber(num) {
 }
 
 .client_info {
-    background: #F3F5F6;
+    background: #f3f5f6;
     padding: 16px 20px;
     border-radius: 24px;
 }
 
 .input {
-    background: #23B347;
+    background: #23b347;
     height: 44px;
     width: 44px;
     border-radius: 100px;
 }
 
 .output {
-    background: #C4C6C7;
+    background: #c4c6c7;
     height: 44px;
     width: 44px;
     border-radius: 100px;
 }
 
 .month_year {
-    color: #969BA0;
+    color: #969ba0;
     margin-top: 6px;
     display: inline-block;
 }
@@ -225,12 +244,12 @@ function formatNumber(num) {
 }
 
 .red {
-    background: #F14444;
+    background: #f14444;
     width: 84px;
 }
 
 .green {
-    background: #23B347;
+    background: #23b347;
     width: 130px;
 }
 </style>

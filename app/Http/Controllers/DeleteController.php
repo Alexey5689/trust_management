@@ -39,7 +39,7 @@ class DeleteController extends Controller
             'change' => "Смена статуса договора ",
             'action' => 'Удаление договора No ' . $contract->contract_number,
             'old_value' => 'Активный',
-            'new_value' => 'Удален',
+            'new_value' => 'Неактивный',
             'created_by' => Auth::id(),
         ]);
           return redirect(route('admin.contracts'))->with('success', 'Статус контракта изменен');

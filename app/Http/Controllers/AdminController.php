@@ -755,7 +755,7 @@ public function updateStatusApplication(Request $request, Application $applicati
     $actions = [
         'В обработке' => fn() => $this->handleInProgressApplication($application),
         'Согласована' => fn() => $this->handleAgreedApplication($application),
-        'Исполнена' => fn() => $this->handleExecutedApplication($application),
+        'Исполнена' => fn() => $this->handleExecutedApplication($application, $user),
         'Отменена' => fn() => $this->handleCancelledApplication($application),
     ];
     $action = $actions[$request->status];

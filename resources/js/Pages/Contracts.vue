@@ -34,6 +34,8 @@ const error = ref(null);
 const contractData = ref({});
 const selectedDuration = ref('');
 const activeClient = computed(() => props.clients.filter((client) => client.active));
+const activeContract = computed(() => props.contracts.filter((contract) => contract.contract_status === true));
+const noActiveContract = computed(() => props.contracts.filter((contract) => contract.contract_status === false));
 
 const getInfo = async (url, contractId) => {
     try {
@@ -209,50 +211,120 @@ const handleCheckboxChange = () => {
             </div>
         </template>
         <template #main>
-            <div class="card">
-                <header>
-                    <h2 class="title-card">Договоры</h2>
-                </header>
-                <div class="client">
-                    <ul class="thead-contracts align-center">
-                        <li class="order">Клиент</li>
-                        <li>Договор</li>
-                        <li>Дата</li>
-                        <li>Ставка %</li>
-                        <li>Срок</li>
-                        <li>Выплаты</li>
-                        <li>Сумма</li>
-                    </ul>
-                    <div class="title" v-if="props.contracts.length == 0">Договоров нет</div>
-                    <div v-else class="contracts align-center" v-for="contract in props.contracts" :key="contract.id">
-                        <div class="order" v-if="props.role === 'admin' || props.role === 'manager'">
-                            <p>{{ contract.user.full_name }}</p>
+            <div class="main flex flex-column">
+                <div class="card">
+                    <header>
+                        <h2 class="title-card">Договоры</h2>
+                    </header>
+                    <div class="client">
+                        <ul class="thead-contracts align-center">
+                            <li class="order">Клиент</li>
+                            <li>Договор</li>
+                            <li>Дата</li>
+                            <li>Ставка %</li>
+                            <li>Срок</li>
+                            <li>Выплаты</li>
+                            <li>Сумма</li>
+                        </ul>
+                        <div class="title" v-if="props.contracts.length === 0">Договоров нет</div>
+                        <div
+                            v-else
+                            class="contracts align-center"
+                            v-for="contract in activeContract"
+                            :key="contract.id"
+                        >
+                            <div class="order" v-if="props.role === 'admin' || props.role === 'manager'">
+                                <p>{{ contract.user.full_name }}</p>
+                            </div>
+                            <div>
+                                <p>{{ contract.contract_number }}</p>
+                            </div>
+                            <div>
+                                <p>{{ formatDate(contract.create_date) }}</p>
+                            </div>
+                            <div style="padding-left: 30px">
+                                <p>{{ contract.procent }}</p>
+                            </div>
+                            <div>
+                                <p>
+                                    {{
+                                        getYearDifference(contract.create_date, contract.deadline) === 1
+                                            ? '1 год'
+                                            : getYearDifference(contract.create_date, contract.deadline) + ' года'
+                                    }}
+                                </p>
+                            </div>
+                            <div v-if="(role === 'admin' || role === 'manager') && contract.payments">
+                                <p>{{ contract.payments }}</p>
+                            </div>
+                            <div>
+                                <p>{{ contract.sum }}</p>
+                            </div>
+                            <div v-if="props.role === 'admin'" class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.contract' },
+                                        { label: 'Удалить', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, contract.id, 'contract')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div>
                         </div>
-                        <div>
-                            <p>{{ contract.contract_number }}</p>
-                        </div>
-                        <div>
-                            <p>{{ formatDate(contract.create_date) }}</p>
-                        </div>
-                        <div style="padding-left: 30px">
-                            <p>{{ contract.procent }}</p>
-                        </div>
-                        <div>
-                            <p>
-                                {{
-                                    getYearDifference(contract.create_date, contract.deadline) === 1
-                                        ? '1 год'
-                                        : getYearDifference(contract.create_date, contract.deadline) + ' года'
-                                }}
-                            </p>
-                        </div>
-                        <div v-if="(role === 'admin' || role === 'manager') && contract.payments">
-                            <p>{{ contract.payments }}</p>
-                        </div>
-                        <div>
-                            <p>{{ contract.sum }}</p>
-                        </div>
-                        <div v-if="props.role === 'admin'" class="card-item ellipsis">
+                    </div>
+                </div>
+                <div class="card">
+                    <header>
+                        <h2 class="title-card">Закрытые договоры</h2>
+                    </header>
+                    <div class="client">
+                        <ul class="thead-contracts align-center">
+                            <li class="order">Клиент</li>
+                            <li>Договор</li>
+                            <li>Дата</li>
+                            <li>Ставка %</li>
+                            <li>Срок</li>
+                            <li>Выплаты</li>
+                            <li>Сумма</li>
+                        </ul>
+                        <div class="title" v-if="noActiveContract.length === 0">Закрытых договорровог нет</div>
+                        <div
+                            v-else
+                            class="contracts align-center"
+                            v-for="contract in noActiveContract"
+                            :key="contract.id"
+                        >
+                            <div class="order" v-if="props.role === 'admin' || props.role === 'manager'">
+                                <p>{{ contract.user.full_name }}</p>
+                            </div>
+                            <div>
+                                <p>{{ contract.contract_number }}</p>
+                            </div>
+                            <div>
+                                <p>{{ formatDate(contract.create_date) }}</p>
+                            </div>
+                            <div style="padding-left: 30px">
+                                <p>{{ contract.procent }}</p>
+                            </div>
+                            <div>
+                                <p>
+                                    {{
+                                        getYearDifference(contract.create_date, contract.deadline) === 1
+                                            ? '1 год'
+                                            : getYearDifference(contract.create_date, contract.deadline) + ' года'
+                                    }}
+                                </p>
+                            </div>
+                            <div v-if="(role === 'admin' || role === 'manager') && contract.payments">
+                                <p>{{ contract.payments }}</p>
+                            </div>
+                            <div>
+                                <p>{{ contract.sum }}</p>
+                            </div>
+                            <!-- <div v-if="props.role === 'admin'" class="card-item ellipsis">
                             <Dropdown
                                 :options="[
                                     { label: 'Изменить', action: 'edit', url: 'admin.edit.contract' },
@@ -264,6 +336,7 @@ const handleCheckboxChange = () => {
                                     <Ellipsis />
                                 </template>
                             </Dropdown>
+                            </div> -->
                         </div>
                     </div>
                 </div>

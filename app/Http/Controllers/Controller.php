@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Models\Contract;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Log;
 
 use DateTime;
 
@@ -26,27 +28,64 @@ abstract class Controller
         // Разница в годах
         return $startDate->diff($endDate)->y;
     }
-    protected function calculateAccumulatedDividends($contractStartDate, $currentDate, $quarterlyPayment, $lastPaymentDate = null) {
-       // dd($contractStartDate, $currentDate, $quarterlyPayment, $lastPaymentDate);
-        $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
-        $currentDate = new DateTime($currentDate);
+    // protected function calculateAccumulatedDividends($contractStartDate, $currentDate, $quarterlyPayment, $lastPaymentDate = null) {
+    //     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
+    //     $currentDate = new DateTime($currentDate);
     
-        $quarterStartDate = clone $startDate;
-        while ($quarterStartDate < $currentDate) {
-            $quarterStartDate->modify('+3 months');
-        }
-        $quarterStartDate->modify('-3 months');
+    //     $quarterStartDate = clone $startDate;
+    //     while ($quarterStartDate < $currentDate) {
+    //         $quarterStartDate->modify('+3 months');
+    //     }
+    //     $quarterStartDate->modify('-3 months');
     
-        $quarterEndDate = clone $quarterStartDate;
-        $quarterEndDate->modify('+3 months');
+    //     $quarterEndDate = clone $quarterStartDate;
+    //     $quarterEndDate->modify('+3 months');
     
-        $daysInQuarter = $quarterStartDate->diff($quarterEndDate)->days;
-        $daysSinceQuarterStart = $quarterStartDate->diff($currentDate)->days;
+    //     $daysInQuarter = $quarterStartDate->diff($quarterEndDate)->days;
+    //     $daysSinceQuarterStart = $quarterStartDate->diff($currentDate)->days;
     
-        $dailyDividend = $quarterlyPayment / $daysInQuarter;
+    //     $dailyDividend = $quarterlyPayment / $daysInQuarter;
     
-        return round($daysSinceQuarterStart * $dailyDividend);
-    }
+    //     return round($daysSinceQuarterStart * $dailyDividend);
+    // }
+
+    protected function calculateAccumulatedDividends($contractStartDate, $currentDate, $paymentAmount, $paymentFrequency = 'Ежеквартально', $lastPaymentDate = null)
+{
+    $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
+    $currentDate = new DateTime($currentDate);
+
+    // Устанавливаем интервал (3 месяца или 12 месяцев)
+    $intervalMonths = match ($paymentFrequency) {
+        'Ежеквартально' => 3,
+        'Ежегодно' => 12,
+        default => 3,  // По умолчанию ежеквартально
+    };
+
+    // Количество полных периодов с момента старта
+    $interval = $startDate->diff($currentDate);
+    $fullPeriods = floor(($interval->y * 12 + $interval->m) / $intervalMonths);
+    
+    // Рассчитываем начало последнего периода (квартала/года)
+    $periodStartDate = clone $startDate;
+    $periodStartDate->modify('+' . ($fullPeriods * $intervalMonths) . ' months');
+
+    // Окончание текущего периода
+    $periodEndDate = clone $periodStartDate;
+    $periodEndDate->modify('+' . $intervalMonths . ' months');
+
+    // Количество дней в текущем периоде
+    $daysInPeriod = $periodStartDate->diff($periodEndDate)->days;
+
+    // Количество дней с начала периода
+    $daysSincePeriodStart = $periodStartDate->diff($currentDate)->days;
+
+    // Рассчитываем дневные дивиденды
+    $dailyDividend = $paymentAmount / $daysInPeriod;
+
+    // Общая сумма за прошедшие полные периоды + текущий период
+    return round($fullPeriods * $paymentAmount + $daysSincePeriodStart * $dailyDividend);
+}
+
 
     protected function createTransaction($application, $sum, $source)
     {
@@ -86,7 +125,7 @@ abstract class Controller
 
 
 
-    protected function handleExecutedApplication($application) {
+    protected function handleExecutedApplication($application , $user) {
         $actions = [
             'Раньше срока' => fn() => $this->beforeTheDeadline($application),
             'В срок' => fn() => $this->onTimePayout($application),  // Добавляем "В срок"
@@ -193,7 +232,9 @@ abstract class Controller
     protected function onTimePayout($application, $isCancelled = false)
     {
         $actions = [
-            'Забрать дивиденды частично' => fn() => $this->partialPayout($application, $isCancelled),
+            'Забрать дивиденды частично' => fn() => $this->partialPayoutDividends($application, $isCancelled),
+            'Забрать дивиденды целиком' => fn() => $this->fullPayoutDividends($application, $isCancelled),
+            'Забрать дивиденды и сумму' => fn() => $this->fullPayout($application, $isCancelled),
         ];
 
         // Обрабатываем заявку в зависимости от типа
@@ -203,7 +244,7 @@ abstract class Controller
         return $message;
     }
 
-    protected function partialPayout($application, $isCancelled = false)
+    protected function partialPayoutDividends($application, $isCancelled = false)
     {
         $contract = Contract::find($application->contract_id);
 
@@ -244,6 +285,69 @@ abstract class Controller
 
         }
 
+        return 'Статус заявки успешно изменен!';
+    }
+
+    protected function fullPayoutDividends($application, $isCancelled = false)
+    {
+        $contract = Contract::find($application->contract_id);
+
+        if (!$contract) {
+            return 'Ошибка: Договор не найден.';
+        }
+
+        if ($isCancelled) {
+            $application->update(['status' => 'Отменена']);
+            return 'Заявка отменена.';
+        }
+        $newStatus = match ($application->status) {
+            'В обработке' => 'Согласована',
+            'Согласована' => 'Исполнена',
+            default => $application->status,
+        };
+        $application->update(['status' => $newStatus]);
+        if ($newStatus === 'Исполнена') {
+            $contract->update([
+                'last_payment_date' => now(),
+            ]);
+            $this->createTransaction($application, $application->dividends, 'Заявка');
+        }
+        return 'Статус заявки успешно изменен!';
+
+    }
+    protected function fullPayout($application, $isCancelled = false)
+    {
+        $contract = Contract::find($application->contract_id);
+
+        if (!$contract) {
+            return 'Ошибка: Договор не найден.';
+        }
+
+        if ($isCancelled) {
+            $application->update(['status' => 'Отменена']);
+            return 'Заявка отменена.';
+        }
+        $newStatus = match ($application->status) {
+            'В обработке' => 'Согласована',
+            'Согласована' => 'Исполнена',
+            default => $application->status,
+        };
+        $application->update(['status' => $newStatus]);
+        if ($newStatus === 'Исполнена') {
+            $contract->update([
+                'contract_status' => false,
+            ]);
+            $this->createTransaction($application, $application->sum + $application->dividends, 'Заявка');
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Contract::class,
+                'change' => 'Смена статуса договора',
+                'action' => 'Удаление договора No ' . $contract->contract_number,
+                'old_value' => 'Активный',
+                'new_value' => 'Неактивный',
+                'created_by' => Auth::id(),
+            ]);
+        }
         return 'Статус заявки успешно изменен!';
     }
 

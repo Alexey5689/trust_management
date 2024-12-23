@@ -47,7 +47,7 @@ class ClientController extends Controller
     $role = $user->role->title;
      /** @var User $user */
     // Загружаем контракты пользователя
-    $userContracts = $user->userContracts()->get();
+    $userContracts = $user->userContracts()->get()->where('contract_status', true);
 
     // Сумма всех контрактов
     $sum_all_contracts = $userContracts->sum('sum');
@@ -69,7 +69,7 @@ class ClientController extends Controller
     }, 0);
 
     // Получаем менеджера
-    $manager = $userContracts->first()->manager ?? null;
+    $manager = $user->managers->first();
 
     return Inertia::render('Profile', [
         'user' => [
@@ -89,11 +89,16 @@ class ClientController extends Controller
     ]);
 }
 
-    public function showContracts(){
-        $user = Auth::user();
-        $role = $user->role->title;
-         /** @var User $user */
-        $contracts = $user->userContracts()->get()->map(function ($contract) {
+public function showContracts()
+{
+    $user = Auth::user();
+    $role = $user->role->title;
+       /** @var User $user */
+    // Фильтруем по статусу на уровне базы данных
+    $contracts = $user->userContracts()
+        ->where('contract_status', true)
+        ->get()
+        ->map(function ($contract) {
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,
@@ -101,26 +106,52 @@ class ClientController extends Controller
                 'procent' => $contract->procent,
                 'sum' => $contract->sum,
                 'deadline' => $contract->deadline,
-
             ];
         });
-        return Inertia::render('ContractsClient', [
-            'role' => $role,
-            'contracts' => $contracts
-        ]);
-    }
+
+    return Inertia::render('ContractsClient', [
+        'role' => $role,
+        'contracts' => $contracts
+    ]);
+}
+
     public function showBalanceTransactions(){
         $user = Auth::user();
         $role = $user->role->title;
 
         /** @var User $user */
         $transactions = $user->userTransactions()->get();
-        $contracts = $user->userContracts()->get();
+        $contracts = $user->userContracts()->where('contract_status', true)->get();
+        $userContracts = $user->userContracts()->get()->where('contract_status', true);
+
+        // Сумма всех контрактов
+        $sum_all_contracts = $userContracts->sum('sum');
+    
+        // Рассчитываем накопленные дивиденды
+        $dividends = $userContracts->reduce(function ($carry, $contract) {
+            $divisor = $contract->payments === 'Ежеквартально' ? 4 : 1;
+            $sum = $contract->sum ?? 0;  // Страхуемся от null
+            $procent = $contract->procent ?? 0;  // Страхуемся от null
+        
+            $quarter_dividends = ($sum * ($procent / 100)) / $divisor;
+        
+            // Приводим create_date к Carbon, если это строка
+            $createDate = $contract->create_date instanceof \Carbon\Carbon 
+                ? $contract->create_date 
+                : \Carbon\Carbon::parse($contract->create_date);
+        
+            return $carry + $this->calculateAccumulatedDividends($createDate, now(), $quarter_dividends);
+        }, 0);
         // dd($transactions);
         return Inertia::render('BalanceTransactions', [
             'role' => $role,
             'transactions' => $transactions,
-            'contracts' => $contracts
+            'contracts' => $contracts ?? [],
+            'balance' => [
+                'main_sum' => $sum_all_contracts,
+                'dividends' => round($dividends, 2),
+            ]
+            
         ]);
     }
 
