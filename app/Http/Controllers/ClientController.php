@@ -54,20 +54,32 @@ class ClientController extends Controller
 
     // Рассчитываем накопленные дивиденды
     $dividends = $userContracts->reduce(function ($carry, $contract) {
-        $divisor = $contract->payments === 'Ежеквартально' ? 4 : 1;
-        $sum = $contract->sum ?? 0;  // Страхуемся от null
-        $procent = $contract->procent ?? 0;  // Страхуемся от null
-    
-        $quarter_dividends = ($sum * ($procent / 100)) / $divisor;
-    
-        // Приводим create_date к Carbon, если это строка
+        $sum = $contract->sum ?? 0;  
+        $procent = $contract->procent ?? 0;  
+        
+        // Рассчитываем годовые дивиденды
+        $annual_dividends = $sum * ($procent / 100);  
+        
+        // Приводим даты к Carbon
         $createDate = $contract->create_date instanceof \Carbon\Carbon 
             ? $contract->create_date 
             : \Carbon\Carbon::parse($contract->create_date);
     
-        return $carry + $this->calculateAccumulatedDividends($createDate, now(), $quarter_dividends);
+        $deadline = $contract->deadline instanceof \Carbon\Carbon 
+            ? $contract->deadline
+            : \Carbon\Carbon::parse($contract->deadline);
+        
+        // Передаём годовые дивиденды в метод
+        return $carry + $this->calculateAccumulatedDividends(
+            $createDate,
+            $deadline,
+            now(),
+            $annual_dividends,  // Передаём годовые дивиденды!
+            $contract->payments,
+            $contract->last_payment_date
+        );
     }, 0);
-
+    // dd($dividends);
     // Получаем менеджера
     $manager = $user->managers->first();
 
@@ -129,18 +141,30 @@ public function showContracts()
     
         // Рассчитываем накопленные дивиденды
         $dividends = $userContracts->reduce(function ($carry, $contract) {
-            $divisor = $contract->payments === 'Ежеквартально' ? 4 : 1;
-            $sum = $contract->sum ?? 0;  // Страхуемся от null
-            $procent = $contract->procent ?? 0;  // Страхуемся от null
-        
-            $quarter_dividends = ($sum * ($procent / 100)) / $divisor;
-        
-            // Приводим create_date к Carbon, если это строка
+            $sum = $contract->sum ?? 0;  
+            $procent = $contract->procent ?? 0;  
+            
+            // Рассчитываем годовые дивиденды
+            $annual_dividends = $sum * ($procent / 100);  
+            
+            // Приводим даты к Carbon
             $createDate = $contract->create_date instanceof \Carbon\Carbon 
                 ? $contract->create_date 
                 : \Carbon\Carbon::parse($contract->create_date);
         
-            return $carry + $this->calculateAccumulatedDividends($createDate, now(), $quarter_dividends);
+            $deadline = $contract->deadline instanceof \Carbon\Carbon 
+                ? $contract->deadline
+                : \Carbon\Carbon::parse($contract->deadline);
+            
+            // Передаём годовые дивиденды в метод
+            return $carry + $this->calculateAccumulatedDividends(
+                $createDate,
+                $deadline,
+                now(),
+                $annual_dividends,  // Передаём годовые дивиденды!
+                $contract->payments,
+                $contract->last_payment_date
+            );
         }, 0);
         // dd($transactions);
         return Inertia::render('BalanceTransactions', [

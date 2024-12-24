@@ -28,64 +28,113 @@ abstract class Controller
         // Разница в годах
         return $startDate->diff($endDate)->y;
     }
-    // protected function calculateAccumulatedDividends($contractStartDate, $currentDate, $quarterlyPayment, $lastPaymentDate = null) {
-    //     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
-    //     $currentDate = new DateTime($currentDate);
-    
-    //     $quarterStartDate = clone $startDate;
-    //     while ($quarterStartDate < $currentDate) {
-    //         $quarterStartDate->modify('+3 months');
-    //     }
-    //     $quarterStartDate->modify('-3 months');
-    
-    //     $quarterEndDate = clone $quarterStartDate;
-    //     $quarterEndDate->modify('+3 months');
-    
-    //     $daysInQuarter = $quarterStartDate->diff($quarterEndDate)->days;
-    //     $daysSinceQuarterStart = $quarterStartDate->diff($currentDate)->days;
-    
-    //     $dailyDividend = $quarterlyPayment / $daysInQuarter;
-    
-    //     return round($daysSinceQuarterStart * $dailyDividend);
-    // }
 
-    protected function calculateAccumulatedDividends($contractStartDate, $currentDate, $paymentAmount, $paymentFrequency = 'Ежеквартально', $lastPaymentDate = null)
+
+protected function calculateAccumulatedDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $paymentFrequency = 'Ежеквартально', $lastPaymentDate = null)
+{
+  
+
+    return match ($paymentFrequency) {
+        'По истечению срока' => $this->calculateEndOfTermDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount),
+        'Ежеквартально'   => $this->calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate ),
+        'Ежегодно' => $this->calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate),
+        default => 0,
+    };
+}
+
+
+protected function calculateEndOfTermDividends($contractStartDate, $contractEndDate, $currentDate, $paymentAmount)
+{
+    $startDate = new DateTime($contractStartDate);
+    $endDate = new DateTime($contractEndDate);
+    $currentDate = new DateTime($currentDate);
+
+    // Дни с момента начала договора до текущей даты
+    $daysSinceStart = $startDate->diff($currentDate)->days;
+
+    // Полный срок договора в днях
+    $totalContractDays = $startDate->diff($endDate)->days;
+
+    // Дивиденды за один день
+    $dailyDividend = $paymentAmount / $totalContractDays;
+
+    // Если договор истёк, начисляем 100% суммы
+    if ($currentDate >= $endDate) {
+        return round($paymentAmount);
+    }
+
+    // Пропорционально за прошедшие дни
+    $accruedDividends = $daysSinceStart * $dailyDividend;
+
+    return round($accruedDividends);
+}
+
+protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount,$lastPaymentDate)
+{
+    $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
+    $endDate = (clone $startDate)->modify('+1 year');
+    $currentDate = new DateTime($currentDate);
+
+    // Считаем количество дней в году от даты начала договора
+    $daysInYear = $startDate->diff($endDate)->days;
+
+    // Дни с момента начала договора до текущей даты
+    $daysSinceStart = $startDate->diff($currentDate)->days;
+
+    // Дивиденды за 1 день
+    $dailyDividend = $paymentAmount / $daysInYear;
+
+    // Пропорциональные дивиденды за прошедшие дни
+    $accruedDividends = $daysSinceStart * $dailyDividend;
+
+    return round($accruedDividends);
+}
+
+
+protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate )
 {
     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
     $currentDate = new DateTime($currentDate);
 
-    // Устанавливаем интервал (3 месяца или 12 месяцев)
-    $intervalMonths = match ($paymentFrequency) {
-        'Ежеквартально' => 3,
-        'Ежегодно' => 12,
-        default => 3,  // По умолчанию ежеквартально
-    };
+    // Рассчитываем квартальные выплаты
+    $quarterAmount = $paymentAmount / 4;
 
-    // Количество полных периодов с момента старта
-    $interval = $startDate->diff($currentDate);
-    $fullPeriods = floor(($interval->y * 12 + $interval->m) / $intervalMonths);
-    
-    // Рассчитываем начало последнего периода (квартала/года)
-    $periodStartDate = clone $startDate;
-    $periodStartDate->modify('+' . ($fullPeriods * $intervalMonths) . ' months');
+    // Определяем, сколько дней прошло с момента начала квартала
+    $daysSinceStart = $startDate->diff($currentDate)->days;
 
-    // Окончание текущего периода
-    $periodEndDate = clone $periodStartDate;
-    $periodEndDate->modify('+' . $intervalMonths . ' months');
+    // Определяем дату начала текущего квартала
+    $quarterStart = clone $startDate;
+    while ($quarterStart < $currentDate) {
+        $quarterStart->modify('+3 months');
+    }
+    $quarterStart->modify('-3 months');
 
-    // Количество дней в текущем периоде
-    $daysInPeriod = $periodStartDate->diff($periodEndDate)->days;
+    // Определяем конец квартала
+    $quarterEnd = clone $quarterStart;
+    $quarterEnd->modify('+3 months');
 
-    // Количество дней с начала периода
-    $daysSincePeriodStart = $periodStartDate->diff($currentDate)->days;
+    // Считаем фактическое количество дней в квартале
+    $quarterDays = $quarterStart->diff($quarterEnd)->days;
 
-    // Рассчитываем дневные дивиденды
-    $dailyDividend = $paymentAmount / $daysInPeriod;
+    // Дивиденды за 1 день
+    $dailyDividend = $quarterAmount / $quarterDays;
 
-    // Общая сумма за прошедшие полные периоды + текущий период
-    return round($fullPeriods * $paymentAmount + $daysSincePeriodStart * $dailyDividend);
+    // Считаем, сколько дней прошло с начала квартала
+    $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
+
+    // Рассчитываем накопленные дивиденды
+    $accruedDividends = $daysSinceQuarterStart * $dailyDividend;
+
+    return round($accruedDividends);
 }
 
+
+
+
+
+
+    
+    
 
     protected function createTransaction($application, $sum, $source)
     {
@@ -183,52 +232,7 @@ abstract class Controller
         return $message;
     }
 
-    // protected function onTimePayout($application, $isCancelled = false) {
-       
-
-    //     $actions = [
-    //         'Забрать дивиденды частично' => fn() => $this->partialPayout($application, $isCancelled),
-    //     ];
-    //     $action = $actions[$application->type_of_processing];
-    //     $message = $action();
-
-    //     return $message;
-    // }
-
-
-    // protected function partialPayout($application,  $isCancelled = false) {
-    //     $contract = Contract::find($application->contract_id);
-    //     if ($isCancelled) {
-    //         $application->update(['status' => 'Отменена']);
-    //         $contract->avalible_dividends->update(['avaliable_dividends' => null]);
-    //         return 'Заявка отменена.';
-
-    //     }
-    //     $newStatus = match ($application->status) {
-    //         'В обработке' => 'Согласована',
-    //         'Согласована' => 'Исполнена',
-    //         default => $application->status,
-    //     };
-    //     // Обновляем статус заявки
-    //     $application->update(['status' => $newStatus]);
-    //     $mainSum = $contract->sum;
-    //     $avalible_dividends = round($contract->avalible_dividends);
-    //     $contract->update([
-    //         'sum' => $mainSum + $avalible_dividends,
-    //         'last_payment_date' => now(),
-    //     ]);
-
-    //     if ($newStatus === 'Исполнена') {
-    //         $contract->avalible_dividends->update(['avaliable_dividends' => null]);
-    //         $this->createTransaction($application, $avalible_dividends, 'Договор');
-    //     }
-
-    //     $message = 'Статус заявки успешно изменен!';
-       
-       
-        
-    //     return  $message;
-    // }
+   
     protected function onTimePayout($application, $isCancelled = false)
     {
         $actions = [
