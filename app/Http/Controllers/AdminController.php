@@ -14,7 +14,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use App\Notifications\PasswordEmail;
+use Carbon\Carbon;
 use Illuminate\Auth\Events\Registered;
+
 
 class AdminController extends Controller
 {
@@ -51,7 +53,6 @@ class AdminController extends Controller
         $managers = User::whereHas('role', function($query) {
             $query->where('title', 'manager');
         })
-        // ->where('active', true)
         ->with('managerContracts')
         ->get()
         ->map(function ($manager) {
@@ -64,32 +65,13 @@ class AdminController extends Controller
             ];
         });
 
-    //     User::select(['id', 'last_name', 'first_name', 'middle_name', 'email', 'phone_number'])
-    // ->whereHas('role', function($query) {
-    //     $query->where('title', 'manager');
-    // })
-    // ->get()
-    // ->map(...);
 
-    // $managers = User::whereHas('role', function ($query) {
-    //     $query->where('title', 'manager'); // Фильтруем пользователей с ролью 'manager'
-    // })
-    // ->where('active', true) // Фильтруем только активных пользователей
-    // ->with('managerContracts') // Подгружаем связанные данные, если нужно
-    // ->get()
-    // ->map(function ($manager) {
-    //     return [
-    //         'id' => $manager->id,
-    //         'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
-    //         'email' => $manager->email,
-    //         'phone_number' => $manager->phone_number,
-    //     ];
-    // });
         return Inertia::render('AllUsers', [
            
             'clients' => $clients,
             'managers' => $managers,
             'role' => $role,
+            'status' => session('status'),
         ]);
     }
     // все договоры
@@ -127,7 +109,8 @@ class AdminController extends Controller
         return Inertia::render('Contracts', [
             'role' => $role, // Передаем роль пользователя в Vue-компонент
             'contracts'=> $contracts,
-            'clients' => $clients
+            'clients' => $clients,
+            'status' => session('status'),
         ]);
     }
     //все заявки
@@ -148,6 +131,18 @@ class AdminController extends Controller
                 'user_contracts' => $client->userContracts->map(function ($contract) {
                     $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
                     $dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
+                    // Рассчитываем дату следующей выплаты
+                    $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
+                    $nextPaymentDate = match ($contract->payments) {
+                        'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
+                        'Ежегодно' => Carbon::parse($lastPaymentDate)->addYear(),
+                        'По истечению срока' => Carbon::parse($contract->deadline),
+                        default => null,
+                    };
+                     // Проверяем, истёк ли срок договора
+                    $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
+                    //dd($nextPaymentDate);
+                    $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate);
                     return [
                         'id' => $contract->id,
                         'contract_number' => $contract->contract_number,
@@ -157,7 +152,11 @@ class AdminController extends Controller
                         'procent' => $contract->procent,
                         'manager_id' => $contract->manager_id,
                         'dividends' => $dividends,
-                        'term' => $term
+                        'term' => $term,
+                        'next_payment_date' => $nextPaymentDate,
+                        'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  // Запретить заявки для истёкших договоров
+                        'is_expired' => $isExpired,
+
                     ];
                 }),
             ];
@@ -180,36 +179,12 @@ class AdminController extends Controller
         return Inertia::render('Applications', [
             'role' => $role, // Передаем роль пользователя в Vue-компонент
             'applications'=> $applications,
-            'clients' => $clients
+            'clients' => $clients,
+            'status' => session('status'),
         ]);
 
     }
 
-
-
-    // регистрация user как клиент
-    //public function createClientsByAdmin()
-   // {
-        // $user = Auth::user(); // Получаем текущего пользователя
-        // $role = $user->role->title; // Получаем его роль
-        // Получаем всех пользователей с ролью менеджера (role_id = 2)
-        // $managers = User::where('role_id', 2)->get()->map(function ($manager) {
-        //     return [
-        //         'id' => $manager->id,
-        //         'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
-        //     ];
-        // });
-        // Передаем менеджеров на страницу регистрации
-        // return Inertia::render('RegisterClient',[
-        //     'managers' => $managers,
-        //     'role' => $role,
-        // ]);
-        // return response()->json([
-            // 'user' =>[
-            //     'managers' => $managers
-            // ] 
-        // ]);
-   // }
     public function storeClientsByAdmin(Request $request ):RedirectResponse
     {
        // dd($request->all());
@@ -292,14 +267,6 @@ class AdminController extends Controller
      public function editClientByAdmin(User $user)
      {
         //dd($user);
-        //  $user = Auth::user(); // Получаем текущего пользователя
-        //  $role = $user->role->title; // Получаем его роль
-        //  $managers = User::where('role_id', 2)->get()->map(function ($manager) {
-        //     return [
-        //         'id' => $manager->id,
-        //         'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
-        //     ];
-        // });
          $assignedManagerId = $user->userContracts()->first()->manager_id;
          return response()->json([
            'user'=> [
@@ -381,19 +348,6 @@ class AdminController extends Controller
 
 
 
-
-
-
-    // регистрация user как менеджера
-    // public function createManagersByAdmin(): Response
-    // {
-    //     $user = Auth::user(); // Получаем текущего пользователя
-    //     $role = $user->role->title; // Получаем его роль
-    //     // dd($user, $role);
-    //     return Inertia::render('RegisterManager', [
-    //         'role' => $role,
-    //     ]);
-    // }
     public function storeManagersByAdmin(Request $request): RedirectResponse
     {
         //dd($request->all());
@@ -439,14 +393,6 @@ class AdminController extends Controller
     public function editManagersByAdmin(User $user)
     {
         //dd($manager);
-        // $user = Auth::user(); // Получаем текущего пользователя
-        // $role = $user->role->title; // Получаем его роль
-
-        // // dd($user, $role);
-        // return Inertia::render('EditManager', [
-        //     'role' => $role,
-        //     'manager' => $manager
-        // ]);
         return response()->json([
             'user' =>[
                 'id' => $user->id,
@@ -498,30 +444,6 @@ class AdminController extends Controller
 
      
      
-
-
-    //новый договор
-    //   public function createAddContractByAdmin()
-    //   {
-    //     $user = Auth::user(); // Получаем текущего пользователя
-    //     $role = $user->role->title; // Получаем его роль
-    //     $clients = User::whereHas('role', function ($query) {
-    //         $query->where('title', 'client'); // Фильтрация по роли 'client'
-    //     })->with('userContracts') // Загружаем контракты для клиентов
-    //     ->get() // Получаем коллекцию пользователей
-    //     ->map(function ($client) {
-    //         return [
-    //             'id' => $client->id,
-    //             'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
-    //         ];
-    //     });
-    //     // dd($clients);
-    //     return Inertia::render('AddContract', [
-    //         'role' => $role,
-    //         'clients' => $clients,
-    //     ]);
-    //   }
-
 
       public function storeAddContractByAdmin(Request $request)
       {
@@ -582,26 +504,8 @@ class AdminController extends Controller
       public function editContractByAdmin(Contract $contract)
       {
         //dd($contract);
-        // $user = Auth::user(); // Получаем текущего пользователя
-        // $role = $user->role->title; // Получаем его роль
-        // $clients = User::whereHas('role', function ($query) {
-        //     $query->where('title', 'client'); // Фильтрация по роли 'client'
-        // })->with('userContracts') // Загружаем контракты для клиентов
-        // ->get() // Получаем коллекцию пользователей
-        // ->map(function ($client) {
-        //     return [
-        //         'id' => $client->id,
-        //         'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
-        //     ];
-        // });
-        //dd($contract, $clients);
-        // return Inertia::render('EditContract', [
-        //     'contract' => $contract,
-        //     'clients' => $clients,
-        // ]);
         return response()->json([
             'contract' => $contract,
-            // 'clients' => $clients
         ]);
       }
 
@@ -642,16 +546,9 @@ class AdminController extends Controller
         return redirect()->route('admin.contracts')->with('status', 'Договор успешно обновлен!');
       }
 
-      public function changeStatusApplication(Application $application){
+    public function changeStatusApplication(Application $application){
         $user = Auth::user();
         $role = $user->role->title;
-        // return Inertia::render('ChangeStatusApplication', [
-        //     'role' => $role,
-        //     'application' => [
-        //         'id' => $application->id,
-        //         'status' => $application->status,
-        //     ],
-        // ]);
         return response()->json([
             'application' => [
                 'id' => $application->id,
@@ -659,92 +556,7 @@ class AdminController extends Controller
             ],
         ]);
     }
-//     public function updateStatusApplication(Request $request, Application $application)
-// {   
-//     //dd($application);
-//     $user = Auth::user();
-//     $role = $user->role->title;
 
-//     $originalStatus = $application->status;
-
-//     // Обновляем статус заявки
-//     $application->update(['status' => $request->status]);
-//     // Если статус "Исполнена", создаем транзакцию
-//     if ($request->status === 'Исполнена') {
-//         $message = 'Статус заявки успешно изменен! Транзакция создана.';
-//         if( $application->condition === 'В срок' ) {
-//             if($application->type_of_processing === 'Забрать дивиденды частично') {
-//                 $application->user->userTransactions()->create([
-//                     'contract_id' => $application->contract_id,
-//                     'manager_id' => $application->manager_id,
-//                     'user_id' => $application->user_id,
-//                     'date_transition' => $application->date_of_payments,
-//                     'sum_transition' => $application->dividends,
-//                     'sourse' => 'Заявка',
-//                 ]);
-
-
-                
-//                 $contract = Contract::find($application->contract_id);
-//                 $mainSum = $contract->sum;
-//                 $avalible_balance = $application->user->avaliable_balance;
-//                 $contract->update(['sum' => $mainSum + $avalible_balance]);
-
-//                 $application->user->userTransactions()->create([
-//                     'contract_id' => $application->contract_id,
-//                     'manager_id' => $application->manager_id,
-//                     'user_id' => $application->user_id,
-//                     'date_transition' => $application->date_of_payments,
-//                     'sum_transition' => $avalible_balance,
-//                     'sourse' => 'Договор',
-//                 ]);
-//                 $application->user->update(['avaliable_balance' => null]);
-//                 $contract->update(['last_payment_date' => now()]);
-
-//             }
-//         }
-//         if ($application->condition === 'Раньше срока') {
-//             $contract = Contract::find($application->contract_id);
-//             $contract->update(['contract_status' => false]);
-//             $sumTransition = $application->sum;
-//             $application->user->userTransactions()->create([
-//                 'contract_id' => $application->contract_id,
-//                 'manager_id' => $application->manager_id,
-//                 'user_id' => $application->user_id,
-//                 'date_transition' => $application->date_of_payments,
-//                 'sum_transition' => $sumTransition,
-//                 'sourse' => 'Заявка',
-//             ]);
-//         }
-        
-//     } else if ($request->status === 'Отменена') {
-//        // dd($application->user);
-//         $application->user->update(['avaliable_balance' => null]);
-//         $message = 'Статус заявки успешно изменен!';
-//     }
-//     else {
-//         $message = 'Статус заявки успешно изменен!';
-//     }
-
-//     // Логирование изменения статуса
-//     if ($originalStatus !== $application->status) {
-//         Log::create([
-//             'model_id' => $application->user_id,
-//             'model_type' => Application::class,
-//             'change' => 'Изменен статус',
-//             'action' => 'Изменение статуса заявки',
-//             'old_value' => $originalStatus,
-//             'new_value' => $application->status,
-//             'created_by' => $user->id,
-//         ]);
-//     }
-//     $user = $application->user;
-//     $user->userNotifications()->create([
-//         'content'=> 'Статус заявки No' . $application->id . ' был изменен',
-//     ]);
-
-//     return redirect()->route($role . '.applications')->with('status', $message);
-// } 
 
 public function updateStatusApplication(Request $request, Application $application)
 {
@@ -777,53 +589,6 @@ public function updateStatusApplication(Request $request, Application $applicati
 
     // Обновляем статус заявки
     // $application->update(['status' => $request->status]);
-
-   
-   
-
-    
-    //dd($message);
-    // if ($request->status === 'Исполнена') {
-    //     $message = 'Статус заявки успешно изменен! Транзакция создана.';
-    //     $contract = Contract::find($application->contract_id);
-
-    //     if (!$contract) {
-    //         return redirect()->back()->withErrors(['message' => 'Договор не найден.']);
-    //     }
-
-    //     if ($application->condition === 'В срок') {
-    //         if ($application->type_of_processing === 'Забрать дивиденды частично') {
-    //             // $this->createTransaction($application, $application->dividends, 'Заявка');
-    //             $contract = Contract::find($application->contract_id);
-    //             $mainSum = $contract->sum;
-    //             $avalible_balance = round($application->user->avaliable_balance);
-    //             $contract->update([
-    //                 'sum' => $mainSum + $avalible_balance,
-    //                 'last_payment_date' => now(),
-    //             ]);
-    //             //dd($application->user->available_balance);
-    //             $this->createTransaction($application, $avalible_balance, 'Договор');
-    //             $application->user->update(['avaliable_balance' => null]);
-    //             //dd($contract->sum, $avalible_balance); 
-    //         }
-    //     } elseif ($application->condition === 'Раньше срока') {
-    //         $contract->update(['contract_status' => false]);
-    //         $this->createTransaction($application, $application->sum, 'Заявка');
-    //     }
-    // } elseif ($request->status === 'Отменена') {
-    //     $application->user->update(['available_balance' => null]);
-    //     $message = 'Статус заявки успешно изменен!';
-    // } else {
-    //     $message = 'Статус заявки успешно изменен!';
-    // }
-
-    // Логирование изменения статуса
-
-    // Уведомление пользователя
-    // $application->user->userNotifications()->create([
-    //     'content' => 'Статус заявки No' . $application->id . ' был изменен',
-    // ]);
-
     return redirect()->route($role . '.applications')->with('status', $message);
 }
 

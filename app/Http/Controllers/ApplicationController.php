@@ -12,69 +12,6 @@ use Illuminate\Support\Facades\Auth;
 class ApplicationController extends Controller
 {
     
-    public function createAddApplication(){
-        $user = Auth::user();
-        $role = $user->role->title;
-        if($role === 'admin'){
-            $clients = User::whereHas('role', function($query) {
-                $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
-            })
-            ->with(['userContracts' => function ($query) {
-                $query->where('contract_status', true); // Выбираем только активные договоры
-            }])
-            ->get()
-            ->map(function ($client) {
-                return [
-                    'id' => $client->id,
-                    'full_name' => $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
-                    // 'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
-                    'user_contracts' => $client->userContracts->map(function ($contract) {
-                        return [
-                            'id' => $contract->id,
-                            'contract_number' => $contract->contract_number,
-                            'sum' => $contract->sum,
-                            'create_date' => $contract->create_date,
-                            'deadline' => $contract->deadline,
-                            'procent' => $contract->procent,
-                            'manager_id' => $contract->manager_id,
-                            'dividends' => $contract->sum * ($contract->procent / 100) * $this->termOfTheContract($contract->create_date, $contract->deadline) / $contract->number_of_payments,
-                            'term' => $this->termOfTheContract($contract->create_date, $contract->deadline)
-                        ];
-                    }),
-                ];
-            });
-            
-        }else{
-            $clients = $user->managedUsers->load(['userContracts' => function ($query) {
-                $query->where('contract_status', true)->where('active', true);// Выбираем только активные договоры
-            }])
-            ->map(function ($client) {
-                return [
-                    'id' => $client->id,
-                    'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
-                    // 'user_contracts' => $client->userContracts ? $client->userContracts->toArray() : [], // Загружаем контракты
-                    'user_contracts' => $client->userContracts->map(function ($contract) {
-                        return [
-                            'id' => $contract->id,
-                            'contract_number' => $contract->contract_number,
-                            'sum' => $contract->sum,
-                            'create_date' => $contract->create_date,
-                            'deadline' => $contract->deadline,
-                            'procent' => $contract->procent,
-                            'manager_id' => $contract->manager_id,
-                            'dividends' => $contract->sum * ($contract->procent / 100) * $this->termOfTheContract($contract->create_date, $contract->deadline) / $contract->number_of_payments,
-                            'term' => $this->termOfTheContract($contract->create_date, $contract->deadline)
-                        ];
-                    }),
-                ];
-            });
-        }
-       
-        return Inertia::render('AddApplication', [
-            'role' => $role,
-            'clients' => $clients,
-        ]);
-      }
       public function storeAddApplication(Request $request){
         //dd($request->all());
         $request->validate([
@@ -137,33 +74,7 @@ class ApplicationController extends Controller
     
     
       public function showApplication(Application $application){
-        // $user = Auth::user();
-        // $role = $user->role->title;
-        // return Inertia::render('ShowApplication', [
-        //     'role' => $role,
-        //     'application' => [
-        //         'id' => $application->id,
-        //         'create_date' => $application->create_date,
-        //         'date_of_payments' => $application->date_of_payments,
-        //         'condition' => $application->condition,
-        //         'status' => $application->status,
-        //         'type_of_processing' => $application->type_of_processing,
-        //         'sum' => $application->sum,
-        //         'user' => [
-        //             'id' => $application->user->id,
-        //             'full_name' => $application->user->first_name . ' ' . $application->user->last_name . ' ' . $application->user->middle_name,
-        //         ],
-        //         'contract' => [
-        //             'id' => $application->contract->id,
-        //             'contract_number' => $application->contract->contract_number,
-        //             'sum' => $application->contract->sum,
-        //             'create_date' => $application->contract->create_date,
-        //             'deadline' => $application->contract->deadline,
-        //             'procent' => $application->contract->procent,
-        //         ]
-        //     ],
-            
-        // ]);
+       
         $term = $this->termOfTheContract($application->contract->create_date, $application->contract->deadline);
         $dividends = $application->contract->sum * ($application->contract->procent / 100) * $term / $application->contract->number_of_payments;
         return response()->json([

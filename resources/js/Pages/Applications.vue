@@ -42,10 +42,10 @@ const applicationData = ref({});
 const error = ref('');
 const userInfo = ref({});
 const contractInfo = ref({});
+const can_payout = ref('');
 
 const count_of_applications = ref(null);
 const number_of_payments = ref(null);
-const x = ref(true);
 
 const activeApplication = computed(() =>
     props.applications.filter((application) => application.status !== 'Отменена' && application.status !== 'Исполнена'),
@@ -92,13 +92,9 @@ const handleGetContract = (contract_id) => {
     );
     term.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).term;
     dividends.value = userContract.value.user_contracts.find((contract) => contract.id === contract_id).dividends;
-    number_of_payments.value = userContract.value.user_contracts.find(
+    can_payout.value = userContract.value.user_contracts.find(
         (contract) => contract.id === contract_id,
-    ).number_of_payments;
-    // count_of_applications.value = props.applications.reduce((total, application) => {
-    //     return application.contract_number === contrNumb ? total + 1 : total;
-    // }, 0);
-    // number_of_payments.value - 1 > count_of_applications.value ? (x.value = true) : (x.value = false);
+    ).can_request_payout;
 };
 
 const offTime = () => {
@@ -230,7 +226,7 @@ const changeStatus = () => {
 
 <template>
     <Head title="Applications" />
-    <AuthenticatedLayout :userRole="role">
+    <AuthenticatedLayout :userRole="role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Заявки</h2>
@@ -479,6 +475,7 @@ const changeStatus = () => {
                                 @click="onTime"
                                 value="В срок"
                                 v-model="selectedOffTime"
+                                :disabled="!can_payout"
                             />
                             <label for="on_time" class="button">В срок</label>
                         </div>
@@ -640,11 +637,19 @@ const changeStatus = () => {
                             name="off_time"
                             value="Раньше срока"
                             v-model="selectedOffTime"
+                            disabled
                         />
                         <label for="off_time" class="button">Раньше срока</label>
                     </div>
                     <div class="input flex">
-                        <input type="radio" id="on_time" name="on_time" value="В срок" v-model="selectedOffTime" />
+                        <input
+                            type="radio"
+                            id="on_time"
+                            name="on_time"
+                            value="В срок"
+                            v-model="selectedOffTime"
+                            disabled
+                        />
                         <label for="on_time" class="button">В срок</label>
                     </div>
                 </div>
@@ -673,6 +678,7 @@ const changeStatus = () => {
                                 name="partly"
                                 value="Забрать дивиденды частично"
                                 v-model="selectedPartlyOption"
+                                disabled
                             />
                             <label for="partly" class="button">Забрать дивиденды частично</label>
                             <input
@@ -681,6 +687,7 @@ const changeStatus = () => {
                                 name="wholly"
                                 value="Забрать дивиденды целиком"
                                 v-model="selectedPartlyOption"
+                                disabled
                             />
                             <label for="wholly" class="button">Забрать дивиденды целиком</label>
                         </div>
@@ -690,6 +697,7 @@ const changeStatus = () => {
                             name="take_everything"
                             value="Забрать дивиденды и сумму"
                             v-model="selectedPartlyOption"
+                            disabled
                         />
                         <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                     </div>

@@ -38,6 +38,8 @@ export const getDayDifference = (startDate, endDate) => {
 };
 
 export const calculateDeadlineDate = (years, createDate) => {
+    console.log(years, createDate);
+
     const date = new Date(createDate);
     // console.log('Дата ебать', date);
 

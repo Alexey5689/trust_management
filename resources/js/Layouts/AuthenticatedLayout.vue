@@ -143,8 +143,8 @@ const remote = () => {
                             <p>{{ props.userInfo?.main_sum ?? user_Info.main_sum }} ₽</p>
                         </div>
                     </div>
-                    <!-- {{ props.userRole }}
-                    {{ props.notifications }} -->
+                    <!-- {{ props.userRole }} -->
+                    {{ props.notifications }}
                     <Icon_notifications />
                     <ResponsiveNavLink
                         :href="route('logout')"

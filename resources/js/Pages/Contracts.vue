@@ -90,12 +90,32 @@ watch(
     { immediate: true },
 );
 
+const durationMapping = {
+    '1 год': 1,
+    '3 года': 3,
+};
+
 watch(
     [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
     ([newSum, newProcent, newDeadline, newCreateDate]) => {
-        form.dividends = Number(calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline)));
+        const yearsDifference = getYearDifference(newCreateDate, newDeadline);
+        form.dividends = Number(calculateDividends(newSum, newProcent, yearsDifference));
+        //Если изменяется дата создания, пересчитываем дедлайн
+
+        form.deadline = calculateDeadlineDate(getYearDifference(newCreateDate, newDeadline), newCreateDate);
     },
 );
+
+// Watcher для пересчёта dividents и deadline
+// watch(
+//     [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
+//     ([newSum, newProcent, newDeadline, newCreateDate]) => {
+//         // const yearsDifference = getYearDifference(newCreateDate, newDeadline);
+//         // form.dividends = Number(calculateDividends(newSum, newProcent, yearsDifference));
+//         // Если изменяется дата создания, пересчитываем дедлайн
+//         // form.deadline = calculateDeadlineDate(durationMapping[form.selectedDuration], newCreateDate);
+//     },
+// );
 watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
     form.number_of_payments =
         form.payments === 'Ежеквартально'
@@ -136,11 +156,14 @@ const closeModal = () => {
 
 const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;
-    if (selectedDuration === '1 год') {
-        form.deadline = calculateDeadlineDate(1, form.create_date);
-    } else {
-        form.deadline = calculateDeadlineDate(3, form.create_date);
-    }
+
+    const duration =
+        {
+            '1 год': 1,
+            '3 года': 3,
+        }[selectedDuration] || 1;
+
+    form.deadline = calculateDeadlineDate(duration, form.create_date);
 };
 
 const createContract = () => {
