@@ -12,9 +12,6 @@ import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 import Icon_logs from '@/Components/Icon/Logs.vue';
 import Icon_balance from '@/Components/Icon/Balance.vue';
-import { useUserInfo } from '@/store/hooks.js';
-
-const { user_Info } = useUserInfo();
 
 const props = defineProps({
     userRole: {
@@ -35,10 +32,6 @@ const props = defineProps({
 //     // Ваш код для реакции на изменение notification
 //     console.log('Статус обновлен:', newNotification);
 // });
-
-const remote = () => {
-    localStorage.removeItem('userInfo');
-};
 </script>
 
 <template>
@@ -55,11 +48,9 @@ const remote = () => {
                 <transition name="fade-height">
                     <div class="flex flex-column align-center w-100">
                         <p class="profile_name">
-                            {{ props.userInfo?.full_name ? props.userInfo.full_name : user_Info.full_name }}
+                            {{ props.userInfo?.full_name }}
                         </p>
-                        <span class="profile_mail">
-                            {{ props.userInfo?.email ? props.userInfo.email : user_Info.email }}</span
-                        >
+                        <span class="profile_mail"> {{ props.userInfo?.email }}</span>
                     </div>
                 </transition>
             </div>
@@ -129,18 +120,18 @@ const remote = () => {
                             <p>Ваш менеджер</p>
                             <Icon_personal_account />
                             <div>
-                                <p>{{ props.userInfo?.manager ?? user_Info.manager }}</p>
-                                <span>{{ props.userInfo?.managerEmail ?? user_Info.managerEmail }}</span>
+                                <p>{{ props.userInfo?.manager }}</p>
+                                <span>{{ props.userInfo?.managerEmail }}</span>
                             </div>
                         </div>
                         <Icon_balance />
                         <div style="margin-right: 40px">
                             <p class="fw">Дивиденты</p>
-                            <p>{{ props.userInfo?.dividends ?? user_Info.dividends }} ₽</p>
+                            <p>{{ props.userInfo?.dividends }} ₽</p>
                         </div>
                         <div style="margin-right: 20px">
                             <p class="fw">Основная сумма</p>
-                            <p>{{ props.userInfo?.main_sum ?? user_Info.main_sum }} ₽</p>
+                            <p>{{ props.userInfo?.main_sum }} ₽</p>
                         </div>
                     </div>
                     <!-- {{ props.userRole }} -->

@@ -19,6 +19,10 @@ const props = defineProps({
         type: String,
         required: false,
     },
+    user: {
+        type: Array,
+        required: true,
+    },
 });
 
 const activeTab = ref('months');
@@ -57,7 +61,7 @@ function handleContractClick(contractId) {
 
 // Вычисляем «активный» (выбранный) договор, чтобы использовать его данные
 const selectedContract = computed(() => {
-    return props.contracts.find(contract => contract.id === openContractId.value);
+    return props.contracts.find((contract) => contract.id === openContractId.value);
 });
 
 // При монтировании (или сразу в setup) выберем первый договор, если список не пуст
@@ -69,9 +73,8 @@ onMounted(() => {
 </script>
 
 <template>
-
     <Head title="ContractsClient" />
-    <AuthenticatedLayout :userRole="role" :notifications="props.status">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>
@@ -80,8 +83,13 @@ onMounted(() => {
         <template #main>
             <!-- Список договоров -->
             <div class="contracts_client flex">
-                <div class="contract_item flex flex-column" v-for="contract in props.contracts" :key="contract.id"
-                    @click="handleContractClick(contract.id)" :class="{ active: openContractId === contract.id }">
+                <div
+                    class="contract_item flex flex-column"
+                    v-for="contract in props.contracts"
+                    :key="contract.id"
+                    @click="handleContractClick(contract.id)"
+                    :class="{ active: openContractId === contract.id }"
+                >
                     <div class="icon_contract flex justify-center align-center">
                         <Icon_contract />
                     </div>
@@ -112,20 +120,32 @@ onMounted(() => {
                 <div class="accruals_title flex justify-between align-center">
                     <h3>График начислений для договора #{{ selectedContract.contract_number }}</h3>
                     <ul class="accruals_tab flex justify-between">
-                        <li class="flex align-center years" :class="{ active: activeTab === 'years' }"
-                            @click.stop="activeTab = 'years'">
+                        <li
+                            class="flex align-center years"
+                            :class="{ active: activeTab === 'years' }"
+                            @click.stop="activeTab = 'years'"
+                        >
                             По годам
                         </li>
-                        <li class="flex align-center months" :class="{ active: activeTab === 'months' }"
-                            @click.stop="activeTab = 'months'">
+                        <li
+                            class="flex align-center months"
+                            :class="{ active: activeTab === 'months' }"
+                            @click.stop="activeTab = 'months'"
+                        >
                             По месяцам
                         </li>
-                        <li class="flex align-center weeks" :class="{ active: activeTab === 'weeks' }"
-                            @click.stop="activeTab = 'weeks'">
+                        <li
+                            class="flex align-center weeks"
+                            :class="{ active: activeTab === 'weeks' }"
+                            @click.stop="activeTab = 'weeks'"
+                        >
                             По неделям
                         </li>
-                        <li class="flex align-center days" :class="{ active: activeTab === 'days' }"
-                            @click.stop="activeTab = 'days'">
+                        <li
+                            class="flex align-center days"
+                            :class="{ active: activeTab === 'days' }"
+                            @click.stop="activeTab = 'days'"
+                        >
                             По дням
                         </li>
                     </ul>
@@ -133,68 +153,80 @@ onMounted(() => {
 
                 <!-- Таб "По годам" -->
                 <div class="accruals_schedule years" v-show="activeTab === 'years'">
-                    <div v-for="accrual in yearAccruals" :key="accrual.id"
-                        class="schedule_item flex justify-between align-center">
+                    <div
+                        v-for="accrual in yearAccruals"
+                        :key="accrual.id"
+                        class="schedule_item flex justify-between align-center"
+                    >
                         <div>
                             <Icon_schedule />
                         </div>
-                        <div style="width: 150px;">
+                        <div style="width: 150px">
                             <p>{{ accrual.date }}</p>
                             <span>{{ accrual.month }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500;">{{ accrual.amount }}</p>
+                            <p style="font-weight: 500">{{ accrual.amount }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Таб "По месяцам" -->
                 <div class="accruals_schedule months" v-show="activeTab === 'months'">
-                    <div v-for="accrual in monthAccruals" :key="accrual.id"
-                        class="schedule_item flex justify-between align-center">
+                    <div
+                        v-for="accrual in monthAccruals"
+                        :key="accrual.id"
+                        class="schedule_item flex justify-between align-center"
+                    >
                         <div>
                             <Icon_schedule />
                         </div>
-                        <div style="width: 150px;">
+                        <div style="width: 150px">
                             <p>{{ accrual.date }}</p>
                             <span>{{ accrual.month }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500;">{{ accrual.amount }}</p>
+                            <p style="font-weight: 500">{{ accrual.amount }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Таб "По неделям" -->
                 <div class="accruals_schedule weeks" v-show="activeTab === 'weeks'">
-                    <div v-for="accrual in weekAccruals" :key="accrual.id"
-                        class="schedule_item flex justify-between align-center">
+                    <div
+                        v-for="accrual in weekAccruals"
+                        :key="accrual.id"
+                        class="schedule_item flex justify-between align-center"
+                    >
                         <div>
                             <Icon_schedule />
                         </div>
-                        <div style="width: 150px;">
+                        <div style="width: 150px">
                             <p>{{ accrual.date }}</p>
                             <span>{{ accrual.month }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500;">{{ accrual.amount }}</p>
+                            <p style="font-weight: 500">{{ accrual.amount }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Таб "По дням" -->
                 <div class="accruals_schedule days" v-show="activeTab === 'days'">
-                    <div v-for="accrual in dayAccruals" :key="accrual.id"
-                        class="schedule_item flex justify-between align-center">
+                    <div
+                        v-for="accrual in dayAccruals"
+                        :key="accrual.id"
+                        class="schedule_item flex justify-between align-center"
+                    >
                         <div>
                             <Icon_schedule />
                         </div>
-                        <div style="width: 150px;">
+                        <div style="width: 150px">
                             <p>{{ accrual.date }}</p>
                             <span>{{ accrual.month }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500;">{{ accrual.amount }}</p>
+                            <p style="font-weight: 500">{{ accrual.amount }}</p>
                         </div>
                     </div>
                 </div>
@@ -203,9 +235,6 @@ onMounted(() => {
         </template>
     </AuthenticatedLayout>
 </template>
-
-
-
 
 <style scoped>
 .title {
@@ -237,7 +266,7 @@ onMounted(() => {
     flex: 0 0 auto;
     height: 265px;
     width: 450px;
-    background: #BCC4CC;
+    background: #bcc4cc;
     border-radius: 24px;
     padding: 24px;
     row-gap: 8px;
@@ -247,7 +276,7 @@ onMounted(() => {
 
 .contract_item:hover,
 .contract_item.active {
-    background: #4E9F7D;
+    background: #4e9f7d;
 }
 
 .icon_contract {
@@ -258,13 +287,13 @@ onMounted(() => {
 }
 
 .icon_contract svg {
-    fill: #BCC4CC;
+    fill: #bcc4cc;
     transition: 0.3s;
 }
 
 .contract_item:hover .icon_contract svg,
 .active .icon_contract svg {
-    fill: #4E9F7D
+    fill: #4e9f7d;
 }
 
 .contract_item h2 {
@@ -277,7 +306,7 @@ onMounted(() => {
 }
 
 .contract_item span {
-    color: #F2F2F2;
+    color: #f2f2f2;
     width: 193px;
 }
 
@@ -309,7 +338,7 @@ onMounted(() => {
 }
 
 .accruals_tab {
-    border: 1px solid #F3F5F6;
+    border: 1px solid #f3f5f6;
     border-radius: 100px;
     height: 100%;
     column-gap: 4px;
@@ -319,14 +348,14 @@ onMounted(() => {
     height: 100%;
     padding: 0 20px;
     font-weight: 500;
-    color: #969BA0;
+    color: #969ba0;
     transition: 0.3s;
     cursor: pointer;
 }
 
 .accruals_tab li:hover,
 .accruals_tab .active {
-    background: #4E9F7D;
+    background: #4e9f7d;
     color: #fff;
     border-radius: 100px;
 }
@@ -341,6 +370,6 @@ onMounted(() => {
 }
 
 .schedule_item span {
-    color: #969BA0;
+    color: #969ba0;
 }
 </style>

@@ -42,6 +42,11 @@ class ManagerController extends Controller
         });
 
         return Inertia::render('Clients', [
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+            ],
             'clients' => $clients,
             'role' => $role,
             'status' => session('status'),
@@ -66,6 +71,7 @@ class ManagerController extends Controller
                 'user' => [
                     'id' => $contract->user->id,
                     'full_name' => $contract->user->last_name . ' ' . $contract->user->first_name . ' ' . $contract->user->middle_name,
+    
                 ]
             ];
         });
@@ -87,6 +93,11 @@ class ManagerController extends Controller
             'role' => $role,
             'clients' => $clients,
             'status' => session('status'),
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+            ],
         ]);
     }
 
@@ -149,6 +160,12 @@ class ManagerController extends Controller
             'applications' => $applications,
             'clients' => $clients,
             'status' => session('status'),
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+                
+            ],
         ]);
       }
 
@@ -345,6 +362,11 @@ class ManagerController extends Controller
         return Inertia::render('Notifications', [
             'role' => $role,
             'notifications' => $notifivcations,
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+            ],
         ]);
     }
 

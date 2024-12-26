@@ -26,6 +26,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    user: {
+        type: Array,
+        required: true,
+    },
 });
 
 const isModalOpen = ref(false);
@@ -226,7 +230,7 @@ const changeStatus = () => {
 
 <template>
     <Head title="Applications" />
-    <AuthenticatedLayout :userRole="role" :notifications="props.status">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Заявки</h2>

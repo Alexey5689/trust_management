@@ -8,6 +8,7 @@
             Route::get('/users', [AdminController::class, 'showAllUsers'])->name('admin.users');
             Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts');
             Route::get('/applications', [AdminController::class, 'showAllApplications'])->name('admin.applications');
+            Route::get('/notifications', [AdminController::class, 'showNotification'])->name('admin.notification');
             Route::get('/logs', [AdminController::class, 'createLogs'])->name('admin.logs');
             //рег менеджер
             Route::get('/registration-manager', [AdminController::class, 'createManagersByAdmin'])->name('admin.registration.manager');
@@ -28,7 +29,6 @@
             Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('admin.edit.contract');
             Route::patch('/edit-contract/{contract}', [AdminController::class, 'updateContractByAdmin']);
 
-            Route::get('/notifications', [AdminController::class, 'showNotification'])->name('admin.notification');
-            
+           
         });
     });

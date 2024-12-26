@@ -11,12 +11,15 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    user: {
+        type: Array,
+        required: true,
+    },
 });
 </script>
 <template>
-
     <Head title="Logs" />
-    <AuthenticatedLayout :userRole="props.role">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
         <template #header>
             <h2 class="title">Логи</h2>
         </template>

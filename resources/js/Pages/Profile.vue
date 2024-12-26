@@ -25,7 +25,6 @@ const props = defineProps({
 const isModalOpen = ref(false);
 const currentModal = ref(null);
 const userData = ref({});
-const role = ref('manager');
 const error = ref(null);
 
 const getInfo = async (url) => {
@@ -56,20 +55,6 @@ watch(
     },
     { immediate: true },
 );
-
-onMounted(() => {
-    localStorage.setItem(
-        'userInfo',
-        JSON.stringify({
-            full_name: props.user.full_name,
-            email: props.user.email,
-            manager: props.user.manager ?? '',
-            managerEmail: props.user.managerEmail ?? '',
-            main_sum: props.user.main_sum ?? null,
-            dividends: props.user.dividends ?? null,
-        }),
-    );
-});
 
 const modalTitles = {
     contacts: 'Изменение контактных данных',

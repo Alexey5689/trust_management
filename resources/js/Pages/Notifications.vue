@@ -11,11 +11,15 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    user: {
+        type: Array,
+        required: true,
+    },
 });
 </script>
 <template>
     <Head title="Notifications" />
-    <AuthenticatedLayout :userRole="role">
+    <AuthenticatedLayout :user="props.user" :userRole="role">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Уведомления</h2>

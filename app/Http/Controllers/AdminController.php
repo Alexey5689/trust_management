@@ -67,7 +67,11 @@ class AdminController extends Controller
 
 
         return Inertia::render('AllUsers', [
-           
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+            ],
             'clients' => $clients,
             'managers' => $managers,
             'role' => $role,
@@ -111,6 +115,12 @@ class AdminController extends Controller
             'contracts'=> $contracts,
             'clients' => $clients,
             'status' => session('status'),
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number
+            ],
         ]);
     }
     //все заявки
@@ -181,6 +191,11 @@ class AdminController extends Controller
             'applications'=> $applications,
             'clients' => $clients,
             'status' => session('status'),
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+            ],
         ]);
 
     }
@@ -619,6 +634,12 @@ public function updateStatusApplication(Request $request, Application $applicati
             ];
         });
         return Inertia::render('Logs', [
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number
+            ],
             'role' => $role,
             'logs' => $logs
         ]);
@@ -630,6 +651,12 @@ public function updateStatusApplication(Request $request, Application $applicati
             /** @var User $user */
         $notification = $user->userNotifications()->get();
         return Inertia::render('Notifications', [
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number
+            ],
             'role' => $role,
             'notifications' => $notification,
         ]);

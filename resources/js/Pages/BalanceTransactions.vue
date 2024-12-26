@@ -28,6 +28,10 @@ const props = defineProps({
         type: String,
         required: false,
     },
+    user: {
+        type: Array,
+        required: true,
+    },
 });
 
 const nowDate = format(new Date(), 'yyyy-MM-dd');
@@ -94,7 +98,7 @@ function formatNumber(num) {
 
 <template>
     <Head title="Transaction" />
-    <AuthenticatedLayout :userRole="props.role" :notifications="props.status">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="props.role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Баланс и транзакции</h2>
