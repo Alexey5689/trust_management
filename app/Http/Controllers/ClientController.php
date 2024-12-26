@@ -8,39 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
-    // public function createProfile(){
-    //     $user = Auth::user();
-    //     $role = $user->role->title;
-    //     // dd($user, $role);
-    //       /** @var User $user */
-    //     $sum_all_contracts = 0;
-    //     $dividends = 0;
-    //     $quarter_dividends = 0;
-
-    //     $sum_all_contracts += $user->userContracts()->sum('sum');
-    //     $manager = $user->userContracts()->with('manager')->first()->manager ?? null;
-    //     $quarter_dividends += $user->userContracts()->get()->reduce(function ($carry, $contract) {
-    //         return $carry + ($contract->sum * ($contract->procent / 100) * $this->termOfTheContract($contract->create_date, $contract->deadline) / $contract->number_of_payments);
-    //     }, 0);
-    //     foreach ($user->userContracts()->get() as $contract) {
-    //         $dividends += $this->calculateAccumulatedDividends($contract->create_date, now(), $quarter_dividends);
-    //     }
-       
-    //     return Inertia::render('Profile', [        
-    //         'user' => [
-    //             'id' => $user->id,
-    //             'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
-    //             'email' => $user->email,
-    //             'phone_number' => $user->phone_number,
-    //             'manager' =>  $manager->first_name . ' ' .$manager->last_name,
-    //             'managerEmail' => $manager->email,
-    //             'main_sum' => $sum_all_contracts,
-    //             'dividends' => $dividends
-    //         ],
-    //         'role' => $role,
-    //         'status' => session('status'),
-    //     ]);
-    // }
+   
     public function createProfile()
 {
     $user = Auth::user();
@@ -205,6 +173,16 @@ public function showContracts()
         return Inertia::render('Applications', [
             'role' => $role,
             'applications' => $applications,
+        ]);
+    }
+    public function showNotifications(){
+        $user = Auth::user();
+        $role = $user->role->title;
+         /** @var User $user */
+        $notifivcations = $user->userNotifications()->get();
+        return Inertia::render('Notifications', [
+            'role' => $role,
+            'notifications' => $notifivcations,
         ]);
     }
 }

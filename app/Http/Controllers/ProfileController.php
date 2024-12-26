@@ -71,6 +71,9 @@ class ProfileController extends Controller
                 ]);
             }
         }
+        $user->userNotifications()->create([
+            'content'=> 'Ваши контактные данные были изменены',
+        ]);
        
         return redirect()->route($role . '.profile')->with('status', 'Данные обновлены');
     }

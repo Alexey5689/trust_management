@@ -574,7 +574,7 @@ public function updateStatusApplication(Request $request, Application $applicati
 
     $message = $action();
 
-    
+    $client = $application->user;
     if ($originalStatus !== $application->status) {
         Log::create([
             'model_id' => $application->user_id,
@@ -586,6 +586,9 @@ public function updateStatusApplication(Request $request, Application $applicati
             'created_by' => $user->id,
         ]);
     }
+    $client->userNotifications()->create([
+        'content'=> 'Статус заявки No' . $application->id . ' был изменен',
+    ]);
 
     // Обновляем статус заявки
     // $application->update(['status' => $request->status]);
@@ -618,6 +621,17 @@ public function updateStatusApplication(Request $request, Application $applicati
         return Inertia::render('Logs', [
             'role' => $role,
             'logs' => $logs
+        ]);
+    }
+
+    public function showNotification(){
+        $user = Auth::user();
+        $role = $user->role->title;
+            /** @var User $user */
+        $notification = $user->userNotifications()->get();
+        return Inertia::render('Notifications', [
+            'role' => $role,
+            'notifications' => $notification,
         ]);
     }
 }

@@ -336,6 +336,17 @@ class ManagerController extends Controller
         ]);
         return redirect()->route('manager.contracts')->with('status', 'Договор успешно создан!');
       }
+      
+      public function showNotifications(){
+        $user = Auth::user();
+        $role = $user->role->title;
+         /** @var User $user */
+        $notifivcations = $user->userNotifications()->get();
+        return Inertia::render('Notifications', [
+            'role' => $role,
+            'notifications' => $notifivcations,
+        ]);
+    }
 
      
 }

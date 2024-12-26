@@ -27,6 +27,8 @@
             //редактирование договора
             Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('admin.edit.contract');
             Route::patch('/edit-contract/{contract}', [AdminController::class, 'updateContractByAdmin']);
+
+            Route::get('/notifications', [AdminController::class, 'showNotification'])->name('admin.notification');
             
         });
     });
