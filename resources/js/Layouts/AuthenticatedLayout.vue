@@ -136,7 +136,10 @@ const props = defineProps({
                     </div>
                     <!-- {{ props.userRole }} -->
                     {{ props.notifications }}
-                    <Icon_notifications />
+                    <NavLink :href="route(`${props.userRole}.notification`)">
+                        <Icon_notifications />
+                    </NavLink>
+
                     <ResponsiveNavLink
                         :href="route('logout')"
                         @click="remote()"

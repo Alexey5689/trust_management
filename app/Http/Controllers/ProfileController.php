@@ -72,6 +72,7 @@ class ProfileController extends Controller
             }
         }
         $user->userNotifications()->create([
+            'title' => 'Контактные данные',
             'content'=> 'Ваши контактные данные были изменены',
         ]);
        
@@ -111,6 +112,10 @@ class ProfileController extends Controller
             'new_value' => '********', // Указываем сообщение, а не пароль
             'created_by' => $user->id,
         ]);
+        $user->userNotifications()->create([
+            'title' => 'Пароль',
+            'content'=> 'Ваши пароль были изменены',
+        ]);
 
         Auth::guard('web')->logout();
         $request->session()->invalidate();
@@ -147,6 +152,10 @@ class ProfileController extends Controller
             'old_value' => $oldEmail,
             'new_value' => $request->email,
             'created_by' => Auth::id(),
+        ]);
+        $user->userNotifications()->create([
+            'title' => 'Email',
+            'content'=> 'Ваши email были изменены',
         ]);
 
         Auth::guard('web')->logout();

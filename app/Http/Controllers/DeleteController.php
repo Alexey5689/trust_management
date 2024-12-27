@@ -32,8 +32,9 @@ class DeleteController extends Controller
       public function deleteContract(Contract $contract): RedirectResponse
       {
           //dd($contract);
-          $contract->update(['contract_status' => false]);
-          Log::create([
+        $contract->update(['contract_status' => false]);
+        $user = User::find($contract->user_id);
+        Log::create([
             'model_id' => $contract->user_id,
             'model_type' => Contract::class,
             'change' => "Смена статуса договора ",
@@ -41,6 +42,10 @@ class DeleteController extends Controller
             'old_value' => 'Активный',
             'new_value' => 'Неактивный',
             'created_by' => Auth::id(),
+        ]);
+        $user->userNotifications()->create([
+            'title' => 'Договор',
+            'content' => 'Договор No ' . $contract->contract_number . ' удален',
         ]);
           return redirect(route('admin.contracts'))->with('success', 'Статус контракта изменен');
       }

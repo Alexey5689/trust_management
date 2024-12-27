@@ -106,7 +106,7 @@ watch(
         form.dividends = Number(calculateDividends(newSum, newProcent, yearsDifference));
         //Если изменяется дата создания, пересчитываем дедлайн
 
-        form.deadline = calculateDeadlineDate(getYearDifference(newCreateDate, newDeadline), newCreateDate);
+        //form.deadline = calculateDeadlineDate(getYearDifference(newCreateDate, newDeadline), newCreateDate);
     },
 );
 

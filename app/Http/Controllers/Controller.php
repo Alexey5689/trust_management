@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Contract;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Log;
+use App\Models\Transaction;
+use App\Models\User;
 
 use DateTime;
 
@@ -225,6 +227,34 @@ protected function calculateQuarterlyDividends($contractStartDate, $currentDate,
             // Завершаем договор и создаём транзакцию
             $contract->update(['contract_status' => false]);
             $this->createTransaction($application, $application->sum, 'Заявка');
+
+            $user=User::find($contract->user_id);
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Transaction::class,
+                'change' => 'Новая транзакция',
+                'action' => 'Создание транзакции',
+                'old_value' => '',
+                'new_value' => 'Сумама: ' . $application->sum,
+                'created_by' => Auth::id(),
+            ]);
+            $user->userNotifications()->create([
+                'title' => 'Создание транзакции',
+                'content'=> 'Создана транзакция на сумму: ' . $application->sum,
+            ]);
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Contract::class,
+                'change' => 'Смена статуса договора',
+                'action' => 'Закрытие договора No ' . $contract->contract_number,
+                'old_value' => 'Активный',
+                'new_value' => 'Неактивный',
+                'created_by' => Auth::id(),
+            ]);
+            $user->userNotifications()->create([
+                'title' => 'Закрытие договора',
+                'content'=> 'Договор No ' . $contract->contract_number . 'был закрыт.',
+            ]);
         }
 
        
@@ -285,7 +315,35 @@ protected function calculateQuarterlyDividends($contractStartDate, $currentDate,
                 'avaliable_dividends' =>  null,
             ]);
             $this->createTransaction($application, $avalible_dividends, 'Договор');
+            $user=User::find($contract->user_id);
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Transaction::class,
+                'change' => 'Новая транзакция',
+                'action' => 'Создание транзакции',
+                'old_value' => '',
+                'new_value' => 'Сумама: ' . $avalible_dividends,
+                'created_by' => Auth::id(),
+            ]);
+            $user->userNotifications()->create([
+                'title' => 'Создание транзакции',
+                'content'=> 'Создана транзакция на сумму: ' . $avalible_dividends,
+            ]);
             $this->createTransaction($application, $application->dividends, 'Заявка');
+            $user=User::find($contract->user_id);
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Transaction::class,
+                'change' => 'Новая транзакция',
+                'action' => 'Создание транзакции',
+                'old_value' => '',
+                'new_value' => 'Сумама: ' . $application->dividends,
+                'created_by' => Auth::id(),
+            ]);
+            $user->userNotifications()->create([
+                'title' => 'Создание транзакции',
+                'content'=> 'Создана транзакция на сумму: ' . $application->dividends,
+            ]);
 
         }
 
@@ -315,6 +373,21 @@ protected function calculateQuarterlyDividends($contractStartDate, $currentDate,
                 'last_payment_date' => now(),
             ]);
             $this->createTransaction($application, $application->dividends, 'Заявка');
+            $user=User::find($contract->user_id);
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Transaction::class,
+                'change' => 'Новая транзакция',
+                'action' => 'Создание транзакции',
+                'old_value' => '',
+                'new_value' => 'Сумама: ' . $application->dividends,
+                'created_by' => Auth::id(),
+            ]);
+            $user->userNotifications()->create([
+                'title' => 'Создание транзакции',
+                'content'=> 'Создана транзакция на сумму: ' . $application->dividends,
+            ]);
+
         }
         return 'Статус заявки успешно изменен!';
 
@@ -342,15 +415,21 @@ protected function calculateQuarterlyDividends($contractStartDate, $currentDate,
                 'contract_status' => false,
             ]);
             $this->createTransaction($application, $application->sum + $application->dividends, 'Заявка');
+            $user=User::find($contract->user_id);
             Log::create([
                 'model_id' => $contract->user_id,
                 'model_type' => Contract::class,
                 'change' => 'Смена статуса договора',
-                'action' => 'Удаление договора No ' . $contract->contract_number,
+                'action' => 'Закрытие договора No ' . $contract->contract_number,
                 'old_value' => 'Активный',
                 'new_value' => 'Неактивный',
                 'created_by' => Auth::id(),
             ]);
+            $user->userNotifications()->create([
+                'title' => 'Договор',
+                'content'=> 'Договор No ' . $contract->contract_number . ' был закрыт',
+            ]);
+            
         }
         return 'Статус заявки успешно изменен!';
     }

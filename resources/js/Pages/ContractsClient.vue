@@ -102,7 +102,7 @@ onMounted(() => {
                     </div>
                     <div class="flex">
                         <span>Срок договора</span>
-                        <p>3 года</p>
+                        <p>{{ contract.term === 1 ? '1 год' : contract.term + ' года' }}</p>
                     </div>
                     <div class="flex">
                         <span>% ставка по договору</span>

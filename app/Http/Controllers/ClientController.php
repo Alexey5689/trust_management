@@ -114,6 +114,7 @@ public function showContracts()
         ->where('contract_status', true)
         ->get()
         ->map(function ($contract) {
+            $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,
@@ -121,6 +122,7 @@ public function showContracts()
                 'procent' => $contract->procent,
                 'sum' => $contract->sum,
                 'deadline' => $contract->deadline,
+                'term' => $term,
             ];
         });
 

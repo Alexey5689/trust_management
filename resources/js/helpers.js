@@ -18,6 +18,22 @@ export const formatDateLogs = (date) => {
         return date; // Возвращаем исходное значение в случае ошибки
     }
 };
+export const formatDateNotificztion = (date) => {
+    try {
+        return format(parseISO(date), 'dd.MM.yyyy');
+    } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
+        return date; // Возвращаем исходное значение в случае ошибки
+    }
+};
+export const formatTimeNotificztion = (date) => {
+    try {
+        return format(parseISO(date), 'HH:mm');
+    } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
+        return date; // Возвращаем исходное значение в случае ошибки
+    }
+};
 
 export const getYearDifference = (startDate, endDate) => {
     try {

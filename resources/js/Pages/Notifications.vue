@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-
+import { formatDateNotificztion, formatTimeNotificztion } from '@/helpers.js';
 const props = defineProps({
     role: {
         type: String,
@@ -19,39 +19,38 @@ const props = defineProps({
 
 const notifications = [
     {
-        "id": 1,
-        "title": "Окончание договора",
-        "body": "30 Сентября 2024 будет закончен срок Договора №2402",
-        "date": "02.12.2024",
-        "time": "1:10"
+        id: 1,
+        title: 'Окончание договора',
+        body: '30 Сентября 2024 будет закончен срок Договора №2402',
+        date: '02.12.2024',
+        time: '1:10',
     },
     {
-        "id": 2,
-        "title": "Окончание договора",
-        "body": "30 Сентября 2024 будет закончен срок Договора №2402 с Ивановым Иваном Ивановичем",
-        "date": "03.12.2024",
-        "time": "1:20"
-    }
-]
+        id: 2,
+        title: 'Окончание договора',
+        body: '30 Сентября 2024 будет закончен срок Договора №2402 с Ивановым Иваном Ивановичем',
+        date: '03.12.2024',
+        time: '1:20',
+    },
+];
 </script>
 <template>
-
     <Head title="Notifications" />
-    <AuthenticatedLayout :user="props.user" :userRole="role">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="role">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Уведомления</h2>
             </div>
         </template>
         <template #main>
-            <!-- {{ props.notifications }} -->
-            <div class="flex flex-column r-gap" style="width: 550px;">
-                <div class="card flex flex-column" v-for="notification in notifications" :key="notification.id">
+            {{ props.notifications }}
+            <div class="flex flex-column r-gap" style="width: 550px">
+                <div class="card flex flex-column" v-for="notification in props.notifications" :key="notification.id">
                     <h3 class="card_title">{{ notification.title }}</h3>
-                    <p class="card_body">{{ notification.body }}</p>
+                    <p class="card_body">{{ notification.content }}</p>
                     <div class="card_date flex justify-between">
-                        <span>{{ notification.date }}</span>
-                        <span>{{ notification.time }}</span>
+                        <span>{{ formatDateNotificztion(notification.created_at) }}</span>
+                        <span>{{ formatTimeNotificztion(notification.created_at) }}</span>
                     </div>
                 </div>
             </div>
@@ -87,6 +86,6 @@ const notifications = [
 }
 
 .card_date {
-    color: #969BA0;
+    color: #969ba0;
 }
 </style>

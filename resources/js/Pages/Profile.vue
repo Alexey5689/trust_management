@@ -122,7 +122,7 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
                     </div>
                     <div class="card-item" v-if="props.role !== 'admin'">
                         <InputLabel for="last_name" value="Номер телефона" />
-                        <p class="text">+7 (922) 857-45-65</p>
+                        <p class="text">{{ props.user.phone_number }}</p>
                     </div>
                 </div>
                 <div v-if="props.role !== 'admin'" class="div_warning">

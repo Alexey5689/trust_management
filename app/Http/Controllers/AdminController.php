@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Contract;
 use Illuminate\Validation\Rule;
 use App\Models\Log;
+use App\Models\Notification;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -237,6 +238,8 @@ class AdminController extends Controller
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
 
+
+
         $manager_id = $request->manager_id;
         // Записываем менеджера в таблицу user_manager
         $user->managers()->attach($manager_id);
@@ -262,6 +265,11 @@ class AdminController extends Controller
             'old_value' => null,
             'new_value' => 'Договор No'.$contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
+        ]);
+        $manager = User::find($manager_id);
+        $manager->userNotifications()->create([
+            'title' => 'Новый клиент',
+            'content'=> 'У вас появился новый клиент: '.$user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
         ]);
         $user->userTransactions()->create([
             'contract_id'=>$contract->id,
@@ -332,6 +340,7 @@ class AdminController extends Controller
             }
         }
         $user->userNotifications()->create([
+            'title' => "Контактных данных",
             'content'=> 'Ваши контактные данные были изменены',
         ]);
         // Проверяем, изменился ли менеджер
@@ -352,6 +361,7 @@ class AdminController extends Controller
                 'created_by' => Auth::id(),
             ]);
             $user->userNotifications()->create([
+                'title' => "Менеджер",
                 'content'=> 'Ваш менеджер был изменен',
             ]);
         }
@@ -450,6 +460,7 @@ class AdminController extends Controller
         }
 
         $user->userNotifications()->create([
+            'title' => "Контактные данные",
             'content'=> 'Ваши контактные данные были изменены',
         ]);
 
@@ -497,6 +508,7 @@ class AdminController extends Controller
             'sourse' =>'Договор'
         ]);
         $client->userNotifications()->create([
+            'title' => "Новый договор",
             'content'=> 'Был создан договор No' . $contract->contract_number,
         ]);
 
@@ -555,6 +567,7 @@ class AdminController extends Controller
         }
         $user = $contract->user; 
         $user->userNotifications()->create([
+            'title' => "Изменение договора",
             'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
         ]);
         // dd($manager_id);
@@ -602,6 +615,7 @@ public function updateStatusApplication(Request $request, Application $applicati
         ]);
     }
     $client->userNotifications()->create([
+        'title' => "Изменение статуса заявки",
         'content'=> 'Статус заявки No' . $application->id . ' был изменен',
     ]);
 

@@ -113,7 +113,6 @@ class ManagerController extends Controller
             $query->where('contract_status', true); // Выбираем только активные договоры
         }])
         ->get()
-        ->get()
         ->map(function ($client) {
             return [
                 'id' => $client->id,
@@ -297,6 +296,7 @@ class ManagerController extends Controller
             $message = 'Телефон успешно обновлен';
           }
           $user->userNotifications()->create([
+            'title' => 'Телефон',
             'content'=> 'Номер вашего телефона был изменен на '.$request->phone_number,
         ]);
           
@@ -349,6 +349,11 @@ class ManagerController extends Controller
             'sourse' =>'Договор'
         ]);
         $client->userNotifications()->create([
+            'title' => 'Транзакция',
+            'content'=> 'Была создана транзакция по договору No '.$request->contract_number,
+        ]);
+        $client->userNotifications()->create([
+            'title' => 'Договор',
             'content'=> 'Был создан договор No '.$request->contract_number,
         ]);
         return redirect()->route('manager.contracts')->with('status', 'Договор успешно создан!');
