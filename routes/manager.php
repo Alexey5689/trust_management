@@ -19,7 +19,7 @@
             Route::get('/add-contract', [ManagerController::class, 'createAddContractByManager'])->name('manager.add.contract');
             Route::post('/add-contract', [ManagerController::class, 'storeAddContractByManager']);
 
-            Route::get('/notifications', [ManagerController::class, 'showNotification'])->name('manager.notification');
+            Route::get('/notifications', [ManagerController::class, 'showNotifications'])->name('manager.notification');
             
         });
     });
