@@ -91,17 +91,17 @@ const props = defineProps({
     -webkit-box-shadow: 0px 4px 12px 0px #5c5c5c14;
     box-shadow: 0px 4px 12px 0px #5c5c5c14;
     overflow-x: auto;
-    scrollbar-width: none;
-    scrollbar-color: transparent transparent;
+    /* scrollbar-width: none;
+    scrollbar-color: transparent transparent; */
 }
 
-.card::-webkit-scrollbar {
+/* .card::-webkit-scrollbar {
     width: 0px;
 }
 
 .card::-webkit-scrollbar-thumb {
     background: transparent;
-}
+} */
 
 .title-card {
     color: #000;

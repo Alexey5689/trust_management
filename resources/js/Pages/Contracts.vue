@@ -527,6 +527,9 @@ const handleCheckboxChange = () => {
 </template>
 
 <style scoped>
+.main {
+    row-gap: 32px;
+}
 .client {
     padding: 20px 32px 32px 32px;
 }

@@ -249,18 +249,18 @@ onMounted(() => {
 .contracts_client {
     flex-wrap: nowrap;
     column-gap: 16px;
-    overflow-x: scroll;
-    scrollbar-width: none;
-    scrollbar-color: transparent transparent;
+    overflow-x: auto;
+    /* scrollbar-width: none;
+    scrollbar-color: transparent transparent; */
 }
 
-.contracts_client::-webkit-scrollbar {
+/* .contracts_client::-webkit-scrollbar {
     width: 0px;
 }
 
 .contracts_client::-webkit-scrollbar-thumb {
     background: transparent;
-}
+} */
 
 .contract_item {
     flex: 0 0 auto;

@@ -70,17 +70,17 @@ const closeModal = () => {
     max-height: 700px;
     position: relative;
     overflow-y: auto;
-    scrollbar-width: none;
-    scrollbar-color: transparent transparent;
+    /* scrollbar-width: none;
+    scrollbar-color: transparent transparent; */
 }
 
-.modal-content::-webkit-scrollbar {
+/* .modal-content::-webkit-scrollbar {
     width: 0px;
 }
 
 .modal-content::-webkit-scrollbar-thumb {
     background: transparent;
-}
+} */
 
 .modal-header {
     display: flex;
