@@ -37,8 +37,12 @@ const currentModal = ref(null);
 const error = ref(null);
 const userData = ref({});
 const selectedDuration = ref('');
-const activeClient = computed(() => props.clients.filter((client) => client.active));
-const activeManager = computed(() => props.managers.filter((manager) => manager.active));
+const activeClient = computed(() =>
+    props.clients.filter((client) => client.active).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)),
+);
+const activeManager = computed(() =>
+    props.managers.filter((manager) => manager.active).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)),
+);
 const noactiveClient = computed(() => props.clients.filter((client) => !client.active));
 const noactiveManager = computed(() => props.managers.filter((manager) => !manager.active));
 
@@ -229,7 +233,11 @@ const updateUser = () => {
                             <li>Номер телефона</li>
                             <li>Email</li>
                         </ul>
-                        <div class="items-manager align-center" v-for="(manager, index) in managers" :key="manager.id">
+                        <div
+                            class="items-manager align-center"
+                            v-for="(manager, index) in activeManager"
+                            :key="manager.id"
+                        >
                             <div class="card-item order">
                                 <p class="text">{{ index + 1 }}</p>
                             </div>

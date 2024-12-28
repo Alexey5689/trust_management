@@ -38,6 +38,8 @@ class ManagerController extends Controller
                 'phone_number' => $client->phone_number,
                 'active' => $client->active,
                 'user_contracts' => $client->userContracts->count(),
+                'created_at' => $client->created_at,
+                'updated_at' => $client->updated_at
             ];
         });
 
@@ -72,7 +74,9 @@ class ManagerController extends Controller
                     'id' => $contract->user->id,
                     'full_name' => $contract->user->last_name . ' ' . $contract->user->first_name . ' ' . $contract->user->middle_name,
     
-                ]
+                ],
+                'created_at' => $contract->created_at,
+                'updated_at' => $contract->updated_at
             ];
         });
 
@@ -129,7 +133,8 @@ class ManagerController extends Controller
                         'procent' => $contract->procent,
                         'manager_id' => $contract->manager_id,
                         'dividends' => $dividends,
-                        'term' => $term
+                        'term' => $term,
+                       
                     ];
                 }),
             ];
@@ -150,7 +155,9 @@ class ManagerController extends Controller
                                 'date_of_payments' => $application->date_of_payments,
                                 'create_date' => $application->create_date,
                                 'sum' => $application->sum,
-                                'dividends'=> $application->dividends
+                                'dividends'=> $application->dividends,
+                                'created_at' => $application->created_at,
+                                'updated_at' => $application->updated_at
                             ];
                         });
         //dd($applications);
@@ -372,6 +379,8 @@ class ManagerController extends Controller
                 'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
                 'email' => $user->email,
             ],
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at
         ]);
     }
 

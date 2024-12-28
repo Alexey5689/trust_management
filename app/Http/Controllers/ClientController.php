@@ -24,10 +24,10 @@ class ClientController extends Controller
     $dividends = $userContracts->reduce(function ($carry, $contract) {
         $sum = $contract->sum ?? 0;  
         $procent = $contract->procent ?? 0;  
-        
+        //dd($procent, $sum);
         // Рассчитываем годовые дивиденды
         $annual_dividends = $sum * ($procent / 100);  
-        
+       // dd($annual_dividends);
         // Приводим даты к Carbon
         $createDate = $contract->create_date instanceof \Carbon\Carbon 
             ? $contract->create_date 
@@ -62,7 +62,8 @@ class ClientController extends Controller
                 : 'Менеджер не назначен',
             'managerEmail' => $manager ? $manager->email : '—',
             'main_sum' => $sum_all_contracts,
-            'dividends' => round($dividends, 2),// Округляем до 2 знаков
+            //'dividends' => round($dividends, 2),// Округляем до 2 знаков
+            'dividends' => $dividends,
         ],
         'role' => $role,
         'status' => session('status'),
@@ -109,12 +110,17 @@ public function showContracts()
     }, 0);
     // dd($dividends);
     // Получаем менеджера
+   
     $manager = $user->managers->first();
     $contracts = $user->userContracts()
         ->where('contract_status', true)
         ->get()
         ->map(function ($contract) {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
+            $anualDividends = $this->calculateAnnualDividendsContracts($contract->create_date, $contract->deadline, now(),$contract->sum, $contract->procent);
+            $monthDividends = $this->calculateMonthlyDividends($contract->create_date, $contract->deadline, now(), $contract->sum, $contract->procent);
+            $weekDividends = $this->calculateWeeklyDividends($contract->create_date, $contract->deadline, now(), $contract->sum, $contract->procent);
+            $dayDividends = $this->calculateDailyDividends($contract->create_date, $contract->deadline, now(), $contract->sum, $contract->procent);
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,
@@ -123,6 +129,12 @@ public function showContracts()
                 'sum' => $contract->sum,
                 'deadline' => $contract->deadline,
                 'term' => $term,
+                'created_at' => $contract->create_date,
+                'updated_at' => $contract->updated_at,
+                'anualDividends' => $anualDividends,
+                'monthDividends' => $monthDividends,
+                'weekDividends' => $weekDividends,
+                'dayDividends' => $dayDividends
             ];
         });
 

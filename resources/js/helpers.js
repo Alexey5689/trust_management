@@ -18,6 +18,30 @@ export const formatDateLogs = (date) => {
         return date; // Возвращаем исходное значение в случае ошибки
     }
 };
+export const formatDateClientContract = (date) => {
+    try {
+        return format(parseISO(date), 'dd/MM/yyyy');
+    } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
+        return date; // Возвращаем исходное значение в случае ошибки
+    }
+};
+// toLocaleDateString('ru-RU', { month: 'long' });
+export const formatDateClientContractRus = (date) => {
+    try {
+        // Преобразуем строку в дату ISO
+        const parsedDate = parseISO(date);
+
+        // Форматируем дату как "декабрь 2024"
+        const formattedDate = format(parsedDate, 'MMMM yyyy', { locale: ru });
+
+        // Преобразуем первую букву в верхний регистр
+        return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+    } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
+        return date; // Возвращаем исходное значение в случае ошибки
+    }
+};
 export const formatDateNotificztion = (date) => {
     try {
         return format(parseISO(date), 'dd.MM.yyyy');

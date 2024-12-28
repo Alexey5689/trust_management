@@ -49,6 +49,8 @@ class AdminController extends Controller
                 'manager_full_name' => $manager
                         ? $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name
                         : 'Менеджер не назначен',
+                'created_at' => $client->created_at,
+                'updated_at' => $client->updated_at,
             ];
         });
         $managers = User::whereHas('role', function($query) {
@@ -62,7 +64,9 @@ class AdminController extends Controller
                 'full_name' => $manager->last_name . ' ' . $manager->first_name . ' ' . $manager->middle_name,
                 'email' => $manager->email,
                 'phone_number' => $manager->phone_number,
-                'active' => $manager->active
+                'active' => $manager->active,
+                'created_at' => $manager->created_at,
+                'updated_at' => $manager->updated_at,
             ];
         });
 
@@ -84,6 +88,7 @@ class AdminController extends Controller
         $user = Auth::user(); // Получаем текущего пользователя
         $role = $user->role->title; // Получаем его роль
         $contracts = Contract::with(['user'])->get() ->map(function ($contract) {
+            $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,
@@ -93,10 +98,13 @@ class AdminController extends Controller
                 'procent' => $contract->procent,
                 'payments' => $contract->payments,
                 'contract_status' => $contract->contract_status,
+                'term' => $term,
                 'user' => [
                     'id' => $contract->user->id,
                     'full_name' => $contract->user->last_name . ' ' . $contract->user->first_name . ' ' . $contract->user->middle_name,
-                ]
+                ],
+                'created_at' => $contract->created_at,
+                'updated_at' => $contract->updated_at
             ];
         });
         $clients = User::whereHas('role', function ($query) {
@@ -184,7 +192,9 @@ class AdminController extends Controller
                 'date_of_payments' => $application->date_of_payments,
                 'create_date' => $application->create_date,
                 'sum' => $application->sum,
-                'dividends' => $application->dividends
+                'dividends' => $application->dividends,
+                'created_at' => $application->created_at,
+                'updated_at' => $application->updated_at
             ];
         });
         return Inertia::render('Applications', [
@@ -673,6 +683,8 @@ public function updateStatusApplication(Request $request, Application $applicati
             ],
             'role' => $role,
             'notifications' => $notification,
+            'ceated_at' => $notification->created_at,
+            'updated_at' => $notification->updated_at
         ]);
     }
 }

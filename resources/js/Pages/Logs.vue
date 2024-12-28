@@ -2,6 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { formatDateLogs } from '@/helpers.js';
+import { computed } from 'vue';
 const props = defineProps({
     logs: {
         type: Array,
@@ -16,6 +17,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+const logs = computed(() => props.logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
 </script>
 <template>
     <Head title="Logs" />
@@ -40,7 +43,7 @@ const props = defineProps({
                         <li>Новое значение</li>
                         <li>Цель</li>
                     </ul>
-                    <div class="items flex align-center" v-for="log in props.logs" :key="log.id">
+                    <div class="items flex align-center" v-for="log in logs" :key="log.id">
                         <!-- <div class="card-item order">
                             <p class="text">{{ log.id }}</p>
                         </div> -->

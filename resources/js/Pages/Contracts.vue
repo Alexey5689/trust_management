@@ -38,7 +38,11 @@ const error = ref(null);
 const contractData = ref({});
 const selectedDuration = ref('');
 const activeClient = computed(() => props.clients.filter((client) => client.active));
-const activeContract = computed(() => props.contracts.filter((contract) => contract.contract_status === true));
+const activeContract = computed(() =>
+    props.contracts
+        .filter((contract) => contract.contract_status === true)
+        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)),
+);
 const noActiveContract = computed(() => props.contracts.filter((contract) => contract.contract_status === false));
 
 const getInfo = async (url, contractId) => {
@@ -274,11 +278,7 @@ const handleCheckboxChange = () => {
                             </div>
                             <div>
                                 <p>
-                                    {{
-                                        getYearDifference(contract.create_date, contract.deadline) === 1
-                                            ? '1 год'
-                                            : getYearDifference(contract.create_date, contract.deadline) + ' года'
-                                    }}
+                                    {{ contract.term === 1 ? '1 год' : contract.term + ' года' }}
                                 </p>
                             </div>
                             <div v-if="(role === 'admin' || role === 'manager') && contract.payments">
@@ -317,7 +317,7 @@ const handleCheckboxChange = () => {
                             <li>Выплаты</li>
                             <li>Сумма</li>
                         </ul>
-                        <div class="title" v-if="noActiveContract.length === 0">Закрытых договорровог нет</div>
+                        <div class="title" v-if="noActiveContract.length === 0">Закрытых договоров нет</div>
                         <div
                             v-else
                             class="contracts align-center"
@@ -338,11 +338,7 @@ const handleCheckboxChange = () => {
                             </div>
                             <div>
                                 <p>
-                                    {{
-                                        getYearDifference(contract.create_date, contract.deadline) === 1
-                                            ? '1 год'
-                                            : getYearDifference(contract.create_date, contract.deadline) + ' года'
-                                    }}
+                                    {{ contract.term === 1 ? '1 год' : contract.term + ' года' }}
                                 </p>
                             </div>
                             <div v-if="(role === 'admin' || role === 'manager') && contract.payments">
@@ -487,7 +483,7 @@ const handleCheckboxChange = () => {
                                 <option value="" disabled>
                                     {{
                                         getYearDifference(form.create_date, form.deadline) === 1
-                                            ? getYearDifference(form.create_date, form.deadline) + ' год'
+                                            ? '1 год'
                                             : getYearDifference(form.create_date, form.deadline) + ' года'
                                     }}
                                 </option>

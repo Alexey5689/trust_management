@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { formatDate } from '@/helpers.js';
+import { formatDate, formatDateClientContract, formatDateClientContractRus } from '@/helpers.js';
 import Icon_contract from '@/Components/Icon/Contract.vue';
 import Icon_schedule from '@/Components/Icon/Schedule.vue';
 
@@ -26,29 +26,30 @@ const props = defineProps({
 });
 
 const activeTab = ref('months');
+const userContract = ref([]);
 
 const yearAccruals = ref([
-    { id: 1, date: '09/10/2024', month: 'Октябрь 2024', amount: '+555.555,55' },
-    { id: 2, date: '09/10/2025', month: 'Октябрь 2025', amount: '+605.000,00' },
-    { id: 3, date: '09/10/2026', month: 'Октябрь 2026', amount: '+705.123,45' },
+    // { id: 1, date: '09/10/2024', month: 'Октябрь 2024', amount: '+555.555,55' },
+    // { id: 2, date: '09/10/2025', month: 'Октябрь 2025', amount: '+605.000,00' },
+    // { id: 3, date: '09/10/2026', month: 'Октябрь 2026', amount: '+705.123,45' },
 ]);
 
 const monthAccruals = ref([
-    { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+55.555,55' },
-    { id: 2, date: '09/02/2024', month: 'Февраль 2024', amount: '+60.000,00' },
-    { id: 3, date: '09/03/2024', month: 'Март 2024', amount: '+70.123,45' },
+    // { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+55.555,55' },
+    // { id: 2, date: '09/02/2024', month: 'Февраль 2024', amount: '+60.000,00' },
+    // { id: 3, date: '09/03/2024', month: 'Март 2024', amount: '+70.123,45' },
 ]);
 
 const weekAccruals = ref([
-    { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+1.555,55' },
-    { id: 2, date: '16/01/2024', month: 'Январь 2024', amount: '+1.000,00' },
-    { id: 3, date: '23/01/2024', month: 'Январь 2024', amount: '+1.123,45' },
+    // { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+1.555,55' },
+    // { id: 2, date: '16/01/2024', month: 'Январь 2024', amount: '+1.000,00' },
+    // { id: 3, date: '23/01/2024', month: 'Январь 2024', amount: '+1.123,45' },
 ]);
 
 const dayAccruals = ref([
-    { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+55,55' },
-    { id: 2, date: '10/01/2024', month: 'Январь 2024', amount: '+50,00' },
-    { id: 3, date: '11/01/2024', month: 'Январь 2024', amount: '+60,45' },
+    // { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+55,55' },
+    // { id: 2, date: '10/01/2024', month: 'Январь 2024', amount: '+50,00' },
+    // { id: 3, date: '11/01/2024', month: 'Январь 2024', amount: '+60,45' },
 ]);
 
 // Храним id выбранного договора
@@ -56,18 +57,26 @@ const openContractId = ref(null);
 
 // При клике устанавливаем (или сбрасываем) id выбранного договора
 function handleContractClick(contractId) {
-    openContractId.value = contractId;
+    openContractId.value = props.contracts.find((contract) => contract.id === contractId);
+    dayAccruals.value = openContractId.value.dayDividends;
+    weekAccruals.value = openContractId.value.weekDividends;
+    monthAccruals.value = openContractId.value.monthDividends;
+    yearAccruals.value = openContractId.value.anualDividends;
 }
 
 // Вычисляем «активный» (выбранный) договор, чтобы использовать его данные
-const selectedContract = computed(() => {
-    return props.contracts.find((contract) => contract.id === openContractId.value);
-});
+// const selectedContract = computed(() => {
+//     return props.contracts.find((contract) => contract.id === openContractId.value);
+// });
 
 // При монтировании (или сразу в setup) выберем первый договор, если список не пуст
 onMounted(() => {
     if (props.contracts.length > 0) {
-        openContractId.value = props.contracts[0].id;
+        openContractId.value = props.contracts[0];
+        dayAccruals.value = openContractId.value.dayDividends;
+        weekAccruals.value = openContractId.value.weekDividends;
+        monthAccruals.value = openContractId.value.monthDividends;
+        yearAccruals.value = openContractId.value.anualDividends;
     }
 });
 </script>
@@ -116,9 +125,9 @@ onMounted(() => {
             </div>
 
             <!-- Единый блок Графика: показываем, если есть выбранный договор -->
-            <div class="accruals card" v-if="selectedContract">
+            <div class="accruals card" v-if="openContractId">
                 <div class="accruals_title flex justify-between align-center">
-                    <h3>График начислений для договора #{{ selectedContract.contract_number }}</h3>
+                    <h3>График начислений для договора #{{ openContractId.contract_number }}</h3>
                     <ul class="accruals_tab flex justify-between">
                         <li
                             class="flex align-center years"
@@ -162,11 +171,11 @@ onMounted(() => {
                             <Icon_schedule />
                         </div>
                         <div style="width: 150px">
-                            <p>{{ accrual.date }}</p>
-                            <span>{{ accrual.month }}</span>
+                            <p>{{ formatDateClientContract(accrual.date) }}</p>
+                            <span>{{ formatDateClientContractRus(accrual.date) }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500">{{ accrual.amount }}</p>
+                            <p style="font-weight: 500">+{{ accrual.dividend }}</p>
                         </div>
                     </div>
                 </div>
@@ -182,11 +191,11 @@ onMounted(() => {
                             <Icon_schedule />
                         </div>
                         <div style="width: 150px">
-                            <p>{{ accrual.date }}</p>
-                            <span>{{ accrual.month }}</span>
+                            <p>{{ formatDateClientContract(accrual.date) }}</p>
+                            <span>{{ formatDateClientContractRus(accrual.date) }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500">{{ accrual.amount }}</p>
+                            <p style="font-weight: 500">+{{ accrual.dividend }}</p>
                         </div>
                     </div>
                 </div>
@@ -202,11 +211,11 @@ onMounted(() => {
                             <Icon_schedule />
                         </div>
                         <div style="width: 150px">
-                            <p>{{ accrual.date }}</p>
-                            <span>{{ accrual.month }}</span>
+                            <p>{{ formatDateClientContract(accrual.date) }}</p>
+                            <span>{{ formatDateClientContractRus(accrual.date) }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500">{{ accrual.amount }}</p>
+                            <p style="font-weight: 500">+{{ accrual.dividend }}</p>
                         </div>
                     </div>
                 </div>
@@ -222,11 +231,11 @@ onMounted(() => {
                             <Icon_schedule />
                         </div>
                         <div style="width: 150px">
-                            <p>{{ accrual.date }}</p>
-                            <span>{{ accrual.month }}</span>
+                            <p>{{ formatDateClientContract(accrual.date) }}</p>
+                            <span>{{ formatDateClientContractRus(accrual.date) }}</span>
                         </div>
                         <div>
-                            <p style="font-weight: 500">{{ accrual.amount }}</p>
+                            <p style="font-weight: 500">+{{ accrual.dividend }}</p>
                         </div>
                     </div>
                 </div>
