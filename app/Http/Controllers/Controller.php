@@ -52,11 +52,22 @@ protected function calculateEndOfTermDividends($contractStartDate, $contractDead
     $endDate = new DateTime($contractDeadline);
     $currentDate = new DateTime($currentDate);
 
-    // Дни с момента начала договора до текущей даты
-    $daysSinceStart = $startDate->diff($currentDate)->days;
+    // Защита от деления на 0
+    if ($startDate >= $endDate) {
+        return round($paymentAmount);
+    }
 
-    // Полный срок договора в днях
-    $totalContractDays = $startDate->diff($endDate)->days;
+    // Считаем количество дней в периоде (учёт високосных лет)
+    $totalContractDays = 0;
+    for ($date = clone $startDate; $date < $endDate; $date->modify('+1 day')) {
+        $totalContractDays++;
+    }
+
+    // Дни с начала договора до текущей даты
+    $daysSinceStart = 0;
+    for ($date = clone $startDate; $date < $currentDate && $date < $endDate; $date->modify('+1 day')) {
+        $daysSinceStart++;
+    }
 
     // Дивиденды за один день
     $dailyDividend = $paymentAmount / $totalContractDays;
@@ -72,57 +83,58 @@ protected function calculateEndOfTermDividends($contractStartDate, $contractDead
     return round($accruedDividends);
 }
 
-protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount,$lastPaymentDate)
-{
-    $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
-    $endDate = (clone $startDate)->modify('+1 year');
-    $currentDate = new DateTime($currentDate);
 
-    // Считаем количество дней в году от даты начала договора
-    $daysInYear = $startDate->diff($endDate)->days;
-    // dd($daysInYear);
-    // Дни с момента начала договора до текущей даты
+protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
+    $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
+    $currentDate = new DateTime($currentDate);
+    
+    // Получаем конец года (12 месяцев спустя)
+    $endDate = (clone $startDate)->modify('+1 year');
+
+    // Проверка, високосный ли год
+    $daysInYear = $startDate->format('L') == 1 ? 366 : 365;
+
+    // Дни с начала договора до текущей даты
     $daysSinceStart = $startDate->diff($currentDate)->days;
-   // dd($daysSinceStart);
+
     // Дивиденды за 1 день
     $dailyDividend = $paymentAmount / $daysInYear;
-    // dd($dailyDividend);
+
     // Пропорциональные дивиденды за прошедшие дни
     $accruedDividends = $daysSinceStart * $dailyDividend;
-    //dd($accruedDividends);
+
     return round($accruedDividends);
 }
 
 
-protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate )
-{   
-   // dd($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate);
+
+protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {   
     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
     $currentDate = new DateTime($currentDate);
-   // dd($startDate, $currentDate);
+    
     // Рассчитываем квартальные выплаты
     $quarterAmount = $paymentAmount / 4;
-   // dd($quarterAmount);
-    // Определяем, сколько дней прошло с момента начала квартала
-    $daysSinceStart = $startDate->diff($currentDate)->days;
-    //dd($daysSinceStart);
+    
     // Определяем дату начала текущего квартала
     $quarterStart = clone $startDate;
     while ($quarterStart < $currentDate) {
         $quarterStart->modify('+3 months');
     }
-    $quarterStart->modify('-3 months');
+    $quarterStart->modify('-3 months');  // Возвращаемся к началу текущего квартала
 
     // Определяем конец квартала
     $quarterEnd = clone $quarterStart;
     $quarterEnd->modify('+3 months');
 
-    // Считаем фактическое количество дней в квартале
+    // Проверяем количество дней в квартале
     $quarterDays = $quarterStart->diff($quarterEnd)->days;
-    //dd($quarterDays);
-    // Дивиденды за 1 день
+
+    // Страхуемся от деления на 90 дней, устанавливая минимум 91
+    $quarterDays = max(91, $quarterDays);
+
+    // Дивиденды за 1 день квартала
     $dailyDividend = $quarterAmount / $quarterDays;
-    //dd($dailyDividend);
+
     // Считаем, сколько дней прошло с начала квартала
     $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
 
@@ -131,6 +143,7 @@ protected function calculateQuarterlyDividends($contractStartDate, $currentDate,
 
     return round($accruedDividends);
 }
+
 
 
 // function calculateDailyDividends($contractStartDate, $currentDate, $totalAmount, $annualRate) {
@@ -289,14 +302,13 @@ function calculateDailyDividends($contractStartDate, $contractEndDate, $currentD
     $dailyDividends = [];
     $totalAccrued = 0;
 
-    // Пройдём по каждому дню с начала договора до текущей даты
-    for ($date = $startDate->copy(); $date <= $currentDate && $date <= $endDate; $date->addDay()) {
+    // Пройдём по каждому дню с начала договора до текущей даты (начиная со следующего дня)
+    for ($date = $startDate->copy()->addDay(); $date <= $currentDate && $date <= $endDate; $date->addDay()) {
         // Количество дней в году (учёт високосных лет)
         $daysInYear = $date->isLeapYear() ? 366 : 365;
 
         // Дивиденды за день
         $dailyDividend = ($totalAmount * ($annualRate / 100)) / $daysInYear;
-
         $totalAccrued += $dailyDividend;
 
         $dailyDividends[] = [
@@ -308,6 +320,7 @@ function calculateDailyDividends($contractStartDate, $contractEndDate, $currentD
 
     return $dailyDividends;
 }
+
 
 function calculateWeeklyDividends($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
     $startDate = Carbon::parse($contractStartDate);
@@ -467,10 +480,9 @@ function calculateMonthlyDividends($contractStartDate, $contractEndDate, $curren
     // Дивиденды за месяц
     $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
 
-    // Начинаем начисления от даты начала договора
-    $paymentDate = $startDate->copy();
+    // Начинаем начисления с первого полного месяца
+    $paymentDate = $startDate->copy()->addMonth();
 
-    // Выплаты каждый месяц
     while ($paymentDate <= $endDate && $paymentDate <= $currentDate) {
         $totalAccrued += $monthlyDividendAmount;
 
@@ -480,12 +492,13 @@ function calculateMonthlyDividends($contractStartDate, $contractEndDate, $curren
             'total_accumulated' => round($totalAccrued, 2)
         ];
 
-        // Переходим к следующему месяцу (на ту же дату)
+        // Следующий месяц
         $paymentDate->addMonth();
     }
 
     return $monthlyDividends;
 }
+
 
 
 
