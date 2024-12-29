@@ -1,155 +1,275 @@
 <script setup>
-import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
+import { ref, computed, watch } from 'vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import Icon_exit from '@/Components/Icon/Exit.vue';
+import Icon_notifications from '@/Components/Icon/Notifications.vue';
+import Icon_personal_account from '@/Components/Icon/PersonalAccount.vue';
+import Icon_users from '@/Components/Icon/Users.vue';
+import Icon_contract from '@/Components/Icon/Contract.vue';
+import Icon_applications from '@/Components/Icon/Applications.vue';
+import Icon_logo from '@/Components/Icon/Logo.vue';
+import Icon_logo_name from '@/Components/Icon/LogoName.vue';
+import Icon_logs from '@/Components/Icon/Logs.vue';
+import Icon_balance from '@/Components/Icon/Balance.vue';
 
-const showingNavigationDropdown = ref(false);
+const props = defineProps({
+    userRole: {
+        type: String,
+        required: true,
+    },
+    userInfo: {
+        type: Array,
+        required: false,
+    },
+    notifications: {
+        type: String,
+        required: false,
+    },
+});
+
+// watch(notification, (newNotification) => {
+//     // Ваш код для реакции на изменение notification
+//     console.log('Статус обновлен:', newNotification);
+// });
 </script>
 
 <template>
-    <div>
-        <div class="min-h-screen bg-gray-100">
-            <nav class="bg-white border-b border-gray-100">
-                <!-- Primary Navigation Menu -->
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between h-16">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="shrink-0 flex items-center">
-                                <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
-                                </Link>
-                            </div>
-
-                            <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Profile
-                                </NavLink>
-                                <NavLink :href="route('register')" >
-                                    Регистрация
-                                </NavLink>
-                            </div>
-                        </div>
-
-                        <div class="hidden sm:flex sm:items-center sm:ms-6">
-                            <!-- Settings Dropdown -->
-                            <div class="ms-3 relative">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
-                                            >
-                                                {{ $page.props.auth.user.name }}
-
-                                                <svg
-                                                    class="ms-2 -me-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
-
-                                    <template #content>
-                                        <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
-                                        </DropdownLink>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <!-- Hamburger -->
-                        <div class="-me-2 flex items-center sm:hidden">
-                            <button
-                                @click="showingNavigationDropdown = !showingNavigationDropdown"
-                                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
-                            >
-                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path
-                                        :class="{
-                                            hidden: showingNavigationDropdown,
-                                            'inline-flex': !showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        :class="{
-                                            hidden: !showingNavigationDropdown,
-                                            'inline-flex': showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+    <div class="flex">
+        <div class="sidebar_box flex flex-column">
+            <div class="logo_hamb flex align-center justify-between">
+                <div class="flex align-center">
+                    <Icon_logo style="margin-right: 12.5px" />
+                    <Icon_logo_name />
                 </div>
-
-                <!-- Responsive Navigation Menu -->
-                <div
-                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
-                    class="sm:hidden"
+            </div>
+            <div class="profile flex flex-column align-center">
+                <!-- {{ user_Info }} -->
+                <transition name="fade-height">
+                    <div class="flex flex-column align-center w-100">
+                        <p class="profile_name">
+                            {{ props.userInfo?.full_name }}
+                        </p>
+                        <span class="profile_mail"> {{ props.userInfo?.email }}</span>
+                    </div>
+                </transition>
+            </div>
+            <nav class="flex flex-column nav_box">
+                <NavLink
+                    :href="route(`${props.userRole}.profile`)"
+                    :active="route().current(`${props.userRole}.profile`)"
                 >
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <!-- Responsive Settings Options -->
-                    <div class="pt-4 pb-1 border-t border-gray-200">
-                        <div class="px-4">
-                            <div class="font-medium text-base text-gray-800">
-                                {{ $page.props.auth.user.name }}
-                            </div>
-                            <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
-                        </div>
-
-                        <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
+                    <Icon_personal_account />
+                    <span>Личный кабинет</span>
+                </NavLink>
+                <NavLink
+                    v-if="props.userRole === 'admin'"
+                    :href="route('admin.users')"
+                    :active="route().current('admin.users')"
+                >
+                    <Icon_users />
+                    <span>Пользователи</span>
+                </NavLink>
+                <NavLink
+                    v-if="props.userRole === 'manager'"
+                    :href="route(`${props.userRole}.clients`)"
+                    :active="route().current(`${props.userRole}.clients`)"
+                >
+                    <Icon_users />
+                    <span>Клиенты</span>
+                </NavLink>
+                <NavLink
+                    :href="route(`${props.userRole}.contracts`)"
+                    :active="route().current(`${props.userRole}.contracts`)"
+                >
+                    <Icon_contract />
+                    <span>Договоры</span>
+                </NavLink>
+                <NavLink
+                    v-if="props.userRole === 'client'"
+                    :href="route('client.balance-transactions')"
+                    :active="route().current('client.balance-transactions')"
+                >
+                    <Icon_balance />
+                    <span>Баланс и транзакции</span>
+                </NavLink>
+                <NavLink
+                    :href="route(`${props.userRole}.applications`)"
+                    :active="route().current(`${props.userRole}.applications`)"
+                >
+                    <Icon_applications />
+                    <span>Заявки</span>
+                </NavLink>
+                <NavLink
+                    class="logs"
+                    v-if="props.userRole === 'admin' || props.userRole === 'manager'"
+                    :href="route('admin.logs')"
+                    :active="route().current('admin.logs')"
+                >
+                    <Icon_logs />
+                    <span>Логи</span>
+                </NavLink>
             </nav>
+        </div>
 
-            <!-- Page Heading -->
-            <header class="bg-white shadow" v-if="$slots.header">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-column content_box">
+            <header v-if="$slots.header">
+                <div class="flex align-center justify-end">
+                    <div v-if="props.userRole === 'client'" class="info_client flex align-center justify-end w-100">
+                        <div class="your_manager flex align-center">
+                            <p>Ваш менеджер</p>
+                            <Icon_personal_account />
+                            <div>
+                                <p>{{ props.userInfo?.manager }}</p>
+                                <span>{{ props.userInfo?.managerEmail }}</span>
+                            </div>
+                        </div>
+                        <Icon_balance />
+                        <div style="margin-right: 40px">
+                            <p class="fw">Дивиденты</p>
+                            <p>{{ props.userInfo?.dividends }} ₽</p>
+                        </div>
+                        <div style="margin-right: 20px">
+                            <p class="fw">Основная сумма</p>
+                            <p>{{ props.userInfo?.main_sum }} ₽</p>
+                        </div>
+                    </div>
+                    <!-- {{ props.userRole }} -->
+                    {{ props.notifications }}
+                    <NavLink :href="route(`${props.userRole}.notification`)">
+                        <Icon_notifications />
+                    </NavLink>
+
+                    <ResponsiveNavLink
+                        :href="route('logout')"
+                        @click="remote()"
+                        method="post"
+                        as="button"
+                        class="flex align-center justify-center btn"
+                    >
+                        <Icon_exit />
+                        Выйти
+                    </ResponsiveNavLink>
+                </div>
+                <div class="">
                     <slot name="header" />
                 </div>
             </header>
 
-            <!-- Page Content -->
             <main>
-                <slot />
+                <slot name="main" />
             </main>
         </div>
     </div>
 </template>
+
+<style scoped>
+.sidebar_box {
+    background: #fff;
+    height: 100vh;
+    width: 250px;
+    padding: 16px;
+    row-gap: 32px;
+}
+
+.content_box {
+    background: #f3f5f6;
+    min-height: 100%;
+    width: calc(100vw - 250px);
+    padding: 22px 32px;
+    overflow-y: auto;
+    height: 100vh;
+    overflow-x: hidden;
+    width: 100wh;
+}
+
+.nav_box {
+    margin: 0 auto;
+    row-gap: 4px;
+    height: 100%;
+    width: 100%;
+}
+
+.nav_box a {
+    height: 60px;
+    width: 100%;
+    padding: 0 18px;
+    -webkit-column-gap: 20px;
+    -moz-column-gap: 20px;
+    column-gap: 10px;
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s;
+}
+
+.nav_box a svg {
+    fill: #242424;
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s;
+}
+
+.nav_box .active,
+.nav_box a:hover {
+    background: #4e9f7d1a;
+    color: #4e9f7d;
+    border-radius: 24px;
+}
+
+.nav_box a:hover svg,
+.nav_box .active svg {
+    fill: #4e9f7d;
+}
+
+.btn {
+    width: 111px;
+    height: 48px;
+    background: none;
+    margin-left: 10px;
+}
+
+.btn svg {
+    margin-right: 4px;
+}
+
+.profile_name {
+    margin-top: 16px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.profile_mail {
+    margin-top: 4px;
+    color: #6d757d;
+    width: 100%;
+    text-align: center;
+}
+
+.logs {
+    margin-top: auto;
+}
+
+.info_client svg {
+    fill: #242424;
+    margin-right: 18px;
+}
+
+.fw {
+    font-weight: 500;
+}
+
+.your_manager {
+    color: #969ba0;
+    column-gap: 18px;
+    margin-right: auto;
+}
+
+.your_manager svg {
+    fill: #969ba0;
+    margin-right: 0;
+}
+
+.your_manager p {
+    font-weight: 500;
+}
+</style>

@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Transactions;
+use App\Models\Transaction;
+use Carbon\Carbon;
 
 class Contract extends Model
 {
@@ -13,7 +14,6 @@ class Contract extends Model
     // Разрешённые для массового заполнения поля
     protected $fillable = [
         'title',
-        'contract_id',
         'user_id',
         'manager_id',
         'contract_number',
@@ -21,24 +21,24 @@ class Contract extends Model
         'deadline',
         'sum',
         'procent',
+        'payments',
         'contract_status',
-        'doc_number',
+        'agree_with_terms',
+        'avaliable_dividends',
+        'number_of_payments',
+        'last_payment_date',
     ];
-
     /**
      * Связь с транзакциями (один ко многим)
      */
     public function transactions()
     {
-        return $this->hasMany(Transactions::class, 'contract_id');
+        return $this->hasMany(Transaction::class, 'contract_id');
     }
 
-    /**
-     * Связь с другим контрактом (многие к одному)
-     */
-    public function contract()
+    public function application()
     {
-        return $this->belongsTo(Contract::class, 'contract_id');
+        return $this->hasMany(Application::class, 'contract_id');
     }
 
     /**
@@ -56,4 +56,43 @@ class Contract extends Model
     {
         return $this->belongsTo(User::class, 'manager_id');
     }
+
+
+
+
+    protected $intervalMapping = [
+        'ежеквартально' => 3, // 3 месяца
+        'ежегодно' => 12,     // 12 месяцев
+        'в конце срока' => 'end', // Обозначает конец договора
+    ];
+
+    public function calculatePaymentDates()
+    {
+        $startDate = Carbon::parse($this->start_date); // Начало договора
+        $endDate = Carbon::parse($this->end_date);     // Конец договора
+        $interval = $this->payment_interval;          // Строковый интервал
+
+        // Получаем значение интервала в месяцах или специальный флаг
+        $months = $this->intervalMapping[$interval] ?? null;
+
+        // if (!$months) {
+        //     throw new Exception('Неизвестный интервал выплат: ' . $interval);
+        // }
+
+        $dates = [];
+
+        if ($months === 'end') {
+            // Выплата только в конце срока
+            $dates[] = $endDate;
+        } else {
+            // Добавляем даты с указанным интервалом
+            while ($startDate < $endDate) {
+                $dates[] = $startDate->copy();
+                $startDate->addMonths($months);
+            }
+        }
+
+        return $dates;
+    }
+
 }

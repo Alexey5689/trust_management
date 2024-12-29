@@ -2,62 +2,165 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Log;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): Response
+    public function createProfile()
     {
-        return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+        $user = Auth::user();
+        $role = $user->role->title;
+        // dd($user, $role);
+        return Inertia::render('Profile', [
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number
+            ],
+            'role' => $role,
             'status' => session('status'),
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function editProfile()
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit');
+        $user = Auth::user();
+        return response()->json([
+            'user' => [
+                'last_name' => $user->last_name,
+                'first_name' => $user->first_name,
+                'middle_name' => $user->middle_name,
+            ],
+        ]);
     }
 
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
+    public function updateProfile(Request $request)
     {
         $request->validate([
-            'password' => ['required', 'current_password'],
+            'first_name' => ['required','string' ,'max:255', 'min:2'],
+            'last_name' => ['required','string','max:255', 'min:2'],
+            'middle_name' => ['required','string','max:255', 'min:2'],
         ]);
 
-        $user = $request->user();
+        // Явно указываем тип переменной $user
+        /** @var User $user */
 
-        Auth::logout();
+        $user = Auth::user();
+        $role = $user->role->title;
+        $originalData = $user->only(['last_name', 'first_name', 'middle_name']);
+        $user->update($request->only(['last_name', 'first_name', 'middle_name']));
 
-        $user->delete();
+         // Логируем изменения
+        foreach ($request->only(['last_name', 'first_name', 'middle_name']) as $field => $newValue) {
+            if ($originalData[$field] !== $newValue) {
+                Log::create([
+                    'model_id' => $user->id,
+                    'model_type' => User::class,
+                    'change' => 'Изменено поле '. $field,
+                    'action' => 'Обновление данных',
+                    'old_value' => $originalData[$field],
+                    'new_value' => $newValue,
+                    'created_by' =>  $user->id,
+                ]);
+            }
+        }
+        $user->userNotifications()->create([
+            'title' => 'Контактные данные',
+            'content'=> 'Ваши контактные данные были изменены',
+        ]);
+       
+        return redirect()->route($role . '.profile')->with('status', 'Данные обновлены');
+    }
 
+
+    public function editPassword()
+    {
+        $user = Auth::user();
+        $role = $user->role->title;
+        // dd($userInfo);
+        return Inertia::render('EditPassword', [
+            'role' => $role,
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        // Явно указываем тип переменной $user
+        /** @var User $user */
+
+        $user = Auth::user();
+        $user->password = Hash::make($request->password);
+        $user->save();
+        // Логируем изменения
+        Log::create([
+            'model_id' => $user->id,
+            'model_type' => User::class,
+            'change' => 'password',
+            'action' => 'Изменение пароля',
+            'old_value' => '********', // Не указываем старое значение
+            'new_value' => '********', // Указываем сообщение, а не пароль
+            'created_by' => $user->id,
+        ]);
+        $user->userNotifications()->create([
+            'title' => 'Пароль',
+            'content'=> 'Ваши пароль были изменены',
+        ]);
+
+        Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        return redirect('/');
+    }
 
-        return Redirect::to('/');
+    public function editEmailByAdmin()
+    {
+        $user = Auth::user();
+        $userEmail = $user->email;
+        return response()->json([
+            'email' => $userEmail,
+        ]); 
+    }
+    public function updateEmailByAdmin(Request $request)
+    {
+        $request->validate([
+           'email' => ['required','string','email','max:255','min:6', 'unique:users'],
+        ]);
+
+        // Явно указываем тип переменной $user
+        /** @var User $user */
+
+        $user = Auth::user();
+        $oldEmail = $user->email;
+        $user->email = $request->email;
+        $user->save();
+        Log::create([
+            'model_id' => $user->id,
+            'model_type' => User::class,
+            'change' => 'email',
+            'action' => 'Изменение email',
+            'old_value' => $oldEmail,
+            'new_value' => $request->email,
+            'created_by' => Auth::id(),
+        ]);
+        $user->userNotifications()->create([
+            'title' => 'Email',
+            'content'=> 'Ваши email были изменены',
+        ]);
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
     }
 }

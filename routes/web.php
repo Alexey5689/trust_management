@@ -1,26 +1,52 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CreatingPasswordController;
 
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canLogin' => Route::has('login'),
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
+Route::get('/', function () {
+    if (!Auth::check()) {
+        return redirect()->route('login');  // Если пользователь не авторизован
+    }
 
-Route::get('/dashboard', [DashboardController::class, 'create'])->middleware(['auth', 'verified'])->name('dashboard');
+    $user = Auth::user();
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    if ($user->role->title === 'admin') {
+        return redirect()->route('admin.profile');
+    } elseif ($user->role->title === 'manager') {
+        return redirect()->route('manager.profile');
+    } else {
+        return redirect()->route('client.profile');
+    }
 });
 
-require __DIR__.'/auth.php';
+
+Route::middleware('guest')->group(function () {
+    //вход
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+
+    // создание пароля
+    Route::get('create-password/{token}', [CreatingPasswordController::class, 'create'])
+        ->name('password.set');
+
+    Route::patch('create-password', [CreatingPasswordController::class, 'update'])
+        ->name('password.create');
+});
+Route::middleware('auth',)->group(function () {
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+     //сброс пароля
+    Route::post('/reset-password/{user}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password')->middleware(['role:admin,manager']);
+
+});
+
+require __DIR__ . '/admin.php';
+require __DIR__ . '/manager.php';
+require __DIR__ . '/client.php';
+require __DIR__ . '/delete.php';
+require __DIR__ . '/application.php';
+require __DIR__ . '/edit.php';
+
+

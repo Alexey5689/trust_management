@@ -1,13 +1,11 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
+import Icon_logo from '@/Components/Icon/Logo.vue';
+import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 
-defineProps({
+const props = defineProps({
     canResetPassword: {
         type: Boolean,
     },
@@ -19,7 +17,6 @@ defineProps({
 const form = useForm({
     email: '',
     password: '',
-    remember: false,
 });
 
 const submit = () => {
@@ -32,63 +29,97 @@ const submit = () => {
 <template>
     <GuestLayout>
         <Head title="Log in" />
-
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-            {{ status }}
+        <div class="login-container">
+            <h1>Авторизация</h1>
+            <form @submit.prevent="submit">
+                <div class="flex flex-column">
+                    <label for="login">Логин</label>
+                    <input id="login" type="email" v-model="form.email" required autofocus autocomplete="username" />
+                    <InputError :message="form.errors.email" />
+                </div>
+                <div class="flex flex-column">
+                    <label for="password">Пароль</label>
+                    <input
+                        id="password"
+                        type="password"
+                        v-model="form.password"
+                        required
+                        autocomplete="current-password"
+                    />
+                    <InputError :message="form.errors.password" />
+                </div>
+                <div>
+                    <button>Войти</button>
+                </div>
+            </form>
         </div>
-
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="block mt-4">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                    Forgot your password?
-                </Link>
-
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
-                </PrimaryButton>
-            </div>
-        </form>
+        <div class="logo-container flex align-center justify-center">
+            <Icon_logo style="margin-right: 12.5px" />
+            <Icon_logo_name />
+        </div>
     </GuestLayout>
 </template>
+
+<style scoped>
+.login-container {
+    background-color: #fff;
+    border-radius: 32px;
+    width: 500px;
+    padding: 24px 32px 32px 32px;
+    text-align: center;
+    box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    box-shadow: 0px 4px 12px 0px #5c5c5c14;
+}
+
+.login-container h1 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 29px;
+    letter-spacing: 0.01em;
+    color: #000;
+    margin-bottom: 32px;
+}
+
+.login-container form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 16px;
+}
+
+.login-container label {
+    text-align: start;
+    color: #969ba0;
+    margin-bottom: 8px;
+}
+
+.login-container input {
+    height: 40px;
+    padding: 8px;
+    border: 1px solid #e8eaeb;
+    border-radius: 12px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.login-container button {
+    height: 45px;
+    width: 100%;
+    background-color: #4e9f7d;
+    color: #fff;
+    font-size: 14px;
+    line-height: 21px;
+    border: none;
+    border-radius: 12px;
+    margin-top: 8px;
+    transition: 0.3s;
+}
+
+.login-container button:hover {
+    background-color: #428569;
+}
+
+.logo-container {
+    margin-top: 100px;
+}
+</style>

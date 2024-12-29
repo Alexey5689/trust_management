@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,   // Добавь этот сидер для создания ролей
             AdminSeeder::class, // Сидер для создания администраторов
+            ManagerSeeder::class, // Сидер для создания менеджеров
             PermissionSeeder::class,
             RolePermissionSeeder::class,
 

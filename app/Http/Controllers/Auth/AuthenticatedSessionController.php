@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -29,11 +30,43 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+    //     $request->authenticate();
 
+    //     $request->session()->regenerate();
+
+    //     // Получаем аутентифицированного пользователя
+    //     $loggedInUser = User::with('role')->find(Auth::id());
+    // // Проверяем роль пользователя и перенаправляем на соответствующий маршрут
+    //     if ($loggedInUser->isAdmin()) {
+    //         return redirect()->intended('/admin/profile');
+    //     }
+    //     if ($loggedInUser->isManager()) {
+    //         return redirect()->intended('/manager/profile');
+    //     }
+    //     if ($loggedInUser->isClient()) {
+    //         return redirect()->intended('/client/profile');
+
+        // }
+
+        $request->authenticate();
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $loggedInUser = User::with('role')->find(Auth::id());
+
+        $roleRedirects = [
+            'admin' => '/admin/profile',
+            'manager' => '/manager/profile',
+            'client' => '/client/profile',
+        ];
+
+        $role = $loggedInUser->role->title ?? null;
+
+        if (isset($roleRedirects[$role])) {
+            return redirect()->intended($roleRedirects[$role]);
+        }
+
+    // Если роль не определена или по какой-то причине не подходит, можно вернуть на основной маршрут
+        return redirect('/')->with(['status' => 'Роль пользователя не определена.']);
     }
 
     /**
