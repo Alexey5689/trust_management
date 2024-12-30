@@ -32,18 +32,20 @@ const closeModal = () => {
 
 <template>
     <div v-if="isVisible" class="modal-overlay" @click="closeModal">
-        <div class="modal-content" @click.stop>
-            <div class="modal-header">
-                <h2 class="title-2">{{ title }}</h2>
-                <button class="close-btn" @click="closeModal">
-                    <Close />
-                </button>
-            </div>
-            <div class="modal-body">
-                <slot></slot>
-            </div>
-            <div class="modal-footer">
-                <slot name="footer"></slot>
+        <div class="modal">
+            <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                    <h2 class="title-2">{{ title }}</h2>
+                    <button class="close-btn" @click="closeModal">
+                        <Close />
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <slot></slot>
+                </div>
+                <div class="modal-footer">
+                    <slot name="footer"></slot>
+                </div>
             </div>
         </div>
     </div>
@@ -62,25 +64,29 @@ const closeModal = () => {
     justify-content: center;
 }
 
-.modal-content {
+.modal {
     background: white;
     border-radius: 32px;
-    padding: 32px;
+    padding: 32px 0 32px 32px;
     width: 600px;
-    max-height: 700px;
     position: relative;
-    overflow-y: auto;
-    /* scrollbar-width: none;
-    scrollbar-color: transparent transparent; */
 }
 
-/* .modal-content::-webkit-scrollbar {
-    width: 0px;
+.modal-content {
+    max-height: 700px;
+    padding-right: 32px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb #f0f0f0;
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 5px;
 }
 
 .modal-content::-webkit-scrollbar-thumb {
-    background: transparent;
-} */
+    background-color: #bbb;
+}
 
 .modal-header {
     display: flex;

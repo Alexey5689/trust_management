@@ -248,7 +248,7 @@ const handleCheckboxChange = () => {
                         <h2 class="title-card">Договоры</h2>
                     </header>
                     <div class="client">
-                        <ul class="thead-contracts align-center">
+                        <ul class="thead-contracts align-center" v-if="props.contracts.length > 0">
                             <li class="order">Клиент</li>
                             <li>Договор</li>
                             <li>Дата</li>
@@ -308,7 +308,7 @@ const handleCheckboxChange = () => {
                         <h2 class="title-card">Закрытые договоры</h2>
                     </header>
                     <div class="client">
-                        <ul class="thead-contracts align-center">
+                        <ul class="thead-contracts align-center" v-if="noActiveContract.length > 0">
                             <li class="order">Клиент</li>
                             <li>Договор</li>
                             <li>Дата</li>

@@ -227,12 +227,13 @@ const updateUser = () => {
                         <h2 class="title-card">Менеджеры</h2>
                     </header>
                     <div class="card-content">
-                        <ul class="thead-manager align-center">
+                        <ul class="thead-manager align-center" v-if="activeManager.length > 0">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                         </ul>
+                        <div class="title" v-if="activeManager.length === 0">Нет менеджеров</div>
                         <div
                             class="items-manager align-center"
                             v-for="(manager, index) in activeManager"
@@ -272,13 +273,14 @@ const updateUser = () => {
                         <h2 class="title-card">Клиенты</h2>
                     </header>
                     <div class="card-content">
-                        <ul class="thead-client align-center">
+                        <ul class="thead-client align-center" v-if="props.clients.length > 0">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                             <li>Менеджер</li>
                         </ul>
+                        <div class="title" v-if="props.clients.length === 0">Нет клиентов</div>
                         <div
                             class="items-client align-center"
                             v-for="(client, index) in props.clients"
