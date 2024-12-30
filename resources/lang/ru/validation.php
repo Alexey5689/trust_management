@@ -16,6 +16,8 @@ return [
     'date_of_payments' => 'Поле :attribute должно быть датой.',
     'after_or_equal' => 'Поле :attribute должно быть позже или равно полю :create_date.',
     'confirmed'=>'Поле :attribute должно быть подтверждено.',
+    'exists' => 'Потльзователь должен существовать.',
+    'in'=>'Поле :attribute должно быть одним из следующих значений: :values.',
     'attributes' => [
         'first_name' => 'Имя',
         'last_name' => 'Фамилия',

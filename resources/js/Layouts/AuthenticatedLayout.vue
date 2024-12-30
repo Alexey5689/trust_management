@@ -136,7 +136,10 @@ const props = defineProps({
                     </div>
                     <!-- {{ props.userRole }} -->
                     {{ props.notifications }}
-                    <NavLink :href="route(`${props.userRole}.notification`)">
+                    <NavLink
+                        v-if="props.userRole === 'client' && props.userRole === 'manager'"
+                        :href="route(`${props.userRole}.notification`)"
+                    >
                         <Icon_notifications />
                     </NavLink>
 

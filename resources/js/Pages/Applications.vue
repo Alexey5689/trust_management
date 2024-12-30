@@ -229,15 +229,17 @@ const changeStatus = () => {
 </script>
 
 <template>
-
     <Head title="Applications" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Заявки</h2>
 
-                <button class="add_application link-btn" @click="openModal('add')"
-                    v-if="role === 'admin' || role === 'manager'">
+                <button
+                    class="add_application link-btn"
+                    @click="openModal('add')"
+                    v-if="role === 'admin' || role === 'manager'"
+                >
                     Новая заявка
                 </button>
             </div>
@@ -248,7 +250,8 @@ const changeStatus = () => {
                     <div class="scroll">
                         <header>
                             <h2 class="title-card" :style="{ width: activeApplication.length > 0 ? '1606px' : '100%' }">
-                                Активные заявки</h2>
+                                Активные заявки
+                            </h2>
                         </header>
                         <div class="application" :style="{ width: activeApplication.length > 0 ? '1606px' : '100%' }">
                             <ul class="thead-application align-center" v-if="activeApplication.length > 0">
@@ -263,8 +266,12 @@ const changeStatus = () => {
                                 <li>Дивиденды</li>
                             </ul>
                             <div class="title" v-if="activeApplication.length === 0">Заявок нет</div>
-                            <div v-else class="applications align-center" v-for="application in activeApplication"
-                                :key="application.id">
+                            <div
+                                v-else
+                                class="applications align-center"
+                                v-for="application in activeApplication"
+                                :key="application.id"
+                            >
                                 <div class="order">
                                     <p>{{ formatDate(application.create_date) }}</p>
                                 </div>
@@ -290,31 +297,44 @@ const changeStatus = () => {
                                     <p>{{ application.sum ? parseFloat(application.sum).toFixed() : '' }}</p>
                                 </div>
                                 <div>
-                                    <p>{{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
+                                    <p>
+                                        {{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
                                     </p>
                                 </div>
                                 <div v-if="role === 'admin' || role === 'manager'">
-                                    <Dropdown v-if="role === 'admin'" :options="[
-                                        {
-                                            label: 'Подробная информация',
-                                            action: 'information',
-                                            url: 'show.application',
-                                        },
-                                        { label: 'Изменить статус', action: 'edit', url: 'change.status.application' },
-                                    ]" class="applications_dropdown"
-                                        @select="handleDropdownSelect($event, application.id, $event.action)">
+                                    <Dropdown
+                                        v-if="role === 'admin'"
+                                        :options="[
+                                            {
+                                                label: 'Подробная информация',
+                                                action: 'information',
+                                                url: 'show.application',
+                                            },
+                                            {
+                                                label: 'Изменить статус',
+                                                action: 'edit',
+                                                url: 'change.status.application',
+                                            },
+                                        ]"
+                                        class="applications_dropdown"
+                                        @select="handleDropdownSelect($event, application.id, $event.action)"
+                                    >
                                         <template #trigger>
                                             <Ellipsis />
                                         </template>
                                     </Dropdown>
-                                    <Dropdown v-else :options="[
-                                        {
-                                            label: 'Подробная информация',
-                                            action: 'information',
-                                            url: 'show.application',
-                                        },
-                                    ]" class="applications_dropdown"
-                                        @select="handleDropdownSelect($event, application.id, $event.action)">
+                                    <Dropdown
+                                        v-else
+                                        :options="[
+                                            {
+                                                label: 'Подробная информация',
+                                                action: 'information',
+                                                url: 'show.application',
+                                            },
+                                        ]"
+                                        class="applications_dropdown"
+                                        @select="handleDropdownSelect($event, application.id, $event.action)"
+                                    >
                                         <template #trigger>
                                             <Ellipsis />
                                         </template>
@@ -328,13 +348,17 @@ const changeStatus = () => {
                 <div class="card">
                     <div class="scroll">
                         <header>
-                            <h2 class="title-card"
-                                :style="{ width: noactiveCApplication.length > 0 ? '1606px' : '100%' }">
-                                Завершенные
-                                заявки</h2>
+                            <h2
+                                class="title-card"
+                                :style="{ width: noactiveCApplication.length > 0 ? '1606px' : '100%' }"
+                            >
+                                Завершенные заявки
+                            </h2>
                         </header>
-                        <div class="application"
-                            :style="{ width: noactiveCApplication.length > 0 ? '1606px' : '100%' }">
+                        <div
+                            class="application"
+                            :style="{ width: noactiveCApplication.length > 0 ? '1606px' : '100%' }"
+                        >
                             <ul class="thead-application align-center" v-if="noactiveCApplication.length > 0">
                                 <li class="order">Дата заявки</li>
                                 <li>Клиент</li>
@@ -347,8 +371,12 @@ const changeStatus = () => {
                                 <li>Дивиденды</li>
                             </ul>
                             <div class="title" v-if="noactiveCApplication.length === 0">Заявок нет</div>
-                            <div v-else class="applications align-center" v-for="application in noactiveCApplication"
-                                :key="application.id">
+                            <div
+                                v-else
+                                class="applications align-center"
+                                v-for="application in noactiveCApplication"
+                                :key="application.id"
+                            >
                                 <div class="order">
                                     <p>{{ formatDate(application.create_date) }}</p>
                                 </div>
@@ -374,11 +402,28 @@ const changeStatus = () => {
                                     <p>{{ application.sum ? parseFloat(application.sum).toFixed() : '' }}</p>
                                 </div>
                                 <div>
-                                    <p>{{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
+                                    <p>
+                                        {{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
                                     </p>
                                 </div>
+                                <div v-if="role === 'admin' || role === 'manager'">
+                                    <Dropdown
+                                        :options="[
+                                            {
+                                                label: 'Подробная информация',
+                                                action: 'information',
+                                                url: 'show.application',
+                                            },
+                                        ]"
+                                        class="applications_dropdown"
+                                        @select="handleDropdownSelect($event, application.id, $event.action)"
+                                    >
+                                        <template #trigger>
+                                            <Ellipsis />
+                                        </template>
+                                    </Dropdown>
+                                </div>
                             </div>
-                            <!-- {{ props.applications }} -->
                         </div>
                     </div>
                 </div>
@@ -393,8 +438,12 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="client">Клиент</label>
-                                <select id="client" v-model="form.user_id" @change="handleGetClient(form.user_id)"
-                                    required>
+                                <select
+                                    id="client"
+                                    v-model="form.user_id"
+                                    @change="handleGetClient(form.user_id)"
+                                    required
+                                >
                                     <option value="" disabled>Выберите клиента</option>
                                     <option v-for="client in props.clients" :key="client.id" :value="client.id">
                                         {{ client.full_name }}
@@ -404,11 +453,17 @@ const changeStatus = () => {
                             </div>
                             <div class="input flex flex-column">
                                 <label for="contract">Договор</label>
-                                <select id="contract" v-model="form.contract_id"
-                                    @change="handleGetContract(form.contract_id)">
+                                <select
+                                    id="contract"
+                                    v-model="form.contract_id"
+                                    @change="handleGetContract(form.contract_id)"
+                                >
                                     <option value="" disabled>Выберите номер договора</option>
-                                    <option v-for="contract in userContract.user_contracts" :key="contract.id"
-                                        :value="contract.id">
+                                    <option
+                                        v-for="contract in userContract.user_contracts"
+                                        :key="contract.id"
+                                        :value="contract.id"
+                                    >
                                         {{ contract.contract_number }}
                                     </option>
                                 </select>
@@ -444,13 +499,26 @@ const changeStatus = () => {
                     <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Условия списания</p>
                     <div class="radio-buttons flex c-gap">
                         <div class="input flex">
-                            <input type="radio" id="off_time" name="off_time" @click="offTime" value="Раньше срока"
-                                v-model="selectedOffTime" />
+                            <input
+                                type="radio"
+                                id="off_time"
+                                name="off_time"
+                                @click="offTime"
+                                value="Раньше срока"
+                                v-model="selectedOffTime"
+                            />
                             <label for="off_time" class="button">Раньше срока</label>
                         </div>
                         <div class="input flex">
-                            <input type="radio" id="on_time" name="on_time" @click="onTime" value="В срок"
-                                v-model="selectedOffTime" :disabled="!can_payout" />
+                            <input
+                                type="radio"
+                                id="on_time"
+                                name="on_time"
+                                @click="onTime"
+                                value="В срок"
+                                v-model="selectedOffTime"
+                                :disabled="!can_payout"
+                            />
                             <label for="on_time" class="button">В срок</label>
                         </div>
                     </div>
@@ -473,16 +541,33 @@ const changeStatus = () => {
                         <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Варианты списания</p>
                         <div class="radio-buttons flex flex-column r-gap">
                             <div class="flex c-gap">
-                                <input type="radio" id="partly" name="partly" @click="takePartlyDividends"
-                                    value="Забрать дивиденды частично" v-model="selectedPartlyOption" />
+                                <input
+                                    type="radio"
+                                    id="partly"
+                                    name="partly"
+                                    @click="takePartlyDividends"
+                                    value="Забрать дивиденды частично"
+                                    v-model="selectedPartlyOption"
+                                />
                                 <label for="partly" class="button">Забрать дивиденды частично</label>
-                                <input type="radio" id="wholly" name="wholly" @click="takeDividends"
-                                    value="Забрать дивиденды целиком" v-model="selectedPartlyOption" />
+                                <input
+                                    type="radio"
+                                    id="wholly"
+                                    name="wholly"
+                                    @click="takeDividends"
+                                    value="Забрать дивиденды целиком"
+                                    v-model="selectedPartlyOption"
+                                />
                                 <label for="wholly" class="button">Забрать дивиденды целиком</label>
                             </div>
-                            <input type="radio" id="take_everything" name="take_everything"
-                                value="Забрать дивиденды и сумму" v-model="selectedPartlyOption"
-                                @click="takeEverythin" />
+                            <input
+                                type="radio"
+                                id="take_everything"
+                                name="take_everything"
+                                value="Забрать дивиденды и сумму"
+                                v-model="selectedPartlyOption"
+                                @click="takeEverythin"
+                            />
                             <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                         </div>
                         <div class="for_partly" v-if="selectedPartlyOption === 'Забрать дивиденды частично'">
@@ -520,14 +605,21 @@ const changeStatus = () => {
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_take_everything">Дивиденты</label>
-                                    <input type="text" id="dividends_take_everything" v-model="form.dividends"
-                                        disabled />
+                                    <input
+                                        type="text"
+                                        id="dividends_take_everything"
+                                        v-model="form.dividends"
+                                        disabled
+                                    />
                                 </div>
                             </div>
                             <div class="input flex flex-column" style="margin-top: 16px">
                                 <label for="dividends_take_everything_date">Дата планируемой выплаты</label>
-                                <input type="date" id="dividends_take_everything_date"
-                                    v-model="form.date_of_payments" />
+                                <input
+                                    type="date"
+                                    id="dividends_take_everything_date"
+                                    v-model="form.date_of_payments"
+                                />
                             </div>
                         </div>
                     </div>
@@ -557,8 +649,8 @@ const changeStatus = () => {
                                     contractInfo.term === 1
                                         ? '1 год'
                                         : contractInfo.term === 3
-                                            ? '3 года'
-                                            : contractInfo.term + ''
+                                        ? '3 года'
+                                        : contractInfo.term + ''
                                 }}
                             </p>
                         </div>
@@ -581,13 +673,25 @@ const changeStatus = () => {
                 <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Условия списания</p>
                 <div class="radio-buttons flex c-gap">
                     <div class="input flex">
-                        <input type="radio" id="off_time" name="off_time" value="Раньше срока" v-model="selectedOffTime"
-                            disabled />
+                        <input
+                            type="radio"
+                            id="off_time"
+                            name="off_time"
+                            value="Раньше срока"
+                            v-model="selectedOffTime"
+                            disabled
+                        />
                         <label for="off_time" class="button">Раньше срока</label>
                     </div>
                     <div class="input flex">
-                        <input type="radio" id="on_time" name="on_time" value="В срок" v-model="selectedOffTime"
-                            disabled />
+                        <input
+                            type="radio"
+                            id="on_time"
+                            name="on_time"
+                            value="В срок"
+                            v-model="selectedOffTime"
+                            disabled
+                        />
                         <label for="on_time" class="button">В срок</label>
                     </div>
                 </div>
@@ -610,15 +714,33 @@ const changeStatus = () => {
                     <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Варианты списания</p>
                     <div class="radio-buttons flex flex-column r-gap">
                         <div class="flex c-gap">
-                            <input type="radio" id="partly" name="partly" value="Забрать дивиденды частично"
-                                v-model="selectedPartlyOption" disabled />
+                            <input
+                                type="radio"
+                                id="partly"
+                                name="partly"
+                                value="Забрать дивиденды частично"
+                                v-model="selectedPartlyOption"
+                                disabled
+                            />
                             <label for="partly" class="button">Забрать дивиденды частично</label>
-                            <input type="radio" id="wholly" name="wholly" value="Забрать дивиденды целиком"
-                                v-model="selectedPartlyOption" disabled />
+                            <input
+                                type="radio"
+                                id="wholly"
+                                name="wholly"
+                                value="Забрать дивиденды целиком"
+                                v-model="selectedPartlyOption"
+                                disabled
+                            />
                             <label for="wholly" class="button">Забрать дивиденды целиком</label>
                         </div>
-                        <input type="radio" id="take_everything" name="take_everything"
-                            value="Забрать дивиденды и сумму" v-model="selectedPartlyOption" disabled />
+                        <input
+                            type="radio"
+                            id="take_everything"
+                            name="take_everything"
+                            value="Забрать дивиденды и сумму"
+                            v-model="selectedPartlyOption"
+                            disabled
+                        />
                         <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
                     </div>
                     <div class="for_partly" v-if="selectedPartlyOption === 'Забрать дивиденды частично'">
@@ -626,13 +748,21 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="dividends_partly">Дивиденты</label>
-                                <input type="text" id="dividends_partly"
-                                    :value="parseFloat(applicationData.dividends).toFixed()" disabled />
+                                <input
+                                    type="text"
+                                    id="dividends_partly"
+                                    :value="parseFloat(applicationData.dividends).toFixed()"
+                                    disabled
+                                />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="dividends_partly_date">Дата планируемой выплаты</label>
-                                <input type="date" id="dividends_partly_date" :value="applicationData.date_of_payments"
-                                    disabled />
+                                <input
+                                    type="date"
+                                    id="dividends_partly_date"
+                                    :value="applicationData.date_of_payments"
+                                    disabled
+                                />
                             </div>
                         </div>
                     </div>
@@ -641,13 +771,21 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="dividends_wholly">Дивиденты</label>
-                                <input type="text" id="dividends_wholly"
-                                    :value="parseFloat(applicationData.dividends).toFixed(1)" disabled />
+                                <input
+                                    type="text"
+                                    id="dividends_wholly"
+                                    :value="parseFloat(applicationData.dividends).toFixed(1)"
+                                    disabled
+                                />
                             </div>
                             <div class="input flex flex-column">
                                 <label for="dividends_wholly_date">Дата планируемой выплаты</label>
-                                <input type="date" id="dividends_wholly_date" :value="applicationData.date_of_payments"
-                                    disabled />
+                                <input
+                                    type="date"
+                                    id="dividends_wholly_date"
+                                    :value="applicationData.date_of_payments"
+                                    disabled
+                                />
                             </div>
                         </div>
                     </div>
@@ -656,20 +794,32 @@ const changeStatus = () => {
                         <div class="flex c-gap">
                             <div class="input flex flex-column">
                                 <label for="sum_take_everything">Основная сумма</label>
-                                <input type="text" id="sum_take_everything"
-                                    :value="parseFloat(applicationData.sum).toFixed()" disabled />
+                                <input
+                                    type="text"
+                                    id="sum_take_everything"
+                                    :value="parseFloat(applicationData.sum).toFixed()"
+                                    disabled
+                                />
                             </div>
 
                             <div class="input flex flex-column">
                                 <label for="dividends_take_everything">Дивиденты</label>
-                                <input type="text" id="dividends_take_everything"
-                                    :value="parseFloat(applicationData.dividends).toFixed()" disabled />
+                                <input
+                                    type="text"
+                                    id="dividends_take_everything"
+                                    :value="parseFloat(applicationData.dividends).toFixed()"
+                                    disabled
+                                />
                             </div>
                         </div>
                         <div class="input flex flex-column" style="margin-top: 16px">
                             <label for="dividends_take_everything_date">Дата планируемой выплаты</label>
-                            <input type="date" id="dividends_take_everything_date"
-                                :value="applicationData.date_of_payments" disabled />
+                            <input
+                                type="date"
+                                id="dividends_take_everything_date"
+                                :value="applicationData.date_of_payments"
+                                disabled
+                            />
                         </div>
                     </div>
                 </div>
@@ -913,7 +1063,7 @@ const changeStatus = () => {
     color: #4e9f7d;
 }
 
-.radio-buttons input[type='radio']:checked+.button {
+.radio-buttons input[type='radio']:checked + .button {
     background: #4e9f7d1a;
     color: #4e9f7d;
 }

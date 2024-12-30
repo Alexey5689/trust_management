@@ -117,10 +117,10 @@ public function showContracts()
         ->get()
         ->map(function ($contract) {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-            $anualDividends = $this->calculateAnnualDividendsContracts($contract->create_date, $contract->deadline, now(),$contract->sum, $contract->procent);
-            $monthDividends = $this->calculateMonthlyDividends($contract->create_date, $contract->deadline, now(), $contract->sum, $contract->procent);
-            $weekDividends = $this->calculateWeeklyDividends($contract->create_date, $contract->deadline, now(), $contract->sum, $contract->procent);
-            $dayDividends = $this->calculateDailyDividends($contract->create_date, $contract->deadline, now(), $contract->sum, $contract->procent);
+            $anualDividends = $this->calculateAnnualDividendsContracts($contract->create_date, $contract->deadline,$contract->sum, $contract->procent);
+            $monthDividends = $this->calculateMonthlyDividends($contract->create_date, $contract->deadline,$contract->sum, $contract->procent);
+            $weekDividends = $this->calculateWeeklyDividends($contract->create_date, $contract->deadline, $contract->sum, $contract->procent);
+            $dayDividends = $this->calculateDailyDividends($contract->create_date, $contract->deadline, $contract->sum, $contract->procent);
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,

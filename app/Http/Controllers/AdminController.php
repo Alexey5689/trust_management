@@ -213,7 +213,7 @@ class AdminController extends Controller
 
     public function storeClientsByAdmin(Request $request ):RedirectResponse
     {
-       // dd($request->all());
+       //dd($request->all());
         $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
@@ -225,6 +225,8 @@ class AdminController extends Controller
             'create_date' => ['required', 'date_format:Y-m-d'],
             'sum' => ['required', 'integer'],
             'procent' => ['required', 'integer', 'min:1', 'max:100'],
+            'manager_id' => ['required', 'integer', 'exists:users,id'],
+            'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
         //dd($request->all());
         $user = User::create([
@@ -669,22 +671,22 @@ public function updateStatusApplication(Request $request, Application $applicati
         ]);
     }
 
-    public function showNotification(){
-        $user = Auth::user();
-        $role = $user->role->title;
-            /** @var User $user */
-        $notification = $user->userNotifications()->get();
-        return Inertia::render('Notifications', [
-            'user' => [
-                'id' => $user->id,
-                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number
-            ],
-            'role' => $role,
-            'notifications' => $notification,
-            'ceated_at' => $notification->created_at,
-            'updated_at' => $notification->updated_at
-        ]);
-    }
+    // public function showNotification(){
+    //     $user = Auth::user();
+    //     $role = $user->role->title;
+    //         /** @var User $user */
+    //     $notification = $user->userNotifications()->get();
+    //     return Inertia::render('Notifications', [
+    //         'user' => [
+    //             'id' => $user->id,
+    //             'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+    //             'email' => $user->email,
+    //             'phone_number' => $user->phone_number
+    //         ],
+    //         'role' => $role,
+    //         'notifications' => $notification,
+    //         'ceated_at' => $notification->created_at,
+    //         'updated_at' => $notification->updated_at
+    //     ]);
+    // }
 }
