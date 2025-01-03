@@ -6,6 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData } from '@/helpers';
 import InputError from '@/Components/InputError.vue';
+import Notifications from './Notifications.vue';
 
 const props = defineProps({
     user: {
@@ -18,6 +19,10 @@ const props = defineProps({
     },
     status: {
         type: String,
+        required: false,
+    },
+    notifications: {
+        type: Array,
         required: false,
     },
 });
@@ -33,7 +38,7 @@ const getInfo = async (url) => {
         userData.value = data.user ? data.user : data;
     } catch (err) {
         error.value = err; // Сохраняем ошибку
-        console.log(err)
+        console.log(err);
     } finally {
     }
 };
@@ -75,10 +80,34 @@ const closeModal = () => {
 };
 
 const saveChanges = () => {
-    if (currentModal.value === 'contacts') form.patch(route('profile.update'));
-    else if (currentModal.value === 'password') form.patch(route('password.update'));
-    else form.patch(route('email.update'));
-    closeModal();
+    if (currentModal.value === 'contacts') {
+        form.patch(route('profile.update'), {
+            onSuccess: () => {
+                closeModal();
+            },
+            onError: () => {
+                console.error('Ошибка:', form.errors); // Лог ошибок
+            },
+        });
+    } else if (currentModal.value === 'password') {
+        form.patch(route('password.update'), {
+            onSuccess: () => {
+                closeModal();
+            },
+            onError: () => {
+                console.error('Ошибка:', form.errors); // Лог ошибок
+            },
+        });
+    } else {
+        form.patch(route('email.update'), {
+            onSuccess: () => {
+                closeModal();
+            },
+            onError: () => {
+                console.error('Ошибка:', form.errors); // Лог ошибок
+            },
+        });
+    }
 };
 
 const isGridRole = computed(() => props.role === 'manager' || props.role === 'client');
@@ -86,7 +115,12 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
 
 <template>
     <Head title="Profile" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="props.role" :notifications="props.status">
+    <AuthenticatedLayout
+        :userInfo="props.user"
+        :userRole="props.role"
+        :toast="props.status"
+        :notifications="props.notifications"
+    >
         <template #header>
             <h2 class="title">Личный кабинет</h2>
         </template>

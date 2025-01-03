@@ -23,6 +23,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    notifications: {
+        type: Array,
+        required: false,
+    },
 });
 
 const activeTab = ref('months');
@@ -57,7 +61,12 @@ onMounted(() => {
 
 <template>
     <Head title="ContractsClient" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
+    <AuthenticatedLayout
+        :userInfo="props.user"
+        :userRole="role"
+        :toast="props.status"
+        :notifications="props.notifications"
+    >
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>

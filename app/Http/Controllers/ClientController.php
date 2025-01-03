@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
@@ -50,7 +52,12 @@ class ClientController extends Controller
     // dd($dividends);
     // Получаем менеджера
     $manager = $user->managers->first();
+    $user_notification = $user->userNotifications()
+    ->where('is_read', false)
+    ->get()
+    ->values();
 
+    //dd($user_notification);
     return Inertia::render('Profile', [
         'user' => [
             'id' => $user->id,
@@ -66,6 +73,7 @@ class ClientController extends Controller
             'dividends' => $dividends,
         ],
         'role' => $role,
+        'notifications' => $user_notification,
         'status' => session('status'),
     ]);
 }
@@ -110,7 +118,10 @@ public function showContracts()
     }, 0);
     // dd($dividends);
     // Получаем менеджера
-   
+    $user_notification = $user->userNotifications()
+    ->where('is_read', false)
+    ->get()
+    ->values();
     $manager = $user->managers->first();
     $contracts = $user->userContracts()
         ->where('contract_status', true)
@@ -153,6 +164,7 @@ public function showContracts()
             'main_sum' => $sum_all_contracts,
             'dividends' => round($dividends, 2),// Округляем до 2 знаков
         ],
+        'notifications' => $user_notification,
     ]);
 }
 
@@ -198,6 +210,10 @@ public function showContracts()
         }, 0);
         // dd($dividends);
         // Получаем менеджера
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
         $manager = $user->managers->first();
         // dd($transactions);
         return Inertia::render('BalanceTransactions', [
@@ -220,6 +236,7 @@ public function showContracts()
                 'main_sum' => $sum_all_contracts,
                 'dividends' => round($dividends, 2),// Округляем до 2 знаков
             ],
+            'notifications' => $user_notification,
             
         ]);
     }
@@ -281,6 +298,10 @@ public function showContracts()
         }, 0);
         // dd($dividends);
         // Получаем менеджера
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
         $manager = $user->managers->first();                 
         
         return Inertia::render('Applications', [
@@ -298,6 +319,7 @@ public function showContracts()
                 'main_sum' => $sum_all_contracts,
                 'dividends' => round($dividends, 2),// Округляем до 2 знаков
             ],
+            'notifications' => $user_notification,
         ]);
     }
     public function showNotifications(){
@@ -339,6 +361,10 @@ public function showContracts()
         }, 0);
         // dd($dividends);
         // Получаем менеджера
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
         $manager = $user->managers->first();
         return Inertia::render('Notifications', [
             'role' => $role,
@@ -355,6 +381,15 @@ public function showContracts()
                 'main_sum' => $sum_all_contracts,
                 'dividends' => round($dividends, 2),// Округляем до 2 знаков
             ],
+            'notification' => $user_notification,
         ]);
+    }
+    public function updateNotification(Request $request, Notification $notification){
+        // dd($request->all());
+        $request->validate([
+           'is_read' => ['required', 'boolean'],
+        ]);
+        $notification->update($request->all());
+        return redirect()->route('client.notification');
     }
 }

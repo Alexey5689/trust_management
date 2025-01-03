@@ -1,16 +1,11 @@
 import { reactive, computed } from 'vue';
 
-export function useUserInfo() {
-    const storedUserInfo = localStorage.getItem('userInfo');
+export function userNotification() {
     const state = reactive({
-        userInfo: JSON.parse(storedUserInfo),
+        notification: 0,
     });
     // Геттеры
-    const user_Info = computed(() => state.userInfo);
-    // const manager = computed(() => state.userInfo.manager ?? '');
-    // const managerEmail = computed(() => state.userInfo.managerEmail ?? '');
-    // const main_sum = computed(() => state.userInfo.main_sum ?? null);
-
+    const user_Notification = computed(() => state.notification);
     // Методы
-    return { user_Info };
+    return { user_Notification };
 }

@@ -42,7 +42,10 @@ class ManagerController extends Controller
                 'updated_at' => $client->updated_at
             ];
         });
-
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
         return Inertia::render('Clients', [
             'user' => [
                 'id' => $user->id,
@@ -52,6 +55,7 @@ class ManagerController extends Controller
             'clients' => $clients,
             'role' => $role,
             'status' => session('status'),
+            'notifications' => $user_notification
         ]);
     }
 
@@ -92,6 +96,10 @@ class ManagerController extends Controller
                 'active' => $client->active,
             ];
         });
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
         return Inertia::render('Contracts', [
             'contracts' => $contracts,
             'role' => $role,
@@ -102,6 +110,7 @@ class ManagerController extends Controller
                 'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
                 'email' => $user->email,
             ],
+            'notifications' => $user_notification
         ]);
     }
 
@@ -161,6 +170,10 @@ class ManagerController extends Controller
                             ];
                         });
         //dd($applications);
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
         return Inertia::render('Applications', [
             'role' => $role,
             'applications' => $applications,
@@ -172,6 +185,7 @@ class ManagerController extends Controller
                 'email' => $user->email,
                 
             ],
+            'notifications' => $user_notification
         ]);
       }
 
@@ -371,6 +385,10 @@ class ManagerController extends Controller
         $role = $user->role->title;
          /** @var User $user */
         $notifivcations = $user->userNotifications()->get();
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
         return Inertia::render('Notifications', [
             'role' => $role,
             'notifications' => $notifivcations,
@@ -380,7 +398,8 @@ class ManagerController extends Controller
                 'email' => $user->email,
             ],
             'created_at' => $user->created_at,
-            'updated_at' => $user->updated_at
+            'updated_at' => $user->updated_at,
+            'notification' => $user_notification
         ]);
     }
 

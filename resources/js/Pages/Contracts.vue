@@ -30,6 +30,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    notifications: {
+        type: Array,
+        required: false,
+    },
 });
 
 const isModalOpen = ref(false);
@@ -228,7 +232,12 @@ const handleCheckboxChange = () => {
 
 <template>
     <Head title="Contracts" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
+    <AuthenticatedLayout
+        :userInfo="props.user"
+        :userRole="role"
+        :toast="props.status"
+        :notifications="props.notifications"
+    >
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>

@@ -13,6 +13,7 @@ class Notification extends Model
         'user_id',
         'title',
         'content',
+        'is_read',
     ];
     public function user()
     {

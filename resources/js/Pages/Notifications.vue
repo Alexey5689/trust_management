@@ -2,6 +2,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { formatDateNotificztion, formatTimeNotificztion } from '@/helpers.js';
+import { useForm } from '@inertiajs/vue3';
+import { ref, computed, watch } from 'vue';
+
 const props = defineProps({
     role: {
         type: String,
@@ -15,44 +18,49 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    notification: {
+        type: Array,
+        required: true,
+    },
 });
 
-const notifications = [
-    {
-        id: 1,
-        title: 'Окончание договора',
-        body: '30 Сентября 2024 будет закончен срок Договора №2402',
-        date: '02.12.2024',
-        time: '1:10',
-    },
-    {
-        id: 2,
-        title: 'Окончание договора',
-        body: '30 Сентября 2024 будет закончен срок Договора №2402 с Ивановым Иваном Ивановичем',
-        date: '03.12.2024',
-        time: '1:20',
-    },
-];
+const form = useForm({
+    is_read: true,
+});
+
+const isRead = (id) => {
+    form.patch(route('notification.update', { notification: id }), {
+        onSuccess: () => {},
+        onFinish: () => form.reset(),
+        onError: () => {
+            console.error('Ошибка:', form.errors); // Лог ошибок
+        },
+    });
+};
 </script>
 <template>
     <Head title="Notifications" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="role">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.notification">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Уведомления</h2>
             </div>
         </template>
         <template #main>
-            {{ props.notifications }}
             <div class="flex flex-column r-gap" style="width: 550px">
-                <div class="card flex flex-column" v-for="notification in props.notifications" :key="notification.id">
+                <button
+                    class="card flex flex-column"
+                    v-for="notification in props.notifications"
+                    :key="notification.id"
+                    @click="isRead(notification.id)"
+                >
                     <h3 class="card_title">{{ notification.title }}</h3>
                     <p class="card_body">{{ notification.content }}</p>
                     <div class="card_date flex justify-between">
                         <span>{{ formatDateNotificztion(notification.created_at) }}</span>
                         <span>{{ formatTimeNotificztion(notification.created_at) }}</span>
                     </div>
-                </div>
+                </button>
             </div>
         </template>
     </AuthenticatedLayout>

@@ -1,5 +1,4 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Icon_exit from '@/Components/Icon/Exit.vue';
@@ -22,8 +21,12 @@ const props = defineProps({
         type: Array,
         required: false,
     },
-    notifications: {
+    toast: {
         type: String,
+        required: false,
+    },
+    notifications: {
+        type: Array,
         required: false,
     },
 });
@@ -114,7 +117,7 @@ const props = defineProps({
 
         <div class="flex flex-column content_box">
             <header v-if="$slots.header">
-                <div class="flex align-center justify-end" style="position: relative;">
+                <div class="flex align-center justify-end" style="position: relative">
                     <div v-if="props.userRole === 'client'" class="info_client flex align-center justify-end w-100">
                         <div class="your_manager flex align-center">
                             <p>Ваш менеджер</p>
@@ -124,6 +127,7 @@ const props = defineProps({
                                 <span>{{ props.userInfo?.managerEmail }}</span>
                             </div>
                         </div>
+                        {{ noRead }}
                         <Icon_balance />
                         <div style="margin-right: 40px">
                             <p class="fw">Дивиденты</p>
@@ -135,16 +139,18 @@ const props = defineProps({
                         </div>
                     </div>
                     <!-- {{ props.userRole }} -->
-                    <div class="toast" v-if="props.notifications && props.notifications.length > 0">
-                        {{ props.notifications }}
+                    <div class="toast" v-if="props.toast && props.toast">
+                        {{ props.toast }}
                     </div>
 
-                    <NavLink 
-                        style="display: block; height: 44px; position: relative;"
+                    <NavLink
+                        style="display: block; height: 44px; position: relative"
                         v-if="props.userRole === 'client' || props.userRole === 'manager'"
                         :href="route(`${props.userRole}.notification`)"
                     >
-                        <div class="red_point flex align-center justify-center">3</div>
+                        <div v-if="props.notifications.length > 0" class="red_point flex align-center justify-center">
+                            {{ props.notifications.length }}
+                        </div>
                         <Icon_notifications />
                     </NavLink>
 
@@ -298,12 +304,12 @@ const props = defineProps({
     width: 550px;
     height: 90px;
     background: #fff;
-    box-shadow: 0px 0px 4px 0px #5C5C5C0A;
-    box-shadow: 0px 0px 8px 0px #5C5C5C14;
-    box-shadow: 0px 4px 12px 0px #5C5C5C14;
+    box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    box-shadow: 0px 4px 12px 0px #5c5c5c14;
     z-index: 10;
     padding: 16px 20px;
     border-radius: 24px;
-    top: 60px
+    top: 60px;
 }
 </style>

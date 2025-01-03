@@ -210,7 +210,7 @@ const updateUser = () => {
 
 <template>
     <Head title="All Users" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :toast="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Пользователи</h2>
