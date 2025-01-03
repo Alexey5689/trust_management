@@ -114,7 +114,7 @@ const props = defineProps({
 
         <div class="flex flex-column content_box">
             <header v-if="$slots.header">
-                <div class="flex align-center justify-end">
+                <div class="flex align-center justify-end" style="position: relative;">
                     <div v-if="props.userRole === 'client'" class="info_client flex align-center justify-end w-100">
                         <div class="your_manager flex align-center">
                             <p>Ваш менеджер</p>
@@ -135,11 +135,16 @@ const props = defineProps({
                         </div>
                     </div>
                     <!-- {{ props.userRole }} -->
-                    {{ props.notifications }}
-                    <NavLink
-                        v-if="props.userRole === 'client' && props.userRole === 'manager'"
+                    <div class="toast" v-if="props.notifications && props.notifications.length > 0">
+                        {{ props.notifications }}
+                    </div>
+
+                    <NavLink 
+                        style="display: block; height: 44px; position: relative;"
+                        v-if="props.userRole === 'client' || props.userRole === 'manager'"
                         :href="route(`${props.userRole}.notification`)"
                     >
+                        <div class="red_point flex align-center justify-center">3</div>
                         <Icon_notifications />
                     </NavLink>
 
@@ -274,5 +279,31 @@ const props = defineProps({
 
 .your_manager p {
     font-weight: 500;
+}
+
+.red_point {
+    height: 16px;
+    width: 16px;
+    background: red;
+    border-radius: 100%;
+    position: absolute;
+    color: #fff;
+    font-size: 11px;
+    top: 6px;
+    right: 7px;
+}
+
+.toast {
+    position: absolute;
+    width: 550px;
+    height: 90px;
+    background: #fff;
+    box-shadow: 0px 0px 4px 0px #5C5C5C0A;
+    box-shadow: 0px 0px 8px 0px #5C5C5C14;
+    box-shadow: 0px 4px 12px 0px #5C5C5C14;
+    z-index: 10;
+    padding: 16px 20px;
+    border-radius: 24px;
+    top: 60px
 }
 </style>
