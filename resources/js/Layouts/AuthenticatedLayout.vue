@@ -11,7 +11,7 @@ import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 import Icon_logs from '@/Components/Icon/Logs.vue';
 import Icon_balance from '@/Components/Icon/Balance.vue';
-
+import { watch, ref } from 'vue';
 const props = defineProps({
     userRole: {
         type: String,
@@ -22,7 +22,7 @@ const props = defineProps({
         required: false,
     },
     toast: {
-        type: String,
+        type: Array,
         required: false,
     },
     notifications: {
@@ -31,10 +31,18 @@ const props = defineProps({
     },
 });
 
-// watch(notification, (newNotification) => {
-//     // Ваш код для реакции на изменение notification
-//     console.log('Статус обновлен:', newNotification);
-// });
+const toastMessage = ref(props.toast);
+
+watch(
+    () => props.toast,
+    (newVal) => {
+        toastMessage.value = newVal;
+        setTimeout(() => {
+            toastMessage.value = null;
+        }, 2000);
+    },
+    { immediate: true }, // Запуск сразу после монтирования
+);
 </script>
 
 <template>
@@ -47,7 +55,7 @@ const props = defineProps({
                 </div>
             </div>
             <div class="profile flex flex-column align-center">
-                <!-- {{ user_Info }} -->
+                <!-- {{ props.notifications }} -->
                 <transition name="fade-height">
                     <div class="flex flex-column align-center w-100">
                         <p class="profile_name">
@@ -138,8 +146,7 @@ const props = defineProps({
                             <p>{{ props.userInfo?.main_sum }} ₽</p>
                         </div>
                     </div>
-                    <!-- {{ props.userRole }} -->
-                    <div class="toast flex flex-column" v-if="props.toast">
+                    <div class="toast flex flex-column" v-if="toastMessage">
                         <h3>{{ props.toast[0] }}</h3>
                         <p>{{ props.toast[1] }}</p>
                     </div>
@@ -154,7 +161,6 @@ const props = defineProps({
                         </div>
                         <Icon_notifications />
                     </NavLink>
-
                     <ResponsiveNavLink
                         :href="route('logout')"
                         @click="remote()"

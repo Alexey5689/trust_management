@@ -255,7 +255,7 @@ const updateUser = () => {
                                 <Dropdown
                                     :options="[
                                         { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
-                                        { label: 'Сбросить пароль', action: 'reset.password' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
                                         { label: 'Удалить', action: 'delete' },
                                     ]"
                                     @select="handleDropdownSelect($event, manager.id, 'manager')"

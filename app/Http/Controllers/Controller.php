@@ -83,41 +83,41 @@ protected function calculateEndOfTermDividends($contractStartDate, $contractDead
     return round($accruedDividends);
 }
 
-protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
-    $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
-    $currentDate = new DateTime($currentDate);
+// protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
+//     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
+//     $currentDate = new DateTime($currentDate);
     
-    // Рассчитываем квартальные выплаты
-    $quarterAmount = $paymentAmount / 4;
+//     // Рассчитываем квартальные выплаты
+//     $quarterAmount = $paymentAmount / 4;
+//     //dd($quarterAmount);
+//     // Определяем дату начала текущего квартала
+//     $quarterStart = clone $startDate;
+//     while ($quarterStart < $currentDate) {
+//         $quarterStart->modify('+3 months');
+//     }
+//     $quarterStart->modify('-3 months');  // Возвращаемся к началу текущего квартала
+//     //dd($quarterStart);
+//     // Определяем конец квартала
+//     $quarterEnd = clone $quarterStart;
+//     $quarterEnd->modify('+3 months');
 
-    // Определяем дату начала текущего квартала
-    $quarterStart = clone $startDate;
-    while ($quarterStart < $currentDate) {
-        $quarterStart->modify('+3 months');
-    }
-    $quarterStart->modify('-3 months');  // Возвращаемся к началу текущего квартала
+//     // Рассчитываем количество дней в квартале
+//     $quarterDays = $quarterStart->diff($quarterEnd)->days;
+//     //dd($quarterDays);
+//     // Пе рестраховка для минимального значения (например, в случае ошибок расчёта)
+//     $quarterDays = max(1, $quarterDays);  
+//    // dd($quarterDays);
+//     // Дивиденды за 1 день квартала
+//     $dailyDividend = $quarterAmount / $quarterDays;
+//    // dd($dailyDividend);
+//     // Считаем, сколько дней прошло с начала квартала
+//     $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
 
-    // Определяем конец квартала
-    $quarterEnd = clone $quarterStart;
-    $quarterEnd->modify('+3 months');
+//     // Рассчитываем накопленные дивиденды
+//     $accruedDividends = $daysSinceQuarterStart * $dailyDividend;
 
-    // Рассчитываем количество дней в квартале
-    $quarterDays = $quarterStart->diff($quarterEnd)->days;
-
-    // Перестраховка для минимального значения (например, в случае ошибок расчёта)
-    $quarterDays = max(1, $quarterDays);  
-
-    // Дивиденды за 1 день квартала
-    $dailyDividend = $quarterAmount / $quarterDays;
-
-    // Считаем, сколько дней прошло с начала квартала
-    $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
-
-    // Рассчитываем накопленные дивиденды
-    $accruedDividends = $daysSinceQuarterStart * $dailyDividend;
-
-    return round($accruedDividends);
-}
+//     return round($accruedDividends);
+// }
 
 
 protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
@@ -144,41 +144,41 @@ protected function calculateAnnualDividends($contractStartDate, $currentDate, $p
 
 
 
-// protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {   
-//     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
-//     $currentDate = new DateTime($currentDate);
+protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {   
+    $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
+    $currentDate = new DateTime($currentDate);
     
-//     // Рассчитываем квартальные выплаты
-//     $quarterAmount = $paymentAmount / 4;
-//     //dd($quarterAmount);
-//     // Определяем дату начала текущего квартала
-//     $quarterStart = clone $startDate;
-//     while ($quarterStart < $currentDate) {
-//         $quarterStart->modify('+3 months');
-//     }
-//     $quarterStart->modify('-3 months');  // Возвращаемся к началу текущего квартала
+    // Рассчитываем квартальные выплаты
+    $quarterAmount = $paymentAmount / 4;
+    //dd($quarterAmount);
+    // Определяем дату начала текущего квартала
+    $quarterStart = clone $startDate;
+    while ($quarterStart < $currentDate) {
+        $quarterStart->modify('+3 months');
+    }
+    $quarterStart->modify('-3 months');  // Возвращаемся к началу текущего квартала
 
-//     // Определяем конец квартала
-//     $quarterEnd = clone $quarterStart;
-//     $quarterEnd->modify('+3 months');
+    // Определяем конец квартала
+    $quarterEnd = clone $quarterStart;
+    $quarterEnd->modify('+3 months');
 
-//     // Проверяем количество дней в квартале
-//     $quarterDays = $quarterStart->diff($quarterEnd)->days;
-//     //dd($quarterDays);
-//     // Страхуемся от деления на 90 дней, устанавливая минимум 91
-//     $quarterDays = max(91, $quarterDays);
-//     //dd($quarterDays);
-//     // Дивиденды за 1 день квартала
-//     $dailyDividend = $quarterAmount / $quarterDays;
-//     //dd($dailyDividend);
-//     // Считаем, сколько дней прошло с начала квартала
-//     $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
+    // Проверяем количество дней в квартале
+    $quarterDays = $quarterStart->diff($quarterEnd)->days;
+    //dd($quarterDays);
+    // Страхуемся от деления на 90 дней, устанавливая минимум 91
+    $quarterDays = max(91, $quarterDays);
+    //dd($quarterDays);
+    // Дивиденды за 1 день квартала
+    $dailyDividend = $quarterAmount / $quarterDays;
+    //dd($dailyDividend);
+    // Считаем, сколько дней прошло с начала квартала
+    $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
 
-//     // Рассчитываем накопленные дивиденды
-//     $accruedDividends = $daysSinceQuarterStart * $dailyDividend;
+    // Рассчитываем накопленные дивиденды
+    $accruedDividends = $daysSinceQuarterStart * $dailyDividend;
 
-//     return round($accruedDividends);
-// }
+    return round($accruedDividends);
+}
 
 
 

@@ -26,6 +26,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    notifications: {
+        type: Array,
+        required: false,
+    },
 });
 
 const isModalOpen = ref(false);
@@ -182,7 +186,12 @@ const updateUser = () => {
 </script>
 <template>
     <Head title="Clients" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :toast="props.status">
+    <AuthenticatedLayout
+        :userInfo="props.user"
+        :userRole="role"
+        :toast="props.status"
+        :notifications="props.notifications"
+    >
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Клиенты</h2>
@@ -322,7 +331,6 @@ const updateUser = () => {
                                     placeholder="+7XXXXXXXXXX"
                                     id="phone"
                                     @input="addCountryCode"
-                                    v-model.trim="form.phone_number"
                                 />
                                 <InputError :message="form.errors.phone_number" />
                             </div>

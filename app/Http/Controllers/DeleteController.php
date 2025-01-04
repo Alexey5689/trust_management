@@ -27,7 +27,7 @@ class DeleteController extends Controller
                 'new_value' => 'Удален',
                 'created_by' => Auth::id(),
             ]);
-            return redirect('/')->with('status', 'Статус пользователя изменен');
+            return redirect('admin.users')->with('status', ['успех', 'Статус пользователя изменен на неактивный'] );
       }
       public function deleteContract(Contract $contract): RedirectResponse
       {
@@ -47,6 +47,6 @@ class DeleteController extends Controller
             'title' => 'Договор',
             'content' => 'Договор No ' . $contract->contract_number . ' удален',
         ]);
-          return redirect(route('admin.contracts'))->with('success', 'Статус контракта изменен');
+          return redirect(route('admin.contracts'))->with('success', ['успех', 'Статус контракта изменен на неактивный'] );
       }
 }

@@ -15,9 +15,35 @@ use Illuminate\Support\Facades\Password;
 use App\Notifications\PasswordEmail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\Rule;
+use App\Models\Notification;
 
 class ManagerController extends Controller
 {
+
+    public function createProfile()
+    {
+        $user = Auth::user();
+        $role = $user->role->title;
+        // dd($user, $role);
+           /** @var User $user */
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
+       // dd($user_notification);
+        return Inertia::render('Profile', [
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number
+            ],
+            'role' => $role,
+            'status' => session('status'),
+            'notifications' => $user_notification
+        ]);
+    }
+
     public function showClients(): Response
     {
         // Получаем его роль
@@ -55,7 +81,7 @@ class ManagerController extends Controller
             'clients' => $clients,
             'role' => $role,
             'status' => session('status'),
-            'notifications' => $user_notification
+            'notifications' => $user_notification ?? []
         ]);
     }
 
@@ -277,7 +303,7 @@ class ManagerController extends Controller
         $client->notify(new PasswordEmail($token, $client->email));
 
         event(new Registered($client));
-        return redirect()->route('manager.clients')->with('status', 'Клиент успешно зарегистрирован!');
+        return redirect()->route('manager.clients')->with('status',[ 'Успех', 'Клиент успешно зарегистрирован!']);
     }
 
     public function editClientByManager(User $user) {
@@ -321,7 +347,7 @@ class ManagerController extends Controller
             'content'=> 'Номер вашего телефона был изменен на '.$request->phone_number,
         ]);
           
-          return redirect()->route('manager.clients')->with('status', $message);
+          return redirect()->route('manager.clients')->with('status',['Успех', $message] );
       }
       public function storeAddContractByManager(Request $request)
       {
@@ -377,7 +403,7 @@ class ManagerController extends Controller
             'title' => 'Договор',
             'content'=> 'Был создан договор No '.$request->contract_number,
         ]);
-        return redirect()->route('manager.contracts')->with('status', 'Договор успешно создан!');
+        return redirect()->route('manager.contracts')->with('status', ['Успех', 'Договор успешно создан!']);
       }
       
       public function showNotifications(){
@@ -403,6 +429,13 @@ class ManagerController extends Controller
         ]);
     }
 
-     
+    public function updateNotification(Request $request, Notification $notification){
+        // dd($request->all());
+        $request->validate([
+           'is_read' => ['required', 'boolean'],
+        ]);
+        $notification->update($request->all());
+        return redirect()->route('manager.notification');
+    }
 }
 

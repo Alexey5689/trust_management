@@ -69,7 +69,7 @@ class ApplicationController extends Controller
         $client->userNotifications()->create([
             'content'=> 'Создана заявки No' . $application->id ,
         ]);
-        return redirect()->route($role . '.applications')->with('status', 'Заявка успешно создана!');
+        return redirect()->route($role . '.applications')->with('status', ['Успех', 'Заявка успешно создана!']);
       }
     
     

@@ -21,6 +21,29 @@ use Illuminate\Auth\Events\Registered;
 
 class AdminController extends Controller
 {
+    public function createProfile()
+    {
+        $user = Auth::user();
+        $role = $user->role->title;
+        // dd($user, $role);
+           /** @var User $user */
+        $user_notification = $user->userNotifications()
+        ->where('is_read', false)
+        ->get()
+        ->values();
+        //dd($user_notification);
+        return Inertia::render('Profile', [
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number
+            ],
+            'role' => $role,
+            'status' => session('status'),
+            'notifications' => $user_notification ?? []
+        ]);
+    }
     
     // все пользователи
     public function showAllUsers(){
@@ -383,7 +406,10 @@ class AdminController extends Controller
         $user->userContracts()->update([
             'manager_id' => $request->manager_id,
         ]);
-         return redirect()->route('admin.users')->with('status', 'Данные пользователя успешно обновлены');
+         return redirect()->route('admin.users')->with('status', [
+            'Успех!',
+            'Данные пользователя успешно обновлены'
+        ]);
      }
 
 
@@ -425,7 +451,11 @@ class AdminController extends Controller
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect()->route('admin.users')->with('status', 'Менеджер успешно зарегистрирован!');
+        return redirect()->route('admin.users')->with('status',  [
+            'Успех!',
+            'Менеджер успешно зарегистрирован!'
+        ]);
+        
     }
 
 
@@ -479,7 +509,10 @@ class AdminController extends Controller
             'content'=> 'Ваши контактные данные были изменены',
         ]);
 
-        return redirect()->route('admin.users')->with('status', 'Данные пользователя успешно обновлены');
+        return redirect()->route('admin.users')->with('status',  [
+            'Успех!',
+            'Данные пользователя успешно обновлены'
+        ]);
     }
 
 
@@ -537,7 +570,12 @@ class AdminController extends Controller
             'new_value' => 'Договор No ' . $contract->contract_number,
             'created_by' => Auth::id(), // ID самого пользователя
         ]);
-        return redirect()->route('admin.contracts')->with('status', 'Договор успешно создан!');
+     
+        return redirect()->route('admin.contracts')->with('status',  [
+            'Успех!',
+            'Договор успешно создан!'
+        ]);
+        
       }
 
 
@@ -586,12 +624,15 @@ class AdminController extends Controller
             'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
         ]);
         // dd($manager_id);
-        return redirect()->route('admin.contracts')->with('status', 'Договор успешно обновлен!');
+        
+        return redirect()->route('admin.contracts')->with('status',  [
+            'Успех!',
+            'Договор успешно обновлен!'
+        ]);
       }
 
     public function changeStatusApplication(Application $application){
         $user = Auth::user();
-        $role = $user->role->title;
         return response()->json([
             'application' => [
                 'id' => $application->id,
@@ -636,7 +677,7 @@ public function updateStatusApplication(Request $request, Application $applicati
 
     // Обновляем статус заявки
     // $application->update(['status' => $request->status]);
-    return redirect()->route($role . '.applications')->with('status', $message);
+    return redirect()->route('admin.applications')->with('status', ['Успех!', $message] );
 }
 
     public function createLogs(){
@@ -673,23 +714,4 @@ public function updateStatusApplication(Request $request, Application $applicati
             'logs' => $logs
         ]);
     }
-
-    // public function showNotification(){
-    //     $user = Auth::user();
-    //     $role = $user->role->title;
-    //         /** @var User $user */
-    //     $notification = $user->userNotifications()->get();
-    //     return Inertia::render('Notifications', [
-    //         'user' => [
-    //             'id' => $user->id,
-    //             'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
-    //             'email' => $user->email,
-    //             'phone_number' => $user->phone_number
-    //         ],
-    //         'role' => $role,
-    //         'notifications' => $notification,
-    //         'ceated_at' => $notification->created_at,
-    //         'updated_at' => $notification->updated_at
-    //     ]);
-    // }
 }

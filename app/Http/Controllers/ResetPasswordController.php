@@ -28,6 +28,6 @@ class ResetPasswordController extends Controller
        // Отправка уведомления с токеном на email менеджера
        $user->notify(new PasswordEmail($token, $user->email));
        // Flash-сообщение об успешной отправке
-       return redirect($role === "admin" ? "admin/users" : "manager/clients")->with('status', 'Ссылка для сброса пароля отправлена на email.');
+       return redirect()->route($role === "admin" ? 'admin.users' : 'manager.clients')->with('status', ['Успех!', 'Ссылка для сброса пароля отправлена на email.']);
    }
 }

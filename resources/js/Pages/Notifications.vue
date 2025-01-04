@@ -24,7 +24,9 @@ const props = defineProps({
     },
 });
 
-const localNotifications = ref([...props.notifications]);
+const localNotifications = ref([
+    ...props.notifications.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
+]);
 
 const form = useForm({
     is_read: true,
@@ -40,10 +42,10 @@ const form = useForm({
 //     });
 // };
 const isRead = (id) => {
-    const notificationIndex = localNotifications.value.findIndex(n => n.id === id);
+    const notificationIndex = localNotifications.value.findIndex((n) => n.id === id);
 
     if (notificationIndex !== -1 && !localNotifications.value[notificationIndex].is_read) {
-        form.patch(route('notification.update', { notification: id }), {
+        form.patch(route(`${props.role}.notification.update`, { notification: id }), {
             onSuccess: () => {
                 localNotifications.value[notificationIndex].is_read = true;
             },
@@ -66,9 +68,9 @@ const isRead = (id) => {
         </template>
         <template #main>
             <div class="flex flex-column r-gap" style="width: 550px">
-                <button 
-                    class="card flex flex-column" 
-                    v-for="notification in localNotifications" 
+                <button
+                    class="card flex flex-column"
+                    v-for="notification in localNotifications"
                     :key="notification.id"
                     @click="isRead(notification.id)"
                 >
