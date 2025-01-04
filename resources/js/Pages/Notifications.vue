@@ -1,9 +1,9 @@
 <script setup>
+import { ref, computed, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { formatDateNotificztion, formatTimeNotificztion } from '@/helpers.js';
 import { useForm } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
     role: {
@@ -24,20 +24,38 @@ const props = defineProps({
     },
 });
 
+const localNotifications = ref([...props.notifications]);
+
 const form = useForm({
     is_read: true,
 });
 
+// const isRead = (id) => {
+//     form.patch(route('notification.update', { notification: id }), {
+//         onSuccess: () => { },
+//         onFinish: () => form.reset(),
+//         onError: () => {
+//             console.error('Ошибка:', form.errors); // Лог ошибок
+//         },
+//     });
+// };
 const isRead = (id) => {
-    form.patch(route('notification.update', { notification: id }), {
-        onSuccess: () => {},
-        onFinish: () => form.reset(),
-        onError: () => {
-            console.error('Ошибка:', form.errors); // Лог ошибок
-        },
-    });
+    const notificationIndex = localNotifications.value.findIndex(n => n.id === id);
+
+    if (notificationIndex !== -1 && !localNotifications.value[notificationIndex].is_read) {
+        form.patch(route('notification.update', { notification: id }), {
+            onSuccess: () => {
+                localNotifications.value[notificationIndex].is_read = true;
+            },
+            onFinish: () => form.reset(),
+            onError: () => {
+                console.error('Ошибка:', form.errors); // Лог ошибок
+            },
+        });
+    }
 };
 </script>
+
 <template>
     <Head title="Notifications" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.notification">
@@ -48,15 +66,15 @@ const isRead = (id) => {
         </template>
         <template #main>
             <div class="flex flex-column r-gap" style="width: 550px">
-                <button
-                    class="card flex flex-column"
-                    v-for="notification in props.notifications"
+                <button 
+                    class="card flex flex-column" 
+                    v-for="notification in localNotifications" 
                     :key="notification.id"
                     @click="isRead(notification.id)"
                 >
-                    <h3 class="card_title">{{ notification.title }}</h3>
-                    <p class="card_body">{{ notification.content }}</p>
-                    <div class="card_date flex justify-between">
+                    <h3 class="card_title" :class="{ bold: !notification.is_read }">{{ notification.title }}</h3>
+                    <p class="card_body" :class="{ bold: !notification.is_read }">{{ notification.content }}</p>
+                    <div class="card_date flex justify-between w-100" :class="{ bold: !notification.is_read }">
                         <span>{{ formatDateNotificztion(notification.created_at) }}</span>
                         <span>{{ formatTimeNotificztion(notification.created_at) }}</span>
                     </div>
@@ -95,5 +113,9 @@ const isRead = (id) => {
 
 .card_date {
     color: #969ba0;
+}
+
+.bold {
+    font-weight: 700;
 }
 </style>

@@ -295,7 +295,10 @@ class AdminController extends Controller
         $user->notify(new PasswordEmail($token, $user->email));
 
         event(new Registered($user));
-        return redirect()->route('admin.users')->with('status', 'Клиент успешно зарегистрирован!');
+        return redirect()->route('admin.users')->with('status', [
+            'Успех!',
+            'Клиент успешно зарегистрирован'
+        ]);
     }
 
      // изменение контактных данных user клиент

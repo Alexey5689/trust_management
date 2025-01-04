@@ -139,8 +139,9 @@ const props = defineProps({
                         </div>
                     </div>
                     <!-- {{ props.userRole }} -->
-                    <div class="toast" v-if="props.toast && props.toast">
-                        {{ props.toast }}
+                    <div class="toast flex flex-column" v-if="props.toast">
+                        <h3>{{ props.toast[0] }}</h3>
+                        <p>{{ props.toast[1] }}</p>
                     </div>
 
                     <NavLink
@@ -302,7 +303,7 @@ const props = defineProps({
 .toast {
     position: absolute;
     width: 550px;
-    height: 90px;
+    min-height: 90px;
     background: #fff;
     box-shadow: 0px 0px 4px 0px #5c5c5c0a;
     box-shadow: 0px 0px 8px 0px #5c5c5c14;
@@ -310,6 +311,13 @@ const props = defineProps({
     z-index: 10;
     padding: 16px 20px;
     border-radius: 24px;
-    top: 60px;
+    top: 61px;
+}
+
+.toast h3 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 29px;
+    margin-bottom: 8px;
 }
 </style>
