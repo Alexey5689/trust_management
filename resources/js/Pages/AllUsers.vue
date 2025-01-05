@@ -318,6 +318,96 @@ const updateUser = () => {
                         </div>
                     </div>
                 </div>
+                <div class="card" v-if="noactiveManager.length > 0">
+                    <header>
+                        <h2 class="title-card">Не активные менеджеры</h2>
+                    </header>
+                    <div class="card-content">
+                        <ul class="thead-manager align-center">
+                            <li class="order">№</li>
+                            <li>ФИО</li>
+                            <li>Номер телефона</li>
+                            <li>Email</li>
+                        </ul>
+                        <div
+                            class="items-manager align-center"
+                            v-for="(manager, index) in noactiveManager"
+                            :key="manager.id"
+                        >
+                            <div class="card-item order">
+                                <p class="text">{{ index + 1 }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ manager.full_name }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ manager.phone_number }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ manager.email }}</p>
+                            </div>
+                            <!-- <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="card" v-if="noactiveClient.length > 0">
+                    <header>
+                        <h2 class="title-card">Не активные клиенты</h2>
+                    </header>
+                    <div class="card-content">
+                        <ul class="thead-manager align-center">
+                            <li class="order">№</li>
+                            <li>ФИО</li>
+                            <li>Номер телефона</li>
+                            <li>Email</li>
+                        </ul>
+                        <div
+                            class="items-manager align-center"
+                            v-for="(client, index) in noactiveClient"
+                            :key="client.id"
+                        >
+                            <div class="card-item order">
+                                <p class="text">{{ index + 1 }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.full_name }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.phone_number }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.email }}</p>
+                            </div>
+                            <!-- <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
     </AuthenticatedLayout>

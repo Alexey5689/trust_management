@@ -36,6 +36,7 @@ return [
         'contract_status' => 'Статус договора',
         'create_date' => 'Дата заключения',
         'date_of_payments' => 'Дата выплаты',
+        'user_id' => 'Клиент',
     ],
     'password' => [
     'letters' => 'Пароль должен содержать хотя бы одну букву.',

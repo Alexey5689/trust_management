@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Contract;
 use Illuminate\Validation\Rule;
 use App\Models\Log;
-use App\Models\Notification;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,6 +16,7 @@ use Illuminate\Support\Str;
 use App\Notifications\PasswordEmail;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\DB;
 
 
 class AdminController extends Controller
@@ -252,76 +252,86 @@ class AdminController extends Controller
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
         //dd($request->all());
-        $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'middle_name' => $request->middle_name,
-            'email' => $request->email,
-            'phone_number' => $request->phone_number,
-            'role_id' => 3, // Предполагаем, что 3 — это ID роли клиента
-            'token' => Str::random(60),
-            'refresh_token' => Str::random(60),
-        ]);
-         // Логируем событие регистрации
-        Log::create([
-            'model_id' => $user->id,
-            'model_type' => User::class,
-            'change' => 'Добавление клиента',
-            'action' => 'Регистрация пользователя' ,
-            'old_value' => null,
-            'new_value' =>  $user -> last_name . ' ' . $user -> first_name . ' ' . $user -> middle_name,
-            'created_by' => Auth::id(), // ID самого пользователя
-        ]);
-
-
-
-        $manager_id = $request->manager_id;
-        // Записываем менеджера в таблицу user_manager
-        $user->managers()->attach($manager_id);
-        // Создание контракта с user_id и manager_id
-        $contract = $user->userContracts()->create([
-            'manager_id' => $request->manager_id,
-            'contract_number' => $request->contract_number,
-            'create_date' => $request->create_date,
-            'sum' => $request->sum,
-            'deadline' => $request->deadline,
-            'procent' => $request->procent,
-            'payments' => $request->payments,
-            'agree_with_terms' => $request->agree_with_terms,
-            'contract_status' => $request->contract_status,
-            'dividends' => $request->dividends,
-            'number_of_payments'=> $request->number_of_payments
-        ]);
-        Log::create([
-            'model_id' => $contract->user_id,
-            'model_type' => Contract::class,
-            'change' => 'Добавление договора',
-            'action' => 'Создание',
-            'old_value' => null,
-            'new_value' => 'Договор No'.$contract->contract_number,
-            'created_by' => Auth::id(), // ID самого пользователя
-        ]);
-        $manager = User::find($manager_id);
-        $manager->userNotifications()->create([
-            'title' => 'Новый клиент',
-            'content'=> 'У вас появился новый клиент: '.$user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
-        ]);
-        $user->userTransactions()->create([
-            'contract_id'=>$contract->id,
-            'manager_id' => $manager_id,
-            'date_transition' => $request->create_date,
-            'sum_transition' => $request->sum,
-            'sourse' =>'Договор'
-        ]);
-       
-        $token = Password::createToken($user);
-        $user->notify(new PasswordEmail($token, $user->email));
-
-        event(new Registered($user));
-        return redirect()->route('admin.users')->with('status', [
-            'Успех!',
-            'Клиент успешно зарегистрирован'
-        ]);
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'middle_name' => $request->middle_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'role_id' => 3, // Предполагаем, что 3 — это ID роли клиента
+                'token' => Str::random(60),
+                'refresh_token' => Str::random(60),
+            ]);
+             // Логируем событие регистрации
+            Log::create([
+                'model_id' => $user->id,
+                'model_type' => User::class,
+                'change' => 'Добавление клиента',
+                'action' => 'Регистрация пользователя' ,
+                'old_value' => null,
+                'new_value' =>  $user -> last_name . ' ' . $user -> first_name . ' ' . $user -> middle_name,
+                'created_by' => Auth::id(), // ID самого пользователя
+            ]);
+    
+    
+    
+            $manager_id = $request->manager_id;
+            // Записываем менеджера в таблицу user_manager
+            $user->managers()->attach($manager_id);
+            // Создание контракта с user_id и manager_id
+            $contract = $user->userContracts()->create([
+                'manager_id' => $request->manager_id,
+                'contract_number' => $request->contract_number,
+                'create_date' => $request->create_date,
+                'sum' => $request->sum,
+                'deadline' => $request->deadline,
+                'procent' => $request->procent,
+                'payments' => $request->payments,
+                'agree_with_terms' => $request->agree_with_terms,
+                'contract_status' => $request->contract_status,
+                'dividends' => $request->dividends,
+                'number_of_payments'=> $request->number_of_payments
+            ]);
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Contract::class,
+                'change' => 'Добавление договора',
+                'action' => 'Создание',
+                'old_value' => null,
+                'new_value' => 'Договор No'.$contract->contract_number,
+                'created_by' => Auth::id(), // ID самого пользователя
+            ]);
+            $manager = User::find($manager_id);
+            $manager->userNotifications()->create([
+                'title' => 'Новый клиент',
+                'content'=> 'У вас появился новый клиент: '.$user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+            ]);
+            $user->userTransactions()->create([
+                'contract_id'=>$contract->id,
+                'manager_id' => $manager_id,
+                'date_transition' => $request->create_date,
+                'sum_transition' => $request->sum,
+                'sourse' =>'Договор'
+            ]);
+           
+            $token = Password::createToken($user);
+            $user->notify(new PasswordEmail($token, $user->email));
+    
+            event(new Registered($user));
+            DB::commit();
+            return redirect()->route('admin.users')->with('status', [
+                'Успех!',
+                'Клиент успешно зарегистрирован'
+            ]);
+           
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.users')
+            ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
+        }
+        
     }
 
      // изменение контактных данных user клиент
@@ -360,56 +370,71 @@ class AdminController extends Controller
          ]);
 
          $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
-         $user->update($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
+         $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
          // Логируем изменения
-         foreach ($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']) as $field => $newValue) {
-            $oldValue =$this->normalizeValue($originalData[$field]);
-            $newValue =$this->normalizeValue($newValue);
-            if ($oldValue !== $newValue) {
-                Log::create([
-                    'model_id' => $user->id,
-                    'model_type' => User::class,
-                    'change' => 'Изменено поле' . $field,
-                    'action' => 'Обновление данных',
-                    'old_value' => $originalData[$field],
-                    'new_value' => $newValue,
-                    'created_by' => Auth::id(),
+         if ($user->isDirty()) {
+            DB::beginTransaction();
+            try{
+                $dirtyFields = $user->getDirty();
+                $user->save();  // Сохраняем изменения, но "грязные" поля уже зафиксированы
+                foreach ($dirtyFields as $field => $newValue) {
+                    $oldValue =$this->normalizeValue($originalData[$field]);
+                    $newValue =$this->normalizeValue($newValue);
+                    if ($oldValue !== $newValue) {
+                        Log::create([
+                            'model_id' => $user->id,
+                            'model_type' => User::class,
+                            'change' => 'Изменено поле' . $field,
+                            'action' => 'Обновление данных',
+                            'old_value' => $originalData[$field],
+                            'new_value' => $newValue,
+                            'created_by' => Auth::id(),
+                        ]);
+                    }
+                }
+                if (!empty($dirtyFields)) {
+                    $user->userNotifications()->create([
+                        'title' => "Контактные данные",
+                        'content' => 'Ваши контактные данные были изменены',
+                    ]);
+                }
+                // Проверяем, изменился ли менеджер
+                $currentManager = $user->managers()->first();
+                $newManager = User::find($request->manager_id);
+
+                if ($currentManager?->id != $newManager?->id) {
+                    // Обновляем менеджера в промежуточной таблице user_manager
+                    $user->managers()->sync([$request->manager_id]);
+                    // Логируем смену менеджера
+                    Log::create([
+                        'model_id' => $user->id,
+                        'model_type' => User::class,
+                        'change' => 'Изменен менеджер',
+                        'action' => 'Обновление данных',
+                        'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
+                        'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
+                        'created_by' => Auth::id(),
+                    ]);
+                    $user->userNotifications()->create([
+                        'title' => "Менеджер",
+                        'content'=> 'Ваш менеджер был изменен',
+                    ]);
+                }
+                $user->userContracts()->update([
+                    'manager_id' => $request->manager_id,
                 ]);
+                DB::commit();
+                return redirect()->route('admin.users')->with('status', [
+                    'Успех!',
+                    'Данные пользователя успешно обновлены'
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return redirect()->route('admin.users') 
+                    ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
             }
         }
-        $user->userNotifications()->create([
-            'title' => "Контактных данных",
-            'content'=> 'Ваши контактные данные были изменены',
-        ]);
-        // Проверяем, изменился ли менеджер
-        $currentManager = $user->managers()->first();
-        $newManager = User::find($request->manager_id);
-
-        if ($currentManager?->id != $newManager?->id) {
-            // Обновляем менеджера в промежуточной таблице user_manager
-            $user->managers()->sync([$request->manager_id]);
-            // Логируем смену менеджера
-            Log::create([
-                'model_id' => $user->id,
-                'model_type' => User::class,
-                'change' => 'Изменен менеджер',
-                'action' => 'Обновление данных',
-                'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
-                'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
-                'created_by' => Auth::id(),
-            ]);
-            $user->userNotifications()->create([
-                'title' => "Менеджер",
-                'content'=> 'Ваш менеджер был изменен',
-            ]);
-        }
-        $user->userContracts()->update([
-            'manager_id' => $request->manager_id,
-        ]);
-         return redirect()->route('admin.users')->with('status', [
-            'Успех!',
-            'Данные пользователя успешно обновлены'
-        ]);
+        return redirect()->route('admin.users') ->with('status', ['Информация', 'Данные не изменились']);
      }
 
 
@@ -424,37 +449,45 @@ class AdminController extends Controller
             'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
             'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number'],
         ]);
-
-        $user = User::create([
-            'last_name' => $request->last_name,
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'email' => $request->email,
-            'phone_number' => $request->phone_number,
-            'role_id' => 2,
-            'token' => Str::random(60),
-            'refresh_token' => Str::random(60),
-        ]);
-        // Логируем событие регистрации
-        Log::create([
-            'model_id' => $user->id,
-            'model_type' => User::class,
-            'change' => 'Добавление менеджера',
-            'action' => 'Регистрация пользователя',
-            'old_value' => null,
-            'new_value' => $user -> last_name . ' ' . $user -> first_name . ' ' . $user -> middle_name,
-            'created_by' => Auth::id(), // ID самого пользователя
-        ]);
-
-
-        $token = Password::createToken($user);
-        $user->notify(new PasswordEmail($token, $user->email));
-
-        event(new Registered($user));
-        return redirect()->route('admin.users')->with('status',  [
-            'Успех!',
-            'Менеджер успешно зарегистрирован!'
-        ]);
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'last_name' => $request->last_name,
+                'first_name' => $request->first_name,
+                'middle_name' => $request->middle_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'role_id' => 2,
+                'token' => Str::random(60),
+                'refresh_token' => Str::random(60),
+            ]);
+            // Логируем событие регистрации
+            Log::create([
+                'model_id' => $user->id,
+                'model_type' => User::class,
+                'change' => 'Добавление менеджера',
+                'action' => 'Регистрация пользователя',
+                'old_value' => null,
+                'new_value' => $user -> last_name . ' ' . $user -> first_name . ' ' . $user -> middle_name,
+                'created_by' => Auth::id(), // ID самого пользователя
+            ]);
+    
+    
+            $token = Password::createToken($user);
+            $user->notify(new PasswordEmail($token, $user->email));
+    
+            event(new Registered($user));
+            DB::commit();
+            return redirect()->route('admin.users')->with('status',  [
+                'Успех!',
+                'Менеджер успешно зарегистрирован!'
+            ]);
+        }
+        catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.users') 
+                ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
+        }
         
     }
 
@@ -487,32 +520,49 @@ class AdminController extends Controller
         ]);
 
         $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
-        $user->update($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
-        foreach ($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']) as $field => $newValue) {
-            $oldValue = $this->normalizeValue($originalData[$field]);
-            $newValue = $this->normalizeValue($newValue);
-            if ($oldValue !== $newValue) {
-                Log::create([
-                    'model_id' => $user->id,
-                    'model_type' => User::class,
-                    'change' => 'Изменено поле' . $field,
-                    'action' => 'Обновление данных',
-                    'old_value' => $originalData[$field],
-                    'new_value' => $newValue,
-                    'created_by' => Auth::id(),
+        $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
+        DB::beginTransaction();
+        if ($user->isDirty()) {
+            try {
+                $dirtyFields = $user->getDirty();
+                $user->save();
+                foreach ($dirtyFields as $field => $newValue) {
+                    $oldValue = $this->normalizeValue($originalData[$field]);
+                    $newValue = $this->normalizeValue($newValue);
+                    if ($oldValue !== $newValue) {
+                        Log::create([
+                            'model_id' => $user->id,
+                            'model_type' => User::class,
+                            'change' => 'Изменено поле' . $field,
+                            'action' => 'Обновление данных',
+                            'old_value' => $originalData[$field],
+                            'new_value' => $newValue,
+                            'created_by' => Auth::id(),
+                        ]);
+                    }
+                }
+        
+                $user->userNotifications()->create([
+                    'title' => "Контактные данные",
+                    'content'=> 'Ваши контактные данные были изменены',
+                ]);
+                DB::commit();
+                return redirect()->route('admin.users')->with('status',  [
+                    'Успех!',
+                    'Данные пользователя успешно обновлены'
+                ]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return redirect()->route('admin.users')->with('status', [
+                    'Неуспех:(',
+                    'Пользователь с таким email или номером телефона уже зарегистрирован'
                 ]);
             }
         }
-
-        $user->userNotifications()->create([
-            'title' => "Контактные данные",
-            'content'=> 'Ваши контактные данные были изменены',
-        ]);
-
-        return redirect()->route('admin.users')->with('status',  [
-            'Успех!',
-            'Данные пользователя успешно обновлены'
-        ]);
+        return redirect()->route('admin.users')
+            ->with('status', ['Информация', 'Данные не изменились']);
+       
     }
 
 
@@ -528,58 +578,68 @@ class AdminController extends Controller
             'create_date' => ['required', 'date_format:Y-m-d'],
             'sum' => ['required', 'integer'],
             'procent' => ['required', 'integer', 'min:0', 'max:100'],
+            'user_id' => ['required', 'integer'],
+            'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
         //dd($request->all());
          // Находим клиента по user_id из запроса
-        $client = User::findOrFail($request->user_id);
-        // Получаем ID первого менеджера, закрепленного за клиентом
-        $manager_id = optional($client->managers->first())->id;
-        // dd($manager_id);
-        $contract = Contract::create([
-            'user_id' => $request->user_id,
-            'manager_id' => $manager_id,
-            'contract_number' => $request->contract_number,
-            'create_date' => $request->create_date,
-            'sum' => $request->sum,
-            'deadline' => $request->deadline,
-            'procent' => $request->procent,
-            'payments' => $request->payments,
-            'agree_with_terms' => $request->agree_with_terms ?? false,
-            'contract_status' => $request->contract_status,
-            'number_of_payments'=> $request->number_of_payments
-        ]);
-        $client->userTransactions()->create([
-            'contract_id'=>$contract->id,
-            'manager_id' => $manager_id,
-            'date_transition' => $request->create_date,
-            'sum_transition' => $request->sum,
-            'sourse' =>'Договор'
-        ]);
-        $client->userNotifications()->create([
-            'title' => "Новый договор",
-            'content'=> 'Был создан договор No' . $contract->contract_number,
-        ]);
-
-        // Логируем событие регистрации
-        Log::create([
-            'model_id' => $contract->user_id,
-            'model_type' => Contract::class,
-            'change' =>  'Добавление договора',
-            'action' => 'Создание',
-            'old_value' => null,
-            'new_value' => 'Договор No ' . $contract->contract_number,
-            'created_by' => Auth::id(), // ID самого пользователя
-        ]);
-     
-        return redirect()->route('admin.contracts')->with('status',  [
-            'Успех!',
-            'Договор успешно создан!'
-        ]);
+        DB::beginTransaction();
+        try {
+            $client = User::findOrFail($request->user_id);
+            // Получаем ID первого менеджера, закрепленного за клиентом
+            $manager_id = optional($client->managers->first())->id;
+            // dd($manager_id);
+            $contract = Contract::create([
+                'user_id' => $request->user_id,
+                'manager_id' => $manager_id,
+                'contract_number' => $request->contract_number,
+                'create_date' => $request->create_date,
+                'sum' => $request->sum,
+                'deadline' => $request->deadline,
+                'procent' => $request->procent,
+                'payments' => $request->payments,
+                'agree_with_terms' => $request->agree_with_terms ?? false,
+                'contract_status' => $request->contract_status,
+                'number_of_payments'=> $request->number_of_payments
+            ]);
+            $client->userTransactions()->create([
+                'contract_id'=>$contract->id,
+                'manager_id' => $manager_id,
+                'date_transition' => $request->create_date,
+                'sum_transition' => $request->sum,
+                'sourse' =>'Договор'
+            ]);
+            $client->userNotifications()->create([
+                'title' => "Новый договор",
+                'content'=> 'Был создан договор No' . $contract->contract_number,
+            ]);
+    
+            // Логируем событие регистрации
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Contract::class,
+                'change' =>  'Добавление договора',
+                'action' => 'Создание',
+                'old_value' => null,
+                'new_value' => 'Договор No ' . $contract->contract_number,
+                'created_by' => Auth::id(), // ID самого пользователя
+            ]);
+            DB::commit();
+            return redirect()->route('admin.contracts')->with('status',  [
+                'Успех!',
+                'Договор успешно создан!'
+            ]);
+            
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.contracts')->with('status', [
+                'Неуспех:(',
+                'Пользователь с таким email или номером телефона уже зарегистрирован'
+            ]);
+        }
+       
         
       }
-
-
-
       //редакция договора
       public function editContractByAdmin(Contract $contract)
       {
@@ -598,37 +658,54 @@ class AdminController extends Controller
             'create_date' => ['required', 'date_format:Y-m-d'],
             'sum' => ['required', 'integer'],
             'procent' => ['required', 'integer', 'min:0', 'max:100'],
+            'user_id' => ['required', 'integer'],
+            'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
        
         $originalData = $contract->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status', 'dividends']);
-        $contract->update($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status', 'dividends']));
-
-        foreach ($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status']) as $field => $newValue) {
-            $oldValue = $this->normalizeValue($originalData[$field]);
-            $newValue = $this->normalizeValue($newValue);
-            if ($oldValue !== $newValue) {
-                Log::create([
-                    'model_id' => $contract->user_id,
-                    'model_type' => Contract::class,
-                    'change' => 'Изменено поле '.$field,
-                    'action' => 'Обновление договора',
-                    'old_value' => $originalData[$field],
-                    'new_value' => $newValue,
-                    'created_by' => Auth::id(),
+        $contract->fill($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status', 'dividends']));
+        if ($contract->isDirty()) {
+            try {
+                $dirtyFields = $contract->getDirty();
+                $contract->save();
+                foreach ($dirtyFields as $field => $newValue) {
+                    $oldValue = $this->normalizeValue($originalData[$field]);
+                    $newValue = $this->normalizeValue($newValue);
+                    if ($oldValue !== $newValue) {
+                        Log::create([
+                            'model_id' => $contract->user_id,
+                            'model_type' => Contract::class,
+                            'change' => 'Изменено поле '.$field,
+                            'action' => 'Обновление договора',
+                            'old_value' => $originalData[$field],
+                            'new_value' => $newValue,
+                            'created_by' => Auth::id(),
+                        ]);
+                    }
+                }
+                $user = $contract->user; 
+                $user->userNotifications()->create([
+                    'title' => "Изменение договора",
+                    'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
+                ]);
+                // dd($manager_id);
+                
+                return redirect()->route('admin.contracts')->with('status',  [
+                    'Успех!',
+                    'Договор успешно обновлен!'
                 ]);
             }
+            catch (\Exception $e) {
+                return redirect()->route('admin.contracts')->with('status', [
+                    'Неуспех:(',
+                    'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже'
+                ]);
+            }
+
         }
-        $user = $contract->user; 
-        $user->userNotifications()->create([
-            'title' => "Изменение договора",
-            'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
-        ]);
-        // dd($manager_id);
-        
-        return redirect()->route('admin.contracts')->with('status',  [
-            'Успех!',
-            'Договор успешно обновлен!'
-        ]);
+        return redirect()->route('admin.contracts')
+        ->with('status', ['Информация', 'Данные не изменились']);
+       
       }
 
     public function changeStatusApplication(Application $application){
@@ -654,30 +731,40 @@ public function updateStatusApplication(Request $request, Application $applicati
         'Исполнена' => fn() => $this->handleExecutedApplication($application, $user),
         'Отменена' => fn() => $this->handleCancelledApplication($application),
     ];
-    $action = $actions[$request->status];
 
-    $message = $action();
+    try {
+        $action = $actions[$request->status];
 
-    $client = $application->user;
-    if ($originalStatus !== $application->status) {
-        Log::create([
-            'model_id' => $application->user_id,
-            'model_type' => Application::class,
-            'change' => 'Изменен статус',
-            'action' => 'Изменение статуса заявки',
-            'old_value' => $originalStatus,
-            'new_value' => $application->status,
-            'created_by' => $user->id,
+        $message = $action();
+
+        $client = $application->user;
+        if ($originalStatus !== $application->status) {
+            Log::create([
+                'model_id' => $application->user_id,
+                'model_type' => Application::class,
+                'change' => 'Изменен статус',
+                'action' => 'Изменение статуса заявки',
+                'old_value' => $originalStatus,
+                'new_value' => $application->status,
+                'created_by' => $user->id,
+            ]);
+        }
+        $client->userNotifications()->create([
+            'title' => "Изменение статуса заявки",
+            'content'=> 'Статус заявки No' . $application->id . ' был изменен',
+        ]);
+
+        // Обновляем статус заявки
+        // $application->update(['status' => $request->status]);
+        return redirect()->route('admin.applications')->with('status', ['Успех!', $message] );
+
+    }catch(\Exception $e){
+        return redirect()->route('admin.applications')->with('status', [
+            'Неуспех:(',
+            'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже'
         ]);
     }
-    $client->userNotifications()->create([
-        'title' => "Изменение статуса заявки",
-        'content'=> 'Статус заявки No' . $application->id . ' был изменен',
-    ]);
-
-    // Обновляем статус заявки
-    // $application->update(['status' => $request->status]);
-    return redirect()->route('admin.applications')->with('status', ['Успех!', $message] );
+    
 }
 
     public function createLogs(){

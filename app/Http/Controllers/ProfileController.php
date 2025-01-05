@@ -172,7 +172,7 @@ public function updateProfile(Request $request)
                 ->with('status', ['Успех!', 'Данные обновлены']);
         } catch (\Exception $e) {
             return redirect()->route($role . '.profile')
-                ->with('status', ['Ошибка!', 'Не удалось обновить данные.']);
+                ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
             
         }
        
