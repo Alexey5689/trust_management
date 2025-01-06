@@ -8,6 +8,7 @@ import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import { fetchData } from '@/helpers';
 import InputError from '@/Components/InputError.vue';
+import Loader from '@/Components/Loader.vue';
 
 const props = defineProps({
     contracts: {
@@ -41,6 +42,7 @@ const currentModal = ref(null);
 const error = ref(null);
 const contractData = ref({});
 const selectedDuration = ref('');
+const loading = ref(false);
 const activeClient = computed(() => props.clients.filter((client) => client.active));
 const activeContract = computed(() =>
     props.contracts
@@ -180,23 +182,28 @@ const handleDeadlineChange = (event) => {
 
 const createContract = () => {
     console.log(form);
-
+    loading.value = true;
     form.post(route(`${props.role}.add.contract`), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
 const updateContract = () => {
+    loading.value = true;
     form.patch(route('admin.edit.contract', { contract: currentModal.value.contractId }), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
@@ -375,6 +382,9 @@ const handleCheckboxChange = () => {
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <Loader v-if="loading" />
+    
     <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal?.action]" @close="closeModal">
         <template #default>
             <div v-if="currentModal.type === 'add'">

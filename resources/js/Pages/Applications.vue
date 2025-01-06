@@ -8,6 +8,7 @@ import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import InputError from '@/Components/InputError.vue';
 import { fetchData } from '@/helpers';
+import Loader from '@/Components/Loader.vue';
 
 const props = defineProps({
     role: {
@@ -51,6 +52,7 @@ const error = ref('');
 const userInfo = ref({});
 const contractInfo = ref({});
 const can_payout = ref('');
+const loading = ref(false);
 
 const count_of_applications = ref(null);
 const number_of_payments = ref(null);
@@ -211,22 +213,29 @@ watch(
 );
 
 const createAplication = () => {
+    loading.value = true;
     form.post(route('add.application'), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
+
 const changeStatus = () => {
+    loading.value = true;
     formStatus.patch(route('change.status.application', applicationData.value.id), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', formStatus.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
@@ -439,6 +448,9 @@ const changeStatus = () => {
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <Loader v-if="loading" />
+
     <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal?.action]" @close="closeModal">
         <template #default>
             <div v-if="currentModal.type === 'add'">

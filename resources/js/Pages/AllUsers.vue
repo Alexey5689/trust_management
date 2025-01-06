@@ -204,12 +204,15 @@ const createUser = () => {
 };
 
 const updateUser = () => {
+    loading.value = true;
     form.patch(route(`admin.edit.${currentModal.value.type}`, { user: currentModal.value.userId }), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };

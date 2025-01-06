@@ -6,6 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData } from '@/helpers';
 import InputError from '@/Components/InputError.vue';
+import Loader from '@/Components/Loader.vue';
 import Notifications from './Notifications.vue';
 
 const props = defineProps({
@@ -31,6 +32,7 @@ const isModalOpen = ref(false);
 const currentModal = ref(null);
 const userData = ref({});
 const error = ref(null);
+const loading = ref(false);
 
 const getInfo = async (url) => {
     try {
@@ -81,30 +83,39 @@ const closeModal = () => {
 
 const saveChanges = () => {
     if (currentModal.value === 'contacts') {
+        loading.value = true;
         form.patch(route('profile.update'), {
             onSuccess: () => {
                 closeModal();
+                loading.value = false;
             },
             onError: () => {
                 console.error('Ошибка:', form.errors); // Лог ошибок
+                loading.value = false;
             },
         });
     } else if (currentModal.value === 'password') {
+        loading.value = true;
         form.patch(route('password.update'), {
             onSuccess: () => {
                 closeModal();
+                loading.value = false;
             },
             onError: () => {
                 console.error('Ошибка:', form.errors); // Лог ошибок
+                loading.value = false;
             },
         });
     } else {
+        loading.value = true;
         form.patch(route('email.update'), {
             onSuccess: () => {
                 closeModal();
+                loading.value = false;
             },
             onError: () => {
                 console.error('Ошибка:', form.errors); // Лог ошибок
+                loading.value = false;
             },
         });
     }
@@ -171,6 +182,9 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <Loader v-if="loading" />
+
     <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal]" @close="closeModal">
         <template #default>
             <div v-if="currentModal === 'contacts'">
