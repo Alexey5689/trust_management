@@ -488,6 +488,7 @@ const changeStatus = () => {
                                         {{ contract.contract_number }}
                                     </option>
                                 </select>
+                                <InputError :message="form.errors.contract_id" />
                             </div>
                         </div>
                         <div class="flex" style="column-gap: 8px">
@@ -543,6 +544,7 @@ const changeStatus = () => {
                             <label for="on_time" class="button">В срок</label>
                         </div>
                     </div>
+                    <InputError :message="form.errors.condition" />
                     <div class="for_off_time" v-if="selectedOffTime === 'Раньше срока'">
                         <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                         <div class="flex c-gap">
@@ -553,6 +555,7 @@ const changeStatus = () => {
                             <div class="input flex flex-column">
                                 <label for="payment_date">Дата планируемой выплаты</label>
                                 <input type="date" id="payment_date" v-model="form.date_of_payments" />
+                                <InputError :message="form.errors.date_of_payments" />
                             </div>
                         </div>
                         <p class="warning" style="margin-top: 16px">Комиссия за вывод раньше срока, 30%</p>

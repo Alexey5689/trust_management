@@ -181,6 +181,7 @@ class AdminController extends Controller
                         'По истечению срока' => Carbon::parse($contract->deadline),
                         default => null,
                     };
+                   // dd($nextPaymentDate);
                      // Проверяем, истёк ли срок договора
                     $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
                     //dd($nextPaymentDate);
@@ -372,7 +373,7 @@ class AdminController extends Controller
          $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
          $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
          // Логируем изменения
-         if ($user->isDirty()) {
+        if ($user->isDirty()) {
             DB::beginTransaction();
             try{
                 $dirtyFields = $user->getDirty();
@@ -488,6 +489,7 @@ class AdminController extends Controller
             return redirect()->route('admin.users') 
                 ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
         }
+
         
     }
 
@@ -521,8 +523,8 @@ class AdminController extends Controller
 
         $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
         $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
-        DB::beginTransaction();
         if ($user->isDirty()) {
+            DB::beginTransaction();
             try {
                 $dirtyFields = $user->getDirty();
                 $user->save();
@@ -542,10 +544,12 @@ class AdminController extends Controller
                     }
                 }
         
-                $user->userNotifications()->create([
-                    'title' => "Контактные данные",
-                    'content'=> 'Ваши контактные данные были изменены',
-                ]);
+                if (!empty($dirtyFields)) {
+                    $user->userNotifications()->create([
+                        'title' => "Контактные данные",
+                        'content' => 'Ваши контактные данные были изменены',
+                    ]);
+                }
                 DB::commit();
                 return redirect()->route('admin.users')->with('status',  [
                     'Успех!',
@@ -554,21 +558,12 @@ class AdminController extends Controller
 
             } catch (\Exception $e) {
                 DB::rollBack();
-                return redirect()->route('admin.users')->with('status', [
-                    'Неуспех:(',
-                    'Пользователь с таким email или номером телефона уже зарегистрирован'
-                ]);
+                return redirect()->route('admin.users')
+                ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
             }
         }
-        return redirect()->route('admin.users')
-            ->with('status', ['Информация', 'Данные не изменились']);
-       
+        return redirect()->route('admin.users') ->with('status', ['Информация', 'Данные не изменились']);
     }
-
-
-     
-     
-
       public function storeAddContractByAdmin(Request $request)
       {
         //dd($request->all());
@@ -632,10 +627,8 @@ class AdminController extends Controller
             
         }catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.contracts')->with('status', [
-                'Неуспех:(',
-                'Пользователь с таким email или номером телефона уже зарегистрирован'
-            ]);
+            return redirect()->route('admin.contracts')
+            ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
         }
        
         

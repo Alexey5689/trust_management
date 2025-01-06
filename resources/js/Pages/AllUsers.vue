@@ -185,7 +185,7 @@ const handleDeadlineChange = (event) => {
 };
 const addCountryCode = () => {
     if (!form.phone_number.startsWith('+7')) {
-        form.phone_number = '+7'; // Принудительно добавляем код страны
+        form.phone_number.trim = '+7'; // Принудительно добавляем код страны
     }
 };
 

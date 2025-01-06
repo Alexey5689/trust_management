@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('first_name')->comment('Имя');
             $table->string('middle_name')->comment('Отчество');
             $table->string('email')->unique()->comment('Email');
-            $table->char('phone_number', 20)->unique()->comment('Номер телефона');
+            $table->char('phone_number', 12)->unique()->comment('Номер телефона');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 255)->nullable();
             $table->string('token');

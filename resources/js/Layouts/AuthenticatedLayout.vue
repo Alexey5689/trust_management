@@ -113,7 +113,7 @@ watch(
                 </NavLink>
                 <NavLink
                     class="logs"
-                    v-if="props.userRole === 'admin' || props.userRole === 'manager'"
+                    v-if="props.userRole === 'admin'"
                     :href="route('admin.logs')"
                     :active="route().current('admin.logs')"
                 >

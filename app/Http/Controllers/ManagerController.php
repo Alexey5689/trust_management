@@ -16,6 +16,7 @@ use App\Notifications\PasswordEmail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\Rule;
 use App\Models\Notification;
+use Illuminate\Support\Facades\DB;
 
 class ManagerController extends Controller
 {
@@ -231,79 +232,80 @@ class ManagerController extends Controller
             'create_date' => ['required', 'date_format:Y-m-d'],
             'sum' => ['required', 'integer'],
             'procent' => ['required', 'integer', 'min:1', 'max:100'],
+            'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
+
+        DB::beginTransaction();
+        try{
+            $client = User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'middle_name' => $request->middle_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'role_id' => 3, // Предполагаем, что 3 — это ID роли клиента
+                'token' => Str::random(60),
+                'refresh_token' => Str::random(60),
+            ]);
+             // Логируем событие регистрации
+            Log::create([
+                'model_id' => $client->id,
+                'model_type' => User::class,
+                'change' => 'Добавление клиента',
+                'action' => 'Регистрация пользователя',
+                'old_value' => null,
+                'new_value' => $client->email,
+                'created_by' => Auth::id(), // ID самого пользователя
+            ]);
+             // $loggedInUser = Auth::user();
+            $loggedInUser = User::with('role')->find(Auth::id());
+            $manager_id = $loggedInUser->id;
+             // Записываем менеджера в таблицу user_manager
+            $client->managers()->attach($manager_id);
+            // Создание контракта с user_id и manager_id
+            $contract = $client->userContracts()->create([
+                'manager_id' => $manager_id,
+                'contract_number' => $request->contract_number,
+                'create_date' => $request->create_date,
+                'sum' => $request->sum,
+                'deadline' => $request->deadline,
+                'procent' => $request->procent,
+                'payments' => $request->payments,
+                'agree_with_terms' => $request->agree_with_terms,
+                'contract_status' => $request->contract_status,
+                'dividends' => $request->dividends,
+                'number_of_payments'=> $request->number_of_payments
+            ]);
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Contract::class,
+                'change' => 'Добавление договора',
+                'action' => 'Создание',
+                'old_value' => null,
+                'new_value' => 'Договор No' . $contract->contract_number,
+                'created_by' => Auth::id(), // ID самого пользователя
+            ]);
+    
+            $client->userTransactions()->create([
+                'contract_id'=>$contract->id,
+                'manager_id' => $manager_id,
+                'date_transition' => $request->create_date,
+                'sum_transition' => $request->sum,
+                'sourse' =>'Договор'
+            ]);
+            $token = Password::createToken($client);
+            $client->notify(new PasswordEmail($token, $client->email));
+    
+            event(new Registered($client));
+            DB::commit();
+            return redirect()->route('manager.clients')->with('status',[ 'Успех', 'Клиент успешно зарегистрирован!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('manager.clients')
+            ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
+        }
         
-
-        $client = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'middle_name' => $request->middle_name,
-            'email' => $request->email,
-            'phone_number' => $request->phone_number,
-            'role_id' => 3, // Предполагаем, что 3 — это ID роли клиента
-            'token' => Str::random(60),
-            'refresh_token' => Str::random(60),
-        ]);
-
-        // Логируем событие регистрации
-        Log::create([
-            'model_id' => $client->id,
-            'model_type' => User::class,
-            'change' => 'Добавление клиента',
-            'action' => 'Регистрация пользователя',
-            'old_value' => null,
-            'new_value' => $client->email,
-            'created_by' => Auth::id(), // ID самого пользователя
-        ]);
-
-        // $loggedInUser = Auth::user();
-        $loggedInUser = User::with('role')->find(Auth::id());
-        $manager_id = $loggedInUser->id;
-
-
-        // Записываем менеджера в таблицу user_manager
-        $client->managers()->attach($manager_id);
-
-        // Создание контракта с user_id и manager_id
-        $contract = $client->userContracts()->create([
-            'manager_id' => $manager_id,
-            'contract_number' => $request->contract_number,
-            'create_date' => $request->create_date,
-            'sum' => $request->sum,
-            'deadline' => $request->deadline,
-            'procent' => $request->procent,
-            'payments' => $request->payments,
-            'agree_with_terms' => $request->agree_with_terms,
-            'contract_status' => $request->contract_status,
-            'dividends' => $request->dividends,
-            'number_of_payments'=> $request->number_of_payments
-        ]);
-
-        Log::create([
-            'model_id' => $contract->user_id,
-            'model_type' => Contract::class,
-            'change' => 'Добавление договора',
-            'action' => 'Создание',
-            'old_value' => null,
-            'new_value' => 'Договор No' . $contract->contract_number,
-            'created_by' => Auth::id(), // ID самого пользователя
-        ]);
-
-        $client->userTransactions()->create([
-            'contract_id'=>$contract->id,
-            'manager_id' => $manager_id,
-            'date_transition' => $request->create_date,
-            'sum_transition' => $request->sum,
-            'sourse' =>'Договор'
-        ]);
-
-
-
-        $token = Password::createToken($client);
-        $client->notify(new PasswordEmail($token, $client->email));
-
-        event(new Registered($client));
-        return redirect()->route('manager.clients')->with('status',[ 'Успех', 'Клиент успешно зарегистрирован!']);
+  
     }
 
     public function editClientByManager(User $user) {
@@ -326,84 +328,99 @@ class ManagerController extends Controller
           $request->validate([
               'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
           ]);
-          $message = 'Изменений не было';
           $oldPhone = $this->normalizeValue($user->phone_number);
           $newPhone = $this->normalizeValue($request->phone_number);
+         
           if($oldPhone !== $newPhone){
-            $user->update($request->only(['phone_number']));
-            Log::create([
-                'model_id' => $user->id,
-                'model_type' => User::class,
-                'change' => 'Изменен номер телефона',
-                'action' => 'Обновление данных',
-                'old_value' => $oldPhone,
-                'new_value' => $newPhone,
-                'created_by' => Auth::id(),
-            ]);
-            $message = 'Телефон успешно обновлен';
-          }
-          $user->userNotifications()->create([
-            'title' => 'Телефон',
-            'content'=> 'Номер вашего телефона был изменен на '.$request->phone_number,
-        ]);
-          
-          return redirect()->route('manager.clients')->with('status',['Успех', $message] );
+            DB::beginTransaction();
+            try{
+                $user->update($request->only(['phone_number']));
+                Log::create([
+                    'model_id' => $user->id,
+                    'model_type' => User::class,
+                    'change' => 'Изменен номер телефона',
+                    'action' => 'Обновление данных',
+                    'old_value' => $oldPhone,
+                    'new_value' => $newPhone,
+                    'created_by' => Auth::id(),
+                ]);  
+                $user->userNotifications()->create([
+                    'title' => 'Телефон',
+                    'content'=> 'Номер вашего телефона был изменен на '.$request->phone_number,
+                ]);
+                DB::commit();
+                return redirect()->route('manager.clients')->with('status',['Успех', 'Телефон успешно обновлен'] );
+            }catch(\Exception $e){
+                DB::rollBack();
+                return redirect()->route('manager.clients')
+                ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
+            }
+            
+        }
+        return redirect()->route('manager.clients') ->with('status', ['Информация', 'Данные не изменились']); 
       }
       public function storeAddContractByManager(Request $request)
       {
         //dd($request->all());
         $request->validate([
+            'user_id' => ['required', 'integer'],
             'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
             'sum' => ['required', 'integer'],
             'procent' => ['required', 'integer', 'min:0', 'max:100'],
+            'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
-
-        $user = Auth::user();
-        $client = User::findOrFail($request->user_id);
-        /** @var User $user */
-        $contract = $user->managerContracts()->create([
-            'user_id' => $request->user_id,
-            'manager_id' => $user->id,
-            'contract_number' => $request->contract_number,
-            'create_date' => $request->create_date,
-            'sum' => $request->sum,
-            'deadline' => $request->deadline,
-            'procent' => $request->procent,
-            'payments' => $request->payments,
-            'agree_with_terms' => $request->agree_with_terms ?? false,
-            'contract_status' => $request->contract_status,
-            'dividends' => $request->dividends,
-            'number_of_payments'=> $request->number_of_payments
-        ]);
-        Log::create([
-            'model_id' => $contract->user_id,
-            'model_type' => Contract::class,
-            'change' =>  'Добавление договора',
-            'action' => 'Создание',
-            'old_value' => null,
-            'new_value' => 'Договор No ' . $contract->contract_number,
-            'created_by' => Auth::id(), // ID самого пользователя
-        ]);
-        
-       
-        $client->userTransactions()->create([
-            'contract_id'=>$contract->id,
-            'manager_id' => $user->id,
-            'date_transition' => $request->create_date,
-            'sum_transition' => $request->sum,
-            'sourse' =>'Договор'
-        ]);
-        $client->userNotifications()->create([
-            'title' => 'Транзакция',
-            'content'=> 'Была создана транзакция по договору No '.$request->contract_number,
-        ]);
-        $client->userNotifications()->create([
-            'title' => 'Договор',
-            'content'=> 'Был создан договор No '.$request->contract_number,
-        ]);
-        return redirect()->route('manager.contracts')->with('status', ['Успех', 'Договор успешно создан!']);
+        DB::beginTransaction();
+        try {
+            $user = Auth::user();
+            $client = User::findOrFail($request->user_id);
+            /** @var User $user */
+            $contract = $user->managerContracts()->create([
+                'user_id' => $request->user_id,
+                'manager_id' => $user->id,
+                'contract_number' => $request->contract_number,
+                'create_date' => $request->create_date,
+                'sum' => $request->sum,
+                'deadline' => $request->deadline,
+                'procent' => $request->procent,
+                'payments' => $request->payments,
+                'agree_with_terms' => $request->agree_with_terms ?? false,
+                'contract_status' => $request->contract_status,
+                'dividends' => $request->dividends,
+                'number_of_payments'=> $request->number_of_payments
+            ]);
+            $client->userTransactions()->create([
+                'contract_id'=>$contract->id,
+                'manager_id' => $user->id,
+                'date_transition' => $request->create_date,
+                'sum_transition' => $request->sum,
+                'sourse' =>'Договор'
+            ]);
+            $client->userNotifications()->create([
+                'title' => 'Транзакция',
+                'content'=> 'Была создана транзакция по договору No '.$request->contract_number,
+            ]);
+            $client->userNotifications()->create([
+                'title' => 'Договор',
+                'content'=> 'Был создан договор No '.$request->contract_number,
+            ]);
+            Log::create([
+                'model_id' => $contract->user_id,
+                'model_type' => Contract::class,
+                'change' =>  'Добавление договора',
+                'action' => 'Создание',
+                'old_value' => null,
+                'new_value' => 'Договор No ' . $contract->contract_number,
+                'created_by' => Auth::id(), // ID самого пользователя
+            ]);
+            DB::commit();
+            return redirect()->route('manager.contracts')
+            ->with('status', ['Успех', 'Договор успешно создан!']);
+        } catch (\Exception $e) {
+            return redirect()->route('admin.contracts')
+            ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
+        }
       }
       
       public function showNotifications(){

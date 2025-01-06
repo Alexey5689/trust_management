@@ -214,11 +214,7 @@ const updateUser = () => {
                             <li>Email</li>
                             <li>Договоры</li>
                         </ul>
-                        <div
-                            class="items-client align-center"
-                            v-for="(client, index) in props.clients"
-                            :key="client.id"
-                        >
+                        <div class="items-client align-center" v-for="(client, index) in activeClient" :key="client.id">
                             <div class="card-item order">
                                 <p class="text">{{ index + 1 }}</p>
                             </div>
@@ -247,6 +243,54 @@ const updateUser = () => {
                                     </template>
                                 </Dropdown>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" v-if="noactiveClient.length > 0">
+                    <header>
+                        <h2 class="title-card">Не активные клиенты</h2>
+                    </header>
+                    <div class="card-content">
+                        <ul class="thead-client align-center">
+                            <li class="order">№</li>
+                            <li>ФИО</li>
+                            <li>Номер телефона</li>
+                            <li>Email</li>
+                            <li>Договоры</li>
+                        </ul>
+                        <div
+                            class="items-client align-center"
+                            v-for="(client, index) in noactiveClient"
+                            :key="client.id"
+                        >
+                            <div class="card-item order">
+                                <p class="text">{{ index + 1 }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.full_name }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.phone_number }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.email }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.user_contracts }}</p>
+                            </div>
+                            <!-- <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, client.id, 'client')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -331,6 +375,7 @@ const updateUser = () => {
                                     placeholder="+7XXXXXXXXXX"
                                     id="phone"
                                     @input="addCountryCode"
+                                    v-model.trim="form.phone_number"
                                 />
                                 <InputError :message="form.errors.phone_number" />
                             </div>
