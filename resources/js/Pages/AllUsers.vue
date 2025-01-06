@@ -8,6 +8,7 @@ import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData, getYearDifference, calculateDividends } from '@/helpers';
 import { calculateDeadlineDate } from '@/helpers.js';
 import InputError from '@/Components/InputError.vue';
+import Loader from '@/Components/Loader.vue';
 
 const props = defineProps({
     clients: {
@@ -45,6 +46,7 @@ const activeManager = computed(() =>
 );
 const noactiveClient = computed(() => props.clients.filter((client) => !client.active));
 const noactiveManager = computed(() => props.managers.filter((manager) => !manager.active));
+const loading = ref(false);
 
 const modalTitles = {
     manager: {
@@ -119,6 +121,7 @@ const closeModal = () => {
         'number_of_payments',
     );
 };
+
 const form = useForm({
     last_name: '',
     first_name: '',
@@ -187,15 +190,19 @@ const addCountryCode = () => {
 };
 
 const createUser = () => {
+    loading.value = true;
     form.post(route(`admin.registration.${currentModal.value.type}`), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
+
 const updateUser = () => {
     form.patch(route(`admin.edit.${currentModal.value.type}`, { user: currentModal.value.userId }), {
         onSuccess: () => {
@@ -411,6 +418,8 @@ const updateUser = () => {
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <Loader v-if="loading" />
 
     <BaseModal
         v-if="isModalOpen"
