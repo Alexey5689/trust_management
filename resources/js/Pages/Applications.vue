@@ -70,10 +70,6 @@ const modalTitles = ref({
 });
 const applicationStatuses = ref(['В обработке', 'Согласована', 'Исполнена', 'Отменена']);
 
-// const calcDividends = (sum, procent, term) => {
-//     return (sum * (procent / 100) * term).toFixed(2);
-// };
-
 const getInfo = async (url, applicationId) => {
     try {
         const data = await fetchData(url, { application: applicationId }); // Ожидаем завершения запроса
@@ -359,7 +355,6 @@ const changeStatus = () => {
                                     </Dropdown>
                                 </div>
                             </div>
-                            <!-- {{ props.applications }} -->
                         </div>
                     </div>
                 </div>
@@ -690,7 +685,7 @@ const changeStatus = () => {
                         </div>
                         <div class="contract_sum">
                             <label>Дивиденды</label>
-                            <p>{{ contractInfo.dividends }}₽</p>
+                            <p>{{ parseFloat(contractInfo.dividends).toFixed(2) }}₽</p>
                         </div>
                     </div>
                 </div>

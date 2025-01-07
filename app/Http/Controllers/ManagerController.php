@@ -118,7 +118,7 @@ class ManagerController extends Controller
             ->map(function ($client) {
             return [
                 'id' => $client->id,
-                'full_name' => $client->first_name . ' ' . $client->last_name . ' ' . $client->middle_name,
+                'full_name' =>  $client->last_name . ' ' . $client->first_name . ' ' . $client->middle_name,
                 'avaliable_balance' => $client->avaliable_balance,
                 'active' => $client->active,
             ];
