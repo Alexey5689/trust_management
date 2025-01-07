@@ -55,7 +55,6 @@ watch(
                 </div>
             </div>
             <div class="profile flex flex-column align-center">
-                <!-- {{ props.notifications }} -->
                 <transition name="fade-height">
                     <div class="flex flex-column align-center w-100">
                         <p class="profile_name">

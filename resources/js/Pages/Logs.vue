@@ -21,7 +21,6 @@ const props = defineProps({
 const logs = computed(() => props.logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
 </script>
 <template>
-
     <Head title="Logs" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
         <template #header>
@@ -33,10 +32,9 @@ const logs = computed(() => props.logs.sort((a, b) => new Date(b.created_at) - n
                     <header>
                         <h2 class="title-card" :style="{ width: logs.length > 0 ? '1606px' : '100%' }">Логи</h2>
                     </header>
-                    <!-- {{ props.logs }} -->
+
                     <div class="logs" :style="{ width: logs.length > 0 ? '1606px' : '100%' }">
                         <ul class="thead-log align-center" v-if="logs.length > 0">
-                            <!-- <li class="order">№</li> -->
                             <li>Дата изменения</li>
                             <li>Создатель</li>
                             <li>Действие</li>
@@ -47,9 +45,6 @@ const logs = computed(() => props.logs.sort((a, b) => new Date(b.created_at) - n
                         </ul>
                         <div class="title" v-if="logs.length === 0">Логов нет</div>
                         <div class="items flex align-center" v-for="log in logs" :key="log.id">
-                            <!-- <div class="card-item order">
-                            <p class="text">{{ log.id }}</p>
-                        </div> -->
                             <div class="card-item">
                                 <p class="text">{{ formatDateLogs(log.created_at) }}</p>
                             </div>
@@ -100,10 +95,10 @@ const logs = computed(() => props.logs.sort((a, b) => new Date(b.created_at) - n
     overflow: hidden;
 }
 
-.scroll{
+.scroll {
     overflow-x: auto;
     scrollbar-width: thin;
-    scrollbar-color: #bbb #f0f0f0; 
+    scrollbar-color: #bbb #f0f0f0;
 }
 
 .scroll::-webkit-scrollbar {

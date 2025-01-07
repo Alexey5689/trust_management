@@ -15,6 +15,7 @@ class DeleteController extends Controller
       // Удаление user
       public function deleteUser(User $user): RedirectResponse
       {
+        //dd($user);
           try {
             $user->update(['active' => false]);
             //dd($user);
@@ -27,11 +28,12 @@ class DeleteController extends Controller
                   'new_value' => 'Удален',
                   'created_by' => Auth::id(),
               ]);
-              return redirect('admin.users')->with('status', ['успех', 'Статус пользователя изменен на неактивный'] );
+              return redirect(route('admin.users'))->with('status', ['Успех!', 'Статус пользователя изменен на неактивный'] );
             
           } catch (\Exception $e) {
-              return redirect('admin.users')->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
+              return redirect(route('admin.users'))->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
           }
+         
          
       }
       public function deleteContract(Contract $contract): RedirectResponse

@@ -30,23 +30,6 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-    //     $request->authenticate();
-
-    //     $request->session()->regenerate();
-
-    //     // Получаем аутентифицированного пользователя
-    //     $loggedInUser = User::with('role')->find(Auth::id());
-    // // Проверяем роль пользователя и перенаправляем на соответствующий маршрут
-    //     if ($loggedInUser->isAdmin()) {
-    //         return redirect()->intended('/admin/profile');
-    //     }
-    //     if ($loggedInUser->isManager()) {
-    //         return redirect()->intended('/manager/profile');
-    //     }
-    //     if ($loggedInUser->isClient()) {
-    //         return redirect()->intended('/client/profile');
-
-        // }
 
         $request->authenticate();
         $request->session()->regenerate();
