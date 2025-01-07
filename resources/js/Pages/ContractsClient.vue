@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { formatDate, formatDateClientContract, formatDateClientContractRus } from '@/helpers.js';
@@ -23,34 +23,17 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    notifications: {
+        type: Array,
+        required: false,
+    },
 });
 
 const activeTab = ref('months');
-const userContract = ref([]);
-
-const yearAccruals = ref([
-    // { id: 1, date: '09/10/2024', month: 'Октябрь 2024', amount: '+555.555,55' },
-    // { id: 2, date: '09/10/2025', month: 'Октябрь 2025', amount: '+605.000,00' },
-    // { id: 3, date: '09/10/2026', month: 'Октябрь 2026', amount: '+705.123,45' },
-]);
-
-const monthAccruals = ref([
-    // { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+55.555,55' },
-    // { id: 2, date: '09/02/2024', month: 'Февраль 2024', amount: '+60.000,00' },
-    // { id: 3, date: '09/03/2024', month: 'Март 2024', amount: '+70.123,45' },
-]);
-
-const weekAccruals = ref([
-    // { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+1.555,55' },
-    // { id: 2, date: '16/01/2024', month: 'Январь 2024', amount: '+1.000,00' },
-    // { id: 3, date: '23/01/2024', month: 'Январь 2024', amount: '+1.123,45' },
-]);
-
-const dayAccruals = ref([
-    // { id: 1, date: '09/01/2024', month: 'Январь 2024', amount: '+55,55' },
-    // { id: 2, date: '10/01/2024', month: 'Январь 2024', amount: '+50,00' },
-    // { id: 3, date: '11/01/2024', month: 'Январь 2024', amount: '+60,45' },
-]);
+const yearAccruals = ref([]);
+const monthAccruals = ref([]);
+const weekAccruals = ref([]);
+const dayAccruals = ref([]);
 
 // Храним id выбранного договора
 const openContractId = ref(null);
@@ -63,11 +46,6 @@ function handleContractClick(contractId) {
     monthAccruals.value = openContractId.value.monthDividends;
     yearAccruals.value = openContractId.value.anualDividends;
 }
-
-// Вычисляем «активный» (выбранный) договор, чтобы использовать его данные
-// const selectedContract = computed(() => {
-//     return props.contracts.find((contract) => contract.id === openContractId.value);
-// });
 
 // При монтировании (или сразу в setup) выберем первый договор, если список не пуст
 onMounted(() => {
@@ -83,7 +61,12 @@ onMounted(() => {
 
 <template>
     <Head title="ContractsClient" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
+    <AuthenticatedLayout
+        :userInfo="props.user"
+        :userRole="role"
+        :toast="props.status"
+        :notifications="props.notifications"
+    >
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Договоры</h2>
@@ -97,7 +80,7 @@ onMounted(() => {
                     v-for="contract in props.contracts"
                     :key="contract.id"
                     @click="handleContractClick(contract.id)"
-                    :class="{ active: openContractId === contract.id }"
+                    :class="{ active: openContractId && openContractId.id === contract.id }"
                 >
                     <div class="icon_contract flex justify-center align-center">
                         <Icon_contract />
@@ -259,17 +242,17 @@ onMounted(() => {
     flex-wrap: nowrap;
     column-gap: 16px;
     overflow-x: auto;
-    /* scrollbar-width: none;
-    scrollbar-color: transparent transparent; */
+    scrollbar-width: thin;
+    scrollbar-color: #bbb #f0f0f0;
 }
 
-/* .contracts_client::-webkit-scrollbar {
-    width: 0px;
+.contracts_client::-webkit-scrollbar {
+    width: 5px;
 }
 
 .contracts_client::-webkit-scrollbar-thumb {
-    background: transparent;
-} */
+    background-color: #bbb;
+}
 
 .contract_item {
     flex: 0 0 auto;

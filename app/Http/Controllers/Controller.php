@@ -83,6 +83,42 @@ protected function calculateEndOfTermDividends($contractStartDate, $contractDead
     return round($accruedDividends);
 }
 
+// protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
+//     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
+//     $currentDate = new DateTime($currentDate);
+    
+//     // Рассчитываем квартальные выплаты
+//     $quarterAmount = $paymentAmount / 4;
+//     //dd($quarterAmount);
+//     // Определяем дату начала текущего квартала
+//     $quarterStart = clone $startDate;
+//     while ($quarterStart < $currentDate) {
+//         $quarterStart->modify('+3 months');
+//     }
+//     $quarterStart->modify('-3 months');  // Возвращаемся к началу текущего квартала
+//     //dd($quarterStart);
+//     // Определяем конец квартала
+//     $quarterEnd = clone $quarterStart;
+//     $quarterEnd->modify('+3 months');
+
+//     // Рассчитываем количество дней в квартале
+//     $quarterDays = $quarterStart->diff($quarterEnd)->days;
+//     //dd($quarterDays);
+//     // Пе рестраховка для минимального значения (например, в случае ошибок расчёта)
+//     $quarterDays = max(1, $quarterDays);  
+//    // dd($quarterDays);
+//     // Дивиденды за 1 день квартала
+//     $dailyDividend = $quarterAmount / $quarterDays;
+//    // dd($dailyDividend);
+//     // Считаем, сколько дней прошло с начала квартала
+//     $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
+
+//     // Рассчитываем накопленные дивиденды
+//     $accruedDividends = $daysSinceQuarterStart * $dailyDividend;
+
+//     return round($accruedDividends);
+// }
+
 
 protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
@@ -114,7 +150,7 @@ protected function calculateQuarterlyDividends($contractStartDate, $currentDate,
     
     // Рассчитываем квартальные выплаты
     $quarterAmount = $paymentAmount / 4;
-    
+    //dd($quarterAmount);
     // Определяем дату начала текущего квартала
     $quarterStart = clone $startDate;
     while ($quarterStart < $currentDate) {
@@ -128,13 +164,13 @@ protected function calculateQuarterlyDividends($contractStartDate, $currentDate,
 
     // Проверяем количество дней в квартале
     $quarterDays = $quarterStart->diff($quarterEnd)->days;
-
+    //dd($quarterDays);
     // Страхуемся от деления на 90 дней, устанавливая минимум 91
     $quarterDays = max(91, $quarterDays);
-
+    //dd($quarterDays);
     // Дивиденды за 1 день квартала
     $dailyDividend = $quarterAmount / $quarterDays;
-
+    //dd($dailyDividend);
     // Считаем, сколько дней прошло с начала квартала
     $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
 
@@ -146,353 +182,101 @@ protected function calculateQuarterlyDividends($contractStartDate, $currentDate,
 
 
 
-// function calculateDailyDividends($contractStartDate, $currentDate, $totalAmount, $annualRate) {
-//     $startDate = Carbon::parse($contractStartDate);
-//     $currentDate = Carbon::parse($currentDate);
 
-//     $dailyDividends = [];
-//     $totalAccrued = 0;
-
-//     // Проходим по каждому дню с начала договора до текущей даты
-//     for ($date = $startDate->copy(); $date <= $currentDate; $date->addDay()) {
-//         // Определяем, високосный ли год
-//         $daysInYear = $date->isLeapYear() ? 366 : 365;
-
-//         // Количество дней в текущем месяце
-//         $daysInMonth = $date->daysInMonth;
-
-//         // Дивиденды за месяц
-//         $monthlyDividend = ($totalAmount * ($annualRate / 100)) / 12;
-
-//         // Дивиденды за день (учитывая дни в месяце)
-//         $dailyDividend = $monthlyDividend / $daysInMonth;
-
-//         // Накопленные дивиденды
-//         $totalAccrued += $dailyDividend;
-
-//         // Добавляем запись в массив с дивидендами
-//         $dailyDividends[] = [
-//             'date' => $date->format('Y-m-d'),
-//             'dividend' => round($dailyDividend, 2),
-//         ];
-//     }
-
-//     return $dailyDividends;
-// }
-// function calculateDailyDividends($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
-//     $startDate = Carbon::parse($contractStartDate);
-//     $endDate = Carbon::parse($contractEndDate);
-//     $currentDate = Carbon::parse($currentDate);
-
-//     $dailyDividends = [];
-//     $totalAccrued = 0;
-
-//     // Проходим по каждому дню с начала договора до даты окончания или текущей даты
-//     for ($date = $startDate->copy(); $date <= $currentDate; $date->addDay()) {
-//         // Останавливаем начисления, если договор истёк
-//         if ($date > $endDate) {
-//             break;  // Прерываем цикл
-//         }
-
-//         $daysInYear = $date->isLeapYear() ? 366 : 365;
-//         $annualDividend = $totalAmount * ($annualRate / 100);
-//         $dailyDividend = $annualDividend / $daysInYear;
-
-//         $totalAccrued += $dailyDividend;
-
-//         $dailyDividends[] = [
-//             'date' => $date->format('Y-m-d'),
-//             'dividend' => round($dailyDividend, 2),
-//             'total_accumulated' => round($totalAccrued, 2)
-//         ];
-//     }
-
-//     return $dailyDividends;
-// }
-
-
-
-// function calculateWeeklyDividends($contractStartDate, $currentDate, $totalAmount, $annualRate) {
-//     $startDate = Carbon::parse($contractStartDate);
-//     $currentDate = Carbon::parse($currentDate);
-
-//     $weeklyDividends = [];
-//     $totalAccrued = 0;
-
-//     // Рассчитываем дивиденды за неделю
-//     $weeklyDividend = ($totalAmount * ($annualRate / 100)) / 52;
-
-//     // Проходим по каждому дню с начала договора до текущей даты
-//     $date = clone $startDate;
-//     while ($date <= $currentDate) {
-//         $totalAccrued += $weeklyDividend;
-
-//         // Добавляем дивиденды на каждую полную неделю
-//         $weeklyDividends[] = [
-//             'date' => $date->format('Y-m-d'),
-//             'dividend' => round($weeklyDividend, 2),
-//             'week_number' => $date->weekOfYear,
-//             'total_accumulated' => round($totalAccrued, 2),
-//         ];
-
-//         // Переход к следующей неделе
-//         $date->addDays(7);
-//     }
-
-//     // Остаток дней (если остались дни, не укладывающиеся в полную неделю)
-//     $remainingDays = $startDate->diffInDays($currentDate) % 7;
-
-//     if ($remainingDays > 0) {
-//         $remainingDividend = ($weeklyDividend / 7) * $remainingDays;
-//         $totalAccrued += $remainingDividend;
-
-//         $weeklyDividends[] = [
-//             'date' => $currentDate->format('Y-m-d'),
-//             'dividend' => round($remainingDividend, 2),
-//             'week_number' => $currentDate->weekOfYear,
-//             'total_accumulated' => round($totalAccrued, 2),
-//         ];
-//     }
-
-//     return $weeklyDividends;
-// }
-
-// function calculateMonthlyDividends($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
-//     $startDate = Carbon::parse($contractStartDate);
-//     $endDate = Carbon::parse($contractEndDate);
-//     $currentDate = Carbon::parse($currentDate);
-
-//     $monthlyDividends = [];
-//     $totalAccrued = 0;
-
-//     // Ежемесячная выплата = годовая ставка / 12
-//     $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
-
-//     // Следующая дата выплаты
-//     $nextMonthlyPayment = $startDate->copy()->addMonth();
-
-//     // Пока не превысили дату окончания договора
-//     while ($nextMonthlyPayment <= $endDate && $nextMonthlyPayment <= $currentDate) {
-//         // Корректируем на последний день месяца, если число превышает допустимое
-//         $adjustedPaymentDate = $nextMonthlyPayment->copy()->endOfMonth();
-//         if ($nextMonthlyPayment->day <= $adjustedPaymentDate->day) {
-//             $adjustedPaymentDate = $nextMonthlyPayment;
-//         }
-
-//         // Накопление
-//         $totalAccrued += $monthlyDividendAmount;
-
-//         $monthlyDividends[] = [
-//             'date' => $adjustedPaymentDate->format('Y-m-d'),
-//             'dividend' => round($monthlyDividendAmount, 2),
-//             'total_accumulated' => round($totalAccrued, 2)
-//         ];
-
-//         // Переход на следующий месяц
-//         $nextMonthlyPayment->addMonth();
-//     }
-
-//     return $monthlyDividends;
-// }
-function calculateDailyDividends($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
+function calculateDailyDividends($contractStartDate, $contractEndDate, $totalAmount, $annualRate) {
     $startDate = Carbon::parse($contractStartDate);
     $endDate = Carbon::parse($contractEndDate);
-    $currentDate = Carbon::parse($currentDate);
 
     $dailyDividends = [];
-    $totalAccrued = 0;
 
-    // Пройдём по каждому дню с начала договора до текущей даты (начиная со следующего дня)
-    for ($date = $startDate->copy()->addDay(); $date <= $currentDate && $date <= $endDate; $date->addDay()) {
-        // Количество дней в году (учёт високосных лет)
-        $daysInYear = $date->isLeapYear() ? 366 : 365;
+    for ($date = $startDate->copy()->addDay(); $date <= $endDate; $date->addDay()) {
+        // Фиксированное количество дней в году — 365
+        $daysInYear = 365;
 
         // Дивиденды за день
         $dailyDividend = ($totalAmount * ($annualRate / 100)) / $daysInYear;
-        $totalAccrued += $dailyDividend;
 
         $dailyDividends[] = [
             'date' => $date->format('Y-m-d'),
             'dividend' => round($dailyDividend, 2),
-            'total_accumulated' => round($totalAccrued, 2)
         ];
     }
 
     return $dailyDividends;
 }
 
-
-function calculateWeeklyDividends($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
+function calculateWeeklyDividends($contractStartDate, $contractEndDate, $totalAmount, $annualRate) {
     $startDate = Carbon::parse($contractStartDate);
     $endDate = Carbon::parse($contractEndDate);
-    $currentDate = Carbon::parse($currentDate);
 
     $weeklyDividends = [];
-    $totalAccrued = 0;
 
-    // Следующая дата выплаты (каждые 7 дней)
-    $nextWeeklyPayment = $startDate->copy()->addWeek();
 
-    while ($nextWeeklyPayment <= $endDate && $nextWeeklyPayment <= $currentDate) {
-        // Рассчитываем, сколько дней в году (учёт високосных лет)
-        $daysInYear = $nextWeeklyPayment->isLeapYear() ? 366 : 365;
-        
-        // Дивиденды за неделю с учётом количества дней в году
-        $weeklyDividendAmount = ($totalAmount * ($annualRate / 100)) / $daysInYear * 7;
+    // Дивиденды за год и за неделю
+    $annualDividend = $totalAmount * ($annualRate / 100);
+    $weeklyDividendAmount = $annualDividend / 52;
 
-        // Учитываем неполную неделю в начале и в конце
-        if ($nextWeeklyPayment->equalTo($startDate->copy()->addWeek())) {
-            $daysPassed = $startDate->diffInDays($nextWeeklyPayment);
-            $weeklyDividendAmount = ($weeklyDividendAmount / 7) * $daysPassed;
-        } elseif ($nextWeeklyPayment->greaterThanOrEqualTo($endDate)) {
-            $daysRemaining = $endDate->diffInDays($nextWeeklyPayment) + 1;
-            $weeklyDividendAmount = ($weeklyDividendAmount / 7) * $daysRemaining;
-        }
-
-        $totalAccrued += $weeklyDividendAmount;
+    // Количество лет
+    $years = $startDate->diffInYears($endDate);
+    
+    // Полные недели за весь срок
+    $totalWeeks = $years * 52;
+    
+    // Начисление дивидендов по неделям
+    for ($i = 1; $i <= $totalWeeks; $i++) {
+      
 
         $weeklyDividends[] = [
-            'date' => $nextWeeklyPayment->format('Y-m-d'),
+            'date' => $startDate->copy()->addWeeks($i)->format('Y-m-d'),
             'dividend' => round($weeklyDividendAmount, 2),
-            'total_accumulated' => round($totalAccrued, 2)
+           
         ];
+    }
 
-        // Следующая неделя
-        $nextWeeklyPayment->addWeek();
+    // Остаток дней (если есть)
+    $remainingDays = $startDate->diffInDays($endDate) % 7;
+    if ($remainingDays > 0) {
+        $finalDividend = ($weeklyDividendAmount / 7) * $remainingDays;
+       
+
+        $weeklyDividends[] = [
+            'date' => $endDate->format('Y-m-d'),
+            'dividend' => round($finalDividend, 2),
+            
+        ];
     }
 
     return $weeklyDividends;
 }
 
-// function calculateMonthlyDividends($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
-//     $startDate = Carbon::parse($contractStartDate);
-//     $endDate = Carbon::parse($contractEndDate);
-//     $currentDate = Carbon::parse($currentDate);
 
-//     $monthlyDividends = [];
-//     $totalAccrued = 0;
-//     //dd($startDate, $endDate, $currentDate);
-//     // Ежемесячная выплата (полный месяц)
-//     $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
-//     //dd($monthlyDividendAmount);
-//     // Следующая дата выплаты
-//     $nextMonthlyPayment = $startDate->copy()->addMonth();
-//     //dd($nextMonthlyPayment);
-//     while ($nextMonthlyPayment <= $endDate && $nextMonthlyPayment <= $currentDate) {
-//         // Корректируем на последний день месяца
-//         $adjustedPaymentDate = $nextMonthlyPayment->copy()->endOfMonth();
-//         if ($nextMonthlyPayment->day <= $adjustedPaymentDate->day) {
-//             $adjustedPaymentDate = $nextMonthlyPayment;
-//         }
 
-//         // Проверяем первый и последний месяц (если неполный)
-//         $daysInMonth = $adjustedPaymentDate->daysInMonth;
-//         $daysCovered = $adjustedPaymentDate->diffInDays($startDate) + 1;
 
-//         if ($nextMonthlyPayment->equalTo($startDate->copy()->addMonth())) {
-//             // Первый месяц (неполный)
-//             $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
-//             $monthlyDividendAmount = ($monthlyDividendAmount / $daysInMonth) * $daysCovered;
-//             // dd($monthlyDividendAmount);
-//         } elseif ($nextMonthlyPayment->greaterThanOrEqualTo($endDate)) {
-//             // Последний месяц (неполный)
-//             $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
-//             $daysRemaining = $endDate->diffInDays($nextMonthlyPayment) + 1;
-//             $monthlyDividendAmount = ($monthlyDividendAmount / $daysInMonth) * $daysRemaining;
-//         }
 
-//         $totalAccrued += $monthlyDividendAmount;
-//         dd($monthlyDividendAmount);
-//         $monthlyDividends[] = [
-//             'date' => $adjustedPaymentDate->format('Y-m-d'),
-//             'dividend' => round($monthlyDividendAmount, 2),
-//             'total_accumulated' => round($totalAccrued, 2)
-//         ];
 
-//         // Следующий месяц
-//         $nextMonthlyPayment->addMonth();
-//     }
 
-//     return $monthlyDividends;
-// }
-
-// function calculateMonthlyDividends($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
-//     $startDate = Carbon::parse($contractStartDate);
-//     $endDate = Carbon::parse($contractEndDate);
-//     $currentDate = Carbon::parse($currentDate);
-
-//     $monthlyDividends = [];
-//     $totalAccrued = 0;
-
-//     // Ежемесячная выплата (полный месяц)
-//     $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
-
-//     // Следующая дата выплаты
-//     $nextMonthlyPayment = $startDate->copy()->addMonth();
-
-//     while ($nextMonthlyPayment <= $endDate && $nextMonthlyPayment <= $currentDate) {
-//         // Корректируем на последний день месяца
-//         //dd($nextMonthlyPayment);
-//         $adjustedPaymentDate = $nextMonthlyPayment->copy()->endOfMonth();
-//         if ($nextMonthlyPayment->day <= $adjustedPaymentDate->day) {
-//             $adjustedPaymentDate = $nextMonthlyPayment;
-//         }
-
-//         // Проверяем первый и последний месяц (если неполный)
-//         $daysInMonth = $adjustedPaymentDate->daysInMonth;
-//         $daysCovered = max($adjustedPaymentDate->diffInDays($startDate), 0) + 1;  // Не даём отрицательные дни
-
-//         if ($nextMonthlyPayment->equalTo($startDate->copy()->addMonth())) {
-//             // Первый месяц (неполный)
-//             $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
-//             $monthlyDividendAmount = ($monthlyDividendAmount / $daysInMonth) * $daysCovered;
-//         } elseif ($nextMonthlyPayment->greaterThanOrEqualTo($endDate)) {
-//             // Последний месяц (неполный)
-//             $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
-            
-//             // Корректируем дни, чтобы избежать отрицательных значений
-//             $daysRemaining = max($endDate->diffInDays($nextMonthlyPayment), 0) + 1;
-//             $monthlyDividendAmount = ($monthlyDividendAmount / $daysInMonth) * $daysRemaining;
-//         }
-
-//         $totalAccrued += $monthlyDividendAmount;
-
-//         $monthlyDividends[] = [
-//             'date' => $adjustedPaymentDate->format('Y-m-d'),
-//             'dividend' => round($monthlyDividendAmount, 2),
-//             'total_accumulated' => round($totalAccrued, 2)
-//         ];
-
-//         // Следующий месяц
-//         $nextMonthlyPayment->addMonth();
-//     }
-
-//     return $monthlyDividends;
-// }
-function calculateMonthlyDividends($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
+function calculateMonthlyDividends($contractStartDate, $contractEndDate, $totalAmount, $annualRate) {
     $startDate = Carbon::parse($contractStartDate);
     $endDate = Carbon::parse($contractEndDate);
-    $currentDate = Carbon::parse($currentDate);
 
     $monthlyDividends = [];
-    $totalAccrued = 0;
-
+   
     // Дивиденды за месяц
     $monthlyDividendAmount = ($totalAmount * ($annualRate / 100)) / 12;
 
-    // Начинаем начисления с первого полного месяца
+    // Начинаем начисления с даты подписания + 1 месяц
     $paymentDate = $startDate->copy()->addMonth();
 
-    while ($paymentDate <= $endDate && $paymentDate <= $currentDate) {
-        $totalAccrued += $monthlyDividendAmount;
+    while ($paymentDate <= $endDate) {
+     
 
         $monthlyDividends[] = [
             'date' => $paymentDate->format('Y-m-d'),
             'dividend' => round($monthlyDividendAmount, 2),
-            'total_accumulated' => round($totalAccrued, 2)
+           
         ];
 
-        // Следующий месяц
+        // Переходим к следующему месяцу
         $paymentDate->addMonth();
     }
 
@@ -500,13 +284,9 @@ function calculateMonthlyDividends($contractStartDate, $contractEndDate, $curren
 }
 
 
-
-
-
-function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate, $currentDate, $totalAmount, $annualRate) {
+function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate, $totalAmount, $annualRate) {
     $startDate = Carbon::parse($contractStartDate);
     $endDate = Carbon::parse($contractEndDate);
-    $currentDate = Carbon::parse($currentDate);
 
     $annualDividends = [];
     $totalAccrued = 0;
@@ -514,8 +294,8 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
     // Выплата ежегодно в день старта договора
     $nextAnnualPayment = $startDate->copy()->addYear();
 
-    // Пока не превысили дату окончания договора
-    while ($nextAnnualPayment <= $endDate && $nextAnnualPayment <= $currentDate) {
+    // Пока не достигли даты окончания договора
+    while ($nextAnnualPayment <= $endDate) {
         // Дивиденды за полный год
         $annualDividend = $totalAmount * ($annualRate / 100);
 
@@ -533,8 +313,6 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
     return $annualDividends;
 }
-
-
 
 
 

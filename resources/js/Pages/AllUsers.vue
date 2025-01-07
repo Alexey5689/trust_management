@@ -8,6 +8,7 @@ import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData, getYearDifference, calculateDividends } from '@/helpers';
 import { calculateDeadlineDate } from '@/helpers.js';
 import InputError from '@/Components/InputError.vue';
+import Loader from '@/Components/Loader.vue';
 
 const props = defineProps({
     clients: {
@@ -45,6 +46,7 @@ const activeManager = computed(() =>
 );
 const noactiveClient = computed(() => props.clients.filter((client) => !client.active));
 const noactiveManager = computed(() => props.managers.filter((manager) => !manager.active));
+const loading = ref(false);
 
 const modalTitles = {
     manager: {
@@ -119,6 +121,7 @@ const closeModal = () => {
         'number_of_payments',
     );
 };
+
 const form = useForm({
     last_name: '',
     first_name: '',
@@ -182,27 +185,34 @@ const handleDeadlineChange = (event) => {
 };
 const addCountryCode = () => {
     if (!form.phone_number.startsWith('+7')) {
-        form.phone_number = '+7'; // Принудительно добавляем код страны
+        form.phone_number.trim = '+7'; // Принудительно добавляем код страны
     }
 };
 
 const createUser = () => {
+    loading.value = true;
     form.post(route(`admin.registration.${currentModal.value.type}`), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
+
 const updateUser = () => {
+    loading.value = true;
     form.patch(route(`admin.edit.${currentModal.value.type}`, { user: currentModal.value.userId }), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
@@ -210,7 +220,7 @@ const updateUser = () => {
 
 <template>
     <Head title="All Users" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
+    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :toast="props.status">
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Пользователи</h2>
@@ -227,12 +237,13 @@ const updateUser = () => {
                         <h2 class="title-card">Менеджеры</h2>
                     </header>
                     <div class="card-content">
-                        <ul class="thead-manager align-center">
+                        <ul class="thead-manager align-center" v-if="activeManager.length > 0">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                         </ul>
+                        <div class="title" v-if="activeManager.length === 0">Нет менеджеров</div>
                         <div
                             class="items-manager align-center"
                             v-for="(manager, index) in activeManager"
@@ -254,7 +265,7 @@ const updateUser = () => {
                                 <Dropdown
                                     :options="[
                                         { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
-                                        { label: 'Сбросить пароль', action: 'reset.password' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
                                         { label: 'Удалить', action: 'delete' },
                                     ]"
                                     @select="handleDropdownSelect($event, manager.id, 'manager')"
@@ -272,13 +283,14 @@ const updateUser = () => {
                         <h2 class="title-card">Клиенты</h2>
                     </header>
                     <div class="card-content">
-                        <ul class="thead-client align-center">
+                        <ul class="thead-client align-center" v-if="props.clients.length > 0">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                             <li>Менеджер</li>
                         </ul>
+                        <div class="title" v-if="props.clients.length === 0">Нет клиентов</div>
                         <div
                             class="items-client align-center"
                             v-for="(client, index) in props.clients"
@@ -316,9 +328,101 @@ const updateUser = () => {
                         </div>
                     </div>
                 </div>
+                <div class="card" v-if="noactiveManager.length > 0">
+                    <header>
+                        <h2 class="title-card">Не активные менеджеры</h2>
+                    </header>
+                    <div class="card-content">
+                        <ul class="thead-manager align-center">
+                            <li class="order">№</li>
+                            <li>ФИО</li>
+                            <li>Номер телефона</li>
+                            <li>Email</li>
+                        </ul>
+                        <div
+                            class="items-manager align-center"
+                            v-for="(manager, index) in noactiveManager"
+                            :key="manager.id"
+                        >
+                            <div class="card-item order">
+                                <p class="text">{{ index + 1 }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ manager.full_name }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ manager.phone_number }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ manager.email }}</p>
+                            </div>
+                            <!-- <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="card" v-if="noactiveClient.length > 0">
+                    <header>
+                        <h2 class="title-card">Не активные клиенты</h2>
+                    </header>
+                    <div class="card-content">
+                        <ul class="thead-manager align-center">
+                            <li class="order">№</li>
+                            <li>ФИО</li>
+                            <li>Номер телефона</li>
+                            <li>Email</li>
+                        </ul>
+                        <div
+                            class="items-manager align-center"
+                            v-for="(client, index) in noactiveClient"
+                            :key="client.id"
+                        >
+                            <div class="card-item order">
+                                <p class="text">{{ index + 1 }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.full_name }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.phone_number }}</p>
+                            </div>
+                            <div class="card-item">
+                                <p class="text">{{ client.email }}</p>
+                            </div>
+                            <!-- <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <Loader v-if="loading" />
 
     <BaseModal
         v-if="isModalOpen"

@@ -4,7 +4,7 @@
     use App\Http\Controllers\AdminController;
     Route::middleware('auth', 'role:admin')->group(function () {
         Route::prefix('admin')->group(function () {
-            Route::get('/profile', [ProfileController::class, 'createProfile'])->name('admin.profile');
+            Route::get('/profile', [AdminController::class, 'createProfile'])->name('admin.profile');
             Route::get('/users', [AdminController::class, 'showAllUsers'])->name('admin.users');
             Route::get('/contracts',[AdminController::class, 'showAllContracts'])->name('admin.contracts');
             Route::get('/applications', [AdminController::class, 'showAllApplications'])->name('admin.applications');

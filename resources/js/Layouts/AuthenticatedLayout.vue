@@ -1,5 +1,4 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Icon_exit from '@/Components/Icon/Exit.vue';
@@ -12,7 +11,7 @@ import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 import Icon_logs from '@/Components/Icon/Logs.vue';
 import Icon_balance from '@/Components/Icon/Balance.vue';
-
+import { watch, ref } from 'vue';
 const props = defineProps({
     userRole: {
         type: String,
@@ -22,16 +21,28 @@ const props = defineProps({
         type: Array,
         required: false,
     },
+    toast: {
+        type: Array,
+        required: false,
+    },
     notifications: {
-        type: String,
+        type: Array,
         required: false,
     },
 });
 
-// watch(notification, (newNotification) => {
-//     // Ваш код для реакции на изменение notification
-//     console.log('Статус обновлен:', newNotification);
-// });
+const toastMessage = ref(props.toast);
+
+watch(
+    () => props.toast,
+    (newVal) => {
+        toastMessage.value = newVal;
+        setTimeout(() => {
+            toastMessage.value = null;
+        }, 2000);
+    },
+    { immediate: true }, // Запуск сразу после монтирования
+);
 </script>
 
 <template>
@@ -44,7 +55,6 @@ const props = defineProps({
                 </div>
             </div>
             <div class="profile flex flex-column align-center">
-                <!-- {{ user_Info }} -->
                 <transition name="fade-height">
                     <div class="flex flex-column align-center w-100">
                         <p class="profile_name">
@@ -102,7 +112,7 @@ const props = defineProps({
                 </NavLink>
                 <NavLink
                     class="logs"
-                    v-if="props.userRole === 'admin' || props.userRole === 'manager'"
+                    v-if="props.userRole === 'admin'"
                     :href="route('admin.logs')"
                     :active="route().current('admin.logs')"
                 >
@@ -114,7 +124,7 @@ const props = defineProps({
 
         <div class="flex flex-column content_box">
             <header v-if="$slots.header">
-                <div class="flex align-center justify-end">
+                <div class="flex align-center justify-end" style="position: relative">
                     <div v-if="props.userRole === 'client'" class="info_client flex align-center justify-end w-100">
                         <div class="your_manager flex align-center">
                             <p>Ваш менеджер</p>
@@ -124,6 +134,7 @@ const props = defineProps({
                                 <span>{{ props.userInfo?.managerEmail }}</span>
                             </div>
                         </div>
+                        {{ noRead }}
                         <Icon_balance />
                         <div style="margin-right: 40px">
                             <p class="fw">Дивиденты</p>
@@ -134,12 +145,21 @@ const props = defineProps({
                             <p>{{ props.userInfo?.main_sum }} ₽</p>
                         </div>
                     </div>
-                    <!-- {{ props.userRole }} -->
-                    {{ props.notifications }}
-                    <NavLink :href="route(`${props.userRole}.notification`)">
+                    <div class="toast flex flex-column" v-if="toastMessage">
+                        <h3>{{ props.toast[0] }}</h3>
+                        <p>{{ props.toast[1] }}</p>
+                    </div>
+
+                    <NavLink
+                        style="display: block; height: 44px; position: relative"
+                        v-if="props.userRole === 'client' || props.userRole === 'manager'"
+                        :href="route(`${props.userRole}.notification`)"
+                    >
+                        <div v-if="props.notifications.length > 0" class="red_point flex align-center justify-center">
+                            {{ props.notifications.length }}
+                        </div>
                         <Icon_notifications />
                     </NavLink>
-
                     <ResponsiveNavLink
                         :href="route('logout')"
                         @click="remote()"
@@ -271,5 +291,38 @@ const props = defineProps({
 
 .your_manager p {
     font-weight: 500;
+}
+
+.red_point {
+    height: 16px;
+    width: 16px;
+    background: red;
+    border-radius: 100%;
+    position: absolute;
+    color: #fff;
+    font-size: 11px;
+    top: 6px;
+    right: 7px;
+}
+
+.toast {
+    position: absolute;
+    width: 550px;
+    min-height: 90px;
+    background: #fff;
+    box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    box-shadow: 0px 4px 12px 0px #5c5c5c14;
+    z-index: 10;
+    padding: 16px 20px;
+    border-radius: 24px;
+    top: 61px;
+}
+
+.toast h3 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 29px;
+    margin-bottom: 8px;
 }
 </style>

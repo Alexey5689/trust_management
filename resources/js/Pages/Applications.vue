@@ -8,6 +8,7 @@ import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import InputError from '@/Components/InputError.vue';
 import { fetchData } from '@/helpers';
+import Loader from '@/Components/Loader.vue';
 
 const props = defineProps({
     role: {
@@ -30,6 +31,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    notifications: {
+        type: Array,
+        required: false,
+    },
 });
 
 const isModalOpen = ref(false);
@@ -47,6 +52,7 @@ const error = ref('');
 const userInfo = ref({});
 const contractInfo = ref({});
 const can_payout = ref('');
+const loading = ref(false);
 
 const count_of_applications = ref(null);
 const number_of_payments = ref(null);
@@ -207,22 +213,29 @@ watch(
 );
 
 const createAplication = () => {
+    loading.value = true;
     form.post(route('add.application'), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
+
 const changeStatus = () => {
+    loading.value = true;
     formStatus.patch(route('change.status.application', applicationData.value.id), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', formStatus.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
@@ -230,7 +243,12 @@ const changeStatus = () => {
 
 <template>
     <Head title="Applications" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.status">
+    <AuthenticatedLayout
+        :userInfo="props.user"
+        :userRole="role"
+        :toast="props.status"
+        :notifications="props.notifications"
+    >
         <template #header>
             <div class="flex align-center justify-between title">
                 <h2>Заявки</h2>
@@ -247,151 +265,192 @@ const changeStatus = () => {
         <template #main>
             <div class="main flex flex-column">
                 <div class="card">
-                    <header>
-                        <h2 class="title-card">Активные заявки</h2>
-                    </header>
-                    <div class="application">
-                        <ul class="thead-application align-center" v-if="activeApplication.length > 0">
-                            <li class="order">Дата заявки</li>
-                            <li>Клиент</li>
-                            <li>Договор</li>
-                            <li>Условие</li>
-                            <li>Статус</li>
-                            <li>Вид списания</li>
-                            <li>Дата выплаты</li>
-                            <li>Сумма</li>
-                            <li>Дивиденды</li>
-                        </ul>
-                        <div class="title" v-if="activeApplication.length === 0">Заявок нет</div>
-                        <div
-                            v-else
-                            class="applications align-center"
-                            v-for="application in activeApplication"
-                            :key="application.id"
-                        >
-                            <div class="order">
-                                <p>{{ formatDate(application.create_date) }}</p>
+                    <div class="scroll">
+                        <header>
+                            <h2 class="title-card" :style="{ width: activeApplication.length > 0 ? '1606px' : '100%' }">
+                                Активные заявки
+                            </h2>
+                        </header>
+                        <div class="application" :style="{ width: activeApplication.length > 0 ? '1606px' : '100%' }">
+                            <ul class="thead-application align-center" v-if="activeApplication.length > 0">
+                                <li class="order">Дата заявки</li>
+                                <li>Клиент</li>
+                                <li>Договор</li>
+                                <li>Условие</li>
+                                <li>Статус</li>
+                                <li>Вид списания</li>
+                                <li>Дата выплаты</li>
+                                <li>Сумма</li>
+                                <li>Дивиденды</li>
+                            </ul>
+                            <div class="title" v-if="activeApplication.length === 0">Заявок нет</div>
+                            <div
+                                v-else
+                                class="applications align-center"
+                                v-for="application in activeApplication"
+                                :key="application.id"
+                            >
+                                <div class="order">
+                                    <p>{{ formatDate(application.create_date) }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.full_name }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.contract_number }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.condition }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.status }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.type_of_processing }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ formatDate(application.date_of_payments) }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.sum ? parseFloat(application.sum).toFixed() : '' }}</p>
+                                </div>
+                                <div>
+                                    <p>
+                                        {{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
+                                    </p>
+                                </div>
+                                <div v-if="role === 'admin' || role === 'manager'">
+                                    <Dropdown
+                                        v-if="role === 'admin'"
+                                        :options="[
+                                            {
+                                                label: 'Подробная информация',
+                                                action: 'information',
+                                                url: 'show.application',
+                                            },
+                                            {
+                                                label: 'Изменить статус',
+                                                action: 'edit',
+                                                url: 'change.status.application',
+                                            },
+                                        ]"
+                                        class="applications_dropdown"
+                                        @select="handleDropdownSelect($event, application.id, $event.action)"
+                                    >
+                                        <template #trigger>
+                                            <Ellipsis />
+                                        </template>
+                                    </Dropdown>
+                                    <Dropdown
+                                        v-else
+                                        :options="[
+                                            {
+                                                label: 'Подробная информация',
+                                                action: 'information',
+                                                url: 'show.application',
+                                            },
+                                        ]"
+                                        class="applications_dropdown"
+                                        @select="handleDropdownSelect($event, application.id, $event.action)"
+                                    >
+                                        <template #trigger>
+                                            <Ellipsis />
+                                        </template>
+                                    </Dropdown>
+                                </div>
                             </div>
-                            <div>
-                                <p>{{ application.full_name }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.contract_number }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.condition }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.status }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.type_of_processing }}</p>
-                            </div>
-                            <div>
-                                <p>{{ formatDate(application.date_of_payments) }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.sum ? parseFloat(application.sum).toFixed() : '' }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}</p>
-                            </div>
-                            <div v-if="role === 'admin' || role === 'manager'">
-                                <Dropdown
-                                    v-if="role === 'admin'"
-                                    :options="[
-                                        {
-                                            label: 'Подробная информация',
-                                            action: 'information',
-                                            url: 'show.application',
-                                        },
-                                        { label: 'Изменить статус', action: 'edit', url: 'change.status.application' },
-                                    ]"
-                                    class="applications_dropdown"
-                                    @select="handleDropdownSelect($event, application.id, $event.action)"
-                                >
-                                    <template #trigger>
-                                        <Ellipsis />
-                                    </template>
-                                </Dropdown>
-                                <Dropdown
-                                    v-else
-                                    :options="[
-                                        {
-                                            label: 'Подробная информация',
-                                            action: 'information',
-                                            url: 'show.application',
-                                        },
-                                    ]"
-                                    class="applications_dropdown"
-                                    @select="handleDropdownSelect($event, application.id, $event.action)"
-                                >
-                                    <template #trigger>
-                                        <Ellipsis />
-                                    </template>
-                                </Dropdown>
-                            </div>
+                            <!-- {{ props.applications }} -->
                         </div>
-                        <!-- {{ props.applications }} -->
                     </div>
                 </div>
                 <div class="card">
-                    <header>
-                        <h2 class="title-card">Завершенные заявки</h2>
-                    </header>
-                    <div class="application">
-                        <ul class="thead-application align-center" v-if="noactiveCApplication.length > 0">
-                            <li class="order">Дата заявки</li>
-                            <li>Клиент</li>
-                            <li>Договор</li>
-                            <li>Условие</li>
-                            <li>Статус</li>
-                            <li>Вид списания</li>
-                            <li>Дата выплаты</li>
-                            <li>Сумма</li>
-                            <li>Дивиденды</li>
-                        </ul>
-                        <div class="title" v-if="noactiveCApplication.length === 0">Заявок нет</div>
+                    <div class="scroll">
+                        <header>
+                            <h2
+                                class="title-card"
+                                :style="{ width: noactiveCApplication.length > 0 ? '1606px' : '100%' }"
+                            >
+                                Завершенные заявки
+                            </h2>
+                        </header>
                         <div
-                            v-else
-                            class="applications align-center"
-                            v-for="application in noactiveCApplication"
-                            :key="application.id"
+                            class="application"
+                            :style="{ width: noactiveCApplication.length > 0 ? '1606px' : '100%' }"
                         >
-                            <div class="order">
-                                <p>{{ formatDate(application.create_date) }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.full_name }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.contract_number }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.condition }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.status }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.type_of_processing }}</p>
-                            </div>
-                            <div>
-                                <p>{{ formatDate(application.date_of_payments) }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.sum ? parseFloat(application.sum).toFixed() : '' }}</p>
-                            </div>
-                            <div>
-                                <p>{{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}</p>
+                            <ul class="thead-application align-center" v-if="noactiveCApplication.length > 0">
+                                <li class="order">Дата заявки</li>
+                                <li>Клиент</li>
+                                <li>Договор</li>
+                                <li>Условие</li>
+                                <li>Статус</li>
+                                <li>Вид списания</li>
+                                <li>Дата выплаты</li>
+                                <li>Сумма</li>
+                                <li>Дивиденды</li>
+                            </ul>
+                            <div class="title" v-if="noactiveCApplication.length === 0">Заявок нет</div>
+                            <div
+                                v-else
+                                class="applications align-center"
+                                v-for="application in noactiveCApplication"
+                                :key="application.id"
+                            >
+                                <div class="order">
+                                    <p>{{ formatDate(application.create_date) }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.full_name }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.contract_number }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.condition }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.status }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.type_of_processing }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ formatDate(application.date_of_payments) }}</p>
+                                </div>
+                                <div>
+                                    <p>{{ application.sum ? parseFloat(application.sum).toFixed() : '' }}</p>
+                                </div>
+                                <div>
+                                    <p>
+                                        {{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
+                                    </p>
+                                </div>
+                                <div v-if="role === 'admin' || role === 'manager'">
+                                    <Dropdown
+                                        :options="[
+                                            {
+                                                label: 'Подробная информация',
+                                                action: 'information',
+                                                url: 'show.application',
+                                            },
+                                        ]"
+                                        class="applications_dropdown"
+                                        @select="handleDropdownSelect($event, application.id, $event.action)"
+                                    >
+                                        <template #trigger>
+                                            <Ellipsis />
+                                        </template>
+                                    </Dropdown>
+                                </div>
                             </div>
                         </div>
-                        <!-- {{ props.applications }} -->
                     </div>
                 </div>
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <Loader v-if="loading" />
+
     <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal?.action]" @close="closeModal">
         <template #default>
             <div v-if="currentModal.type === 'add'">
@@ -429,6 +488,7 @@ const changeStatus = () => {
                                         {{ contract.contract_number }}
                                     </option>
                                 </select>
+                                <InputError :message="form.errors.contract_id" />
                             </div>
                         </div>
                         <div class="flex" style="column-gap: 8px">
@@ -484,6 +544,7 @@ const changeStatus = () => {
                             <label for="on_time" class="button">В срок</label>
                         </div>
                     </div>
+                    <InputError :message="form.errors.condition" />
                     <div class="for_off_time" v-if="selectedOffTime === 'Раньше срока'">
                         <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
                         <div class="flex c-gap">
@@ -494,6 +555,7 @@ const changeStatus = () => {
                             <div class="input flex flex-column">
                                 <label for="payment_date">Дата планируемой выплаты</label>
                                 <input type="date" id="payment_date" v-model="form.date_of_payments" />
+                                <InputError :message="form.errors.date_of_payments" />
                             </div>
                         </div>
                         <p class="warning" style="margin-top: 16px">Комиссия за вывод раньше срока, 30%</p>
@@ -811,8 +873,8 @@ const changeStatus = () => {
 
 <style scoped>
 .application {
-    padding: 20px 32px 32px 32px;
-    width: 1606px;
+    padding: 20px 32px 62px 32px;
+    /* width: 1606px; */
 }
 
 .main {
@@ -829,7 +891,7 @@ const changeStatus = () => {
 }
 
 .card {
-    padding-bottom: 30px;
+    overflow: hidden;
     background: #fff;
     border-radius: 32px;
     -webkit-box-shadow: 0px 0px 4px 0px #5c5c5c0a;
@@ -838,18 +900,21 @@ const changeStatus = () => {
     box-shadow: 0px 0px 8px 0px #5c5c5c14;
     -webkit-box-shadow: 0px 4px 12px 0px #5c5c5c14;
     box-shadow: 0px 4px 12px 0px #5c5c5c14;
+}
+
+.scroll {
     overflow-x: auto;
-    /* scrollbar-width: none;
-    scrollbar-color: transparent transparent; */
+    scrollbar-width: thin;
+    scrollbar-color: #bbb #f0f0f0;
 }
 
-/* .card::-webkit-scrollbar {
-    width: 0px;
+.scroll::-webkit-scrollbar {
+    width: 5px;
 }
 
-.card::-webkit-scrollbar-thumb {
-    background: transparent;
-} */
+.scroll::-webkit-scrollbar-thumb {
+    background-color: #bbb;
+}
 
 .title-card {
     color: #000;
@@ -858,7 +923,7 @@ const changeStatus = () => {
     line-height: 29px;
     border-bottom: 1px solid #f3f5f6;
     padding: 24px 32px 20px 32px;
-    width: 1606px;
+    /* width: 1606px; */
 }
 
 .thead-application {
@@ -960,7 +1025,7 @@ const changeStatus = () => {
     background: #dfe4e7;
 }
 
-:deep(.modal-content) {
+:deep(.modal) {
     width: 500px;
 }
 

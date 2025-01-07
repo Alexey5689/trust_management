@@ -11,5 +11,6 @@ Route::middleware('auth' , 'role:client')->group(function () {
         Route::get('/applications', [ClientController::class, 'showApplications'])->name('client.applications');
         Route::get ('/balance-transactions', [ClientController::class, 'showBalanceTransactions'])->name('client.balance-transactions');
         Route::get('/notifications', [ClientController::class, 'showNotifications'])->name('client.notification');
+        Route::patch('/notification/{notification}', [ClientController::class, 'updateNotification'])->name('client.notification.update');
     });
 });

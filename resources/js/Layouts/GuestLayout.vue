@@ -5,8 +5,7 @@ import { Link } from '@inertiajs/vue3';
 <template>
     <div class="body-logo">
         <div>
-            <Link href="/">
-            </Link>
+            <Link href="/"> </Link>
         </div>
 
         <div class="">
@@ -17,7 +16,7 @@ import { Link } from '@inertiajs/vue3';
 
 <style scoped>
 .body-logo {
-    background-color: #F3F5F6;
+    background-color: #f3f5f6;
     display: flex;
     flex-direction: column;
     align-items: center;

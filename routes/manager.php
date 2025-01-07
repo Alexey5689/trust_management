@@ -5,7 +5,7 @@
 
     Route::middleware('auth', 'role:manager')->group(function () {
         Route::prefix('manager')->group(function () {
-            Route::get('/profile', [ProfileController::class, 'createProfile'])->name('manager.profile');
+            Route::get('/profile', [ManagerController::class, 'createProfile'])->name('manager.profile');
             Route::get('/clients',[ManagerController::class, 'showClients'])->name('manager.clients');
             Route::get('/contracts', [ManagerController::class, 'showContracts'])->name('manager.contracts');
             Route::get('/applications', [ManagerController::class, 'showApplications'])->name('manager.applications');
@@ -20,6 +20,7 @@
             Route::post('/add-contract', [ManagerController::class, 'storeAddContractByManager']);
 
             Route::get('/notifications', [ManagerController::class, 'showNotifications'])->name('manager.notification');
+            Route::patch('/notification/{notification}', [ManagerController::class, 'updateNotification'])->name('manager.notification.update');
             
         });
     });

@@ -6,6 +6,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData } from '@/helpers';
 import InputError from '@/Components/InputError.vue';
+import Loader from '@/Components/Loader.vue';
+import Notifications from './Notifications.vue';
 
 const props = defineProps({
     user: {
@@ -20,12 +22,17 @@ const props = defineProps({
         type: String,
         required: false,
     },
+    notifications: {
+        type: Array,
+        required: false,
+    },
 });
 
 const isModalOpen = ref(false);
 const currentModal = ref(null);
 const userData = ref({});
 const error = ref(null);
+const loading = ref(false);
 
 const getInfo = async (url) => {
     try {
@@ -33,6 +40,7 @@ const getInfo = async (url) => {
         userData.value = data.user ? data.user : data;
     } catch (err) {
         error.value = err; // Сохраняем ошибку
+        console.log(err);
     } finally {
     }
 };
@@ -74,10 +82,43 @@ const closeModal = () => {
 };
 
 const saveChanges = () => {
-    if (currentModal.value === 'contacts') form.patch(route('profile.update'));
-    else if (currentModal.value === 'password') form.patch(route('password.update'));
-    else form.patch(route('email.update'));
-    closeModal();
+    if (currentModal.value === 'contacts') {
+        loading.value = true;
+        form.patch(route('profile.update'), {
+            onSuccess: () => {
+                closeModal();
+                loading.value = false;
+            },
+            onError: () => {
+                console.error('Ошибка:', form.errors); // Лог ошибок
+                loading.value = false;
+            },
+        });
+    } else if (currentModal.value === 'password') {
+        loading.value = true;
+        form.patch(route('password.update'), {
+            onSuccess: () => {
+                closeModal();
+                loading.value = false;
+            },
+            onError: () => {
+                console.error('Ошибка:', form.errors); // Лог ошибок
+                loading.value = false;
+            },
+        });
+    } else {
+        loading.value = true;
+        form.patch(route('email.update'), {
+            onSuccess: () => {
+                closeModal();
+                loading.value = false;
+            },
+            onError: () => {
+                console.error('Ошибка:', form.errors); // Лог ошибок
+                loading.value = false;
+            },
+        });
+    }
 };
 
 const isGridRole = computed(() => props.role === 'manager' || props.role === 'client');
@@ -85,7 +126,12 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
 
 <template>
     <Head title="Profile" />
-    <AuthenticatedLayout :userInfo="props.user" :userRole="props.role" :notifications="props.status">
+    <AuthenticatedLayout
+        :userInfo="props.user"
+        :userRole="props.role"
+        :toast="props.status"
+        :notifications="props.notifications"
+    >
         <template #header>
             <h2 class="title">Личный кабинет</h2>
         </template>
@@ -136,6 +182,9 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <Loader v-if="loading" />
+
     <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal]" @close="closeModal">
         <template #default>
             <div v-if="currentModal === 'contacts'">
