@@ -356,20 +356,6 @@ const updateUser = () => {
                             <div class="card-item">
                                 <p class="text">{{ manager.email }}</p>
                             </div>
-                            <!-- <div class="card-item ellipsis">
-                                <Dropdown
-                                    :options="[
-                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
-                                        { label: 'Удалить', action: 'delete' },
-                                    ]"
-                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
-                                >
-                                    <template #trigger>
-                                        <Ellipsis />
-                                    </template>
-                                </Dropdown>
-                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -401,20 +387,6 @@ const updateUser = () => {
                             <div class="card-item">
                                 <p class="text">{{ client.email }}</p>
                             </div>
-                            <!-- <div class="card-item ellipsis">
-                                <Dropdown
-                                    :options="[
-                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
-                                        { label: 'Удалить', action: 'delete' },
-                                    ]"
-                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
-                                >
-                                    <template #trigger>
-                                        <Ellipsis />
-                                    </template>
-                                </Dropdown>
-                            </div> -->
                         </div>
                     </div>
                 </div>

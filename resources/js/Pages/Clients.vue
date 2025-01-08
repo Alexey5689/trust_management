@@ -8,6 +8,7 @@ import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData, getYearDifference, calculateDividends } from '@/helpers';
 import { calculateDeadlineDate } from '@/helpers.js';
 import InputError from '@/Components/InputError.vue';
+import Loader from '@/Components/Loader.vue';
 
 const props = defineProps({
     clients: {
@@ -37,6 +38,7 @@ const currentModal = ref(null);
 const error = ref(null);
 const clientData = ref({});
 const selectedDuration = ref('');
+const loading = ref(false);
 const activeClient = computed(() => props.clients.filter((client) => client.active));
 const noactiveClient = computed(() => props.clients.filter((client) => !client.active));
 
@@ -162,24 +164,29 @@ const addCountryCode = () => {
     }
 };
 const createUser = () => {
+    loading.value = true;
     form.post(route(`manager.registration.client`), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
 const updateUser = () => {
-    console.log(currentModal.value.userId);
-
+    // console.log(currentModal.value.userId);
+    loading.value = true;
     form.patch(route(`manager.edit.client`, { user: currentModal.value.clientId }), {
         onSuccess: () => {
             closeModal(); // Закрыть модал при успешной отправке
+            loading.value = false;
         },
         onError: () => {
             console.error('Ошибка:', form.errors); // Лог ошибок
+            loading.value = false;
         },
     });
 };
@@ -207,13 +214,14 @@ const updateUser = () => {
                         <h2 class="title-card">Клиенты</h2>
                     </header>
                     <div class="card-content">
-                        <ul class="thead-client align-center">
+                        <ul class="thead-client align-center" v-if="activeClient.length > 0">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                             <li>Договоры</li>
                         </ul>
+                        <div class="title" v-if="activeClient.length === 0">Нет клиентов</div>
                         <div class="items-client align-center" v-for="(client, index) in activeClient" :key="client.id">
                             <div class="card-item order">
                                 <p class="text">{{ index + 1 }}</p>
@@ -297,6 +305,9 @@ const updateUser = () => {
             </div>
         </template>
     </AuthenticatedLayout>
+
+    <Loader v-if="loading" />
+
     <BaseModal
         v-if="isModalOpen"
         :isOpen="isModalOpen"
