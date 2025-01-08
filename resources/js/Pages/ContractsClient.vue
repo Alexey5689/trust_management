@@ -73,6 +73,9 @@ onMounted(() => {
             </div>
         </template>
         <template #main>
+            <div v-if="props.contracts.length === 0">
+                <p class="title">Нет договоров</p>
+            </div>
             <!-- Список договоров -->
             <div class="contracts_client flex">
                 <div

@@ -114,22 +114,9 @@ watch(
     ([newSum, newProcent, newDeadline, newCreateDate]) => {
         const yearsDifference = getYearDifference(newCreateDate, newDeadline);
         form.dividends = Number(calculateDividends(newSum, newProcent, yearsDifference));
-        //Если изменяется дата создания, пересчитываем дедлайн
-
-        //form.deadline = calculateDeadlineDate(getYearDifference(newCreateDate, newDeadline), newCreateDate);
     },
 );
 
-// Watcher для пересчёта dividents и deadline
-// watch(
-//     [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
-//     ([newSum, newProcent, newDeadline, newCreateDate]) => {
-//         // const yearsDifference = getYearDifference(newCreateDate, newDeadline);
-//         // form.dividends = Number(calculateDividends(newSum, newProcent, yearsDifference));
-//         // Если изменяется дата создания, пересчитываем дедлайн
-//         // form.deadline = calculateDeadlineDate(durationMapping[form.selectedDuration], newCreateDate);
-//     },
-// );
 watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
     form.number_of_payments =
         form.payments === 'Ежеквартально'
@@ -210,31 +197,6 @@ const updateContract = () => {
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
 };
-// const handleGetClient = (id) => {
-//     form.sum = props.clients.find((client) => client.id === id).avaliable_balance;
-// };
-// const deleteContract = (contractId) => {
-//     if (confirm('Вы точно хотите удалить договор?')) {
-//         Inertia.delete(route('delete.contract', { contract: contractId }));
-//     }
-// };
-
-// const nowDate = format(new Date(), 'yyyy-MM-dd');
-// // Вычисление основной суммы
-// const sum = computed(() => {
-//     return props.contracts.reduce((total, contract) => total + contract.sum, 0);
-// });
-
-// const dividents = ref(null);
-
-// Вычисление дивидендов
-// const getDividends = (rate) => {
-//     dividents.value = 0;
-//     props.contracts.forEach((contract) => {
-//         const dailyRate = (contract.sum * (contract.procent / 100)) / rate;
-//         dividents.value += dailyRate;
-//     });
-// };
 </script>
 
 <template>
@@ -336,7 +298,7 @@ const handleCheckboxChange = () => {
                         <div class="title" v-if="noActiveContract.length === 0">Закрытых договоров нет</div>
                         <div
                             v-else
-                            class="contracts align-center"
+                            class="contracts align-center executed_undo"
                             v-for="contract in noActiveContract"
                             :key="contract.id"
                         >
@@ -363,19 +325,6 @@ const handleCheckboxChange = () => {
                             <div>
                                 <p>{{ contract.sum }}</p>
                             </div>
-                            <!-- <div v-if="props.role === 'admin'" class="card-item ellipsis">
-                            <Dropdown
-                                :options="[
-                                    { label: 'Изменить', action: 'edit', url: 'admin.edit.contract' },
-                                    { label: 'Удалить', action: 'delete' },
-                                ]"
-                                @select="handleDropdownSelect($event, contract.id, 'contract')"
-                            >
-                                <template #trigger>
-                                    <Ellipsis />
-                                </template>
-                            </Dropdown>
-                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -690,5 +639,9 @@ const handleCheckboxChange = () => {
 
 .checkbox label {
     color: #242424;
+}
+
+.executed_undo p {
+    color: #969BA0;
 }
 </style>

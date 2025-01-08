@@ -134,22 +134,7 @@ const takePartlyDividends = () => {
     form.type_of_processing = 'Забрать дивиденды частично';
 };
 
-// const handleDropdownSelect = (option, applicationId, type) => {
-//     switch (option.action) {
-//         case 'information':
-//             openModal('information', applicationId, 'information');
-//             break;
-//         case 'edit':
-//             openModal('edit', applicationId, 'edit');
-//             break;
-//         default:
-//             console.error('Неизвестное действие:', option.action);
-//     }
-// };
-
 const handleDropdownSelect = (option, applicationId, type, url) => {
-    // console.log(option, applicationId, type, url);
-
     getInfo(option.url, applicationId);
     openModal(type, applicationId, type);
 };
@@ -298,7 +283,7 @@ const changeStatus = () => {
                                 <div>
                                     <p>{{ application.condition }}</p>
                                 </div>
-                                <div>
+                                <div :class="application.status === 'В обработке' ? 'processing' : 'agreed'">
                                     <p>{{ application.status }}</p>
                                 </div>
                                 <div>
@@ -386,7 +371,7 @@ const changeStatus = () => {
                             <div class="title" v-if="noactiveCApplication.length === 0">Заявок нет</div>
                             <div
                                 v-else
-                                class="applications align-center"
+                                class="applications align-center executed_undo"
                                 v-for="application in noactiveCApplication"
                                 :key="application.id"
                             >
@@ -402,7 +387,7 @@ const changeStatus = () => {
                                 <div>
                                     <p>{{ application.condition }}</p>
                                 </div>
-                                <div>
+                                <div :class="application.status === 'Исполнена' ? 'executed' : 'undo'">
                                     <p>{{ application.status }}</p>
                                 </div>
                                 <div>
@@ -869,7 +854,6 @@ const changeStatus = () => {
 <style scoped>
 .application {
     padding: 20px 32px 62px 32px;
-    /* width: 1606px; */
 }
 
 .main {
@@ -1094,5 +1078,52 @@ const changeStatus = () => {
 
 input[disabled] {
     background-color: #f3f5f6;
+}
+
+.processing {
+    background: #A7ADB2;
+    color: #fff;
+    border-radius: 100px;
+    width: 102px;
+    height: 29px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.agreed {
+    background: #FDA75D;
+    color: #000;
+    border-radius: 100px;
+    width: 106px;
+    height: 29px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.executed_undo p {
+    color: #969BA0;
+}
+
+.executed p {
+    background: #F3F5F6;
+    border-radius: 100px;
+    width: 92px;
+    height: 29px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.undo p {
+    background: #F3F5F6;
+    color: #F5768D;
+    border-radius: 100px;
+    width: 77px;
+    height: 29px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>
