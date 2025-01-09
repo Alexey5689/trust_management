@@ -1,7 +1,10 @@
 <?php
     use Illuminate\Support\Facades\Route;
-    use App\Http\Controllers\ProfileController;
     use App\Http\Controllers\AdminController;
+
+
+    use App\Models\Contract;
+    use App\Notifications\DividendNotification;
     Route::middleware('auth', 'role:admin')->group(function () {
         Route::prefix('admin')->group(function () {
             Route::get('/profile', [AdminController::class, 'createProfile'])->name('admin.profile');
@@ -29,6 +32,14 @@
             Route::get('/edit-contract/{contract}', [AdminController::class, 'editContractByAdmin'])->name('admin.edit.contract');
             Route::patch('/edit-contract/{contract}', [AdminController::class, 'updateContractByAdmin']);
 
-           
+
+
+            Route::get('/test-dividend-mail', function () {
+                $contract = Contract::find(1); // Замените 1 на ID вашего контракта
+                $paymentDate = now()->addDays(7);
+                $contract->user->notify(new DividendNotification($contract, $paymentDate));
+                $contract->manager->notify(new DividendNotification($contract, $paymentDate));
+                return 'Письмо отправлено!';
+            }); 
         });
     });

@@ -28,7 +28,7 @@ class DividendNotification extends Notification
 
     public function toMail($notifiable)
     {
-        $daysRemaining = Carbon::now()->diffInDays($this->paymentDate, false);
+        $daysRemaining = round(Carbon::now()->diffInDays($this->paymentDate, false), 0);
         return (new MailMessage)
             ->subject('Напоминание о выплате дивидендов')
             ->view('mail.dividend_reminder', [
