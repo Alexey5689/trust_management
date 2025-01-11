@@ -25,8 +25,6 @@ class ApplicationController extends Controller
             'create_date' => ['required', 'date_format:Y-m-d'],
             'date_of_payments' => ['required', 'date_format:Y-m-d', 'after_or_equal:create_date'], // Дата платежа не должна быть раньше даты создания
             'dividends' => [ 'nullable', 'numeric' ], // Сумма должна быть больше 0.01
-
-            
         ]);
         DB::beginTransaction();
         try {
@@ -53,6 +51,7 @@ class ApplicationController extends Controller
                     'sum'=>$request->sum,
                     'dividends'=>$request->dividends
                 ]);
+               // dd($application);
                 Log::create([
                     'model_id' => $application->user_id,
                     'model_type' => Application::class,
@@ -63,19 +62,24 @@ class ApplicationController extends Controller
                     'created_by' => Auth::id(),
                 ]);
                 $client = $application->user;
+                $contract = $application->contract;
                 if ($request->available_balance) {
-                    $contract = $application->contract;
                     $balance = $request->available_balance;
                     $currentBalance = $contract->avaliable_dividends;
                     $newBalance = $currentBalance + $balance;
                     $contract->update([
-                        'avaliable_dividends' => $newBalance
+                        'avaliable_dividends' => $newBalance,
                     ]);
                 }
+                $contract->update([
+                    'is_aplication' => true
+                ]);
+                // dd($application);
                 $client->userNotifications()->create([
                     'title'=> 'Заявка',
                     'content'=> 'Создана заявки No' . $application->id ,
                 ]);
+               
                 DB::commit();
                 return redirect()->route($role . '.applications')->with('status', ['Успех!', 'Заявка успешно создана!']);
                     
@@ -88,9 +92,15 @@ class ApplicationController extends Controller
     
     
       public function showApplication(Application $application){
-       
+        // dd($application);
         $term = $this->termOfTheContract($application->contract->create_date, $application->contract->deadline);
-        $dividends = $application->contract->sum * ($application->contract->procent / 100) * $term / $application->contract->number_of_payments;
+        // $dividends = $application->contract->sum * ($application->contract->procent / 100) * $term / $application->contract->number_of_payments;
+        $dividends = match ($application->contract->payments) {
+            'Ежеквартально' => $application->contract->sum * ($application->contract->procent / 100) * $term /  $term * 4 ,
+            'Ежегодно' => $application->contract->sum * ($application->contract->procent / 100) * $term /  $term * 1 ,
+            'По истечению срока' => $application->contract->sum * ($application->contract->procent / 100) * $term /  1,
+            default => null,
+        };
         return response()->json([
             'application' => [
                 'id' => $application->id,

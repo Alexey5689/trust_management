@@ -13,7 +13,6 @@ class Contract extends Model
 
     // Разрешённые для массового заполнения поля
     protected $fillable = [
-        'title',
         'user_id',
         'manager_id',
         'contract_number',
@@ -25,8 +24,8 @@ class Contract extends Model
         'contract_status',
         'agree_with_terms',
         'avaliable_dividends',
-        'number_of_payments',
         'last_payment_date',
+        'is_aplication'
     ];
     /**
      * Связь с транзакциями (один ко многим)

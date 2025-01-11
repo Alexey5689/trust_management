@@ -83,42 +83,6 @@ protected function calculateEndOfTermDividends($contractStartDate, $contractDead
     return round($accruedDividends);
 }
 
-// protected function calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
-//     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
-//     $currentDate = new DateTime($currentDate);
-    
-//     // Рассчитываем квартальные выплаты
-//     $quarterAmount = $paymentAmount / 4;
-//     //dd($quarterAmount);
-//     // Определяем дату начала текущего квартала
-//     $quarterStart = clone $startDate;
-//     while ($quarterStart < $currentDate) {
-//         $quarterStart->modify('+3 months');
-//     }
-//     $quarterStart->modify('-3 months');  // Возвращаемся к началу текущего квартала
-//     //dd($quarterStart);
-//     // Определяем конец квартала
-//     $quarterEnd = clone $quarterStart;
-//     $quarterEnd->modify('+3 months');
-
-//     // Рассчитываем количество дней в квартале
-//     $quarterDays = $quarterStart->diff($quarterEnd)->days;
-//     //dd($quarterDays);
-//     // Пе рестраховка для минимального значения (например, в случае ошибок расчёта)
-//     $quarterDays = max(1, $quarterDays);  
-//    // dd($quarterDays);
-//     // Дивиденды за 1 день квартала
-//     $dailyDividend = $quarterAmount / $quarterDays;
-//    // dd($dailyDividend);
-//     // Считаем, сколько дней прошло с начала квартала
-//     $daysSinceQuarterStart = $quarterStart->diff($currentDate)->days;
-
-//     // Рассчитываем накопленные дивиденды
-//     $accruedDividends = $daysSinceQuarterStart * $dailyDividend;
-
-//     return round($accruedDividends);
-// }
-
 
 protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
@@ -380,8 +344,10 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
     protected function beforeTheDeadline($application, $isCancelled = false) {
        // Определяем новый статус заявки
+       $contract = Contract::find($application->contract_id);
         if ($isCancelled) {
             $application->update(['status' => 'Отменена']);
+            $contract->update(['is_aplication' => false]);
             return 'Заявка отменена.';
         }
 
@@ -396,14 +362,14 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
         // Если заявка переходит в "Исполнена", обрабатываем транзакцию и договор
         if ($newStatus === 'Исполнена') {
-            $contract = Contract::find($application->contract_id);
+           
 
             if (!$contract) {
                 $message = 'Ошибка: Договор не найден.';
             }
 
             // Завершаем договор и создаём транзакцию
-            $contract->update(['contract_status' => false]);
+            $contract->update(['contract_status' => false, 'is_aplication' => false]);
             $this->createTransaction($application, $application->sum, 'Заявка');
 
             $user=User::find($contract->user_id);
@@ -467,7 +433,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
         // Отмена заявки
         if ($isCancelled) {
             $application->update(['status' => 'Отменена']);
-            $contract->update(['avaliable_dividends' => null]);
+            $contract->update(['avaliable_dividends' => null, 'is_aplication' => false]);
             return 'Заявка отменена.';
         }
 
@@ -491,6 +457,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                 'sum' => $mainSum + $avalible_dividends,
                 'last_payment_date' => now(),
                 'avaliable_dividends' =>  null,
+                'is_aplication' => false
             ]);
             $this->createTransaction($application, $avalible_dividends, 'Договор');
             $user=User::find($contract->user_id);
@@ -538,6 +505,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
         if ($isCancelled) {
             $application->update(['status' => 'Отменена']);
+            $contract->update(['avaliable_dividends' => null, 'is_aplication' => false]);
             return 'Заявка отменена.';
         }
         $newStatus = match ($application->status) {
@@ -580,6 +548,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
         if ($isCancelled) {
             $application->update(['status' => 'Отменена']);
+            $contract->update(['avaliable_dividends' => null, 'is_aplication' => false]);
             return 'Заявка отменена.';
         }
         $newStatus = match ($application->status) {
@@ -591,6 +560,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
         if ($newStatus === 'Исполнена') {
             $contract->update([
                 'contract_status' => false,
+                'is_aplication' => false
             ]);
             $this->createTransaction($application, $application->sum + $application->dividends, 'Заявка');
             $user=User::find($contract->user_id);

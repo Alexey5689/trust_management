@@ -117,8 +117,6 @@ const closeModal = () => {
         'payments',
         'agree_with_terms',
         'create_date',
-        'dividends',
-        'number_of_payments',
     );
 };
 
@@ -137,8 +135,6 @@ const form = useForm({
     contract_status: true,
     payments: '', // Выплаты
     manager_id: '', // Новое поле для выбора менеджера
-    dividends: null,
-    number_of_payments: null,
 });
 watch(
     userData,
@@ -158,20 +154,6 @@ watch(
     { immediate: true },
 );
 
-watch(
-    [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
-    ([newSum, newProcent, newDeadline, newCreateDate]) => {
-        form.dividends = Number(calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline)));
-    },
-);
-watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
-    form.number_of_payments =
-        form.payments === 'Ежеквартально'
-            ? getYearDifference(form.create_date, newDeadline) * 4
-            : form.payments === 'По истечению срока'
-            ? 1
-            : getYearDifference(form.create_date, newDeadline) * 1;
-});
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
 };
@@ -185,7 +167,7 @@ const handleDeadlineChange = (event) => {
 };
 const addCountryCode = () => {
     if (!form.phone_number.startsWith('+7')) {
-        form.phone_number.trim = '+7'; // Принудительно добавляем код страны
+        form.phone_number = '+7'; // Принудительно добавляем код страны
     }
 };
 
@@ -283,19 +265,15 @@ const updateUser = () => {
                         <h2 class="title-card">Клиенты</h2>
                     </header>
                     <div class="card-content">
-                        <ul class="thead-client align-center" v-if="props.clients.length > 0">
+                        <ul class="thead-client align-center" v-if="activeClient.length > 0">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                             <li>Менеджер</li>
                         </ul>
-                        <div class="title" v-if="props.clients.length === 0">Нет клиентов</div>
-                        <div
-                            class="items-client align-center"
-                            v-for="(client, index) in props.clients"
-                            :key="client.id"
-                        >
+                        <div class="title" v-if="activeClient.length === 0">Нет клиентов</div>
+                        <div class="items-client align-center" v-for="(client, index) in activeClient" :key="client.id">
                             <div class="card-item order">
                                 <p class="text">{{ index + 1 }}</p>
                             </div>
@@ -356,6 +334,16 @@ const updateUser = () => {
                             <div class="card-item">
                                 <p class="text">{{ manager.email }}</p>
                             </div>
+                            <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[{ label: 'Восстановить менеджера', action: 'resetPassword' }]"
+                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -386,6 +374,16 @@ const updateUser = () => {
                             </div>
                             <div class="card-item">
                                 <p class="text">{{ client.email }}</p>
+                            </div>
+                            <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[{ label: 'Восстановить клиента', action: 'resetPassword' }]"
+                                    @select="handleDropdownSelect($event, client.id, 'client')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
                             </div>
                         </div>
                     </div>
@@ -533,7 +531,7 @@ const updateUser = () => {
                             <label for="manager">Выберите менеджера</label>
                             <select id="manager" v-model.trim="form.manager_id">
                                 <option disabled></option>
-                                <option v-for="manager in props.managers" :key="manager.id" :value="manager.id">
+                                <option v-for="manager in activeManager" :key="manager.id" :value="manager.id">
                                     {{ manager.full_name }}
                                 </option>
                             </select>

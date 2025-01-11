@@ -21,6 +21,23 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
+    // private function logAndNotify($user, $contract, $recipientType)
+    // {
+    //     $user->userNotifications()->create([
+    //         'title' => 'Письмо о выплате дивидендов',
+    //         'content' => 'К вам на почту отправлено письмо о выплате дивидендов',
+    //     ]);
+
+    //     Log::create([
+    //         'model_id' => $user->id,
+    //         'model_type' => Contract::class,
+    //         'change' => 'Письмо о выплате дивидендов',
+    //         'action' => 'Отправлено на почту ' . $recipientType,
+    //         'old_value' => null,
+    //         'new_value' => 'Договор No' . $contract->contract_number,
+    //         'created_by' => 1, // ID системного пользователя
+    //     ]);
+    // }
     public function createProfile()
     {
         $user = Auth::user();
@@ -163,7 +180,8 @@ class AdminController extends Controller
             $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
         })
         ->with(['userContracts' => function ($query) {
-            $query->where('contract_status', true); // Выбираем только активные договоры
+            $query->where('contract_status', true);
+            $query->where('is_aplication', false); // Выбираем только активные договоры
         }])
         ->get()
         ->map(function ($client) {
@@ -172,13 +190,19 @@ class AdminController extends Controller
                 'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,               
                 'user_contracts' => $client->userContracts->map(function ($contract) {
                     $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-                    $dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
+                    //$dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
                     // Рассчитываем дату следующей выплаты
                     $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
                     $nextPaymentDate = match ($contract->payments) {
                         'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
                         'Ежегодно' => Carbon::parse($lastPaymentDate)->addYear(),
                         'По истечению срока' => Carbon::parse($contract->deadline),
+                        default => null,
+                    };
+                    $dividends = match ($contract->payments) {
+                        'Ежеквартально' => $contract->sum * ($contract->procent / 100) * $term /  $term * 4 ,
+                        'Ежегодно' => $contract->sum * ($contract->procent / 100) * $term /  $term * 1 ,
+                        'По истечению срока' => $contract->sum * ($contract->procent / 100) * $term /  1,
                         default => null,
                     };
                    // dd($nextPaymentDate);
@@ -203,6 +227,14 @@ class AdminController extends Controller
                     ];
                 }),
             ];
+            // watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
+            //     form.number_of_payments =
+            //         form.payments === 'Ежеквартально'
+            //             ? getYearDifference(form.create_date, newDeadline) * 4
+            //             : form.payments === 'По истечению срока'
+            //             ? 1
+            //             : getYearDifference(form.create_date, newDeadline) * 1;
+            // });
         });
         $applications = Application::with(['user', 'contract'])->get()->map(function ($application) {
             return [
@@ -276,8 +308,6 @@ class AdminController extends Controller
                 'created_by' => Auth::id(), // ID самого пользователя
             ]);
     
-    
-    
             $manager_id = $request->manager_id;
             // Записываем менеджера в таблицу user_manager
             $user->managers()->attach($manager_id);
@@ -292,8 +322,6 @@ class AdminController extends Controller
                 'payments' => $request->payments,
                 'agree_with_terms' => $request->agree_with_terms,
                 'contract_status' => $request->contract_status,
-                'dividends' => $request->dividends,
-                'number_of_payments'=> $request->number_of_payments
             ]);
             Log::create([
                 'model_id' => $contract->user_id,
@@ -355,7 +383,7 @@ class AdminController extends Controller
      public function updateClientByAdmin(Request $request, User $user): RedirectResponse
      {
        //dd($request->all());
-         $request->validate([
+        $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
             'middle_name' => ['required','string','max:255', 'min:2'],
@@ -368,10 +396,12 @@ class AdminController extends Controller
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
             'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
+            'manager_id' => ['required', 'integer', 'exists:users,id'],
          ]);
-
-         $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
-         $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
+         //dd($request->all());
+        
+        $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
+        $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
          // Логируем изменения
         if ($user->isDirty()) {
             DB::beginTransaction();
@@ -399,31 +429,6 @@ class AdminController extends Controller
                         'content' => 'Ваши контактные данные были изменены',
                     ]);
                 }
-                // Проверяем, изменился ли менеджер
-                $currentManager = $user->managers()->first();
-                $newManager = User::find($request->manager_id);
-
-                if ($currentManager?->id != $newManager?->id) {
-                    // Обновляем менеджера в промежуточной таблице user_manager
-                    $user->managers()->sync([$request->manager_id]);
-                    // Логируем смену менеджера
-                    Log::create([
-                        'model_id' => $user->id,
-                        'model_type' => User::class,
-                        'change' => 'Изменен менеджер',
-                        'action' => 'Обновление данных',
-                        'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
-                        'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
-                        'created_by' => Auth::id(),
-                    ]);
-                    $user->userNotifications()->create([
-                        'title' => "Менеджер",
-                        'content'=> 'Ваш менеджер был изменен',
-                    ]);
-                }
-                $user->userContracts()->update([
-                    'manager_id' => $request->manager_id,
-                ]);
                 DB::commit();
                 return redirect()->route('admin.users')->with('status', [
                     'Успех!',
@@ -435,6 +440,44 @@ class AdminController extends Controller
                     ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
             }
         }
+
+        $currentManager = $user->managers()->first();
+        $newManager = User::find($request->manager_id);
+        if ($currentManager->id !== $newManager->id) {
+            DB::beginTransaction();
+            try {
+                $user->managers()->sync([$request->manager_id]);
+                $user->userNotifications()->create([
+                    'title' => "Менеджер",
+                    'content'=> 'Ваш менеджер был изменен',
+                ]);
+                $user->userContracts()->update([
+                    'manager_id' => $request->manager_id,
+                ]);
+                // Логируем смену менеджера
+                Log::create([
+                    'model_id' => $user->id,
+                    'model_type' => User::class,
+                    'change' => 'Изменен менеджер',
+                    'action' => 'Обновление данных',
+                    'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
+                    'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
+                    'created_by' => Auth::id(),
+                ]);
+                DB::commit();
+                return redirect()->route('admin.users')->with('status', [
+                    'Успех!',
+                    'Менеджер пользователя был изменен'
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return redirect()->route('admin.users') 
+                    ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
+                
+            }
+                            
+        }
+       
         return redirect()->route('admin.users') ->with('status', ['Информация', 'Данные не изменились']);
      }
 
@@ -716,7 +759,6 @@ public function updateStatusApplication(Request $request, Application $applicati
 {
     
     $user = Auth::user();
-    $role = $user->role->title;
     $originalStatus = $application->status;
     $actions = [
         'В обработке' => fn() => $this->handleInProgressApplication($application),

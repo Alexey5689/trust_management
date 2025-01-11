@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание пользователя</title>
+    <title>Напоминание о выплате дивидендов</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,17 +25,6 @@
         .content {
             font-size: 16px;
         }
-        .button {
-            display: inline-block;
-            background-color: #007bff;
-            color: #ffffff;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-        }
         .footer {
             margin-top: 30px;
             font-size: 14px;
@@ -48,19 +36,15 @@
 <body>
     <div class="container">
         <div class="header">
-            Завершение регистрации
+            Напоминание о выплате дивидендов
         </div>
         
         <div class="content">
-            <p>Для завершения настройки вашего аккаунта, пожалуйста, создайте пароль.</p>
+            <p>Ваш договор № <strong>{{ $contract->contract_number }}</strong></p>
             
-            <p>Нажмите на кнопку/ссылку ниже, чтобы задать собственный пароль</p>
+            <p>Дата следующей выплаты: <strong>{{ $paymentDate->translatedFormat('d F Y') }}</strong></p>
 
-            <a href="{{ $url }}" class="button">
-                Создать пароль
-            </a>
-
-            <p>Если вы не регистрировались в нашей системе, просто проигнорируйте это письмо.</p>
+            <p>До выплаты осталось <strong>{{ $daysRemaining }}</strong> дней.</p>
         </div>
 
         <div class="footer">
