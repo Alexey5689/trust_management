@@ -73,7 +73,7 @@ const closeModal = () => {
 }
 
 .modal-content {
-    max-height: 700px;
+    max-height: 672px;
     padding-right: 32px;
     overflow-y: auto;
     scrollbar-width: thin;
