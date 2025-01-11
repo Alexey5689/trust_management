@@ -283,19 +283,15 @@ const updateUser = () => {
                         <h2 class="title-card">Клиенты</h2>
                     </header>
                     <div class="card-content">
-                        <ul class="thead-client align-center" v-if="props.clients.length > 0">
+                        <ul class="thead-client align-center" v-if="activeClient.length > 0">
                             <li class="order">№</li>
                             <li>ФИО</li>
                             <li>Номер телефона</li>
                             <li>Email</li>
                             <li>Менеджер</li>
                         </ul>
-                        <div class="title" v-if="props.clients.length === 0">Нет клиентов</div>
-                        <div
-                            class="items-client align-center"
-                            v-for="(client, index) in props.clients"
-                            :key="client.id"
-                        >
+                        <div class="title" v-if="activeClient.length === 0">Нет клиентов</div>
+                        <div class="items-client align-center" v-for="(client, index) in activeClient" :key="client.id">
                             <div class="card-item order">
                                 <p class="text">{{ index + 1 }}</p>
                             </div>
@@ -386,6 +382,20 @@ const updateUser = () => {
                             </div>
                             <div class="card-item">
                                 <p class="text">{{ client.email }}</p>
+                            </div>
+                            <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.client' },
+                                        { label: 'Сбросить пароль', action: 'resetPassword' },
+                                        { label: 'Удалить клиента', action: 'delete' },
+                                    ]"
+                                    @select="handleDropdownSelect($event, client.id, 'client')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
                             </div>
                         </div>
                     </div>

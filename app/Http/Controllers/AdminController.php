@@ -372,7 +372,7 @@ class AdminController extends Controller
      public function updateClientByAdmin(Request $request, User $user): RedirectResponse
      {
        //dd($request->all());
-         $request->validate([
+        $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
             'middle_name' => ['required','string','max:255', 'min:2'],
@@ -385,10 +385,12 @@ class AdminController extends Controller
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
             'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
+            'manager_id' => ['required', 'integer', 'exists:users,id'],
          ]);
-
-         $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
-         $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
+         //dd($request->all());
+        
+        $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
+        $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
          // Логируем изменения
         if ($user->isDirty()) {
             DB::beginTransaction();
@@ -416,31 +418,6 @@ class AdminController extends Controller
                         'content' => 'Ваши контактные данные были изменены',
                     ]);
                 }
-                // Проверяем, изменился ли менеджер
-                $currentManager = $user->managers()->first();
-                $newManager = User::find($request->manager_id);
-
-                if ($currentManager?->id != $newManager?->id) {
-                    // Обновляем менеджера в промежуточной таблице user_manager
-                    $user->managers()->sync([$request->manager_id]);
-                    // Логируем смену менеджера
-                    Log::create([
-                        'model_id' => $user->id,
-                        'model_type' => User::class,
-                        'change' => 'Изменен менеджер',
-                        'action' => 'Обновление данных',
-                        'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
-                        'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
-                        'created_by' => Auth::id(),
-                    ]);
-                    $user->userNotifications()->create([
-                        'title' => "Менеджер",
-                        'content'=> 'Ваш менеджер был изменен',
-                    ]);
-                }
-                $user->userContracts()->update([
-                    'manager_id' => $request->manager_id,
-                ]);
                 DB::commit();
                 return redirect()->route('admin.users')->with('status', [
                     'Успех!',
@@ -452,6 +429,44 @@ class AdminController extends Controller
                     ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
             }
         }
+
+        $currentManager = $user->managers()->first();
+        $newManager = User::find($request->manager_id);
+        if ($currentManager->id !== $newManager->id) {
+            DB::beginTransaction();
+            try {
+                $user->managers()->sync([$request->manager_id]);
+                $user->userNotifications()->create([
+                    'title' => "Менеджер",
+                    'content'=> 'Ваш менеджер был изменен',
+                ]);
+                $user->userContracts()->update([
+                    'manager_id' => $request->manager_id,
+                ]);
+                // Логируем смену менеджера
+                Log::create([
+                    'model_id' => $user->id,
+                    'model_type' => User::class,
+                    'change' => 'Изменен менеджер',
+                    'action' => 'Обновление данных',
+                    'old_value' => $currentManager ? $currentManager->last_name . ' ' . $currentManager->first_name . ' ' . $currentManager->middle_name : null,
+                    'new_value' => $newManager ? $newManager->last_name . ' ' . $newManager->first_name . ' ' . $newManager->middle_name : null,
+                    'created_by' => Auth::id(),
+                ]);
+                DB::commit();
+                return redirect()->route('admin.users')->with('status', [
+                    'Успех!',
+                    'Менеджер пользователя был изменен'
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return redirect()->route('admin.users') 
+                    ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
+                
+            }
+                            
+        }
+       
         return redirect()->route('admin.users') ->with('status', ['Информация', 'Данные не изменились']);
      }
 
