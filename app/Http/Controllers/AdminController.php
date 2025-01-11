@@ -180,7 +180,8 @@ class AdminController extends Controller
             $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
         })
         ->with(['userContracts' => function ($query) {
-            $query->where('contract_status', true); // Выбираем только активные договоры
+            $query->where('contract_status', true);
+            $query->where('is_aplication', false); // Выбираем только активные договоры
         }])
         ->get()
         ->map(function ($client) {
@@ -189,13 +190,19 @@ class AdminController extends Controller
                 'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,               
                 'user_contracts' => $client->userContracts->map(function ($contract) {
                     $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-                    $dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
+                    //$dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
                     // Рассчитываем дату следующей выплаты
                     $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
                     $nextPaymentDate = match ($contract->payments) {
                         'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
                         'Ежегодно' => Carbon::parse($lastPaymentDate)->addYear(),
                         'По истечению срока' => Carbon::parse($contract->deadline),
+                        default => null,
+                    };
+                    $dividends = match ($contract->payments) {
+                        'Ежеквартально' => $contract->sum * ($contract->procent / 100) * $term /  $term * 4 ,
+                        'Ежегодно' => $contract->sum * ($contract->procent / 100) * $term /  $term * 1 ,
+                        'По истечению срока' => $contract->sum * ($contract->procent / 100) * $term /  1,
                         default => null,
                     };
                    // dd($nextPaymentDate);
@@ -220,6 +227,14 @@ class AdminController extends Controller
                     ];
                 }),
             ];
+            // watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
+            //     form.number_of_payments =
+            //         form.payments === 'Ежеквартально'
+            //             ? getYearDifference(form.create_date, newDeadline) * 4
+            //             : form.payments === 'По истечению срока'
+            //             ? 1
+            //             : getYearDifference(form.create_date, newDeadline) * 1;
+            // });
         });
         $applications = Application::with(['user', 'contract'])->get()->map(function ($application) {
             return [
@@ -293,8 +308,6 @@ class AdminController extends Controller
                 'created_by' => Auth::id(), // ID самого пользователя
             ]);
     
-    
-    
             $manager_id = $request->manager_id;
             // Записываем менеджера в таблицу user_manager
             $user->managers()->attach($manager_id);
@@ -309,8 +322,6 @@ class AdminController extends Controller
                 'payments' => $request->payments,
                 'agree_with_terms' => $request->agree_with_terms,
                 'contract_status' => $request->contract_status,
-                'dividends' => $request->dividends,
-                'number_of_payments'=> $request->number_of_payments
             ]);
             Log::create([
                 'model_id' => $contract->user_id,

@@ -117,8 +117,6 @@ const closeModal = () => {
         'payments',
         'agree_with_terms',
         'create_date',
-        'dividends',
-        'number_of_payments',
     );
 };
 
@@ -137,8 +135,6 @@ const form = useForm({
     contract_status: true,
     payments: '', // Выплаты
     manager_id: '', // Новое поле для выбора менеджера
-    dividends: null,
-    number_of_payments: null,
 });
 watch(
     userData,
@@ -158,20 +154,6 @@ watch(
     { immediate: true },
 );
 
-watch(
-    [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
-    ([newSum, newProcent, newDeadline, newCreateDate]) => {
-        form.dividends = Number(calculateDividends(newSum, newProcent, getYearDifference(newCreateDate, newDeadline)));
-    },
-);
-watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
-    form.number_of_payments =
-        form.payments === 'Ежеквартально'
-            ? getYearDifference(form.create_date, newDeadline) * 4
-            : form.payments === 'По истечению срока'
-            ? 1
-            : getYearDifference(form.create_date, newDeadline) * 1;
-});
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
 };
@@ -185,7 +167,7 @@ const handleDeadlineChange = (event) => {
 };
 const addCountryCode = () => {
     if (!form.phone_number.startsWith('+7')) {
-        form.phone_number.trim = '+7'; // Принудительно добавляем код страны
+        form.phone_number = '+7'; // Принудительно добавляем код страны
     }
 };
 

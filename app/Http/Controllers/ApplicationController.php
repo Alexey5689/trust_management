@@ -69,9 +69,13 @@ class ApplicationController extends Controller
                     $currentBalance = $contract->avaliable_dividends;
                     $newBalance = $currentBalance + $balance;
                     $contract->update([
-                        'avaliable_dividends' => $newBalance
+                        'avaliable_dividends' => $newBalance,
+                        'is_aplication' => true
                     ]);
                 }
+                $contract->update([
+                    'is_aplication' => true
+                ]);
                 $client->userNotifications()->create([
                     'title'=> 'Заявка',
                     'content'=> 'Создана заявки No' . $application->id ,

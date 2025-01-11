@@ -86,7 +86,6 @@ const form = useForm({
     contract_status: true,
     payments: '', // Выплаты
     agree_with_terms: false,
-    number_of_payments: null,
 });
 
 watch(
@@ -103,28 +102,6 @@ watch(
     },
     { immediate: true },
 );
-
-const durationMapping = {
-    '1 год': 1,
-    '3 года': 3,
-};
-
-watch(
-    [() => form.sum, () => form.procent, () => form.deadline, () => form.create_date],
-    ([newSum, newProcent, newDeadline, newCreateDate]) => {
-        const yearsDifference = getYearDifference(newCreateDate, newDeadline);
-        form.dividends = Number(calculateDividends(newSum, newProcent, yearsDifference));
-    },
-);
-
-watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
-    form.number_of_payments =
-        form.payments === 'Ежеквартально'
-            ? getYearDifference(form.create_date, newDeadline) * 4
-            : form.payments === 'По истечению срока'
-            ? 1
-            : getYearDifference(form.create_date, newDeadline) * 1;
-});
 
 const modalTitles = {
     add: 'Добавление договора',
@@ -150,7 +127,6 @@ const closeModal = () => {
         'payments',
         'agree_with_terms',
         'create_date',
-        'dividends',
     );
     selectedDuration.value = '';
 };
@@ -333,7 +309,7 @@ const handleCheckboxChange = () => {
     </AuthenticatedLayout>
 
     <Loader v-if="loading" />
-    
+
     <BaseModal v-if="isModalOpen" :isOpen="isModalOpen" :title="modalTitles[currentModal?.action]" @close="closeModal">
         <template #default>
             <div v-if="currentModal.type === 'add'">
@@ -642,6 +618,6 @@ const handleCheckboxChange = () => {
 }
 
 .executed_undo p {
-    color: #969BA0;
+    color: #969ba0;
 }
 </style>
