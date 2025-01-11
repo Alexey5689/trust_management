@@ -134,7 +134,7 @@ const takePartlyDividends = () => {
     form.type_of_processing = 'Забрать дивиденды частично';
 };
 
-const handleDropdownSelect = (option, applicationId, type, url) => {
+const handleDropdownSelect = (option, applicationId, type) => {
     getInfo(option.url, applicationId);
     openModal(type, applicationId, type);
 };
@@ -1081,7 +1081,7 @@ input[disabled] {
 }
 
 .processing {
-    background: #A7ADB2;
+    background: #a7adb2;
     color: #fff;
     border-radius: 100px;
     width: 102px;
@@ -1092,7 +1092,7 @@ input[disabled] {
 }
 
 .agreed {
-    background: #FDA75D;
+    background: #fda75d;
     color: #000;
     border-radius: 100px;
     width: 106px;
@@ -1103,11 +1103,11 @@ input[disabled] {
 }
 
 .executed_undo p {
-    color: #969BA0;
+    color: #969ba0;
 }
 
 .executed p {
-    background: #F3F5F6;
+    background: #f3f5f6;
     border-radius: 100px;
     width: 92px;
     height: 29px;
@@ -1117,8 +1117,8 @@ input[disabled] {
 }
 
 .undo p {
-    background: #F3F5F6;
-    color: #F5768D;
+    background: #f3f5f6;
+    color: #f5768d;
     border-radius: 100px;
     width: 77px;
     height: 29px;

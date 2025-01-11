@@ -104,7 +104,7 @@ export const calculateDividends = (sum, procent, term) => {
     return (sum * (procent / 100) * term).toFixed(1);
 };
 export const fetchData = async (router, params = {}) => {
-    console.log(router, params);
+    // console.log('asdas', router, params);
 
     try {
         // Проверка на наличие параметра "manager", если его нет, отправляем запрос без параметров
@@ -118,9 +118,8 @@ export const fetchData = async (router, params = {}) => {
             : params.application
             ? route(router, { application: params.application })
             : route(router);
-
         const response = await axios.get(url);
-        console.log(response);
+        // console.log(response);
 
         return response.data; // Возвращаем данные
     } catch (error) {

@@ -334,6 +334,16 @@ const updateUser = () => {
                             <div class="card-item">
                                 <p class="text">{{ manager.email }}</p>
                             </div>
+                            <div class="card-item ellipsis">
+                                <Dropdown
+                                    :options="[{ label: 'Восстановить менеджера', action: 'resetPassword' }]"
+                                    @select="handleDropdownSelect($event, manager.id, 'manager')"
+                                >
+                                    <template #trigger>
+                                        <Ellipsis />
+                                    </template>
+                                </Dropdown>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -367,11 +377,7 @@ const updateUser = () => {
                             </div>
                             <div class="card-item ellipsis">
                                 <Dropdown
-                                    :options="[
-                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.client' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
-                                        { label: 'Удалить клиента', action: 'delete' },
-                                    ]"
+                                    :options="[{ label: 'Восстановить клиента', action: 'resetPassword' }]"
                                     @select="handleDropdownSelect($event, client.id, 'client')"
                                 >
                                     <template #trigger>
@@ -525,7 +531,7 @@ const updateUser = () => {
                             <label for="manager">Выберите менеджера</label>
                             <select id="manager" v-model.trim="form.manager_id">
                                 <option disabled></option>
-                                <option v-for="manager in props.managers" :key="manager.id" :value="manager.id">
+                                <option v-for="manager in activeManager" :key="manager.id" :value="manager.id">
                                     {{ manager.full_name }}
                                 </option>
                             </select>
