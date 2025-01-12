@@ -685,7 +685,7 @@ const changeStatus = () => {
                             v-model="selectedOffTime"
                             disabled
                         />
-                        <label for="off_time" class="button">Раньше срока</label>
+                        <label for="off_time" class="button btn_h">Раньше срока</label>
                     </div>
                     <div class="input flex">
                         <input
@@ -696,7 +696,7 @@ const changeStatus = () => {
                             v-model="selectedOffTime"
                             disabled
                         />
-                        <label for="on_time" class="button">В срок</label>
+                        <label for="on_time" class="button btn_h">В срок</label>
                     </div>
                 </div>
                 <div class="for_off_time" v-if="selectedOffTime === 'Раньше срока'">
@@ -1069,6 +1069,16 @@ const changeStatus = () => {
 .radio-buttons input[type='radio']:checked + .button {
     background: #4e9f7d1a;
     color: #4e9f7d;
+}
+
+.radio-buttons .button.btn_h {
+    cursor: default;
+}
+
+.button.btn_h:hover {
+    background: #F3F5F6;
+    color: #969BA0;
+    cursor: default;
 }
 
 #write_downs {

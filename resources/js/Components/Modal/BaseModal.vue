@@ -14,8 +14,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close']);
-
 const isVisible = ref(false);
+let isMouseDownInsideModal = false;
 
 watch(
     () => props.isOpen,
@@ -28,10 +28,20 @@ watch(
 const closeModal = () => {
     emit('close');
 };
+
+const handleMouseDown = (event) => {
+    isMouseDownInsideModal = event.target.closest('.modal') !== null;
+};
+
+const handleOverlayClick = (event) => {
+    if (!isMouseDownInsideModal) {
+        closeModal();
+    }
+};
 </script>
 
 <template>
-    <div v-if="isVisible" class="modal-overlay" @click="closeModal">
+    <div v-if="isVisible" class="modal-overlay" @mousedown="handleMouseDown" @click="handleOverlayClick ">
         <div class="modal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
