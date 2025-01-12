@@ -726,7 +726,7 @@ const changeStatus = () => {
                                 v-model="selectedPartlyOption"
                                 disabled
                             />
-                            <label for="partly" class="button">Забрать дивиденды частично</label>
+                            <label for="partly" class="button btn_h">Забрать дивиденды частично</label>
                             <input
                                 type="radio"
                                 id="wholly"
@@ -735,7 +735,7 @@ const changeStatus = () => {
                                 v-model="selectedPartlyOption"
                                 disabled
                             />
-                            <label for="wholly" class="button">Забрать дивиденды целиком</label>
+                            <label for="wholly" class="button btn_h">Забрать дивиденды целиком</label>
                         </div>
                         <input
                             type="radio"
@@ -745,7 +745,7 @@ const changeStatus = () => {
                             v-model="selectedPartlyOption"
                             disabled
                         />
-                        <label for="take_everything" class="button">Забрать дивиденды и сумму</label>
+                        <label for="take_everything" class="button btn_h">Забрать дивиденды и сумму</label>
                     </div>
                     <div class="for_partly" v-if="selectedPartlyOption === 'Забрать дивиденды частично'">
                         <p class="c_data" style="margin-top: 32px; margin-bottom: 16px">Вывод средств</p>
@@ -1076,8 +1076,8 @@ const changeStatus = () => {
 }
 
 .button.btn_h:hover {
-    background: #F3F5F6;
-    color: #969BA0;
+    background: #f3f5f6;
+    color: #969ba0;
     cursor: default;
 }
 

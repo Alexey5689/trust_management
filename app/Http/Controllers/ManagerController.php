@@ -17,6 +17,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\Rule;
 use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ManagerController extends Controller
 {
@@ -150,7 +151,8 @@ class ManagerController extends Controller
         $clients = $user->managedUsers()
         ->where('active', true)
         ->with(['userContracts' => function ($query) {
-            $query->where('contract_status', true); // Выбираем только активные договоры
+            $query->where('contract_status', true);
+            $query->where('is_aplication', false); // Выбираем только активные договоры
         }])
         ->get()
         ->map(function ($client) {
@@ -159,7 +161,25 @@ class ManagerController extends Controller
                 'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
                 'user_contracts' => $client->userContracts->map(function ($contract) {
                     $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-                    $dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
+                    // Рассчитываем дату следующей выплаты
+                    $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
+                    $nextPaymentDate = match ($contract->payments) {
+                        'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
+                        'Ежегодно' => Carbon::parse($lastPaymentDate)->addYear(),
+                        'По истечению срока' => Carbon::parse($contract->deadline),
+                        default => null,
+                    };
+                    $dividends = match ($contract->payments) {
+                        'Ежеквартально' => $contract->sum * ($contract->procent / 100) * $term /  $term * 4 ,
+                        'Ежегодно' => $contract->sum * ($contract->procent / 100) * $term /  $term * 1 ,
+                        'По истечению срока' => $contract->sum * ($contract->procent / 100) * $term /  1,
+                        default => null,
+                    };
+                   // dd($nextPaymentDate);
+                     // Проверяем, истёк ли срок договора
+                    $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
+                    //dd($nextPaymentDate);
+                    $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate);
                     return [
                         'id' => $contract->id,
                         'contract_number' => $contract->contract_number,
@@ -170,7 +190,9 @@ class ManagerController extends Controller
                         'manager_id' => $contract->manager_id,
                         'dividends' => $dividends,
                         'term' => $term,
-                       
+                        'next_payment_date' => $nextPaymentDate,
+                        'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  // Запретить заявки для истёкших договоров
+                        'is_expired' => $isExpired,
                     ];
                 }),
             ];
