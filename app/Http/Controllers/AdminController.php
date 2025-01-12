@@ -190,7 +190,6 @@ class AdminController extends Controller
                 'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,               
                 'user_contracts' => $client->userContracts->map(function ($contract) {
                     $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-                    //$dividends = $contract->sum * ($contract->procent / 100) * $term / $contract->number_of_payments;
                     // Рассчитываем дату следующей выплаты
                     $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
                     $nextPaymentDate = match ($contract->payments) {
@@ -227,14 +226,6 @@ class AdminController extends Controller
                     ];
                 }),
             ];
-            // watch([() => form.payments, () => form.deadline], ([newPayment, newDeadline]) => {
-            //     form.number_of_payments =
-            //         form.payments === 'Ежеквартально'
-            //             ? getYearDifference(form.create_date, newDeadline) * 4
-            //             : form.payments === 'По истечению срока'
-            //             ? 1
-            //             : getYearDifference(form.create_date, newDeadline) * 1;
-            // });
         });
         $applications = Application::with(['user', 'contract'])->get()->map(function ($application) {
             return [

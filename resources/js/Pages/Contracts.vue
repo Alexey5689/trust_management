@@ -2,7 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { formatDate, getYearDifference, calculateDeadlineDate, calculateDividends } from '@/helpers.js';
+import { formatDate, getYearDifference, calculateDeadlineDate } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
@@ -133,14 +133,13 @@ const closeModal = () => {
 
 const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;
-
     const duration =
         {
             '1 год': 1,
             '3 года': 3,
         }[selectedDuration] || 1;
 
-    form.deadline = calculateDeadlineDate(duration, form.create_date);
+    form.deadline = calculateDeadlineDate(duration, form.create_date ?? new Date().toISOString().substr(0, 10));
 };
 
 const createContract = () => {
@@ -172,6 +171,16 @@ const updateContract = () => {
 };
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
+};
+
+const handleDateChange = (event) => {
+    const duration =
+        {
+            '1 год': 1,
+            '3 года': 3,
+        }[selectedDuration.value] || 1;
+    const create_date = event.target.value;
+    form.deadline = calculateDeadlineDate(duration, create_date);
 };
 </script>
 
@@ -317,7 +326,6 @@ const handleCheckboxChange = () => {
                     <div class="input flex flex-column">
                         <label for="client">Клиент</label>
                         <select id="client" v-model="form.user_id">
-                            <!-- @click="handleGetClient(form.user_id)" -->
                             <option v-for="client in activeClient" :key="client.id" :value="client.id">
                                 {{ client.full_name }}
                             </option>
@@ -332,7 +340,8 @@ const handleCheckboxChange = () => {
                         </div>
                         <div class="input flex flex-column">
                             <label for="date">Дата*</label>
-                            <input type="date" id="date" v-model.trim="form.create_date" />
+                            <input type="date" id="date" v-model.trim="form.create_date" @input="handleDateChange" />
+
                             <InputError :message="form.errors.create_date" />
                         </div>
                     </div>
@@ -400,7 +409,7 @@ const handleCheckboxChange = () => {
                         </div>
                         <div class="input flex flex-column">
                             <label for="date">Дата*</label>
-                            <input type="date" id="date" v-model.trim="form.create_date" />
+                            <input type="date" id="date" v-model.trim="form.create_date" @input="handleDateChange" />
                             <InputError :message="form.errors.create_date" />
                         </div>
                     </div>

@@ -159,11 +159,23 @@ const handleCheckboxChange = () => {
 };
 const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;
-    if (selectedDuration === '1 год') {
-        form.deadline = calculateDeadlineDate(1, form.create_date);
-    } else {
-        form.deadline = calculateDeadlineDate(3, form.create_date);
-    }
+    const duration =
+        {
+            '1 год': 1,
+            '3 года': 3,
+        }[selectedDuration] || 1;
+
+    form.deadline = calculateDeadlineDate(duration, form.create_date ?? new Date().toISOString().substr(0, 10));
+};
+
+const handleDateChange = (event) => {
+    const duration =
+        {
+            '1 год': 1,
+            '3 года': 3,
+        }[selectedDuration.value] || 1;
+    const create_date = event.target.value;
+    form.deadline = calculateDeadlineDate(duration, create_date);
 };
 const addCountryCode = () => {
     if (!form.phone_number.startsWith('+7')) {
@@ -599,7 +611,7 @@ const updateUser = () => {
                             </div>
                             <div class="input flex flex-column">
                                 <label for="date">Дата*</label>
-                                <input type="date" id="date" v-model="form.create_date" />
+                                <input type="date" id="date" v-model="form.create_date" @input="handleDateChange" />
                                 <InputError :message="form.errors.create_date" />
                             </div>
                         </div>
