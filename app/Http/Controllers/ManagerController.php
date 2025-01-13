@@ -93,6 +93,8 @@ class ManagerController extends Controller
          // Явно указываем тип переменной $user
         /** @var User $user */
         $contracts = $user->managerContracts()->with('user')->get()->map(function ($contract) {
+            $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
+ 
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,
@@ -102,6 +104,7 @@ class ManagerController extends Controller
                 'procent' => $contract->procent,
                 'payments' => $contract->payments,
                 'contract_status' => $contract->contract_status,
+                'term' => $term,
                 'user' => [
                     'id' => $contract->user->id,
                     'full_name' => $contract->user->last_name . ' ' . $contract->user->first_name . ' ' . $contract->user->middle_name,
@@ -177,7 +180,7 @@ class ManagerController extends Controller
                     };
                    // dd($nextPaymentDate);
                      // Проверяем, истёк ли срок договора
-                    $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
+                     $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
                     //dd($nextPaymentDate);
                     $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate);
                     return [

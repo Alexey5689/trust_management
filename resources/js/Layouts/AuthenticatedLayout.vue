@@ -39,9 +39,9 @@ watch(
         toastMessage.value = newVal;
         setTimeout(() => {
             toastMessage.value = null;
-        }, 2000);
+        }, 4000);
     },
-    { immediate: true }, // Запуск сразу после монтирования
+    { immediate: true },
 );
 </script>
 
@@ -124,7 +124,7 @@ watch(
 
         <div class="flex flex-column content_box">
             <header v-if="$slots.header">
-                <div class="flex align-center justify-end" style="position: relative">
+                <div class="flex align-center justify-end">
                     <div v-if="props.userRole === 'client'" class="info_client flex align-center justify-end w-100">
                         <div class="your_manager flex align-center">
                             <p>Ваш менеджер</p>
@@ -306,17 +306,17 @@ watch(
 }
 
 .toast {
-    position: absolute;
+    position: fixed;
     width: 550px;
     min-height: 90px;
-    background: #fff;
+    background: #f9fafa;
     box-shadow: 0px 0px 4px 0px #5c5c5c0a;
     box-shadow: 0px 0px 8px 0px #5c5c5c14;
     box-shadow: 0px 4px 12px 0px #5c5c5c14;
-    z-index: 10;
+    z-index: 100;
     padding: 16px 20px;
     border-radius: 24px;
-    top: 61px;
+    top: 124px;
 }
 
 .toast h3 {

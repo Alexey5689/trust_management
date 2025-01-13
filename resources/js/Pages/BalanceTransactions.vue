@@ -6,7 +6,7 @@ import { parseISO, differenceInYears, format, differenceInDays } from 'date-fns'
 import { ru } from 'date-fns/locale';
 import Icon_output from '@/Components/Icon/Output.vue';
 import Icon_input from '@/Components/Icon/Input.vue';
-
+import { formatDateBalanceTransactions, formatNumber } from '@/helpers.js';
 const props = defineProps({
     role: {
         type: Object,
@@ -88,16 +88,6 @@ const dividends = computed(() => {
 
     return Math.round(totalDividends);
 });
-
-// Разделяет цифру на тысячные
-function formatNumber(num) {
-    return Number(num)
-        .toLocaleString('ru-RU', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })
-        .replace(',', '.');
-}
 </script>
 
 <template>
@@ -151,10 +141,7 @@ function formatNumber(num) {
                                 {{ formatDate(transaction.date_transition) }}
                             </p>
                             <span class="month_year">{{
-                                format(parseISO(transaction.date_transition), 'LLLL yyyy', { locale: ru }).replace(
-                                    /^./,
-                                    (str) => str.toUpperCase(),
-                                )
+                                formatDateBalanceTransactions(transaction.date_transition)
                             }}</span>
                         </div>
                         <div style="width: 164px; font-weight: 500">
