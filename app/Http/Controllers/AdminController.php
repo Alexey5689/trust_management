@@ -206,7 +206,7 @@ class AdminController extends Controller
                     };
                    // dd($nextPaymentDate);
                      // Проверяем, истёк ли срок договора
-                    $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
+                     $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
                     //dd($nextPaymentDate);
                     $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate);
                     return [

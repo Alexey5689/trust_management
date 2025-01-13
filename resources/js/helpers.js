@@ -125,3 +125,25 @@ export const fetchData = async (router, params = {}) => {
         throw error; // Бросаем ошибку для обработки в другом месте
     }
 };
+export const formatNumber = (num) => {
+    try {
+        return Number(num)
+            .toLocaleString('ru-RU', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })
+            .replace(',', '.');
+    } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
+        return num; // Возвращаем исходное значение в случае ошибки
+    }
+};
+
+export const formatDateBalanceTransactions = (date) => {
+    try {
+        return format(parseISO(date), 'LLLL yyyy', { locale: ru }).replace(/^./, (str) => str.toUpperCase());
+    } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
+        return date; // Возвращаем исходное значение в случае ошибки
+    }
+};

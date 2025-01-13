@@ -309,10 +309,10 @@ watch(
     position: fixed;
     width: 550px;
     min-height: 90px;
-    background: #F9FAFA;
-    box-shadow: 0px 0px 4px 0px #5C5C5C0A;
-    box-shadow: 0px 0px 8px 0px #5C5C5C14;
-    box-shadow: 0px 4px 12px 0px #5C5C5C14;
+    background: #f9fafa;
+    box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    box-shadow: 0px 4px 12px 0px #5c5c5c14;
     z-index: 100;
     padding: 16px 20px;
     border-radius: 24px;
