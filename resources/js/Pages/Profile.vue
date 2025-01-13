@@ -224,14 +224,14 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
                 </p>
             </div>
             <div v-else-if="currentModal === 'email'">
-                <form class="flex">
-                    <div class="input flex flex-column">
+                <form>
+                    <div class="input flex flex-column" style="width: 260px;">
                         <label for="email">Новая почта</label>
                         <input type="email" id="email" v-model="form.email" />
                         <InputError :message="form.errors.email" />
                     </div>
                     <div style="width: 100%">
-                        <p class="warning">Description что сделать после изменения почты</p>
+                        <p class="warning" style="margin-top: 16px;">После изменения необходима повторная авторизация</p>
                     </div>
                 </form>
             </div>
