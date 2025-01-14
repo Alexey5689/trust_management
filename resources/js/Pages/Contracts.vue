@@ -52,12 +52,14 @@ const activeContract = computed(() =>
 const noActiveContract = computed(() => props.contracts.filter((contract) => contract.contract_status === false));
 
 const getInfo = async (url, contractId) => {
+    loading.value = true;
     try {
         const data = await fetchData(url, { contract: contractId }); // Ожидаем завершения запроса
         contractData.value = data.contract;
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
+        loading.value = false;
     }
 };
 
@@ -68,7 +70,16 @@ const handleDropdownSelect = (option, contractId, type) => {
             break;
         case 'delete':
             if (confirm('Вы уверены, что хотите удалить договор?')) {
-                router.delete(route('delete.contract', { contract: contractId }));
+                loading.value = true;
+                form.delete(route('delete.contract', { contract: contractId }), {
+                    onSuccess: () => {},
+                    onError: (error) => {
+                        console.error(error);
+                    },
+                    onFinish: () => {
+                        loading.value = false;
+                    },
+                });
             }
             break;
         default:

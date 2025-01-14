@@ -5,7 +5,7 @@ import { Head, router, useForm } from '@inertiajs/vue3';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
-import { fetchData, getYearDifference, calculateDividends } from '@/helpers';
+import { fetchData } from '@/helpers';
 import { calculateDeadlineDate } from '@/helpers.js';
 import InputError from '@/Components/InputError.vue';
 import Loader from '@/Components/Loader.vue';
@@ -60,13 +60,14 @@ const modalTitles = {
 };
 
 const getInfo = async (url, userId) => {
-    console.log(url, userId);
+    loading.value = true;
     try {
         const data = await fetchData(url, { user: userId }); // Ожидаем завершения запроса
         userData.value = data.user ? data.user : data;
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
+        loading.value = false;
     }
 };
 
@@ -77,12 +78,30 @@ const handleDropdownSelect = (option, userId, type) => {
             break;
         case 'resetPassword':
             if (confirm('Вы уверены, что хотите сбросить пароль?')) {
-                router.post(route('reset.password', { user: userId }));
+                loading.value = true;
+                form.post(route('reset.password', { user: userId }), {
+                    onSuccess: () => {},
+                    onError: (error) => {
+                        console.error(error);
+                    },
+                    onFinish: () => {
+                        loading.value = false;
+                    },
+                });
             }
             break;
         case 'delete':
             if (confirm('Вы уверены, что хотите удалить пользователя?')) {
-                router.delete(route('delete.user', { user: userId }));
+                loading.value = true;
+                form.delete(route('delete.user', { user: userId }), {
+                    onSuccess: () => {},
+                    onError: (error) => {
+                        console.error(error);
+                    },
+                    onFinish: () => {
+                        loading.value = false;
+                    },
+                });
             }
             break;
         default:
@@ -91,10 +110,7 @@ const handleDropdownSelect = (option, userId, type) => {
 };
 
 const openModal = (type, userId, action = 'add', url) => {
-    // console.log(type, userId, action, url);
-
     if (action === 'edit') getInfo(url, userId);
-
     currentModal.value = { type, userId, action };
     isModalOpen.value = true;
 };

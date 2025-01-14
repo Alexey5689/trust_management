@@ -12,29 +12,7 @@ use App\Models\Log;
 
 class ProfileController extends Controller
 {
-    // public function createProfile()
-    // {
-    //     $user = Auth::user();
-    //     $role = $user->role->title;
-    //     // dd($user, $role);
-    //        /** @var User $user */
-    //     $user_notification = $user->userNotifications()
-    //     ->where('is_read', false)
-    //     ->get()
-    //     ->values();
-    //     //dd($user_notification);
-    //     return Inertia::render('Profile', [
-    //         'user' => [
-    //             'id' => $user->id,
-    //             'full_name' => $user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
-    //             'email' => $user->email,
-    //             'phone_number' => $user->phone_number
-    //         ],
-    //         'role' => $role,
-    //         'status' => session('status'),
-    //         'notifications' => $user_notification ?? []
-    //     ]);
-    // }
+   
 
     public function editProfile()
     {
@@ -48,87 +26,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    // public function updateProfile(Request $request)
-    // {
-    //     $request->validate([
-    //         'first_name' => ['required','string' ,'max:255', 'min:2'],
-    //         'last_name' => ['required','string','max:255', 'min:2'],
-    //         'middle_name' => ['required','string','max:255', 'min:2'],
-    //     ]);
 
-    //     // Явно указываем тип переменной $user
-    //     /** @var User $user */
-
-    //     $user = Auth::user();
-    //     $role = $user->role->title;
-    //     $originalData = $user->only(['last_name', 'first_name', 'middle_name']);
-    //     $user->update($request->only(['last_name', 'first_name', 'middle_name']));
-
-    //      // Логируем изменения
-    //     foreach ($request->only(['last_name', 'first_name', 'middle_name']) as $field => $newValue) {
-    //         if ($originalData[$field] !== $newValue) {
-    //             Log::create([
-    //                 'model_id' => $user->id,
-    //                 'model_type' => User::class,
-    //                 'change' => 'Изменено поле '. $field,
-    //                 'action' => 'Обновление данных',
-    //                 'old_value' => $originalData[$field],
-    //                 'new_value' => $newValue,
-    //                 'created_by' =>  $user->id,
-    //             ]);
-    //         }
-    //     }
-    //     $user->userNotifications()->create([
-    //         'title' => 'Контактные данные',
-    //         'content'=> 'Ваши контактные данные были изменены',
-    //     ]);
-       
-    //     return redirect()->route($role . '.profile')->with('status', ['Успех!', 'Данные обновлены']);
-    // }
-//     public function updateProfile(Request $request)
-// {
-//     $request->validate([
-//         'first_name' => ['required','string' ,'max:255', 'min:2'],
-//         'last_name' => ['required','string','max:255', 'min:2'],
-//         'middle_name' => ['required','string','max:255', 'min:2'],
-//     ]);
-
-//     /** @var User $user */
-//     $user = Auth::user();
-//     $role = $user->role->title;
-
-//     $originalData = $user->only(['last_name', 'first_name', 'middle_name']);
-    
-//     try {
-//         $user->update($request->only(['last_name', 'first_name', 'middle_name']));
-
-//         // Логирование изменений
-//         foreach ($user->getDirty() as $field => $newValue) {
-//             Log::create([
-//                 'model_id' => $user->id,
-//                 'model_type' => User::class,
-//                 'change' => 'Изменено поле '. $field,
-//                 'action' => 'Обновление данных',
-//                 'old_value' => $originalData[$field] ?? 'не было',
-//                 'new_value' => $newValue,
-//                 'created_by' =>  $user->id,
-//             ]);
-//         }
-
-//         // Уведомление пользователя
-//         $user->userNotifications()->create([
-//             'title' => 'Контактные данные',
-//             'content'=> 'Ваши контактные данные были изменены',
-//         ]);
-
-//         return redirect()->route($role . '.profile')
-//             ->with('status', ['Успех!', 'Данные обновлены']);
-
-//     } catch (\Exception $e) {
-//         return redirect()->route($role . '.profile')
-//             ->with('status', ['Ошибка!', 'Не удалось обновить данные.']);
-//     }
-// }
 public function updateProfile(Request $request)
 {
     $request->validate([

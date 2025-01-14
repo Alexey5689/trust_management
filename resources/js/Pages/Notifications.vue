@@ -32,15 +32,6 @@ const form = useForm({
     is_read: true,
 });
 
-// const isRead = (id) => {
-//     form.patch(route('notification.update', { notification: id }), {
-//         onSuccess: () => { },
-//         onFinish: () => form.reset(),
-//         onError: () => {
-//             console.error('Ошибка:', form.errors); // Лог ошибок
-//         },
-//     });
-// };
 const isRead = (id) => {
     const notificationIndex = localNotifications.value.findIndex((n) => n.id === id);
 

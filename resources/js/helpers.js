@@ -101,9 +101,8 @@ export const calculateDeadlineDate = (years, createDate) => {
 export const calculateDividends = (sum, procent, term) => {
     return (sum * (procent / 100) * term).toFixed(1);
 };
-export const fetchData = async (router, params = {}) => {
-    // console.log('asdas', router, params);
 
+export const fetchData = async (router, params = {}) => {
     try {
         // Проверка на наличие параметра "manager", если его нет, отправляем запрос без параметров
         //const url = params.user ? route(router, { user: params.user }) : route(router); // Если параметр "manager" не передан, просто вызываем URL без него
