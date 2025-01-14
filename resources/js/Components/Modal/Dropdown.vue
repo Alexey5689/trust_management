@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue';
 
 const props = defineProps({
     options: {
@@ -81,6 +81,72 @@ onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside);
     document.removeEventListener('close-all-dropdowns', handleCloseAllDropdowns);
 });
+
+const computedStyles = computed(() => {
+    return props.options.map((option, index) => {
+        const optionsCount = props.options.length;
+
+        // Для одного элемента
+        if (optionsCount === 1) {
+            return {
+                item: {
+                    borderTop: 'none',
+                },
+                text: {
+                    marginBottom: '0',
+                    marginTop: '0',
+                },
+            };
+        }
+
+        // Для двух элементов
+        if (optionsCount === 2) {
+            if (index === 0) {
+                return {
+                    item: {},
+                    text: {
+                        marginBottom: '8px',
+                    },
+                };
+            }
+            if (index === 1) {
+                return {
+                    item: {
+                        borderTop: '1px solid #F3F5F6',
+                    },
+                    text: {
+                        marginTop: '8px',
+                    },
+                };
+            }
+        }
+
+        // Для трех элементов
+        if (optionsCount === 3) {
+            if (index === 1) {
+                return {
+                    item: {},
+                    text: {
+                        marginBottom: '8px',
+                    },
+                };
+            }
+            if (index === 2) {
+                return {
+                    item: {
+                        borderTop: '1px solid #F3F5F6',
+                    },
+                    text: {
+                        marginTop: '8px',
+                    },
+                };
+            }
+        }
+
+        // По умолчанию для всех остальных
+        return { item: {}, text: {} };
+    });
+});
 </script>
 
 <template>
@@ -93,9 +159,13 @@ onUnmounted(() => {
         <!-- Выпадающее меню -->
         <div v-if="isOpen" ref="dropdownRef" class="dropdown-menu" :class="dropdownPosition">
             <ul>
-                <li v-for="(option, index) in options" :key="index" @click="$emit('select', option); closeDropdown()"
-                    class="dropdown-item">
-                    <p>{{ option.label }}</p>
+                <li v-for="(option, index) in options" 
+                    :key="index" 
+                    @click="$emit('select', option); closeDropdown()"
+                    class="dropdown-item"
+                    :style="computedStyles[index].item"
+                >
+                    <p :style="computedStyles[index].text">{{ option.label }}</p>
                 </li>
             </ul>
         </div>
@@ -127,10 +197,11 @@ onUnmounted(() => {
     border-radius: 24px;
     z-index: 1000;
     width: 200px;
-    padding: 14px 0;
+    padding: 8px 0;
     box-shadow: 0px 0px 4px 0px #5C5C5C0A;
     box-shadow: 0px 0px 8px 0px #5C5C5C14;
     box-shadow: 0px 4px 12px 0px #5C5C5C14;
+    overflow: hidden;
 }
 
 .dropdown-menu.right {
@@ -148,7 +219,6 @@ onUnmounted(() => {
 
 .dropdown-item:last-child {
     color: #F5768D;
-    border-top: 1px solid #F3F5F6;;
 }
 
 .dropdown-item p {
@@ -156,14 +226,10 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     padding: 0 32px;
+    transition: 0.3s;
 }
 
-.dropdown-item:nth-child(2) p {
-    margin-bottom: 8px;
+.dropdown-item:hover p {
+    background: #F3F5F6;
 }
-
-.dropdown-item:last-child p {
-    margin-top: 8px;
-}
-
 </style>
