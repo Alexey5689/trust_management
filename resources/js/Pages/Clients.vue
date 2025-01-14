@@ -50,13 +50,14 @@ const modalTitles = {
 };
 
 const getInfo = async (url, clientId) => {
-    console.log(url, clientId);
+    loading.value = true;
     try {
         const data = await fetchData(url, { user: clientId }); // Ожидаем завершения запроса
         clientData.value = data.client;
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
+        loading.value = false;
     }
 };
 const handleDropdownSelect = (option, clientId, type) => {
@@ -66,7 +67,16 @@ const handleDropdownSelect = (option, clientId, type) => {
             break;
         case 'resetPassword':
             if (confirm('Вы уверены, что хотите сбросить пароль?')) {
-                router.post(route('reset.password', { user: clientId }));
+                loading.value = true;
+                form.post(route('reset.password', { user: clientId }), {
+                    onSuccess: () => {},
+                    onError: (error) => {
+                        console.error(error);
+                    },
+                    onFinish: () => {
+                        loading.value = false;
+                    },
+                });
             }
             break;
         default:

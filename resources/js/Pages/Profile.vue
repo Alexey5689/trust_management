@@ -35,6 +35,7 @@ const error = ref(null);
 const loading = ref(false);
 
 const getInfo = async (url) => {
+    loading.value = true;
     try {
         const data = await fetchData(url); // Ожидаем завершения запроса
         userData.value = data.user ? data.user : data;
@@ -42,6 +43,7 @@ const getInfo = async (url) => {
         error.value = err; // Сохраняем ошибку
         console.log(err);
     } finally {
+        loading.value = true;
     }
 };
 const form = useForm({

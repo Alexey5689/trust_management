@@ -2,8 +2,7 @@
 import { computed, ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { parseISO, differenceInYears, format, differenceInDays } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { parseISO, format } from 'date-fns';
 import Icon_output from '@/Components/Icon/Output.vue';
 import Icon_input from '@/Components/Icon/Input.vue';
 import { formatDateBalanceTransactions, formatNumber } from '@/helpers.js';
@@ -56,38 +55,6 @@ const formatDate = (date) => format(parseISO(date), 'dd/MM/yyyy');
 const sum = computed(() => {
     return props.contracts.length ? props.contracts.reduce((total, contract) => total + contract.sum, 0) : null;
 });
-
-// Вычисление дивидендов
-const dividends = computed(() => {
-    let totalDividends = 0;
-
-    const contracts = Array.isArray(props.contracts) ? props.contracts : [];
-
-    // props.contracts.forEach((contract) => {
-    //     const termYears = differenceInYears(parseISO(contract.deadline), parseISO(contract.create_date));
-    //     //console.log(termYears);
-
-    //     const dailyRate = (contract.sum * (contract.procent / 100)) / 365;
-    //     //console.log(dailyRate);
-
-    //     const daysSinceStart = differenceInDays(parseISO(nowDate), parseISO(contract.create_date));
-    //     //console.log(daysSinceStart);
-
-    //     const dividendsForContract = dailyRate * Math.min(daysSinceStart, termYears * 365);
-    //     //console.log(dividendsForContract);
-
-    //     totalDividends += dividendsForContract;
-    // });
-    contracts.forEach((contract) => {
-        const termYears = differenceInYears(parseISO(contract.deadline), parseISO(contract.create_date));
-        const dailyRate = (contract.sum * (contract.procent / 100)) / 365;
-        const daysSinceStart = differenceInDays(parseISO(nowDate), parseISO(contract.create_date));
-        const dividendsForContract = dailyRate * Math.min(daysSinceStart, termYears * 365);
-        totalDividends += dividendsForContract;
-    });
-
-    return Math.round(totalDividends);
-});
 </script>
 
 <template>
@@ -103,7 +70,6 @@ const dividends = computed(() => {
                 <h2>Баланс и транзакции</h2>
             </div>
         </template>
-        <!-- {{ props.transactions }} -->
         <template #main>
             <div class="card" style="width: 354px">
                 <p class="info_date">Актуальный на {{ currentDate }}</p>

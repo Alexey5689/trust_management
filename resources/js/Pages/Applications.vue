@@ -71,6 +71,7 @@ const modalTitles = ref({
 const applicationStatuses = ref(['В обработке', 'Согласована', 'Исполнена', 'Отменена']);
 
 const getInfo = async (url, applicationId) => {
+    loading.value = true;
     try {
         const data = await fetchData(url, { application: applicationId }); // Ожидаем завершения запроса
         applicationData.value = data.application;
@@ -83,6 +84,7 @@ const getInfo = async (url, applicationId) => {
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
+        loading.value = false;
     }
 };
 

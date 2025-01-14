@@ -453,6 +453,8 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
         // Обновляем сумму по договору и сбрасываем доступные дивиденды
         // Если заявка исполнена, создаём транзакцию
         if ($newStatus === 'Исполнена') {
+            $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
+            $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
             $contract->update([
                 'sum' => $mainSum + $avalible_dividends,
                 'last_payment_date' => now(),
