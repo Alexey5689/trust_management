@@ -58,10 +58,14 @@ const count_of_applications = ref(null);
 const number_of_payments = ref(null);
 
 const activeApplication = computed(() =>
-    props.applications.filter((application) => application.status !== 'Отменена' && application.status !== 'Исполнена'),
+    props.applications
+        .filter((application) => application.status !== 'Отменена' && application.status !== 'Исполнена')
+        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)),
 );
 const noactiveCApplication = computed(() =>
-    props.applications.filter((application) => application.status === 'Отменена' || application.status === 'Исполнена'),
+    props.applications
+        .filter((application) => application.status === 'Отменена' || application.status === 'Исполнена')
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
 );
 const modalTitles = ref({
     add: 'Новая заявка',

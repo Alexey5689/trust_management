@@ -42,6 +42,10 @@ const getInfo = async (url) => {
         error.value = err; // Сохраняем ошибку
         console.log(err);
     } finally {
+<<<<<<< Updated upstream
+=======
+        loading.value = false;
+>>>>>>> Stashed changes
     }
 };
 const form = useForm({
