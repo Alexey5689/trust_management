@@ -204,7 +204,7 @@ class AdminController extends Controller
                         'По истечению срока' => $contract->sum * ($contract->procent / 100) * $term /  1,
                         default => null,
                     };
-                   // dd($nextPaymentDate);
+                   //dd($nextPaymentDate);
                      // Проверяем, истёк ли срок договора
                      $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
                     //dd($nextPaymentDate);

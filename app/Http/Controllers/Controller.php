@@ -455,14 +455,43 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
         if ($newStatus === 'Исполнена') {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
             $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
+            $user=User::find($contract->user_id);
+            $manager=User::find($contract->manager_id);
             $contract->update([
                 'sum' => $mainSum + $avalible_dividends,
                 'last_payment_date' => now(),
                 'avaliable_dividends' =>  null,
-                'is_aplication' => false
+                'is_aplication' => false,
             ]);
+            if($isExpired){
+                $oldCrateDate = $contract->create_date;
+                $contract->update([
+                    'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
+                    'deadline' => Carbon::parse($contract->deadline)->addYear($term),
+                    'last_payment_date' => null,
+                ]);
+                Log::create([
+                    'model_id' => $contract->user_id,
+                    'model_type' => Contract::class,
+                    'change' => 'Пролонгация договора',
+                    'action' => 'Продления срока договора',
+                    'old_value' => $oldCrateDate,
+                    'new_value' => $contract->create_date,
+                    'created_by' => Auth::id(),
+                ]);
+                 // Создание уведомлений для пользователя и менеджера
+                $content = $term === 1 ? $term . ' год' : $term . ' года';
+                $user->userNotifications()->create([
+                    'title' => 'Пролонгация договора',
+                    'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                ]);
+            
+                $manager->userNotifications()->create([
+                    'title' => 'Пролонгация договора',
+                    'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                ]);
+            }
             $this->createTransaction($application, $avalible_dividends, 'Договор');
-            $user=User::find($contract->user_id);
             Log::create([
                 'model_id' => $contract->user_id,
                 'model_type' => Transaction::class,
@@ -477,7 +506,6 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                 'content'=> 'Создана транзакция на сумму: ' . $avalible_dividends,
             ]);
             $this->createTransaction($application, $application->dividends, 'Заявка');
-            $user=User::find($contract->user_id);
             Log::create([
                 'model_id' => $contract->user_id,
                 'model_type' => Transaction::class,
@@ -516,10 +544,43 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
             default => $application->status,
         };
         $application->update(['status' => $newStatus]);
+
         if ($newStatus === 'Исполнена') {
+            $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
+            $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
+            $user=User::find($contract->user_id);
+            $manager=User::find($contract->manager_id);
             $contract->update([
                 'last_payment_date' => now(),
+                'is_aplication' => false,
             ]);
+            if ($isExpired) {
+                $oldCrateDate = $contract->create_date;
+                $contract->update([
+                    'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
+                    'deadline' => Carbon::parse($contract->deadline)->addYear($term),
+                    'last_payment_date' => null,
+                ]);
+                Log::create([
+                    'model_id' => $contract->user_id,
+                    'model_type' => Contract::class,
+                    'change' => 'Пролонгация договора',
+                    'action' => 'Продления срока договора',
+                    'old_value' => $oldCrateDate,
+                    'new_value' => $contract->create_date,
+                    'created_by' => Auth::id(),
+                ]);
+                $content = $term === 1 ? $term . ' год' : $term . ' года';
+                $user->userNotifications()->create([
+                    'title' => 'Пролонгация договора',
+                    'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                ]);
+            
+                $manager->userNotifications()->create([
+                    'title' => 'Пролонгация договора',
+                    'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                ]);
+            }
             $this->createTransaction($application, $application->dividends, 'Заявка');
             $user=User::find($contract->user_id);
             Log::create([
