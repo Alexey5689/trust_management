@@ -21,41 +21,97 @@ class SendDividendReminderEmails extends Command
         ->with(['user', 'manager'])
         ->get();
 
+        // foreach ($contracts as $contract) {
+        //     $nextPaymentDate = $this->calculateNextPaymentDate($contract);
+
+        //     if ($nextPaymentDate && $nextPaymentDate->isSameDay($today->copy()->addDays(7))) {
+        //         try{
+        //             // Уведомляем менеджера
+        //             $contract->manager->notify(new DividendNotification($contract, $nextPaymentDate));
+
+        //             $this->logAndNotify($contract->manager, $contract, 'менеджеру');
+                  
+        //             Log::info('Уведомления отправлены', [
+        //                 'contract_id' => $contract->id,
+        //                 'user_id' => $contract->user_id,
+        //                 'manager_id' => $contract->manager_id,
+        //                 'next_payment_date' => $nextPaymentDate->toDateString(),
+        //             ]);
+
+        //         }catch(\Exception $e){
+        //             Log::error('Ошибка отправки уведомления: ' . $e->getMessage(), [
+        //                 'contract_id' => $contract->id
+        //             ]);
+        //             $this->error('Ошибка отправки: ' . $e->getMessage());
+        //         }
+        
+        //     }
+        //     if ($nextPaymentDate && $nextPaymentDate->isSameDay($today->copy()->addDays(14)) )
+        //          {
+        //         try{
+        //              // Уведомляем клиента
+        //             $contract->user->notify(new DividendNotification($contract, $nextPaymentDate));
+
+        //             $this->logAndNotify($contract->user, $contract, 'клиенту');
+                           
+        //             Log::info('Уведомления отправлены', [
+        //                 'contract_id' => $contract->id,
+        //                 'user_id' => $contract->user_id,
+        //                 'manager_id' => $contract->manager_id,
+        //                 'next_payment_date' => $nextPaymentDate->toDateString(),
+        //             ]);
+
+        //         }catch(\Exception $e){
+        //             Log::error('Ошибка отправки уведомления: ' . $e->getMessage(), [
+        //                 'contract_id' => $contract->id
+        //             ]);
+        //             $this->error('Ошибка отправки: ' . $e->getMessage());
+        //         }
+        
+        //     }
+        // }
         foreach ($contracts as $contract) {
             $nextPaymentDate = $this->calculateNextPaymentDate($contract);
-
-            if ($nextPaymentDate && 
-               ($nextPaymentDate->isSameDay($today->copy()->addDays(14)) || 
-                $nextPaymentDate->isSameDay($today->copy()->addDays(7)))) {
-                try{
-                     // Уведомляем клиента
-                    $contract->user->notify(new DividendNotification($contract, $nextPaymentDate));
-
-                    // Уведомляем менеджера
-                    $contract->manager->notify(new DividendNotification($contract, $nextPaymentDate));
-
-                    $this->logAndNotify($contract->user, $contract, 'клиенту');
-                    $this->logAndNotify($contract->manager, $contract, 'менеджеру');
-                  
-                    Log::info('Уведомления отправлены', [
-                        'contract_id' => $contract->id,
-                        'user_id' => $contract->user_id,
-                        'manager_id' => $contract->manager_id,
-                        'next_payment_date' => $nextPaymentDate->toDateString(),
-                    ]);
-
-                }catch(\Exception $e){
-                    Log::error('Ошибка отправки уведомления: ' . $e->getMessage(), [
-                        'contract_id' => $contract->id
-                    ]);
-                    $this->error('Ошибка отправки: ' . $e->getMessage());
+        
+            if ($nextPaymentDate) {
+                // Если дата следующего платежа через 7 дней
+                if ($nextPaymentDate->isSameDay($today->copy()->addDays(7))) {
+                    $this->sendDividendNotification($contract, $contract->manager, 'менеджеру', $nextPaymentDate);
                 }
         
+                // Если дата следующего платежа через 14 дней
+                if ($nextPaymentDate->isSameDay($today->copy()->addDays(14))) {
+                    $this->sendDividendNotification($contract, $contract->user, 'клиенту', $nextPaymentDate);
+                }
             }
         }
 
         $this->info('Уведомления о дивидендах отправлены');
     }
+
+
+    protected function sendDividendNotification($contract, $user, $role, $nextPaymentDate)
+{
+    try {
+        // Отправка уведомления
+        $user->notify(new DividendNotification($contract, $nextPaymentDate));
+
+        // Логирование
+        $this->logAndNotify($user, $contract, $role);
+
+        Log::info('Уведомления отправлены', [
+            'contract_id' => $contract->id,
+            'user_id' => $contract->user_id,
+            'manager_id' => $contract->manager_id,
+            'next_payment_date' => $nextPaymentDate->toDateString(),
+        ]);
+    } catch (\Exception $e) {
+        Log::error("Ошибка отправки уведомления {$role}: " . $e->getMessage(), [
+            'contract_id' => $contract->id
+        ]);
+        $this->error("Ошибка отправки {$role}: " . $e->getMessage());
+    }
+}
 
     private function calculateNextPaymentDate($contract)
     {
