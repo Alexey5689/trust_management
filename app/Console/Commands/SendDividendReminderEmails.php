@@ -80,7 +80,7 @@ class SendDividendReminderEmails extends Command
                 }
         
                 // Если дата следующего платежа через 14 дней
-                if ($nextPaymentDate->isSameDay($today->copy()->addDays(14))) {
+                if ($nextPaymentDate->isSameDay($today->copy()->addDays(2))) {
                     $this->sendDividendNotification($contract, $contract->user, 'клиенту', $nextPaymentDate);
                 }
             }

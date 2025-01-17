@@ -35,7 +35,7 @@
 
 
             Route::get('/test-dividend-mail', function () {
-                $contract = Contract::find(1); // Замените 1 на ID вашего контракта
+                $contract = Contract::find(12); // Замените 1 на ID вашего контракта
                 $paymentDate = now()->addDays(7);
                 $contract->user->notify(new DividendNotification($contract, $paymentDate));
                 $contract->manager->notify(new DividendNotification($contract, $paymentDate));

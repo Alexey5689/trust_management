@@ -182,7 +182,7 @@ class ManagerController extends Controller
                      // Проверяем, истёк ли срок договора
                      $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
                     //dd($nextPaymentDate);
-                    $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate);
+                    $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) && now()->lessThanOrEqualTo($nextPaymentDate);
                     return [
                         'id' => $contract->id,
                         'contract_number' => $contract->contract_number,
