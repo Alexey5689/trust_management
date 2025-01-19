@@ -198,17 +198,23 @@ class AdminController extends Controller
                         'По истечению срока' => Carbon::parse($contract->deadline),
                         default => null,
                     };
+                   // dd($nextPaymentDate);
                     $dividends = match ($contract->payments) {
                         'Ежеквартально' => $contract->sum * ($contract->procent / 100) * $term /  $term * 4 ,
                         'Ежегодно' => $contract->sum * ($contract->procent / 100) * $term /  $term * 1 ,
-                        'По истечению срока' => $contract->sum * ($contract->procent / 100) * $term /  1,
+                        'По истечению срока' => null,
                         default => null,
                     };
+
+                    $afterTheExpirationDate = $contract->payments === 'По истечению срока' ? true : false;
                    //dd($nextPaymentDate);
                      // Проверяем, истёк ли срок договора
-                     $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
+                    $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
+                    
                     //dd($nextPaymentDate);
+                   //dd($isExpired);
                     $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) && now()->lessThanOrEqualTo($nextPaymentDate);
+                    //dd($canRequestPayoutOnTime);
                     return [
                         'id' => $contract->id,
                         'contract_number' => $contract->contract_number,
@@ -222,6 +228,7 @@ class AdminController extends Controller
                         'next_payment_date' => $nextPaymentDate,
                         'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  // Запретить заявки для истёкших договоров
                         'is_expired' => $isExpired,
+                        'afterTheExpirationDate' => $afterTheExpirationDate
 
                     ];
                 }),

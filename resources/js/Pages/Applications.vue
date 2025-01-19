@@ -53,6 +53,7 @@ const userInfo = ref({});
 const contractInfo = ref({});
 const can_payout = ref('');
 const loading = ref(false);
+const afterTheExpirationDate = ref(false);
 
 const count_of_applications = ref(null);
 const number_of_payments = ref(null);
@@ -107,6 +108,9 @@ const handleGetContract = (contract_id) => {
     can_payout.value = userContract.value.user_contracts.find(
         (contract) => contract.id === contract_id,
     ).can_request_payout;
+    afterTheExpirationDate.value = userContract.value.user_contracts.find(
+        (contract) => contract.id === contract_id,
+    ).afterTheExpirationDate;
 };
 
 const offTime = () => {
@@ -496,7 +500,13 @@ const changeStatus = () => {
                                 <label>Основная сумма</label>
                                 <p>{{ sum ? parseFloat(sum).toFixed() + '₽' : '' }}</p>
                             </div>
-                            <div class="contract_sum">
+                            <div v-if="afterTheExpirationDate" class="contract_sum">
+                                <div class="input flex flex-column">
+                                    <label for="dividends_partly">Дивиденты</label>
+                                    <input type="number" id="dividends_partly" v-model="dividends" />
+                                </div>
+                            </div>
+                            <div v-else class="contract_sum">
                                 <label>Дивиденды</label>
                                 <p>
                                     {{ dividends ? parseFloat(dividends).toFixed(2) + '₽' : '' }}

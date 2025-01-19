@@ -38,7 +38,7 @@ protected function calculateAccumulatedDividends($contractStartDate, $contractDe
     //dd($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $paymentFrequency, $lastPaymentDate);
 
     return match ($paymentFrequency) {
-        'По истечению срока' => $this->calculateEndOfTermDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount),
+        // 'По истечению срока' => $this->calculateEndOfTermDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount),
         'Ежеквартально'   => $this->calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate ),
         'Ежегодно' => $this->calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate),
         default => 0,
@@ -46,42 +46,42 @@ protected function calculateAccumulatedDividends($contractStartDate, $contractDe
 }
 
 
-protected function calculateEndOfTermDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount)
-{
-    $startDate = new DateTime($contractStartDate);
-    $endDate = new DateTime($contractDeadline);
-    $currentDate = new DateTime($currentDate);
+// protected function calculateEndOfTermDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount)
+// {
+//     $startDate = new DateTime($contractStartDate);
+//     $endDate = new DateTime($contractDeadline);
+//     $currentDate = new DateTime($currentDate);
 
-    // Защита от деления на 0
-    if ($startDate >= $endDate) {
-        return round($paymentAmount);
-    }
+//     // Защита от деления на 0
+//     if ($startDate >= $endDate) {
+//         return round($paymentAmount);
+//     }
 
-    // Считаем количество дней в периоде (учёт високосных лет)
-    $totalContractDays = 0;
-    for ($date = clone $startDate; $date < $endDate; $date->modify('+1 day')) {
-        $totalContractDays++;
-    }
+//     // Считаем количество дней в периоде (учёт високосных лет)
+//     $totalContractDays = 0;
+//     for ($date = clone $startDate; $date < $endDate; $date->modify('+1 day')) {
+//         $totalContractDays++;
+//     }
 
-    // Дни с начала договора до текущей даты
-    $daysSinceStart = 0;
-    for ($date = clone $startDate; $date < $currentDate && $date < $endDate; $date->modify('+1 day')) {
-        $daysSinceStart++;
-    }
+//     // Дни с начала договора до текущей даты
+//     $daysSinceStart = 0;
+//     for ($date = clone $startDate; $date < $currentDate && $date < $endDate; $date->modify('+1 day')) {
+//         $daysSinceStart++;
+//     }
 
-    // Дивиденды за один день
-    $dailyDividend = $paymentAmount / $totalContractDays;
+//     // Дивиденды за один день
+//     $dailyDividend = $paymentAmount / $totalContractDays;
 
-    // Если договор истёк, начисляем 100% суммы
-    if ($currentDate >= $endDate) {
-        return round($paymentAmount);
-    }
+//     // Если договор истёк, начисляем 100% суммы
+//     if ($currentDate >= $endDate) {
+//         return round($paymentAmount);
+//     }
 
-    // Пропорционально за прошедшие дни
-    $accruedDividends = $daysSinceStart * $dailyDividend;
+//     // Пропорционально за прошедшие дни
+//     $accruedDividends = $daysSinceStart * $dailyDividend;
 
-    return round($accruedDividends);
-}
+//     return round($accruedDividends);
+// }
 
 
 protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
