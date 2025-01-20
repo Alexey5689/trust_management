@@ -357,12 +357,12 @@ const handleDateChange = (event) => {
                         </div>
                     </div>
                     <div class="flex c-gap">
-                        <div class="input flex flex-column">
+                        <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
                             <input type="number" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
-                        <div class="input flex checkbox">
+                        <div class="input flex align-center checkbox">
                             <input
                                 type="checkbox"
                                 @change="handleCheckboxChange"
@@ -425,12 +425,12 @@ const handleDateChange = (event) => {
                         </div>
                     </div>
                     <div class="flex c-gap">
-                        <div class="input flex flex-column">
+                        <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
                             <input type="text" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
-                        <div class="input flex checkbox">
+                        <div class="input flex align-center checkbox">
                             <input
                                 type="checkbox"
                                 id="checkbox"
@@ -623,14 +623,15 @@ const handleDateChange = (event) => {
 }
 
 .checkbox {
-    align-items: end;
+    height: 42px;
+    margin-top: auto;
+    column-gap: 12px;
 }
 
 .checkbox input {
-    margin-bottom: 11px;
-    margin-right: 12px;
     width: 24px;
     height: 24px;
+    flex-shrink: 0;
 }
 
 .checkbox label {
