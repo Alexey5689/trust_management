@@ -182,6 +182,7 @@ const updateContract = () => {
 };
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
+    form.procent = 0;
 };
 
 const handleDateChange = (event) => {

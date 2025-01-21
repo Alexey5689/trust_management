@@ -213,7 +213,7 @@ class AdminController extends Controller
                     
                     //dd($nextPaymentDate);
                    //dd($isExpired);
-                    $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) && now()->lessThanOrEqualTo($nextPaymentDate);
+                    $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) || now()->lessThanOrEqualTo($nextPaymentDate);
                     //dd($canRequestPayoutOnTime);
                     return [
                         'id' => $contract->id,
@@ -278,7 +278,7 @@ class AdminController extends Controller
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
             'sum' => ['required', 'integer'],
-            'procent' => ['required', 'integer', 'min:1', 'max:100'],
+            'procent' => ['required', 'integer', 'min:0', 'max:100'],
             'manager_id' => ['required', 'integer', 'exists:users,id'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);

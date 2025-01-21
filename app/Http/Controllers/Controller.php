@@ -454,7 +454,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
         // Если заявка исполнена, создаём транзакцию
         if ($newStatus === 'Исполнена') {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-            $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
+            $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline));
             $user=User::find($contract->user_id);
             $manager=User::find($contract->manager_id);
             $contract->update([

@@ -172,6 +172,7 @@ watch(
 
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
+    form.procent = 0;
 };
 const handleDeadlineChange = (event) => {
     const selectedDuration = event.target.value;

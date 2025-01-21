@@ -258,7 +258,7 @@ class ManagerController extends Controller
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
             'sum' => ['required', 'integer'],
-            'procent' => ['required', 'integer', 'min:1', 'max:100'],
+            'procent' => ['required', 'integer', 'min:0', 'max:100'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
 

@@ -54,9 +54,7 @@ const contractInfo = ref({});
 const can_payout = ref('');
 const loading = ref(false);
 const afterTheExpirationDate = ref(false);
-
-const count_of_applications = ref(null);
-const number_of_payments = ref(null);
+const dividendsAfterExpiration = ref(null);
 
 const activeApplication = computed(() =>
     props.applications
@@ -126,6 +124,9 @@ const onTime = () => {
     form.condition = 'В срок';
 };
 const takeEverythin = () => {
+    if (afterTheExpirationDate) {
+        dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
+    }
     form.sum = null;
     form.dividends = null;
     form.type_of_processing = 'Забрать дивиденды и сумму';
@@ -133,6 +134,9 @@ const takeEverythin = () => {
     form.dividends = dividends.value;
 };
 const takeDividends = () => {
+    if (afterTheExpirationDate) {
+        dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
+    }
     form.dividends = null;
     form.sum = null;
     form.type_of_processing = 'Забрать дивиденды целиком';
@@ -140,6 +144,9 @@ const takeDividends = () => {
 };
 
 const takePartlyDividends = () => {
+    if (afterTheExpirationDate) {
+        dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
+    }
     form.dividends = null;
     form.type_of_processing = 'Забрать дивиденды частично';
 };
@@ -165,8 +172,6 @@ const closeModal = () => {
     procent.value = '';
     selectedOffTime.value = null;
     selectedPartlyOption.value = null;
-    count_of_applications.value = null;
-    number_of_payments.value = null;
     form.reset(
         'user_id',
         'contract_id',
@@ -177,6 +182,7 @@ const closeModal = () => {
         'date_of_payments',
         'sum',
         'dividends',
+        'dividendsAfterExpiration',
     );
 };
 
@@ -192,6 +198,7 @@ const form = useForm({
     sum: null,
     dividends: null,
     available_balance: null,
+    dividendsAfterExpiration: null,
 });
 const formStatus = useForm({
     status: '',
@@ -490,7 +497,7 @@ const changeStatus = () => {
                                 <label>Срок договора</label>
                                 <p>{{ term === 1 ? '1 год' : term === 3 ? '3 года' : term + '' }}</p>
                             </div>
-                            <div class="information_contract">
+                            <div v-if="!afterTheExpirationDate" class="information_contract">
                                 <label>Ставка</label>
                                 <p>{{ procent }}</p>
                             </div>
@@ -503,8 +510,12 @@ const changeStatus = () => {
                             <div v-if="afterTheExpirationDate" class="contract_sum">
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly">Дивиденты</label>
-                                    <input type="number" id="dividends_partly" v-model="dividends" />
+                                    <input type="number" id="dividends_partly" v-model="dividendsAfterExpiration" />
                                 </div>
+                                <p class="warning" style="margin-top: 16px">Комиссия фонда, 20%</p>
+                                <p class="warning" style="margin-top: 4px">
+                                    {{ dividendsAfterExpiration ? dividendsAfterExpiration * 0.2 + '₽' : '' }}
+                                </p>
                             </div>
                             <div v-else class="contract_sum">
                                 <label>Дивиденды</label>
