@@ -205,8 +205,6 @@ class AdminController extends Controller
                         'По истечению срока' => null,
                         default => null,
                     };
-
-                    $afterTheExpirationDate = $contract->payments === 'По истечению срока' ? true : false;
                    //dd($nextPaymentDate);
                      // Проверяем, истёк ли срок договора
                     $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
@@ -228,7 +226,7 @@ class AdminController extends Controller
                         'next_payment_date' => $nextPaymentDate,
                         'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  // Запретить заявки для истёкших договоров
                         'is_expired' => $isExpired,
-                        'afterTheExpirationDate' => $afterTheExpirationDate
+                        'agree_with_terms' => $contract->agree_with_terms
 
                     ];
                 }),

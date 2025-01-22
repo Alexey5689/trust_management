@@ -124,7 +124,8 @@ class ApplicationController extends Controller
                     'create_date' => $application->contract->create_date,
                     'term' => $term,
                     'procent' => $application->contract->procent,
-                    'dividends' =>$dividends
+                    'dividends' =>$dividends,
+                    'agree_with_terms' => $application->contract->agree_with_terms
                 ]
             ],
         ]);

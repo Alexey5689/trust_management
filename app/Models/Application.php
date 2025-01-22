@@ -19,7 +19,6 @@ class Application extends Model
         'type_of_processing',
         'date_of_payments',
         'dividends',
-        'dividendsAfterExpiration'
     ];
 
      /**

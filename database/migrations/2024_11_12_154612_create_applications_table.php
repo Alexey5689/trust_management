@@ -23,7 +23,6 @@ return new class extends Migration
             $table->date('date_of_payments');
             $table->decimal('sum', 16, 2)->nullable();
             $table->decimal('dividends', 16, 2)->nullable();
-            $table->decimal('dividendsAfterExpiration', 16, 2)->nullable();
             $table->timestamps();
         });
     }

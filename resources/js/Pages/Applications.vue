@@ -53,7 +53,7 @@ const userInfo = ref({});
 const contractInfo = ref({});
 const can_payout = ref('');
 const loading = ref(false);
-const afterTheExpirationDate = ref(false);
+const agree_with_terms = ref(false);
 const dividendsAfterExpiration = ref(null);
 
 const activeApplication = computed(() =>
@@ -106,9 +106,9 @@ const handleGetContract = (contract_id) => {
     can_payout.value = userContract.value.user_contracts.find(
         (contract) => contract.id === contract_id,
     ).can_request_payout;
-    afterTheExpirationDate.value = userContract.value.user_contracts.find(
+    agree_with_terms.value = userContract.value.user_contracts.find(
         (contract) => contract.id === contract_id,
-    ).afterTheExpirationDate;
+    ).agree_with_terms;
 };
 
 const offTime = () => {
@@ -124,7 +124,7 @@ const onTime = () => {
     form.condition = 'В срок';
 };
 const takeEverythin = () => {
-    if (afterTheExpirationDate) {
+    if (agree_with_terms.value === true) {
         dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
     }
     form.sum = null;
@@ -134,7 +134,7 @@ const takeEverythin = () => {
     form.dividends = dividends.value;
 };
 const takeDividends = () => {
-    if (afterTheExpirationDate) {
+    if (agree_with_terms.value === true) {
         dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
     }
     form.dividends = null;
@@ -144,7 +144,7 @@ const takeDividends = () => {
 };
 
 const takePartlyDividends = () => {
-    if (afterTheExpirationDate) {
+    if (agree_with_terms.value === true) {
         dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
     }
     form.dividends = null;
@@ -172,6 +172,8 @@ const closeModal = () => {
     procent.value = '';
     selectedOffTime.value = null;
     selectedPartlyOption.value = null;
+    agree_with_terms.value = false;
+    dividendsAfterExpiration.value = null;
     form.reset(
         'user_id',
         'contract_id',
@@ -182,7 +184,6 @@ const closeModal = () => {
         'date_of_payments',
         'sum',
         'dividends',
-        'dividendsAfterExpiration',
     );
 };
 
@@ -507,7 +508,7 @@ const changeStatus = () => {
                                 <label>Основная сумма</label>
                                 <p>{{ sum ? parseFloat(sum).toFixed() + '₽' : '' }}</p>
                             </div>
-                            <div v-if="afterTheExpirationDate" class="contract_sum">
+                            <div v-if="agree_with_terms" class="contract_sum">
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly">Дивиденты</label>
                                     <input type="number" id="dividends_partly" v-model="dividendsAfterExpiration" />

@@ -7,7 +7,7 @@ use App\Models\Log;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\DB;
 use DateTime;
 
 abstract class Controller
@@ -367,42 +367,47 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
             if (!$contract) {
                 $message = 'Ошибка: Договор не найден.';
             }
+            DB::beginTransaction();
+            try {
+                 // Завершаем договор и создаём транзакцию
+                $contract->update(['contract_status' => false, 'is_aplication' => false]);
+                $this->createTransaction($application, $application->sum, 'Заявка');
 
-            // Завершаем договор и создаём транзакцию
-            $contract->update(['contract_status' => false, 'is_aplication' => false]);
-            $this->createTransaction($application, $application->sum, 'Заявка');
-
-            $user=User::find($contract->user_id);
-            Log::create([
-                'model_id' => $contract->user_id,
-                'model_type' => Transaction::class,
-                'change' => 'Новая транзакция',
-                'action' => 'Создание транзакции',
-                'old_value' => '',
-                'new_value' => 'Сумама: ' . $application->sum,
-                'created_by' => Auth::id(),
-            ]);
-            $user->userNotifications()->create([
-                'title' => 'Создание транзакции',
-                'content'=> 'Создана транзакция на сумму: ' . $application->sum,
-            ]);
-            Log::create([
-                'model_id' => $contract->user_id,
-                'model_type' => Contract::class,
-                'change' => 'Смена статуса договора',
-                'action' => 'Закрытие договора No ' . $contract->contract_number,
-                'old_value' => 'Активный',
-                'new_value' => 'Неактивный',
-                'created_by' => Auth::id(),
-            ]);
-            $user->userNotifications()->create([
-                'title' => 'Закрытие договора',
-                'content'=> 'Договор No ' . $contract->contract_number . 'был закрыт.',
-            ]);
+                $user=User::find($contract->user_id);
+                Log::create([
+                    'model_id' => $contract->user_id,
+                    'model_type' => Transaction::class,
+                    'change' => 'Новая транзакция',
+                    'action' => 'Создание транзакции',
+                    'old_value' => '',
+                    'new_value' => 'Сумама: ' . $application->sum,
+                    'created_by' => Auth::id(),
+                ]);
+                $user->userNotifications()->create([
+                    'title' => 'Создание транзакции',
+                    'content'=> 'Создана транзакция на сумму: ' . $application->sum,
+                ]);
+                Log::create([
+                    'model_id' => $contract->user_id,
+                    'model_type' => Contract::class,
+                    'change' => 'Смена статуса договора',
+                    'action' => 'Закрытие договора No ' . $contract->contract_number,
+                    'old_value' => 'Активный',
+                    'new_value' => 'Неактивный',
+                    'created_by' => Auth::id(),
+                ]);
+                $user->userNotifications()->create([
+                    'title' => 'Закрытие договора',
+                    'content'=> 'Договор No ' . $contract->contract_number . 'был закрыт.',
+                ]);
+                DB::commit();
+                $message = 'Статус заявки успешно изменен!';
+            }
+            catch (\Exception $e) {
+                DB::rollBack();
+                $message = 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже';
+            }
         }
-
-       
-        $message = 'Статус заявки успешно изменен!';
         return $message;
     }
 
@@ -424,6 +429,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
     protected function partialPayoutDividends($application, $isCancelled = false)
     {
+
         $contract = Contract::find($application->contract_id);
 
         if (!$contract) {
@@ -457,72 +463,88 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
             $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline));
             $user=User::find($contract->user_id);
             $manager=User::find($contract->manager_id);
-            $contract->update([
-                'sum' => $mainSum + $avalible_dividends,
-                'last_payment_date' => now(),
-                'avaliable_dividends' =>  null,
-                'is_aplication' => false,
-            ]);
-            if($isExpired){
-                $oldCrateDate = $contract->create_date;
-                $contract->update([
-                    'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
-                    'deadline' => Carbon::parse($contract->deadline)->addYear($term),
-                    'last_payment_date' => null,
-                ]);
+            DB::beginTransaction();
+            try{
+                if($isExpired){
+                    $oldCrateDate = $contract->create_date;
+                    $contract->update([
+                        'sum' => $mainSum + $avalible_dividends,
+                        'create_date'=> $contract->deadline,
+                        'deadline' => Carbon::parse($contract->deadline)->addYear($term),
+                        'avaliable_dividends' => null,
+                        'last_payment_date' => null,
+                        'is_aplication' => false,
+                    ]);
+                    Log::create([
+                        'model_id' => $contract->user_id,
+                        'model_type' => Contract::class,
+                        'change' => 'Пролонгация договора',
+                        'action' => 'Продления срока договора',
+                        'old_value' => $oldCrateDate,
+                        'new_value' => $contract->create_date,
+                        'created_by' => Auth::id(),
+                    ]);
+                     // Создание уведомлений для пользователя и менеджера
+                    $content = $term === 1 ? $term . ' год' : $term . ' года';
+                    $user->userNotifications()->create([
+                        'title' => 'Пролонгация договора',
+                        'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                    ]);
+                
+                    $manager->userNotifications()->create([
+                        'title' => 'Пролонгация договора',
+                        'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                    ]);
+                }
+                else{
+                    $contract->update([
+                        'sum' => $mainSum + $avalible_dividends,
+                        'last_payment_date' => now(),
+                        'avaliable_dividends' =>  null,
+                        'is_aplication' => false,
+                    ]);
+                }
+                $this->createTransaction($application, $avalible_dividends, 'Договор');
                 Log::create([
                     'model_id' => $contract->user_id,
-                    'model_type' => Contract::class,
-                    'change' => 'Пролонгация договора',
-                    'action' => 'Продления срока договора',
-                    'old_value' => $oldCrateDate,
-                    'new_value' => $contract->create_date,
+                    'model_type' => Transaction::class,
+                    'change' => 'Новая транзакция',
+                    'action' => 'Создание транзакции',
+                    'old_value' => '',
+                    'new_value' => 'Сумма: ' . round($avalible_dividends),
                     'created_by' => Auth::id(),
                 ]);
-                 // Создание уведомлений для пользователя и менеджера
-                $content = $term === 1 ? $term . ' год' : $term . ' года';
                 $user->userNotifications()->create([
-                    'title' => 'Пролонгация договора',
-                    'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                    'title' => 'Создание транзакции',
+                    'content'=> 'Создана транзакция на сумму: ' . round($avalible_dividends),
                 ]);
-            
-                $manager->userNotifications()->create([
-                    'title' => 'Пролонгация договора',
-                    'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                $this->createTransaction($application, $application->dividends, 'Заявка');
+                Log::create([
+                    'model_id' => $contract->user_id,
+                    'model_type' => Transaction::class,
+                    'change' => 'Новая транзакция',
+                    'action' => 'Создание транзакции',
+                    'old_value' => '',
+                    'new_value' => 'Сумма: ' . $application->dividends,
+                    'created_by' => Auth::id(),
                 ]);
-            }
-            $this->createTransaction($application, $avalible_dividends, 'Договор');
-            Log::create([
-                'model_id' => $contract->user_id,
-                'model_type' => Transaction::class,
-                'change' => 'Новая транзакция',
-                'action' => 'Создание транзакции',
-                'old_value' => '',
-                'new_value' => 'Сумама: ' . $avalible_dividends,
-                'created_by' => Auth::id(),
-            ]);
-            $user->userNotifications()->create([
-                'title' => 'Создание транзакции',
-                'content'=> 'Создана транзакция на сумму: ' . $avalible_dividends,
-            ]);
-            $this->createTransaction($application, $application->dividends, 'Заявка');
-            Log::create([
-                'model_id' => $contract->user_id,
-                'model_type' => Transaction::class,
-                'change' => 'Новая транзакция',
-                'action' => 'Создание транзакции',
-                'old_value' => '',
-                'new_value' => 'Сумама: ' . $application->dividends,
-                'created_by' => Auth::id(),
-            ]);
-            $user->userNotifications()->create([
-                'title' => 'Создание транзакции',
-                'content'=> 'Создана транзакция на сумму: ' . $application->dividends,
-            ]);
+                $user->userNotifications()->create([
+                    'title' => 'Создание транзакции',
+                    'content'=> 'Создана транзакция на сумму: ' . $application->dividends,
+                ]);
 
+                DB::commit();
+                $message = 'Статус заявки успешно изменен!';
+
+            }
+            catch (\Exception $e) {
+                DB::rollBack();
+                $message = 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже';
+            }
+           
         }
 
-        return 'Статус заявки успешно изменен!';
+        return $message;
     }
 
     protected function fullPayoutDividends($application, $isCancelled = false)
@@ -550,55 +572,68 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
             $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
             $user=User::find($contract->user_id);
             $manager=User::find($contract->manager_id);
-            $contract->update([
-                'last_payment_date' => now(),
-                'is_aplication' => false,
-            ]);
-            if ($isExpired) {
-                $oldCrateDate = $contract->create_date;
-                $contract->update([
-                    'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
-                    'deadline' => Carbon::parse($contract->deadline)->addYear($term),
-                    'last_payment_date' => null,
-                ]);
+            DB::beginTransaction();
+            try{
+
+                if ($isExpired) {
+                    $oldCrateDate = $contract->create_date;
+                    $contract->update([
+                        'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
+                        'deadline' => Carbon::parse($contract->deadline)->addYear($term),
+                        'last_payment_date' => null,
+                    ]);
+                    Log::create([
+                        'model_id' => $contract->user_id,
+                        'model_type' => Contract::class,
+                        'change' => 'Пролонгация договора',
+                        'action' => 'Продления срока договора',
+                        'old_value' => $oldCrateDate,
+                        'new_value' => $contract->create_date,
+                        'created_by' => Auth::id(),
+                    ]);
+                    $content = $term === 1 ? $term . ' год' : $term . ' года';
+                    $user->userNotifications()->create([
+                        'title' => 'Пролонгация договора',
+                        'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                    ]);
+                
+                    $manager->userNotifications()->create([
+                        'title' => 'Пролонгация договора',
+                        'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                    ]);
+                }else{
+                    $contract->update([
+                        'last_payment_date' => now(),
+                        'is_aplication' => false,
+                    ]);
+                }
+                $this->createTransaction($application, $application->dividends, 'Заявка');
+                $user=User::find($contract->user_id);
                 Log::create([
                     'model_id' => $contract->user_id,
-                    'model_type' => Contract::class,
-                    'change' => 'Пролонгация договора',
-                    'action' => 'Продления срока договора',
-                    'old_value' => $oldCrateDate,
-                    'new_value' => $contract->create_date,
+                    'model_type' => Transaction::class,
+                    'change' => 'Новая транзакция',
+                    'action' => 'Создание транзакции',
+                    'old_value' => '',
+                    'new_value' => 'Сумама: ' . $application->dividends,
                     'created_by' => Auth::id(),
                 ]);
-                $content = $term === 1 ? $term . ' год' : $term . ' года';
                 $user->userNotifications()->create([
-                    'title' => 'Пролонгация договора',
-                    'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
+                    'title' => 'Создание транзакции',
+                    'content'=> 'Создана транзакция на сумму: ' . $application->dividends,
                 ]);
-            
-                $manager->userNotifications()->create([
-                    'title' => 'Пролонгация договора',
-                    'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
-                ]);
+                DB::commit();
+                $message = 'Статус заявки успешно изменен!';
+
             }
-            $this->createTransaction($application, $application->dividends, 'Заявка');
-            $user=User::find($contract->user_id);
-            Log::create([
-                'model_id' => $contract->user_id,
-                'model_type' => Transaction::class,
-                'change' => 'Новая транзакция',
-                'action' => 'Создание транзакции',
-                'old_value' => '',
-                'new_value' => 'Сумама: ' . $application->dividends,
-                'created_by' => Auth::id(),
-            ]);
-            $user->userNotifications()->create([
-                'title' => 'Создание транзакции',
-                'content'=> 'Создана транзакция на сумму: ' . $application->dividends,
-            ]);
+            catch (\Exception $e) {
+                DB::rollBack();
+                $message = 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже';
+            }
+            
 
         }
-        return 'Статус заявки успешно изменен!';
+        return $message;
 
     }
     protected function fullPayout($application, $isCancelled = false)
@@ -621,28 +656,39 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
         };
         $application->update(['status' => $newStatus]);
         if ($newStatus === 'Исполнена') {
-            $contract->update([
-                'contract_status' => false,
-                'is_aplication' => false
-            ]);
-            $this->createTransaction($application, $application->sum + $application->dividends, 'Заявка');
-            $user=User::find($contract->user_id);
-            Log::create([
-                'model_id' => $contract->user_id,
-                'model_type' => Contract::class,
-                'change' => 'Смена статуса договора',
-                'action' => 'Закрытие договора No ' . $contract->contract_number,
-                'old_value' => 'Активный',
-                'new_value' => 'Неактивный',
-                'created_by' => Auth::id(),
-            ]);
-            $user->userNotifications()->create([
-                'title' => 'Договор',
-                'content'=> 'Договор No ' . $contract->contract_number . ' был закрыт',
-            ]);
+            DB::beginTransaction();
+            try{
+                $contract->update([
+                    'contract_status' => false,
+                    'is_aplication' => false,
+                    'avaliable_dividends' => null
+                ]);
+                $this->createTransaction($application, $application->sum + $application->dividends, 'Заявка');
+                $user=User::find($contract->user_id);
+                Log::create([
+                    'model_id' => $contract->user_id,
+                    'model_type' => Contract::class,
+                    'change' => 'Смена статуса договора',
+                    'action' => 'Закрытие договора No ' . $contract->contract_number,
+                    'old_value' => 'Активный',
+                    'new_value' => 'Неактивный',
+                    'created_by' => Auth::id(),
+                ]);
+                $user->userNotifications()->create([
+                    'title' => 'Договор',
+                    'content'=> 'Договор No ' . $contract->contract_number . ' был закрыт',
+                ]);
+                DB::commit();
+                $message = 'Статус заявки успешно изменен!';
+
+            }catch (\Exception $e) {
+                DB::rollBack();
+                $message='Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже';
+            }
+           
             
         }
-        return 'Статус заявки успешно изменен!';
+        return $message;
     }
 
 
