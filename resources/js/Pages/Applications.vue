@@ -489,31 +489,31 @@ const changeStatus = () => {
                                 <InputError :message="form.errors.contract_id" />
                             </div>
                         </div>
-                        <div class="flex" style="column-gap: 8px">
-                            <div class="information_contract">
+                        <div class="flex" :style="{ columnGap: agree_with_terms ? '16px' : '8px' }">
+                            <div class="information_contract" :style="{ width: agree_with_terms ? '100%' : 'auto' }">
                                 <label>Дата заключения</label>
                                 <p>{{ create_date }}</p>
                             </div>
-                            <div class="information_contract">
+                            <div class="information_contract" :style="{ width: agree_with_terms ? '100%' : 'auto' }">
                                 <label>Срок договора</label>
                                 <p>{{ term === 1 ? '1 год' : term === 3 ? '3 года' : term + '' }}</p>
                             </div>
-                            <div v-if="!afterTheExpirationDate" class="information_contract">
+                            <div v-if="!agree_with_terms" class="information_contract">
                                 <label>Ставка</label>
                                 <p>{{ procent }}</p>
                             </div>
                         </div>
                         <div class="flex c-gap">
-                            <div class="contract_sum">
+                            <div class="contract_sum" style="max-height: 74px; width: 210px; flex-shrink: 0;">
                                 <label>Основная сумма</label>
                                 <p>{{ sum ? parseFloat(sum).toFixed() + '₽' : '' }}</p>
                             </div>
-                            <div v-if="agree_with_terms" class="contract_sum">
+                            <div v-if="agree_with_terms" class="contract_sum contract_sum_checkbox">
                                 <div class="input flex flex-column">
-                                    <label for="dividends_partly">Дивиденты</label>
+                                    <label for="dividends_partly">Дивиденты*</label>
                                     <input type="number" id="dividends_partly" v-model="dividendsAfterExpiration" />
                                 </div>
-                                <p class="warning" style="margin-top: 16px">Комиссия фонда, 20%</p>
+                                <p class="warning" style="margin-top: 8px">Комиссия фонда, 20%</p>
                                 <p class="warning" style="margin-top: 4px">
                                     {{ dividendsAfterExpiration ? dividendsAfterExpiration * 0.2 + '₽' : '' }}
                                 </p>
@@ -1072,6 +1072,12 @@ const changeStatus = () => {
     background: #f3f5f6;
     border-radius: 24px;
     padding: 16px 20px;
+}
+
+.contract_sum_checkbox {
+    padding: unset;
+    background: none;
+    width: 210px;
 }
 
 .radio-buttons input[type='radio'] {
