@@ -184,6 +184,7 @@ const closeModal = () => {
         'date_of_payments',
         'sum',
         'dividends',
+        'agree_with_terms',
     );
 };
 
@@ -237,6 +238,12 @@ const changeStatus = () => {
             loading.value = false;
         },
     });
+};
+
+const validateDividends = () => {
+    if (form.dividends > dividends.value) {
+        form.dividends = null;
+    }
 };
 </script>
 
@@ -422,7 +429,7 @@ const changeStatus = () => {
                                         {{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
                                     </p>
                                 </div>
-                                <div v-if="role === 'admin' || role === 'manager'">
+                                <!-- <div v-if="role === 'admin' || role === 'manager'">
                                     <Dropdown
                                         :options="[
                                             {
@@ -438,7 +445,7 @@ const changeStatus = () => {
                                             <Ellipsis />
                                         </template>
                                     </Dropdown>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -607,7 +614,12 @@ const changeStatus = () => {
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly">Дивиденты</label>
-                                    <input type="number" id="dividends_partly" v-model="form.dividends" />
+                                    <input
+                                        type="number"
+                                        id="dividends_partly"
+                                        @input="validateDividends"
+                                        v-model="form.dividends"
+                                    />
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly_date">Дата планируемой выплаты</label>
@@ -686,7 +698,7 @@ const changeStatus = () => {
                                 }}
                             </p>
                         </div>
-                        <div class="information_contract">
+                        <div v-if="contractInfo.agree_with_terms !== true" class="information_contract">
                             <label>Ставка</label>
                             <p>{{ contractInfo.procent }}%</p>
                         </div>

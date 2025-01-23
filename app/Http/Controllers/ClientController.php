@@ -154,7 +154,8 @@ public function showContracts()
                 'anualDividends' => $anualDividends,
                 'monthDividends' => $monthDividends,
                 'weekDividends' => $weekDividends,
-                'dayDividends' => $dayDividends
+                'dayDividends' => $dayDividends,
+                'agree_with_terms' => $contract->agree_with_terms
             ];
         });
 

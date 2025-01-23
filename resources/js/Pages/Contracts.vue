@@ -249,7 +249,7 @@ const handleDateChange = (event) => {
                                 <p>{{ formatDate(contract.create_date) }}</p>
                             </div>
                             <div style="padding-left: 30px">
-                                <p>{{ contract.procent }}</p>
+                                <p>{{ contract.procent === 0 ? '80%/20%' : contract.procent + '%' }}</p>
                             </div>
                             <div>
                                 <p>
@@ -260,7 +260,7 @@ const handleDateChange = (event) => {
                                 <p>{{ contract.payments }}</p>
                             </div>
                             <div>
-                                <p>{{ contract.sum }}</p>
+                                <p>{{ contract.sum + ' ₽' }}</p>
                             </div>
                             <div v-if="props.role === 'admin'" class="card-item ellipsis">
                                 <Dropdown

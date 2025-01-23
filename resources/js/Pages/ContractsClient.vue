@@ -101,7 +101,7 @@ onMounted(() => {
                     </div>
                     <div class="flex">
                         <span>% ставка по договору</span>
-                        <p>{{ contract.procent }}</p>
+                        <p>{{ contract.procent === 0 ? '80%/20%' : contract.procent + '%' }}</p>
                     </div>
                     <div class="flex">
                         <span>Сумма по договору</span>
@@ -111,7 +111,7 @@ onMounted(() => {
             </div>
 
             <!-- Единый блок Графика: показываем, если есть выбранный договор -->
-            <div class="accruals card" v-if="openContractId">
+            <div class="accruals card" v-if="openContractId && openContractId.agree_with_terms === false">
                 <div class="accruals_title flex justify-between align-center">
                     <h3>График начислений для договора #{{ openContractId.contract_number }}</h3>
                     <ul class="accruals_tab flex justify-between">
@@ -147,7 +147,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Таб "По годам" -->
-                <div class="accruals_schedule years" v-show="activeTab === 'years'">
+                <div class="accruals_schedule years" v-if="activeTab === 'years'">
                     <div
                         v-for="accrual in yearAccruals"
                         :key="accrual.id"
@@ -167,7 +167,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Таб "По месяцам" -->
-                <div class="accruals_schedule months" v-show="activeTab === 'months'">
+                <div class="accruals_schedule months" v-if="activeTab === 'months'">
                     <div
                         v-for="accrual in monthAccruals"
                         :key="accrual.id"
@@ -187,7 +187,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Таб "По неделям" -->
-                <div class="accruals_schedule weeks" v-show="activeTab === 'weeks'">
+                <div class="accruals_schedule weeks" v-if="activeTab === 'weeks'">
                     <div
                         v-for="accrual in weekAccruals"
                         :key="accrual.id"
@@ -207,7 +207,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Таб "По дням" -->
-                <div class="accruals_schedule days" v-show="activeTab === 'days'">
+                <div class="accruals_schedule days" v-if="activeTab === 'days'">
                     <div
                         v-for="accrual in dayAccruals"
                         :key="accrual.id"

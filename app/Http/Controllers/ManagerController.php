@@ -197,7 +197,7 @@ class ManagerController extends Controller
                         'next_payment_date' => $nextPaymentDate,
                         'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  // Запретить заявки для истёкших договоров
                         'is_expired' => $isExpired,
-                        'afterTheExpirationDate' => $afterTheExpirationDate
+                        'agree_with_terms' => $contract->agree_with_terms
                     ];
                 }),
             ];
