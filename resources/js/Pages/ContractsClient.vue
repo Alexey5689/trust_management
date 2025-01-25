@@ -83,7 +83,10 @@ onMounted(() => {
                     v-for="contract in props.contracts"
                     :key="contract.id"
                     @click="handleContractClick(contract.id)"
-                    :class="{ active: openContractId && openContractId.id === contract.id }"
+                    :class="{ 
+                                active: openContractId && openContractId.id === contract.id, 
+                                'agree-true-active': contract.agree_with_terms === true 
+                            }"
                 >
                     <div class="icon_contract flex justify-center align-center">
                         <Icon_contract />
@@ -366,5 +369,15 @@ onMounted(() => {
 
 .schedule_item span {
     color: #969ba0;
+}
+
+.active.contract_item.agree-true-active,
+.contract_item.agree-true-active:hover {
+    background: #FDA75D;
+}
+
+.active.contract_item.agree-true-active .icon_contract svg,
+.contract_item.agree-true-active:hover .icon_contract svg {
+    fill: #FDA75D;
 }
 </style>
