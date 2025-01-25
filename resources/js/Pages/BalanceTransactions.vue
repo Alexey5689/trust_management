@@ -77,11 +77,11 @@ const sum = computed(() => {
                 <div class="client">
                     <div class="client_info">
                         <p style="font-weight: 500">Основная сумма</p>
-                        <p>{{ formatNumber(props.balance.main_sum) }} ₽</p>
+                        <p>{{ Number(props.balance.main_sum).toLocaleString('ru-RU', { maximumFractionDigits: 0 }) }} ₽</p>
                     </div>
                     <div class="client_info">
                         <p style="font-weight: 500">Дивиденды</p>
-                        <p>{{ formatNumber(props.balance.dividends) }} ₽</p>
+                        <p>{{ Number(props.balance.dividends).toLocaleString('ru-RU', { maximumFractionDigits: 0 }) }} ₽</p>
                     </div>
                 </div>
             </div>
