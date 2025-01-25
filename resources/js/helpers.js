@@ -68,15 +68,6 @@ export const getYearDifference = (startDate, endDate) => {
     }
 };
 
-export const getDayDifference = (startDate, endDate) => {
-    try {
-        return differenceInDays(parseISO(endDate), parseISO(startDate));
-    } catch (error) {
-        console.error('Ошибка вычисления разницы в днях:', error);
-        return null;
-    }
-};
-
 export const calculateDeadlineDate = (years, createDate) => {
     const date = new Date(createDate);
     // console.log('Дата ебать', date);
@@ -97,9 +88,6 @@ export const calculateDeadlineDate = (years, createDate) => {
     }
 
     return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
-};
-export const calculateDividends = (sum, procent, term) => {
-    return (sum * (procent / 100) * term).toFixed(1);
 };
 
 export const fetchData = async (router, params = {}) => {
@@ -130,6 +118,19 @@ export const formatNumber = (num) => {
             .toLocaleString('ru-RU', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
+            })
+            .replace(',', '.');
+    } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
+        return num; // Возвращаем исходное значение в случае ошибки
+    }
+};
+
+export const formatNumberBalanceTransactions = (num) => {
+    try {
+        return Number(num)
+            .toLocaleString('ru-RU', {
+                maximumFractionDigits: 0,
             })
             .replace(',', '.');
     } catch (error) {

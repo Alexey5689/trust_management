@@ -1,11 +1,11 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
-import { fetchData, getYearDifference, calculateDividends } from '@/helpers';
+import { fetchData } from '@/helpers';
 import { calculateDeadlineDate } from '@/helpers.js';
 import InputError from '@/Components/InputError.vue';
 import Loader from '@/Components/Loader.vue';

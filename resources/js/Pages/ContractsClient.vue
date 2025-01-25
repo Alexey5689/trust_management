@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { formatDate, formatDateClientContract, formatDateClientContractRus } from '@/helpers.js';
@@ -28,6 +28,7 @@ const props = defineProps({
         required: false,
     },
 });
+// created_at
 
 const activeTab = ref('months');
 const yearAccruals = ref([]);
@@ -38,6 +39,7 @@ const dayAccruals = ref([]);
 // Храним id выбранного договора
 const openContractId = ref(null);
 
+const contracts = computed(() => props.contracts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
 // При клике устанавливаем (или сбрасываем) id выбранного договора
 function handleContractClick(contractId) {
     openContractId.value = props.contracts.find((contract) => contract.id === contractId);
@@ -80,13 +82,13 @@ onMounted(() => {
             <div class="contracts_client flex">
                 <div
                     class="contract_item flex flex-column"
-                    v-for="contract in props.contracts"
+                    v-for="contract in contracts"
                     :key="contract.id"
                     @click="handleContractClick(contract.id)"
-                    :class="{ 
-                                active: openContractId && openContractId.id === contract.id, 
-                                'agree-true-active': contract.agree_with_terms === true 
-                            }"
+                    :class="{
+                        active: openContractId && openContractId.id === contract.id,
+                        'agree-true-active': contract.agree_with_terms === true,
+                    }"
                 >
                     <div class="icon_contract flex justify-center align-center">
                         <Icon_contract />
@@ -373,11 +375,11 @@ onMounted(() => {
 
 .active.contract_item.agree-true-active,
 .contract_item.agree-true-active:hover {
-    background: #FDA75D;
+    background: #fda75d;
 }
 
 .active.contract_item.agree-true-active .icon_contract svg,
 .contract_item.agree-true-active:hover .icon_contract svg {
-    fill: #FDA75D;
+    fill: #fda75d;
 }
 </style>

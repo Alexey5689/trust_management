@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { formatDate, getYearDifference, calculateDeadlineDate } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
@@ -56,6 +56,7 @@ const getInfo = async (url, contractId) => {
     try {
         const data = await fetchData(url, { contract: contractId }); // Ожидаем завершения запроса
         contractData.value = data.contract;
+        console.log(contractData);
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
@@ -446,11 +447,7 @@ const handleDateChange = (event) => {
                             <label for="deadline">Срок договора*</label>
                             <select id="deadline" v-model="selectedDuration" @change="handleDeadlineChange">
                                 <option value="" disabled>
-                                    {{
-                                        getYearDifference(form.create_date, form.deadline) === 1
-                                            ? '1 год'
-                                            : getYearDifference(form.create_date, form.deadline) + ' года'
-                                    }}
+                                    {{ getYearDifference(form.create_date, form.deadline) === 1 ? '1 год' : '3 года' }}
                                 </option>
                                 <option value="1 год">1 год</option>
                                 <option value="3 года">3 года</option>
@@ -459,7 +456,7 @@ const handleDateChange = (event) => {
                         </div>
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
-                            <select id="deadline" v-model="form.payments" @change="handlePaymentsChange">
+                            <select id="deadline" v-model="form.payments">
                                 <option disabled></option>
                                 <option value="Ежеквартально">Ежеквартально</option>
                                 <option value="Ежегодно">Ежегодно</option>

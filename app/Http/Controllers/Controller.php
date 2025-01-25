@@ -362,11 +362,6 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
         // Если заявка переходит в "Исполнена", обрабатываем транзакцию и договор
         if ($newStatus === 'Исполнена') {
-           
-
-            if (!$contract) {
-                $message = 'Ошибка: Договор не найден.';
-            }
             DB::beginTransaction();
             try {
                  // Завершаем договор и создаём транзакцию
@@ -431,11 +426,6 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
     {
 
         $contract = Contract::find($application->contract_id);
-
-        if (!$contract) {
-            return 'Ошибка: Договор не найден.';
-        }
-
         // Отмена заявки
         if ($isCancelled) {
             $application->update(['status' => 'Отменена']);
@@ -472,7 +462,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                         'create_date'=> $contract->deadline,
                         'deadline' => Carbon::parse($contract->deadline)->addYear($term),
                         'avaliable_dividends' => null,
-                        'last_payment_date' => null,
+                        'last_payment_date' =>$contract->deadline,
                         'is_aplication' => false,
                     ]);
                     Log::create([
@@ -511,12 +501,12 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     'change' => 'Новая транзакция',
                     'action' => 'Создание транзакции',
                     'old_value' => '',
-                    'new_value' => 'Сумма: ' . round($avalible_dividends),
+                    'new_value' => 'Сумма: ' . round($avalible_dividends,0),
                     'created_by' => Auth::id(),
                 ]);
                 $user->userNotifications()->create([
                     'title' => 'Создание транзакции',
-                    'content'=> 'Создана транзакция на сумму: ' . round($avalible_dividends),
+                    'content'=> 'Создана транзакция на сумму: ' . round($avalible_dividends, 0),
                 ]);
                 $this->createTransaction($application, $application->dividends, 'Заявка');
                 Log::create([
@@ -525,12 +515,12 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     'change' => 'Новая транзакция',
                     'action' => 'Создание транзакции',
                     'old_value' => '',
-                    'new_value' => 'Сумма: ' . $application->dividends,
+                    'new_value' => 'Сумма: ' . round($application->dividends, 0),
                     'created_by' => Auth::id(),
                 ]);
                 $user->userNotifications()->create([
                     'title' => 'Создание транзакции',
-                    'content'=> 'Создана транзакция на сумму: ' . $application->dividends,
+                    'content'=> 'Создана транзакция на сумму: ' . round($application->dividends, 0),
                 ]);
 
                 DB::commit();
@@ -543,7 +533,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
             }
            
         }
-
+        $message = 'Статус заявки успешно изменен!';
         return $message;
     }
 
@@ -551,21 +541,19 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
     {
         $contract = Contract::find($application->contract_id);
 
-        if (!$contract) {
-            return 'Ошибка: Договор не найден.';
-        }
-
         if ($isCancelled) {
             $application->update(['status' => 'Отменена']);
             $contract->update(['avaliable_dividends' => null, 'is_aplication' => false]);
             return 'Заявка отменена.';
         }
+        //dd($application->status);
         $newStatus = match ($application->status) {
             'В обработке' => 'Согласована',
             'Согласована' => 'Исполнена',
             default => $application->status,
         };
         $application->update(['status' => $newStatus]);
+        
 
         if ($newStatus === 'Исполнена') {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
@@ -580,7 +568,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     $contract->update([
                         'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
                         'deadline' => Carbon::parse($contract->deadline)->addYear($term),
-                        'last_payment_date' => null,
+                        'last_payment_date' => $contract->deadline,
                     ]);
                     Log::create([
                         'model_id' => $contract->user_id,
@@ -620,7 +608,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                 ]);
                 $user->userNotifications()->create([
                     'title' => 'Создание транзакции',
-                    'content'=> 'Создана транзакция на сумму: ' . $application->dividends,
+                    'content'=> 'Создана транзакция на сумму: ' . round($application->dividends,0),
                 ]);
                 DB::commit();
                 $message = 'Статус заявки успешно изменен!';
@@ -633,16 +621,13 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
             
 
         }
+        $message = 'Статус заявки успешно изменен!';
         return $message;
 
     }
     protected function fullPayout($application, $isCancelled = false)
     {
         $contract = Contract::find($application->contract_id);
-
-        if (!$contract) {
-            return 'Ошибка: Договор не найден.';
-        }
 
         if ($isCancelled) {
             $application->update(['status' => 'Отменена']);
@@ -688,6 +673,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
            
             
         }
+        $message = 'Статус заявки успешно изменен!';
         return $message;
     }
 
