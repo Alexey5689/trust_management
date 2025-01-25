@@ -53,9 +53,8 @@ const userInfo = ref({});
 const contractInfo = ref({});
 const can_payout = ref('');
 const loading = ref(false);
-
-const count_of_applications = ref(null);
-const number_of_payments = ref(null);
+const agree_with_terms = ref(false);
+const dividendsAfterExpiration = ref(null);
 
 const activeApplication = computed(() =>
     props.applications
@@ -107,6 +106,9 @@ const handleGetContract = (contract_id) => {
     can_payout.value = userContract.value.user_contracts.find(
         (contract) => contract.id === contract_id,
     ).can_request_payout;
+    agree_with_terms.value = userContract.value.user_contracts.find(
+        (contract) => contract.id === contract_id,
+    ).agree_with_terms;
 };
 
 const offTime = () => {
@@ -122,6 +124,9 @@ const onTime = () => {
     form.condition = 'В срок';
 };
 const takeEverythin = () => {
+    if (agree_with_terms.value === true) {
+        dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
+    }
     form.sum = null;
     form.dividends = null;
     form.type_of_processing = 'Забрать дивиденды и сумму';
@@ -129,6 +134,9 @@ const takeEverythin = () => {
     form.dividends = dividends.value;
 };
 const takeDividends = () => {
+    if (agree_with_terms.value === true) {
+        dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
+    }
     form.dividends = null;
     form.sum = null;
     form.type_of_processing = 'Забрать дивиденды целиком';
@@ -136,6 +144,9 @@ const takeDividends = () => {
 };
 
 const takePartlyDividends = () => {
+    if (agree_with_terms.value === true) {
+        dividends.value = dividendsAfterExpiration.value - dividendsAfterExpiration.value * 0.2;
+    }
     form.dividends = null;
     form.type_of_processing = 'Забрать дивиденды частично';
 };
@@ -161,8 +172,8 @@ const closeModal = () => {
     procent.value = '';
     selectedOffTime.value = null;
     selectedPartlyOption.value = null;
-    count_of_applications.value = null;
-    number_of_payments.value = null;
+    agree_with_terms.value = false;
+    dividendsAfterExpiration.value = null;
     form.reset(
         'user_id',
         'contract_id',
@@ -173,6 +184,7 @@ const closeModal = () => {
         'date_of_payments',
         'sum',
         'dividends',
+        'agree_with_terms',
     );
 };
 
@@ -188,6 +200,7 @@ const form = useForm({
     sum: null,
     dividends: null,
     available_balance: null,
+    dividendsAfterExpiration: null,
 });
 const formStatus = useForm({
     status: '',
@@ -225,6 +238,12 @@ const changeStatus = () => {
             loading.value = false;
         },
     });
+};
+
+const validateDividends = () => {
+    if (form.dividends > dividends.value) {
+        form.dividends = null;
+    }
 };
 </script>
 
@@ -410,7 +429,7 @@ const changeStatus = () => {
                                         {{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
                                     </p>
                                 </div>
-                                <div v-if="role === 'admin' || role === 'manager'">
+                                <!-- <div v-if="role === 'admin' || role === 'manager'">
                                     <Dropdown
                                         :options="[
                                             {
@@ -426,7 +445,7 @@ const changeStatus = () => {
                                             <Ellipsis />
                                         </template>
                                     </Dropdown>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -477,26 +496,36 @@ const changeStatus = () => {
                                 <InputError :message="form.errors.contract_id" />
                             </div>
                         </div>
-                        <div class="flex" style="column-gap: 8px">
-                            <div class="information_contract">
+                        <div class="flex" :style="{ columnGap: agree_with_terms ? '16px' : '8px' }">
+                            <div class="information_contract" :style="{ width: agree_with_terms ? '100%' : 'auto' }">
                                 <label>Дата заключения</label>
                                 <p>{{ create_date }}</p>
                             </div>
-                            <div class="information_contract">
+                            <div class="information_contract" :style="{ width: agree_with_terms ? '100%' : 'auto' }">
                                 <label>Срок договора</label>
                                 <p>{{ term === 1 ? '1 год' : term === 3 ? '3 года' : term + '' }}</p>
                             </div>
-                            <div class="information_contract">
+                            <div v-if="!agree_with_terms" class="information_contract">
                                 <label>Ставка</label>
                                 <p>{{ procent }}</p>
                             </div>
                         </div>
                         <div class="flex c-gap">
-                            <div class="contract_sum">
+                            <div class="contract_sum" style="max-height: 74px; width: 210px; flex-shrink: 0;">
                                 <label>Основная сумма</label>
                                 <p>{{ sum ? parseFloat(sum).toFixed() + '₽' : '' }}</p>
                             </div>
-                            <div class="contract_sum">
+                            <div v-if="agree_with_terms" class="contract_sum contract_sum_checkbox">
+                                <div class="input flex flex-column">
+                                    <label for="dividends_partly">Дивиденты*</label>
+                                    <input type="number" id="dividends_partly" v-model="dividendsAfterExpiration" />
+                                </div>
+                                <p class="warning" style="margin-top: 8px">Комиссия фонда, 20%</p>
+                                <p class="warning" style="margin-top: 4px">
+                                    {{ dividendsAfterExpiration ? dividendsAfterExpiration * 0.2 + '₽' : '' }}
+                                </p>
+                            </div>
+                            <div v-else class="contract_sum">
                                 <label>Дивиденды</label>
                                 <p>
                                     {{ dividends ? parseFloat(dividends).toFixed(2) + '₽' : '' }}
@@ -585,7 +614,12 @@ const changeStatus = () => {
                             <div class="flex c-gap">
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly">Дивиденты</label>
-                                    <input type="number" id="dividends_partly" v-model="form.dividends" />
+                                    <input
+                                        type="number"
+                                        id="dividends_partly"
+                                        @input="validateDividends"
+                                        v-model="form.dividends"
+                                    />
                                 </div>
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly_date">Дата планируемой выплаты</label>
@@ -664,7 +698,7 @@ const changeStatus = () => {
                                 }}
                             </p>
                         </div>
-                        <div class="information_contract">
+                        <div v-if="contractInfo.agree_with_terms !== true" class="information_contract">
                             <label>Ставка</label>
                             <p>{{ contractInfo.procent }}%</p>
                         </div>
@@ -1050,6 +1084,12 @@ const changeStatus = () => {
     background: #f3f5f6;
     border-radius: 24px;
     padding: 16px 20px;
+}
+
+.contract_sum_checkbox {
+    padding: unset;
+    background: none;
+    width: 210px;
 }
 
 .radio-buttons input[type='radio'] {

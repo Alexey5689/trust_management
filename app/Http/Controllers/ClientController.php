@@ -128,10 +128,19 @@ public function showContracts()
         ->get()
         ->map(function ($contract) {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-            $anualDividends = $this->calculateAnnualDividendsContracts($contract->create_date, $contract->deadline,$contract->sum, $contract->procent);
-            $monthDividends = $this->calculateMonthlyDividends($contract->create_date, $contract->deadline,$contract->sum, $contract->procent);
-            $weekDividends = $this->calculateWeeklyDividends($contract->create_date, $contract->deadline, $contract->sum, $contract->procent);
-            $dayDividends = $this->calculateDailyDividends($contract->create_date, $contract->deadline, $contract->sum, $contract->procent);
+            if (in_array($contract->payments, ['Ежегодно', 'Ежеквартально'])) {
+                $anualDividends = $this->calculateAnnualDividendsContracts($contract->create_date, $contract->deadline,$contract->sum, $contract->procent);
+                $monthDividends = $this->calculateMonthlyDividends($contract->create_date, $contract->deadline,$contract->sum, $contract->procent);
+                $weekDividends = $this->calculateWeeklyDividends($contract->create_date, $contract->deadline, $contract->sum, $contract->procent);
+                $dayDividends = $this->calculateDailyDividends($contract->create_date, $contract->deadline, $contract->sum, $contract->procent);
+            }else {
+                 // Для 'По истечению срока' (или других типов выплат) подсчеты не выполняются
+                $anualDividends = null;
+                $monthDividends = null;
+                $weekDividends = null;
+                $dayDividends = null;
+            }
+           
             return [
                 'id' => $contract->id,
                 'contract_number' => $contract->contract_number,
@@ -145,7 +154,8 @@ public function showContracts()
                 'anualDividends' => $anualDividends,
                 'monthDividends' => $monthDividends,
                 'weekDividends' => $weekDividends,
-                'dayDividends' => $dayDividends
+                'dayDividends' => $dayDividends,
+                'agree_with_terms' => $contract->agree_with_terms
             ];
         });
 

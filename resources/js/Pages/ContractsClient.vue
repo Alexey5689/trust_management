@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { formatDate, formatDateClientContract, formatDateClientContractRus } from '@/helpers.js';
@@ -28,6 +28,7 @@ const props = defineProps({
         required: false,
     },
 });
+// created_at
 
 const activeTab = ref('months');
 const yearAccruals = ref([]);
@@ -38,6 +39,7 @@ const dayAccruals = ref([]);
 // Храним id выбранного договора
 const openContractId = ref(null);
 
+const contracts = computed(() => props.contracts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
 // При клике устанавливаем (или сбрасываем) id выбранного договора
 function handleContractClick(contractId) {
     openContractId.value = props.contracts.find((contract) => contract.id === contractId);
@@ -80,10 +82,13 @@ onMounted(() => {
             <div class="contracts_client flex">
                 <div
                     class="contract_item flex flex-column"
-                    v-for="contract in props.contracts"
+                    v-for="contract in contracts"
                     :key="contract.id"
                     @click="handleContractClick(contract.id)"
-                    :class="{ active: openContractId && openContractId.id === contract.id }"
+                    :class="{
+                        active: openContractId && openContractId.id === contract.id,
+                        'agree-true-active': contract.agree_with_terms === true,
+                    }"
                 >
                     <div class="icon_contract flex justify-center align-center">
                         <Icon_contract />
@@ -101,7 +106,7 @@ onMounted(() => {
                     </div>
                     <div class="flex">
                         <span>% ставка по договору</span>
-                        <p>{{ contract.procent }}</p>
+                        <p>{{ contract.procent === 0 ? '80%/20%' : contract.procent + '%' }}</p>
                     </div>
                     <div class="flex">
                         <span>Сумма по договору</span>
@@ -111,7 +116,7 @@ onMounted(() => {
             </div>
 
             <!-- Единый блок Графика: показываем, если есть выбранный договор -->
-            <div class="accruals card" v-if="openContractId">
+            <div class="accruals card" v-if="openContractId && openContractId.agree_with_terms === false">
                 <div class="accruals_title flex justify-between align-center">
                     <h3>График начислений для договора #{{ openContractId.contract_number }}</h3>
                     <ul class="accruals_tab flex justify-between">
@@ -147,7 +152,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Таб "По годам" -->
-                <div class="accruals_schedule years" v-show="activeTab === 'years'">
+                <div class="accruals_schedule years" v-if="activeTab === 'years'">
                     <div
                         v-for="accrual in yearAccruals"
                         :key="accrual.id"
@@ -167,7 +172,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Таб "По месяцам" -->
-                <div class="accruals_schedule months" v-show="activeTab === 'months'">
+                <div class="accruals_schedule months" v-if="activeTab === 'months'">
                     <div
                         v-for="accrual in monthAccruals"
                         :key="accrual.id"
@@ -187,7 +192,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Таб "По неделям" -->
-                <div class="accruals_schedule weeks" v-show="activeTab === 'weeks'">
+                <div class="accruals_schedule weeks" v-if="activeTab === 'weeks'">
                     <div
                         v-for="accrual in weekAccruals"
                         :key="accrual.id"
@@ -207,7 +212,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Таб "По дням" -->
-                <div class="accruals_schedule days" v-show="activeTab === 'days'">
+                <div class="accruals_schedule days" v-if="activeTab === 'days'">
                     <div
                         v-for="accrual in dayAccruals"
                         :key="accrual.id"
@@ -366,5 +371,15 @@ onMounted(() => {
 
 .schedule_item span {
     color: #969ba0;
+}
+
+.active.contract_item.agree-true-active,
+.contract_item.agree-true-active:hover {
+    background: #fda75d;
+}
+
+.active.contract_item.agree-true-active .icon_contract svg,
+.contract_item.agree-true-active:hover .icon_contract svg {
+    fill: #fda75d;
 }
 </style>

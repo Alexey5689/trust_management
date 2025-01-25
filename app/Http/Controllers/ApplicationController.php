@@ -25,6 +25,7 @@ class ApplicationController extends Controller
             'create_date' => ['required', 'date_format:Y-m-d'],
             'date_of_payments' => ['required', 'date_format:Y-m-d', 'after_or_equal:create_date'], // Дата платежа не должна быть раньше даты создания
             'dividends' => [ 'nullable', 'numeric' ], // Сумма должна быть больше 0.01
+            'dividendsAfterExpiration' => [ 'nullable', 'numeric' ], // Сумма должна быть больше 0.01
         ]);
         DB::beginTransaction();
         try {
@@ -49,7 +50,8 @@ class ApplicationController extends Controller
                     'type_of_processing'=>$request->type_of_processing,
                     'date_of_payments'=>$request->date_of_payments,
                     'sum'=>$request->sum,
-                    'dividends'=>$request->dividends
+                    'dividends'=>$request->dividends,
+                    'dividendsAfterExpiration'=>$request->dividendsAfterExpiration
                 ]);
                // dd($application);
                 Log::create([
@@ -98,7 +100,7 @@ class ApplicationController extends Controller
         $dividends = match ($application->contract->payments) {
             'Ежеквартально' => $application->contract->sum * ($application->contract->procent / 100) * $term /  $term * 4 ,
             'Ежегодно' => $application->contract->sum * ($application->contract->procent / 100) * $term /  $term * 1 ,
-            'По истечению срока' => $application->contract->sum * ($application->contract->procent / 100) * $term /  1,
+            'По истечению срока' => $application->dividends,
             default => null,
         };
         return response()->json([
@@ -122,7 +124,8 @@ class ApplicationController extends Controller
                     'create_date' => $application->contract->create_date,
                     'term' => $term,
                     'procent' => $application->contract->procent,
-                    'dividends' =>$dividends
+                    'dividends' =>$dividends,
+                    'agree_with_terms' => $application->contract->agree_with_terms
                 ]
             ],
         ]);

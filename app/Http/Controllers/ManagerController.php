@@ -175,9 +175,10 @@ class ManagerController extends Controller
                     $dividends = match ($contract->payments) {
                         'Ежеквартально' => $contract->sum * ($contract->procent / 100) * $term /  $term * 4 ,
                         'Ежегодно' => $contract->sum * ($contract->procent / 100) * $term /  $term * 1 ,
-                        'По истечению срока' => $contract->sum * ($contract->procent / 100) * $term /  1,
+                        'По истечению срока' => null,
                         default => null,
                     };
+                    $afterTheExpirationDate = $contract->payments === 'По истечению срока' ? true : false;
                    // dd($nextPaymentDate);
                      // Проверяем, истёк ли срок договора
                      $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
@@ -196,6 +197,7 @@ class ManagerController extends Controller
                         'next_payment_date' => $nextPaymentDate,
                         'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  // Запретить заявки для истёкших договоров
                         'is_expired' => $isExpired,
+                        'agree_with_terms' => $contract->agree_with_terms
                     ];
                 }),
             ];
@@ -256,7 +258,7 @@ class ManagerController extends Controller
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
             'sum' => ['required', 'integer'],
-            'procent' => ['required', 'integer', 'min:1', 'max:100'],
+            'procent' => ['required', 'integer', 'min:0', 'max:100'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
 

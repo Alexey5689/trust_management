@@ -1,11 +1,15 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { parseISO, format } from 'date-fns';
 import Icon_output from '@/Components/Icon/Output.vue';
 import Icon_input from '@/Components/Icon/Input.vue';
-import { formatDateBalanceTransactions, formatNumber } from '@/helpers.js';
+import {
+    formatDateBalanceTransactions,
+    formatNumberBalanceTransactions,
+    formatDateClientContract,
+    formatNumber,
+} from '@/helpers.js';
 const props = defineProps({
     role: {
         type: Object,
@@ -37,8 +41,6 @@ const props = defineProps({
     },
 });
 
-const nowDate = format(new Date(), 'yyyy-MM-dd');
-
 // Получаем компоненты даты отдельно
 const date = new Date();
 const day = date.getDate();
@@ -47,10 +49,6 @@ const year = date.getFullYear();
 
 // Собираем строку и делаем месяц с заглавной буквы
 const currentDate = `${day} ${month.charAt(0).toUpperCase() + month.slice(1)} ${year}`;
-
-// Функция для форматирования дат
-const formatDate = (date) => format(parseISO(date), 'dd/MM/yyyy');
-
 // Вычисление основной суммы
 const sum = computed(() => {
     return props.contracts.length ? props.contracts.reduce((total, contract) => total + contract.sum, 0) : null;
@@ -77,11 +75,14 @@ const sum = computed(() => {
                 <div class="client">
                     <div class="client_info">
                         <p style="font-weight: 500">Основная сумма</p>
-                        <p>{{ formatNumber(props.balance.main_sum) }} ₽</p>
+                        <p>{{ formatNumberBalanceTransactions(props.balance.main_sum) }} ₽</p>
                     </div>
                     <div class="client_info">
                         <p style="font-weight: 500">Дивиденды</p>
-                        <p>{{ formatNumber(props.balance.dividends) }} ₽</p>
+                        <p>
+                            {{ formatNumberBalanceTransactions(props.balance.dividends) }}
+                            ₽
+                        </p>
                     </div>
                 </div>
             </div>
@@ -104,7 +105,7 @@ const sum = computed(() => {
                         </div>
                         <div style="width: 164px">
                             <p>
-                                {{ formatDate(transaction.date_transition) }}
+                                {{ formatDateClientContract(transaction.date_transition) }}
                             </p>
                             <span class="month_year">{{
                                 formatDateBalanceTransactions(transaction.date_transition)

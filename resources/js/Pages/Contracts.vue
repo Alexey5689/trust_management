@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { formatDate, getYearDifference, calculateDeadlineDate } from '@/helpers.js';
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
@@ -56,6 +56,7 @@ const getInfo = async (url, contractId) => {
     try {
         const data = await fetchData(url, { contract: contractId }); // Ожидаем завершения запроса
         contractData.value = data.contract;
+        console.log(contractData);
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
@@ -182,6 +183,7 @@ const updateContract = () => {
 };
 const handleCheckboxChange = () => {
     form.payments = 'По истечению срока';
+    form.procent = 0;
 };
 
 const handleDateChange = (event) => {
@@ -248,7 +250,7 @@ const handleDateChange = (event) => {
                                 <p>{{ formatDate(contract.create_date) }}</p>
                             </div>
                             <div style="padding-left: 30px">
-                                <p>{{ contract.procent }}</p>
+                                <p>{{ contract.procent === 0 ? '80%/20%' : contract.procent + '%' }}</p>
                             </div>
                             <div>
                                 <p>
@@ -259,7 +261,7 @@ const handleDateChange = (event) => {
                                 <p>{{ contract.payments }}</p>
                             </div>
                             <div>
-                                <p>{{ contract.sum }}</p>
+                                <p>{{ contract.sum + ' ₽' }}</p>
                             </div>
                             <div v-if="props.role === 'admin'" class="card-item ellipsis">
                                 <Dropdown
@@ -357,12 +359,12 @@ const handleDateChange = (event) => {
                         </div>
                     </div>
                     <div class="flex c-gap">
-                        <div class="input flex flex-column">
+                        <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
                             <input type="number" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
-                        <div class="input flex checkbox">
+                        <div class="input flex align-center checkbox">
                             <input
                                 type="checkbox"
                                 @change="handleCheckboxChange"
@@ -425,12 +427,12 @@ const handleDateChange = (event) => {
                         </div>
                     </div>
                     <div class="flex c-gap">
-                        <div class="input flex flex-column">
+                        <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
                             <input type="text" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
-                        <div class="input flex checkbox">
+                        <div class="input flex align-center checkbox">
                             <input
                                 type="checkbox"
                                 id="checkbox"
@@ -445,11 +447,7 @@ const handleDateChange = (event) => {
                             <label for="deadline">Срок договора*</label>
                             <select id="deadline" v-model="selectedDuration" @change="handleDeadlineChange">
                                 <option value="" disabled>
-                                    {{
-                                        getYearDifference(form.create_date, form.deadline) === 1
-                                            ? '1 год'
-                                            : getYearDifference(form.create_date, form.deadline) + ' года'
-                                    }}
+                                    {{ getYearDifference(form.create_date, form.deadline) === 1 ? '1 год' : '3 года' }}
                                 </option>
                                 <option value="1 год">1 год</option>
                                 <option value="3 года">3 года</option>
@@ -458,7 +456,7 @@ const handleDateChange = (event) => {
                         </div>
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="deadline">Выплаты*</label>
-                            <select id="deadline" v-model="form.payments" @change="handlePaymentsChange">
+                            <select id="deadline" v-model="form.payments">
                                 <option disabled></option>
                                 <option value="Ежеквартально">Ежеквартально</option>
                                 <option value="Ежегодно">Ежегодно</option>
@@ -623,14 +621,15 @@ const handleDateChange = (event) => {
 }
 
 .checkbox {
-    align-items: end;
+    height: 42px;
+    margin-top: auto;
+    column-gap: 12px;
 }
 
 .checkbox input {
-    margin-bottom: 11px;
-    margin-right: 12px;
     width: 24px;
     height: 24px;
+    flex-shrink: 0;
 }
 
 .checkbox label {
