@@ -79,7 +79,7 @@ class ApplicationController extends Controller
                 // dd($application);
                 $client->userNotifications()->create([
                     'title'=> 'Заявка',
-                    'content'=> 'Создана заявки No' . $application->id ,
+                    'content'=> 'Создана заявка No ' . $application->id . ' на договор No ' . $application->contract->contract_number,
                 ]);
                
                 DB::commit();

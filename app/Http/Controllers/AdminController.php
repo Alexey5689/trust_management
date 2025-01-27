@@ -21,23 +21,6 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    // private function logAndNotify($user, $contract, $recipientType)
-    // {
-    //     $user->userNotifications()->create([
-    //         'title' => 'Письмо о выплате дивидендов',
-    //         'content' => 'К вам на почту отправлено письмо о выплате дивидендов',
-    //     ]);
-
-    //     Log::create([
-    //         'model_id' => $user->id,
-    //         'model_type' => Contract::class,
-    //         'change' => 'Письмо о выплате дивидендов',
-    //         'action' => 'Отправлено на почту ' . $recipientType,
-    //         'old_value' => null,
-    //         'new_value' => 'Договор No' . $contract->contract_number,
-    //         'created_by' => 1, // ID системного пользователя
-    //     ]);
-    // }
     public function createProfile()
     {
         $user = Auth::user();
