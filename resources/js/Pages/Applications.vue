@@ -1045,7 +1045,7 @@ const validateDividends = () => {
 }
 
 :deep(.modal) {
-    width: 500px;
+    width: 514px;
 }
 
 .input {
@@ -1058,6 +1058,10 @@ const validateDividends = () => {
 .information_contract label,
 .information_contract p {
     color: #969ba0;
+}
+
+.information_contract label {
+    font-weight: 500;
 }
 
 .input input,
