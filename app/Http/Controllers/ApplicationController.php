@@ -60,7 +60,7 @@ class ApplicationController extends Controller
                     'change' =>  $application->type_of_processing,
                     'action' => "Создание заявки",
                     'old_value' => null,
-                    'new_value' => 'Заявка No' . $application->id,
+                    'new_value' => 'Заявка № ' . $application->id,
                     'created_by' => Auth::id(),
                 ]);
                 $client = $application->user;
@@ -79,7 +79,7 @@ class ApplicationController extends Controller
                 // dd($application);
                 $client->userNotifications()->create([
                     'title'=> 'Заявка',
-                    'content'=> 'Создана заявка No ' . $application->id . ' на договор No ' . $application->contract->contract_number,
+                    'content'=> 'Создана заявка № ' . $application->id . ' на договор № ' . $application->contract->contract_number,
                 ]);
                
                 DB::commit();

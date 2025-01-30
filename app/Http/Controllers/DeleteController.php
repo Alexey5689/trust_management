@@ -2,40 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+
 use App\Models\User;
 use App\Models\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Contract;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Session;
 
 class DeleteController extends Controller
 {
        
-      // Удаление user
-      public function deleteUser(User $user): RedirectResponse
-      {
-        //dd($user);
-          try {
-            $user->update(['active' => false]);
-            //dd($user);
+      
+
+    public function deleteUser(User $user): RedirectResponse
+    {
+        try {
+            // Деактивируем пользователя
+            $user->update([
+                'active' => false,
+            ]);
+    
+            // Если удаляемый пользователь сейчас в системе — разлогиниваем его
+            if (Auth::check() && Auth::id() === $user->id) {
+                Auth::logout();
+                Session::invalidate(); // Очищаем сессию
+                Session::regenerateToken();
+            }
+    
             Log::create([
-                  'model_id' => $user->id,
-                  'model_type' => User::class,
-                  'change' => "Смена статуса пользователя",
-                  'action' => 'Удаление пользователя',
-                  'old_value' => 'Активный',
-                  'new_value' => 'Удален',
-                  'created_by' => Auth::id(),
-              ]);
-              return redirect(route('admin.users'))->with('status', ['Успех!', 'Статус пользователя изменен на неактивный'] );
-            
-          } catch (\Exception $e) {
-              return redirect(route('admin.users'))->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
-          }
-         
-         
-      }
+                'model_id' => $user->id,
+                'model_type' => User::class,
+                'change' => "Смена статуса пользователя",
+                'action' => 'Удаление пользователя',
+                'old_value' => 'Активный',
+                'new_value' => 'Деактивирован',
+                'created_by' => Auth::id(),
+            ]);
+    
+            return redirect(route('admin.users'))->with('status', ['Успех!', 'Аккаунт пользователя успешно деактивирован']);
+    
+        } catch (\Exception $e) {
+            return redirect(route('admin.users'))->with('status', ['Ошибка!', 'Попробуйте снова позже.']);
+        }
+    }
+
       public function deleteContract(Contract $contract): RedirectResponse
       {
           //dd($contract);
@@ -48,14 +59,14 @@ class DeleteController extends Controller
                 'change' => "Смена статуса договора ",
                 'action' => 'Удаление договора No ' . $contract->contract_number,
                 'old_value' => 'Активный',
-                'new_value' => 'Неактивный',
+                'new_value' => 'Деактивирован',
                 'created_by' => Auth::id(),
             ]);
             $user->userNotifications()->create([
                 'title' => 'Договор',
                 'content' => 'Договор No ' . $contract->contract_number . ' удален',
             ]);
-          return redirect(route('admin.contracts'))->with('success', ['успех', 'Статус контракта изменен на неактивный'] );
+          return redirect(route('admin.contracts'))->with('success', ['успех', 'Договор успешно деактивирован'] );
         }catch (\Exception $e) {
             return redirect(route('admin.contracts'))
             ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);

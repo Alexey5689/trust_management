@@ -10,7 +10,7 @@
         Route::get('/change-status-application/{application}', [AdminController::class, 'changeStatusApplication'])->name('change.status.application');
         Route::patch('/change-status-application/{application}', [AdminController::class, 'updateStatusApplication']);
     });
-    Route::middleware('auth', 'role:admin,manager')->group(function () {
+    Route::middleware('auth', 'role:admin,manager', 'checkActive')->group(function () {
         // Добавление заявки
         Route::get('/add-applications', [ApplicationController::class, 'createAddApplication'])->name('add.application');
         Route::post('/add-applications', [ApplicationController::class, 'storeAddApplication']);

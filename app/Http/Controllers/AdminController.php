@@ -701,7 +701,7 @@ class AdminController extends Controller
                 $user = $contract->user; 
                 $user->userNotifications()->create([
                     'title' => "Изменение договора",
-                    'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
+                    'content'=> 'Договор № ' . $contract->contract_number . ' был изменен',
                 ]);
                 // dd($manager_id);
                 
@@ -765,7 +765,7 @@ public function updateStatusApplication(Request $request, Application $applicati
         }
         $client->userNotifications()->create([
             'title' => "Изменение статуса заявки",
-            'content'=> 'Статус заявки No' . $application->id . ' был изменен',
+            'content'=> 'Статус заявки № ' . $application->id . ' был изменен',
         ]);
 
         // Обновляем статус заявки

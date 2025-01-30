@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth', 'role:admin,manager,client')->group(function () {
+Route::middleware('auth', 'role:admin,manager,client', 'checkActive')->group(function () {
     //редакция профиль пользователя. смена пароля.емена почты
     Route::get('profile-edit',[ProfileController::class, 'editProfile'])->name('profile.edit');
     Route::patch('profile-edit', [ProfileController::class, 'updateProfile'])->name('profile.update');

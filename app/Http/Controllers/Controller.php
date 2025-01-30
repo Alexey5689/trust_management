@@ -386,14 +386,14 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     'model_id' => $contract->user_id,
                     'model_type' => Contract::class,
                     'change' => 'Смена статуса договора',
-                    'action' => 'Закрытие договора No ' . $contract->contract_number,
+                    'action' => 'Закрытие договора № ' . $contract->contract_number,
                     'old_value' => 'Активный',
                     'new_value' => 'Неактивный',
                     'created_by' => Auth::id(),
                 ]);
                 $user->userNotifications()->create([
                     'title' => 'Закрытие договора',
-                    'content'=> 'Договор No ' . $contract->contract_number . 'был закрыт.',
+                    'content'=> 'Договор № ' . $contract->contract_number . 'был закрыт.',
                 ]);
                 DB::commit();
                 $message = 'Статус заявки успешно изменен!';
@@ -450,7 +450,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
         // Если заявка исполнена, создаём транзакцию
         if ($newStatus === 'Исполнена') {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-            $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
+            $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->subDays(7));
             $user=User::find($contract->user_id);
             $manager=User::find($contract->manager_id);
             DB::beginTransaction();
@@ -487,7 +487,6 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     ]);
                 }
                 else{
-                   
                     $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
                     $nextPaymentDate = match ($contract->payments) {
                         'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
@@ -564,8 +563,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
         if ($newStatus === 'Исполнена') {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-           // $isExpired =  now()->greaterThanOrEqualTo($contract->deadline->copy()->subDays(7)) || now()->lessThanOrEqualTo($contract->deadline);
-            $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
+            $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->subDays(7));
             $user=User::find($contract->user_id);
             $manager=User::find($contract->manager_id);
             DB::beginTransaction();
@@ -668,14 +666,14 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     'model_id' => $contract->user_id,
                     'model_type' => Contract::class,
                     'change' => 'Смена статуса договора',
-                    'action' => 'Закрытие договора No ' . $contract->contract_number,
+                    'action' => 'Закрытие договора № ' . $contract->contract_number,
                     'old_value' => 'Активный',
                     'new_value' => 'Неактивный',
                     'created_by' => Auth::id(),
                 ]);
                 $user->userNotifications()->create([
                     'title' => 'Договор',
-                    'content'=> 'Договор No ' . $contract->contract_number . ' был закрыт',
+                    'content'=> 'Договор № ' . $contract->contract_number . ' был закрыт',
                 ]);
                 DB::commit();
                 $message = 'Статус заявки успешно изменен!';

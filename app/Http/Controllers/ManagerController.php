@@ -309,7 +309,7 @@ class ManagerController extends Controller
                 'change' => 'Добавление договора',
                 'action' => 'Создание',
                 'old_value' => null,
-                'new_value' => 'Договор No' . $contract->contract_number,
+                'new_value' => 'Договор № ' . $contract->contract_number,
                 'created_by' => Auth::id(), // ID самого пользователя
             ]);
     
@@ -426,11 +426,11 @@ class ManagerController extends Controller
             ]);
             $client->userNotifications()->create([
                 'title' => 'Транзакция',
-                'content'=> 'Была создана транзакция по договору No '.$request->contract_number,
+                'content'=> 'Была создана транзакция по договору № '.$request->contract_number,
             ]);
             $client->userNotifications()->create([
                 'title' => 'Договор',
-                'content'=> 'Был создан договор No '.$request->contract_number,
+                'content'=> 'Был создан договор № '.$request->contract_number,
             ]);
             Log::create([
                 'model_id' => $contract->user_id,
@@ -438,7 +438,7 @@ class ManagerController extends Controller
                 'change' =>  'Добавление договора',
                 'action' => 'Создание',
                 'old_value' => null,
-                'new_value' => 'Договор No ' . $contract->contract_number,
+                'new_value' => 'Договор № ' . $contract->contract_number,
                 'created_by' => Auth::id(), // ID самого пользователя
             ]);
             DB::commit();
