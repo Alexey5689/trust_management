@@ -38,9 +38,9 @@ protected function calculateAccumulatedDividends($contractStartDate, $contractDe
     //dd($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $paymentFrequency, $lastPaymentDate);
 
     return match ($paymentFrequency) {
-        // 'По истечению срока' => $this->calculateEndOfTermDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount),
+      
         'Ежеквартально'   => $this->calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate ),
-        'Ежегодно' => $this->calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate),
+        'Ежегодно' => $this->calculateAnnualDividends($contractStartDate,$contractDeadline, $currentDate, $paymentAmount, $lastPaymentDate),
         default => 0,
     };
 }
@@ -84,7 +84,7 @@ protected function calculateAccumulatedDividends($contractStartDate, $contractDe
 // }
 
 
-protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
+protected function calculateAnnualDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $lastPaymentDate) {
     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
     $currentDate = new DateTime($currentDate);
     
@@ -95,13 +95,15 @@ protected function calculateAnnualDividends($contractStartDate, $currentDate, $p
     $daysInYear = $startDate->format('L') == 1 ? 366 : 365;
 
     // Дни с начала договора до текущей даты
-    $daysSinceStart = $startDate->diff($currentDate)->days;
+    $daysSinceStart = ($currentDate >= $startDate)? $startDate->diff($currentDate)->days : 0;
 
+    //dd( $startDate, $daysSinceStart, $currentDate);
     // Дивиденды за 1 день
     $dailyDividend = $paymentAmount / $daysInYear;
 
     // Пропорциональные дивиденды за прошедшие дни
     $accruedDividends = $daysSinceStart * $dailyDividend;
+
 
     return round($accruedDividends);
 }
@@ -462,7 +464,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                         'create_date'=> $contract->deadline,
                         'deadline' => Carbon::parse($contract->deadline)->addYear($term),
                         'avaliable_dividends' => null,
-                        'last_payment_date' =>$contract->deadline,
+                        'last_payment_date' => null,
                         'is_aplication' => false,
                     ]);
                     Log::create([
@@ -574,7 +576,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     $contract->update([
                         'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
                         'deadline' => Carbon::parse($contract->deadline)->addYear($term),
-                        'last_payment_date' => $contract->deadline,
+                        'last_payment_date' => null,
                     ]);
                     Log::create([
                         'model_id' => $contract->user_id,
