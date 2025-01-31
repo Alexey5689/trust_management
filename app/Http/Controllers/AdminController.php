@@ -21,23 +21,6 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    // private function logAndNotify($user, $contract, $recipientType)
-    // {
-    //     $user->userNotifications()->create([
-    //         'title' => 'Письмо о выплате дивидендов',
-    //         'content' => 'К вам на почту отправлено письмо о выплате дивидендов',
-    //     ]);
-
-    //     Log::create([
-    //         'model_id' => $user->id,
-    //         'model_type' => Contract::class,
-    //         'change' => 'Письмо о выплате дивидендов',
-    //         'action' => 'Отправлено на почту ' . $recipientType,
-    //         'old_value' => null,
-    //         'new_value' => 'Договор No' . $contract->contract_number,
-    //         'created_by' => 1, // ID системного пользователя
-    //     ]);
-    // }
     public function createProfile()
     {
         $user = Auth::user();
@@ -718,7 +701,7 @@ class AdminController extends Controller
                 $user = $contract->user; 
                 $user->userNotifications()->create([
                     'title' => "Изменение договора",
-                    'content'=> 'Договор No' . $contract->contract_number . ' был изменен',
+                    'content'=> 'Договор № ' . $contract->contract_number . ' был изменен',
                 ]);
                 // dd($manager_id);
                 
@@ -782,7 +765,7 @@ public function updateStatusApplication(Request $request, Application $applicati
         }
         $client->userNotifications()->create([
             'title' => "Изменение статуса заявки",
-            'content'=> 'Статус заявки No' . $application->id . ' был изменен',
+            'content'=> 'Статус заявки № ' . $application->id . ' был изменен',
         ]);
 
         // Обновляем статус заявки

@@ -4,6 +4,7 @@ import InputError from '@/Components/InputError.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
     canResetPassword: {
@@ -11,8 +12,22 @@ const props = defineProps({
     },
     status: {
         type: String,
+        required: false,
     },
 });
+
+const toastMessage = ref(props.status);
+
+watch(
+    () => props.status,
+    (newVal) => {
+        toastMessage.value = newVal;
+        setTimeout(() => {
+            toastMessage.value = null;
+        }, 4000);
+    },
+    { immediate: true },
+);
 
 const form = useForm({
     email: '',
@@ -58,6 +73,10 @@ const submit = () => {
             <Icon_logo_name />
         </div>
     </GuestLayout>
+    <div class="toast flex flex-column" v-if="toastMessage">
+        <h3>{{ props.status[0] }}</h3>
+        <p>{{ props.status[1] }}</p>
+    </div>
 </template>
 
 <style scoped>
@@ -121,5 +140,26 @@ const submit = () => {
 
 .logo-container {
     margin-top: 100px;
+}
+.toast {
+    position: fixed;
+    width: 550px;
+    min-height: 90px;
+    background: #f9fafa;
+    box-shadow: 0px 0px 4px 0px #5c5c5c0a;
+    box-shadow: 0px 0px 8px 0px #5c5c5c14;
+    box-shadow: 0px 4px 12px 0px #5c5c5c14;
+    z-index: 100;
+    padding: 16px 20px;
+    border-radius: 24px;
+    top: 124px;
+    right: 0;
+}
+
+.toast h3 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 29px;
+    margin-bottom: 8px;
 }
 </style>

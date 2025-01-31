@@ -83,7 +83,7 @@ const handleOverlayClick = (event) => {
 }
 
 .modal-content {
-    max-height: 672px;
+    max-height: 592px;
     padding-right: 32px;
     overflow-y: auto;
     scrollbar-width: thin;

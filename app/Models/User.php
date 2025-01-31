@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -109,5 +111,10 @@ class User extends Authenticatable
     public function isClient()
     {
         return $this->role && $this->role->title === 'client';
+    }
+
+    public function isActive()
+    {
+        return $this->active; // Проверяем флаг "активности"
     }
 }

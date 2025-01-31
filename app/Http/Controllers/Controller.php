@@ -38,9 +38,9 @@ protected function calculateAccumulatedDividends($contractStartDate, $contractDe
     //dd($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $paymentFrequency, $lastPaymentDate);
 
     return match ($paymentFrequency) {
-        // 'По истечению срока' => $this->calculateEndOfTermDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount),
+      
         'Ежеквартально'   => $this->calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate ),
-        'Ежегодно' => $this->calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate),
+        'Ежегодно' => $this->calculateAnnualDividends($contractStartDate,$contractDeadline, $currentDate, $paymentAmount, $lastPaymentDate),
         default => 0,
     };
 }
@@ -84,7 +84,7 @@ protected function calculateAccumulatedDividends($contractStartDate, $contractDe
 // }
 
 
-protected function calculateAnnualDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate) {
+protected function calculateAnnualDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $lastPaymentDate) {
     $startDate = $lastPaymentDate ? new DateTime($lastPaymentDate) : new DateTime($contractStartDate);
     $currentDate = new DateTime($currentDate);
     
@@ -95,13 +95,15 @@ protected function calculateAnnualDividends($contractStartDate, $currentDate, $p
     $daysInYear = $startDate->format('L') == 1 ? 366 : 365;
 
     // Дни с начала договора до текущей даты
-    $daysSinceStart = $startDate->diff($currentDate)->days;
+    $daysSinceStart = ($currentDate >= $startDate)? $startDate->diff($currentDate)->days : 0;
 
+    //dd( $startDate, $daysSinceStart, $currentDate);
     // Дивиденды за 1 день
     $dailyDividend = $paymentAmount / $daysInYear;
 
     // Пропорциональные дивиденды за прошедшие дни
     $accruedDividends = $daysSinceStart * $dailyDividend;
+
 
     return round($accruedDividends);
 }
@@ -386,14 +388,14 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     'model_id' => $contract->user_id,
                     'model_type' => Contract::class,
                     'change' => 'Смена статуса договора',
-                    'action' => 'Закрытие договора No ' . $contract->contract_number,
+                    'action' => 'Закрытие договора № ' . $contract->contract_number,
                     'old_value' => 'Активный',
                     'new_value' => 'Неактивный',
                     'created_by' => Auth::id(),
                 ]);
                 $user->userNotifications()->create([
                     'title' => 'Закрытие договора',
-                    'content'=> 'Договор No ' . $contract->contract_number . 'был закрыт.',
+                    'content'=> 'Договор № ' . $contract->contract_number . 'был закрыт.',
                 ]);
                 DB::commit();
                 $message = 'Статус заявки успешно изменен!';
@@ -450,7 +452,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
         // Если заявка исполнена, создаём транзакцию
         if ($newStatus === 'Исполнена') {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-            $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline));
+            $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->subDays(7));
             $user=User::find($contract->user_id);
             $manager=User::find($contract->manager_id);
             DB::beginTransaction();
@@ -462,7 +464,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                         'create_date'=> $contract->deadline,
                         'deadline' => Carbon::parse($contract->deadline)->addYear($term),
                         'avaliable_dividends' => null,
-                        'last_payment_date' =>$contract->deadline,
+                        'last_payment_date' => null,
                         'is_aplication' => false,
                     ]);
                     Log::create([
@@ -487,9 +489,15 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     ]);
                 }
                 else{
+                    $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
+                    $nextPaymentDate = match ($contract->payments) {
+                        'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
+                        'Ежегодно' => Carbon::parse($lastPaymentDate)->addYear(),
+                        default => null,
+                    };
                     $contract->update([
                         'sum' => $mainSum + $avalible_dividends,
-                        'last_payment_date' => now(),
+                        'last_payment_date' => $nextPaymentDate,
                         'avaliable_dividends' =>  null,
                         'is_aplication' => false,
                     ]);
@@ -557,7 +565,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
         if ($newStatus === 'Исполнена') {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-            $isExpired = now()->greaterThan(Carbon::parse($contract->deadline));
+            $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->subDays(7));
             $user=User::find($contract->user_id);
             $manager=User::find($contract->manager_id);
             DB::beginTransaction();
@@ -568,7 +576,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     $contract->update([
                         'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
                         'deadline' => Carbon::parse($contract->deadline)->addYear($term),
-                        'last_payment_date' => $contract->deadline,
+                        'last_payment_date' => null,
                     ]);
                     Log::create([
                         'model_id' => $contract->user_id,
@@ -590,8 +598,14 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                         'content' => 'Продлен срок договора № ' . $contract->contract_number . ' на ' . $content,
                     ]);
                 }else{
+                    $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
+                    $nextPaymentDate = match ($contract->payments) {
+                        'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
+                        'Ежегодно' => Carbon::parse($lastPaymentDate)->addYear(),
+                        default => null,
+                    };
                     $contract->update([
-                        'last_payment_date' => now(),
+                        'last_payment_date' => $nextPaymentDate,
                         'is_aplication' => false,
                     ]);
                 }
@@ -654,14 +668,14 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                     'model_id' => $contract->user_id,
                     'model_type' => Contract::class,
                     'change' => 'Смена статуса договора',
-                    'action' => 'Закрытие договора No ' . $contract->contract_number,
+                    'action' => 'Закрытие договора № ' . $contract->contract_number,
                     'old_value' => 'Активный',
                     'new_value' => 'Неактивный',
                     'created_by' => Auth::id(),
                 ]);
                 $user->userNotifications()->create([
                     'title' => 'Договор',
-                    'content'=> 'Договор No ' . $contract->contract_number . ' был закрыт',
+                    'content'=> 'Договор № ' . $contract->contract_number . ' был закрыт',
                 ]);
                 DB::commit();
                 $message = 'Статус заявки успешно изменен!';

@@ -66,7 +66,7 @@ class CreatingPasswordController extends Controller
         //dd($status);
          // Если сброс пароля прошел успешно
         if ($status === PasswordFacade::PASSWORD_RESET) {
-            return redirect(route('login'))->with('status', __($status));
+            return redirect(route('login'))->with('status', ['Успех!', 'Пароль успешно установлен']);
             //return redirect(route('login'))->with('status', 'Пароль успешно установлен');
         }
 
