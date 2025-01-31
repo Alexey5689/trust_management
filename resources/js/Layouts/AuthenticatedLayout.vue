@@ -1,6 +1,8 @@
 <script setup>
+import { watch, ref } from 'vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Icon_exit from '@/Components/Icon/Exit.vue';
 import Icon_notifications from '@/Components/Icon/Notifications.vue';
 import Icon_personal_account from '@/Components/Icon/PersonalAccount.vue';
@@ -11,7 +13,10 @@ import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
 import Icon_logs from '@/Components/Icon/Logs.vue';
 import Icon_balance from '@/Components/Icon/Balance.vue';
-import { watch, ref } from 'vue';
+import Icon_keyboarf from '@/Components/Icon/Keyboarf.vue';
+
+const isModalOpen = ref(false);
+
 const props = defineProps({
     userRole: {
         type: String,
@@ -43,6 +48,11 @@ watch(
     },
     { immediate: true },
 );
+
+const toggleModal = () => {
+    isModalOpen.value = !isModalOpen.value;
+};
+
 </script>
 
 <template>
@@ -65,57 +75,38 @@ watch(
                 </transition>
             </div>
             <nav class="flex flex-column nav_box">
-                <NavLink
-                    :href="route(`${props.userRole}.profile`)"
-                    :active="route().current(`${props.userRole}.profile`)"
-                >
+                <NavLink :href="route(`${props.userRole}.profile`)"
+                    :active="route().current(`${props.userRole}.profile`)">
                     <Icon_personal_account />
                     <span>Личный кабинет</span>
                 </NavLink>
-                <NavLink
-                    v-if="props.userRole === 'admin'"
-                    :href="route('admin.users')"
-                    :active="route().current('admin.users')"
-                >
+                <NavLink v-if="props.userRole === 'admin'" :href="route('admin.users')"
+                    :active="route().current('admin.users')">
                     <Icon_users />
                     <span>Пользователи</span>
                 </NavLink>
-                <NavLink
-                    v-if="props.userRole === 'manager'"
-                    :href="route(`${props.userRole}.clients`)"
-                    :active="route().current(`${props.userRole}.clients`)"
-                >
+                <NavLink v-if="props.userRole === 'manager'" :href="route(`${props.userRole}.clients`)"
+                    :active="route().current(`${props.userRole}.clients`)">
                     <Icon_users />
                     <span>Клиенты</span>
                 </NavLink>
-                <NavLink
-                    :href="route(`${props.userRole}.contracts`)"
-                    :active="route().current(`${props.userRole}.contracts`)"
-                >
+                <NavLink :href="route(`${props.userRole}.contracts`)"
+                    :active="route().current(`${props.userRole}.contracts`)">
                     <Icon_contract />
                     <span>Договоры</span>
                 </NavLink>
-                <NavLink
-                    v-if="props.userRole === 'client'"
-                    :href="route('client.balance-transactions')"
-                    :active="route().current('client.balance-transactions')"
-                >
+                <NavLink v-if="props.userRole === 'client'" :href="route('client.balance-transactions')"
+                    :active="route().current('client.balance-transactions')">
                     <Icon_balance />
                     <span>Баланс и транзакции</span>
                 </NavLink>
-                <NavLink
-                    :href="route(`${props.userRole}.applications`)"
-                    :active="route().current(`${props.userRole}.applications`)"
-                >
+                <NavLink :href="route(`${props.userRole}.applications`)"
+                    :active="route().current(`${props.userRole}.applications`)">
                     <Icon_applications />
                     <span>Заявки</span>
                 </NavLink>
-                <NavLink
-                    class="logs"
-                    v-if="props.userRole === 'admin'"
-                    :href="route('admin.logs')"
-                    :active="route().current('admin.logs')"
-                >
+                <NavLink class="logs" v-if="props.userRole === 'admin'" :href="route('admin.logs')"
+                    :active="route().current('admin.logs')">
                     <Icon_logs />
                     <span>Логи</span>
                 </NavLink>
@@ -145,28 +136,32 @@ watch(
                             <p>{{ props.userInfo?.main_sum }} ₽</p>
                         </div>
                     </div>
+                    
+                    <button 
+                        v-if="props.userRole === 'admin' || props.userRole === 'manager'" 
+                        class="flex align-center justify-center keyboard"
+                        :style="props.userRole === 'manager' ? { marginRight: '16px' } : {}"
+                        @click="toggleModal"
+                    >
+                        <Icon_keyboarf />
+                        Горячие клавиши
+                    </button>
+                    
                     <div class="toast flex flex-column" v-if="toastMessage">
                         <h3>{{ props.toast[0] }}</h3>
                         <p>{{ props.toast[1] }}</p>
                     </div>
 
-                    <NavLink
-                        style="display: block; height: 44px; position: relative"
+                    <NavLink style="display: block; height: 44px; position: relative"
                         v-if="props.userRole === 'client' || props.userRole === 'manager'"
-                        :href="route(`${props.userRole}.notification`)"
-                    >
+                        :href="route(`${props.userRole}.notification`)">
                         <div v-if="props.notifications.length > 0" class="red_point flex align-center justify-center">
                             {{ props.notifications.length }}
                         </div>
                         <Icon_notifications />
                     </NavLink>
-                    <ResponsiveNavLink
-                        :href="route('logout')"
-                        @click="remote()"
-                        method="post"
-                        as="button"
-                        class="flex align-center justify-center btn"
-                    >
+                    <ResponsiveNavLink :href="route('logout')" @click="remote()" method="post" as="button"
+                        class="flex align-center justify-center btn">
                         <Icon_exit />
                         Выйти
                     </ResponsiveNavLink>
@@ -181,6 +176,16 @@ watch(
             </main>
         </div>
     </div>
+    <BaseModal 
+        :isOpen="isModalOpen" 
+        title="Горячие клавиши"
+        @close="toggleModal"
+    >
+        <p class="title_ks">Таблица (горизонтальное перемещение)</p>
+        <p style="margin-bottom: 16px;">Зажатый Shift + прокрутка СКМ — средняя кнопка мыши (колёсико)</p>
+        <p class="title_ks">Поиск</p>
+        <p>Ctrl+F, появляется встроенный поиск браузера. После вводим необходимый запрос</p>
+    </BaseModal>
 </template>
 
 <style scoped>
@@ -324,5 +329,37 @@ watch(
     font-weight: 600;
     line-height: 29px;
     margin-bottom: 8px;
+}
+
+.keyboard {
+    width: 188px;
+    height: 48px;
+    background: #fff;
+    border-radius: 12px;
+    column-gap: 8px;
+    color: #242424;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    font-family: 'Onest', sans-serif;
+}
+
+.title_ks {
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+:deep(.modal) {
+    width: 500px;
+    height: 267px;
+    padding-top: 24px;
+}
+
+:deep(.modal-body) {
+    margin-bottom: 0;
+}
+
+:deep(.title-2) {
+    color: #000;
 }
 </style>
