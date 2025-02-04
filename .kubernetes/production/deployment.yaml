@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tm-api
+  namespace: <K8S_NAMESPACE>
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1  # Храним только 1 старых ReplicaSet
+  progressDeadlineSeconds: 120
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: tm-api
+  template:
+    metadata:
+      labels:
+        app: tm-api
+    spec:
+      imagePullSecrets:
+        - name: tm-image-pull-1
+      containers:
+        - name: tm-api
+          image: <IMAGE>
+          imagePullPolicy: Always
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: FRONTEND_URL
+              value: "https://tm.lb.pro-technologii.ru"
+            - name: TELESCOPE_ENABLED
+              value: "false"
+            - name: APP_NAME
+              value: "Trust Management API"
+            - name: DB_HOST
+              value: "db.pro-technologii.ru"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USERNAME
+              value: "tm"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tm-api
+                  key: "db-password"
+            - name: DB_DATABASE
+              value: "tm_api"
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            initialDelaySeconds: 10
+          lifecycle:
+            postStart:
+              exec:
+                command: [ "/bin/sh", "-c", "php /var/www/html/artisan config:cache" ]
