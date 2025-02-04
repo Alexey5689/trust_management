@@ -29,6 +29,11 @@ build_prod:
   stage: build
   variables:
     DOCKERFILE: production/Dockerfile
+    DB_DATABASE: tm_api
+    DB_HOST: db.pro-technologii.ru
+    DB_PORT: 5432
+    DB_USERNAME: tm
+    DB_PASSWORD: $DB_PASSWORD
   script:
     - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/docker/$DOCKERFILE" --destination "$CI_REGISTRY_IMAGE:latest" --registry-mirror "dockerhub.timeweb.cloud" --registry-mirror "huecker.io"
   <<: *build_rules
