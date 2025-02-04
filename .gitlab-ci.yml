@@ -1,0 +1,111 @@
+stages:
+  - build
+  - test
+  - deploy
+
+.default: &default
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n ${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD} | base64)\"}}}" > /kaniko/.docker/config.json
+
+.build_rules: &build_rules
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.prod_test_rules: &prod_test_rules
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.prod_deploy_rules: &prod_deploy_rules
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+
+build_prod:
+  <<: *default
+  stage: build
+  variables:
+    DOCKERFILE: production/Dockerfile
+  script:
+    - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/docker/$DOCKERFILE" --destination "$CI_REGISTRY_IMAGE:latest" --registry-mirror "dockerhub.timeweb.cloud" --registry-mirror "huecker.io"
+  <<: *build_rules
+
+.test: &test_script
+  services:
+    - name: dockerhub.timeweb.cloud/postgres:16
+      alias: postgres
+  variables:
+    PGPASSWORD: $DB_PASSWORD
+    POSTGRES_DB: testing
+    POSTGRES_USER: sail
+    POSTGRES_PASSWORD: $DB_PASSWORD
+  before_script:
+    - composer install
+    - cp .env.example .env
+    - sed -i "s/DB_HOST=pgsql/DB_HOST=postgres/g" .env
+    - php artisan key:generate
+    - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 1; done
+  script:
+    - ./vendor/bin/phpunit --do-not-cache-result --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
+  coverage: '/^\s*Lines:\s*\d+.\d+\%/'
+  artifacts:
+    when: always
+    paths:
+      - "phpunit-report.xml"
+    reports:
+      junit: phpunit-report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: phpunit-coverage.xml
+
+test_prod:
+  stage: test
+  needs:
+    - build_prod
+  image: $CI_REGISTRY_IMAGE:latest
+  <<: *test_script
+  <<: *prod_test_rules
+
+deploy_prod:
+  stage: deploy
+  needs:
+    - test_prod
+  image: dockerhub.timeweb.cloud/bitnami/kubectl:1.20
+  variables:
+    K8S_NAMESPACE: tm
+    APP_URL: "https://api-tm.$K8S_DOMAIN"
+  before_script:
+    - kubectl config set-cluster k8s --insecure-skip-tls-verify=true --server=https://109.172.113.101:6443
+    - kubectl config set-credentials ci --token="$K8S_CI_TOKEN"
+    - kubectl config set-context ci --cluster=k8s --user=ci --namespace $K8S_NAMESPACE
+    - kubectl config use-context ci
+  script:
+    - sed -i -e "s,<IMAGE>,$CI_REGISTRY_IMAGE:latest,g" .kubernetes/production/deployment.yaml
+    - sed -i -e "s,<K8S_NAMESPACE>,$K8S_NAMESPACE,g" .kubernetes/production/deployment.yaml
+    - sed -i -e "s,<K8S_NAMESPACE>,$K8S_NAMESPACE,g" .kubernetes/production/service.yaml
+    - kubectl apply -f .kubernetes/production/
+    - kubectl rollout restart deployment/tm-api
+    - kubectl rollout status deployment/tm-api ||
+      (kubectl rollout undo deployment/tm-api && exit 1)
+  <<: *prod_deploy_rules
+  environment:
+    name: production
+    url: https://api-tm.$K8S_DOMAIN
+
+migrate_prod:
+  stage: deploy
+  needs:
+    - deploy_prod
+  image: $CI_REGISTRY_IMAGE:latest
+  variables:
+    DB_DATABASE: tm_api
+    DB_HOST: db.pro-technologii.ru
+    DB_PORT: 5432
+    DB_USERNAME: tm
+    DB_PASSWORD: $DB_PASSWORD
+  script:
+    - php /var/www/html/artisan migrate --force
+  <<: *prod_deploy_rules
