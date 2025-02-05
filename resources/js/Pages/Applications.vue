@@ -76,7 +76,7 @@ const applicationStatuses = ref(['В обработке', 'Согласован�
 const getInfo = async (url, applicationId) => {
     loading.value = true;
     try {
-        const data = await fetchData(url, { application: applicationId }); // Ожидаем завершения запроса
+        const data = await fetchData(url, { application: applicationId });
         applicationData.value = data.application;
         userInfo.value = applicationData.value.user ?? '';
         contractInfo.value = applicationData.value.contract ?? '';
@@ -85,7 +85,7 @@ const getInfo = async (url, applicationId) => {
         selectedPartlyOption.value = applicationData.value.type_of_processing ?? '';
         formStatus.status = applicationData.value.status;
     } catch (err) {
-        error.value = err; // Сохраняем ошибку
+        error.value = err;
     } finally {
         loading.value = false;
     }
@@ -216,11 +216,11 @@ const createAplication = () => {
     loading.value = true;
     form.post(route('add.application'), {
         onSuccess: () => {
-            closeModal(); // Закрыть модал при успешной отправке
+            closeModal();
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', form.errors); // Лог ошибок
+            console.error('Ошибка:', form.errors);
             loading.value = false;
         },
     });
@@ -230,11 +230,11 @@ const changeStatus = () => {
     loading.value = true;
     formStatus.patch(route('change.status.application', applicationData.value.id), {
         onSuccess: () => {
-            closeModal(); // Закрыть модал при успешной отправке
+            closeModal();
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', formStatus.errors); // Лог ошибок
+            console.error('Ошибка:', formStatus.errors);
             loading.value = false;
         },
     });
@@ -429,23 +429,6 @@ const validateDividends = () => {
                                         {{ application.dividends ? parseFloat(application.dividends).toFixed() : '' }}
                                     </p>
                                 </div>
-                                <!-- <div v-if="role === 'admin' || role === 'manager'">
-                                    <Dropdown
-                                        :options="[
-                                            {
-                                                label: 'Подробная информация',
-                                                action: 'information',
-                                                url: 'show.application',
-                                            },
-                                        ]"
-                                        class="applications_dropdown"
-                                        @select="handleDropdownSelect($event, application.id, $event.action)"
-                                    >
-                                        <template #trigger>
-                                            <Ellipsis />
-                                        </template>
-                                    </Dropdown>
-                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -511,7 +494,7 @@ const validateDividends = () => {
                             </div>
                         </div>
                         <div class="flex c-gap">
-                            <div class="contract_sum" style="max-height: 74px; width: 210px; flex-shrink: 0;">
+                            <div class="contract_sum" style="max-height: 74px; width: 210px; flex-shrink: 0">
                                 <label>Основная сумма</label>
                                 <p>{{ sum ? parseFloat(sum).toFixed() + '₽' : '' }}</p>
                             </div>

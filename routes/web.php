@@ -8,7 +8,7 @@ use App\Http\Controllers\CreatingPasswordController;
 
 Route::get('/', function () {
     if (!Auth::check()) {
-        return redirect()->route('login');  // Если пользователь не авторизован
+        return redirect()->route('login');  
     }
 
     $user = Auth::user();
@@ -24,11 +24,11 @@ Route::get('/', function () {
 
 
 Route::middleware('guest')->group(function () {
-    //вход
+    
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
-    // создание пароля
+  
     Route::get('create-password/{token}', [CreatingPasswordController::class, 'create'])
         ->name('password.set');
 
@@ -37,7 +37,7 @@ Route::middleware('guest')->group(function () {
 });
 Route::middleware('auth',)->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-     //сброс пароля
+    
     Route::post('/reset-password/{user}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password')->middleware(['role:admin,manager']);
 
 });

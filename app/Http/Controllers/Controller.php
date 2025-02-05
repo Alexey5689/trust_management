@@ -35,7 +35,6 @@ abstract class Controller
 
 protected function calculateAccumulatedDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $paymentFrequency = 'Ежеквартально', $lastPaymentDate = null)
 {
-    //dd($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $paymentFrequency, $lastPaymentDate);
 
     return match ($paymentFrequency) {
       
@@ -45,43 +44,6 @@ protected function calculateAccumulatedDividends($contractStartDate, $contractDe
     };
 }
 
-
-// protected function calculateEndOfTermDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount)
-// {
-//     $startDate = new DateTime($contractStartDate);
-//     $endDate = new DateTime($contractDeadline);
-//     $currentDate = new DateTime($currentDate);
-
-//     // Защита от деления на 0
-//     if ($startDate >= $endDate) {
-//         return round($paymentAmount);
-//     }
-
-//     // Считаем количество дней в периоде (учёт високосных лет)
-//     $totalContractDays = 0;
-//     for ($date = clone $startDate; $date < $endDate; $date->modify('+1 day')) {
-//         $totalContractDays++;
-//     }
-
-//     // Дни с начала договора до текущей даты
-//     $daysSinceStart = 0;
-//     for ($date = clone $startDate; $date < $currentDate && $date < $endDate; $date->modify('+1 day')) {
-//         $daysSinceStart++;
-//     }
-
-//     // Дивиденды за один день
-//     $dailyDividend = $paymentAmount / $totalContractDays;
-
-//     // Если договор истёк, начисляем 100% суммы
-//     if ($currentDate >= $endDate) {
-//         return round($paymentAmount);
-//     }
-
-//     // Пропорционально за прошедшие дни
-//     $accruedDividends = $daysSinceStart * $dailyDividend;
-
-//     return round($accruedDividends);
-// }
 
 
 protected function calculateAnnualDividends($contractStartDate, $contractDeadline, $currentDate, $paymentAmount, $lastPaymentDate) {
@@ -447,9 +409,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
         $mainSum = $contract->sum;
         $avalible_dividends = round($contract->avaliable_dividends ?? 0);
-        // dd($newStatus);
-        // Обновляем сумму по договору и сбрасываем доступные дивиденды
-        // Если заявка исполнена, создаём транзакцию
+       
         if ($newStatus === 'Исполнена') {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
             $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->subDays(7));

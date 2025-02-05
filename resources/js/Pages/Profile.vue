@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -7,7 +7,6 @@ import BaseModal from '@/Components/Modal/BaseModal.vue';
 import { fetchData } from '@/helpers';
 import InputError from '@/Components/InputError.vue';
 import Loader from '@/Components/Loader.vue';
-import Notifications from './Notifications.vue';
 
 const props = defineProps({
     user: {
@@ -37,10 +36,10 @@ const loading = ref(false);
 const getInfo = async (url) => {
     loading.value = true;
     try {
-        const data = await fetchData(url); // Ожидаем завершения запроса
+        const data = await fetchData(url);
         userData.value = data.user ? data.user : data;
     } catch (err) {
-        error.value = err; // Сохраняем ошибку
+        error.value = err;
         console.log(err);
     } finally {
         loading.value = false;
@@ -92,7 +91,7 @@ const saveChanges = () => {
                 loading.value = false;
             },
             onError: () => {
-                console.error('Ошибка:', form.errors); // Лог ошибок
+                console.error('Ошибка:', form.errors);
                 loading.value = false;
             },
         });
@@ -104,7 +103,7 @@ const saveChanges = () => {
                 loading.value = false;
             },
             onError: () => {
-                console.error('Ошибка:', form.errors); // Лог ошибок
+                console.error('Ошибка:', form.errors);
                 loading.value = false;
             },
         });
@@ -116,7 +115,7 @@ const saveChanges = () => {
                 loading.value = false;
             },
             onError: () => {
-                console.error('Ошибка:', form.errors); // Лог ошибок
+                console.error('Ошибка:', form.errors);
                 loading.value = false;
             },
         });

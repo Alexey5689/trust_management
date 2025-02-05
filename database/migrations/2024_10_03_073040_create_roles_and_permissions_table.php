@@ -36,8 +36,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('role_permission'); // Удаление промежуточной таблицы
-        Schema::dropIfExists('permissions');     // Удаление таблицы прав
-        Schema::dropIfExists('roles');           // Удаление таблицы ролей
+        Schema::dropIfExists('role_permission'); 
+        Schema::dropIfExists('permissions');    
+        Schema::dropIfExists('roles');           
     }
 };

@@ -16,21 +16,19 @@ class ClientController extends Controller
     $user = Auth::user();
     $role = $user->role->title;
      /** @var User $user */
-    // Загружаем контракты пользователя
+  
     $userContracts = $user->userContracts()->get()->where('contract_status', true);
 
-    // Сумма всех контрактов
+    
     $sum_all_contracts = $userContracts->sum('sum');
 
-    // Рассчитываем накопленные дивиденды
+   
     $dividends = $userContracts->reduce(function ($carry, $contract) {
         $sum = $contract->sum ?? 0;  
         $procent = $contract->procent ?? 0;  
-        //dd($procent, $sum);
-        // Рассчитываем годовые дивиденды
+        
         $annual_dividends = $sum * ($procent / 100);  
-       // dd($annual_dividends);
-        // Приводим даты к Carbon
+      
         $createDate = $contract->create_date instanceof \Carbon\Carbon 
             ? $contract->create_date 
             : \Carbon\Carbon::parse($contract->create_date);
@@ -39,25 +37,24 @@ class ClientController extends Controller
             ? $contract->deadline
             : \Carbon\Carbon::parse($contract->deadline);
         
-        // Передаём годовые дивиденды в метод
+    
         return $carry + $this->calculateAccumulatedDividends(
             $createDate,
             $deadline,
             now(),
-            $annual_dividends,  // Передаём годовые дивиденды!
+            $annual_dividends,  
             $contract->payments,
             $contract->last_payment_date
         );
     }, 0);
-    // dd($dividends);
-    // Получаем менеджера
+    
     $manager = $user->managers->first();
     $user_notification = $user->userNotifications()
     ->where('is_read', false)
     ->get()
     ->values();
 
-    //dd($user_notification);
+ 
     return Inertia::render('Profile', [
         'user' => [
             'id' => $user->id,
@@ -69,7 +66,6 @@ class ClientController extends Controller
                 : 'Менеджер не назначен',
             'managerEmail' => $manager ? $manager->email : '—',
             'main_sum' => $sum_all_contracts,
-            //'dividends' => round($dividends, 2),// Округляем до 2 знаков
             'dividends' => $dividends,
         ],
         'role' => $role,
@@ -83,21 +79,21 @@ public function showContracts()
     $user = Auth::user();
     $role = $user->role->title;
        /** @var User $user */
-    // Фильтруем по статусу на уровне базы данных
+    
     $userContracts = $user->userContracts()->get()->where('contract_status', true);
 
-    // Сумма всех контрактов
+  
     $sum_all_contracts = $userContracts->sum('sum');
 
-    // Рассчитываем накопленные дивиденды
+   
     $dividends = $userContracts->reduce(function ($carry, $contract) {
         $sum = $contract->sum ?? 0;  
         $procent = $contract->procent ?? 0;  
         
-        // Рассчитываем годовые дивиденды
+      
         $annual_dividends = $sum * ($procent / 100);  
         
-        // Приводим даты к Carbon
+       
         $createDate = $contract->create_date instanceof \Carbon\Carbon 
             ? $contract->create_date 
             : \Carbon\Carbon::parse($contract->create_date);
@@ -106,18 +102,17 @@ public function showContracts()
             ? $contract->deadline
             : \Carbon\Carbon::parse($contract->deadline);
         
-        // Передаём годовые дивиденды в метод
+        
         return $carry + $this->calculateAccumulatedDividends(
             $createDate,
             $deadline,
             now(),
-            $annual_dividends,  // Передаём годовые дивиденды!
+            $annual_dividends,  
             $contract->payments,
             $contract->last_payment_date
         );
     }, 0);
-    // dd($dividends);
-    // Получаем менеджера
+   
     $user_notification = $user->userNotifications()
     ->where('is_read', false)
     ->get()
@@ -134,7 +129,7 @@ public function showContracts()
                 $weekDividends = $this->calculateWeeklyDividends($contract->create_date, $contract->deadline, $contract->sum, $contract->procent);
                 $dayDividends = $this->calculateDailyDividends($contract->create_date, $contract->deadline, $contract->sum, $contract->procent);
             }else {
-                 // Для 'По истечению срока' (или других типов выплат) подсчеты не выполняются
+               
                 $anualDividends = null;
                 $monthDividends = null;
                 $weekDividends = null;
@@ -172,7 +167,7 @@ public function showContracts()
                 : 'Менеджер не назначен',
             'managerEmail' => $manager ? $manager->email : '—',
             'main_sum' => $sum_all_contracts,
-            'dividends' => round($dividends, 2),// Округляем до 2 знаков
+            'dividends' => round($dividends, 2),
         ],
         'notifications' => $user_notification,
     ]);
@@ -188,18 +183,18 @@ public function showContracts()
         $userContracts = $user->userContracts()->get()->where('contract_status', true);
 
        
-    // Сумма всех контрактов
+    
         $sum_all_contracts = $userContracts->sum('sum');
 
-        // Рассчитываем накопленные дивиденды
+       
         $dividends = $userContracts->reduce(function ($carry, $contract) {
             $sum = $contract->sum ?? 0;  
             $procent = $contract->procent ?? 0;  
             
-            // Рассчитываем годовые дивиденды
+           
             $annual_dividends = $sum * ($procent / 100);  
             
-            // Приводим даты к Carbon
+          
             $createDate = $contract->create_date instanceof \Carbon\Carbon 
                 ? $contract->create_date 
                 : \Carbon\Carbon::parse($contract->create_date);
@@ -208,24 +203,23 @@ public function showContracts()
                 ? $contract->deadline
                 : \Carbon\Carbon::parse($contract->deadline);
             
-            // Передаём годовые дивиденды в метод
+           
             return $carry + $this->calculateAccumulatedDividends(
                 $createDate,
                 $deadline,
                 now(),
-                $annual_dividends,  // Передаём годовые дивиденды!
+                $annual_dividends, 
                 $contract->payments,
                 $contract->last_payment_date
             );
         }, 0);
-        // dd($dividends);
-        // Получаем менеджера
+        
         $user_notification = $user->userNotifications()
         ->where('is_read', false)
         ->get()
         ->values();
         $manager = $user->managers->first();
-        // dd($transactions);
+       
         return Inertia::render('BalanceTransactions', [
             'role' => $role,
             'transactions' => $transactions,
@@ -244,7 +238,7 @@ public function showContracts()
                     : 'Менеджер не назначен',
                 'managerEmail' => $manager ? $manager->email : '—',
                 'main_sum' => $sum_all_contracts,
-                'dividends' => round($dividends, 2),// Округляем до 2 знаков
+                'dividends' => round($dividends, 2),
             ],
             'notifications' => $user_notification,
             
@@ -273,21 +267,21 @@ public function showContracts()
                                 'dividends'=> $application->dividends
                             ];
                         });
-        //dd($applications);
+      
         $userContracts = $user->userContracts()->get()->where('contract_status', true);
 
-        // Сумма всех контрактов
+       
         $sum_all_contracts = $userContracts->sum('sum');
     
-        // Рассчитываем накопленные дивиденды
+      
         $dividends = $userContracts->reduce(function ($carry, $contract) {
             $sum = $contract->sum ?? 0;  
             $procent = $contract->procent ?? 0;  
             
-            // Рассчитываем годовые дивиденды
+         
             $annual_dividends = $sum * ($procent / 100);  
             
-            // Приводим даты к Carbon
+           
             $createDate = $contract->create_date instanceof \Carbon\Carbon 
                 ? $contract->create_date 
                 : \Carbon\Carbon::parse($contract->create_date);
@@ -296,18 +290,17 @@ public function showContracts()
                 ? $contract->deadline
                 : \Carbon\Carbon::parse($contract->deadline);
             
-            // Передаём годовые дивиденды в метод
+            
             return $carry + $this->calculateAccumulatedDividends(
                 $createDate,
                 $deadline,
                 now(),
-                $annual_dividends,  // Передаём годовые дивиденды!
+                $annual_dividends,  
                 $contract->payments,
                 $contract->last_payment_date
             );
         }, 0);
-        // dd($dividends);
-        // Получаем менеджера
+      
         $user_notification = $user->userNotifications()
         ->where('is_read', false)
         ->get()
@@ -327,7 +320,7 @@ public function showContracts()
                     : 'Менеджер не назначен',
                 'managerEmail' => $manager ? $manager->email : '—',
                 'main_sum' => $sum_all_contracts,
-                'dividends' => round($dividends, 2),// Округляем до 2 знаков
+                'dividends' => round($dividends, 2),
             ],
             'notifications' => $user_notification,
         ]);
@@ -339,18 +332,18 @@ public function showContracts()
         $notifivcations = $user->userNotifications()->get();
         $userContracts = $user->userContracts()->get()->where('contract_status', true);
 
-        // Сумма всех контрактов
+      
         $sum_all_contracts = $userContracts->sum('sum');
     
-        // Рассчитываем накопленные дивиденды
+      
         $dividends = $userContracts->reduce(function ($carry, $contract) {
             $sum = $contract->sum ?? 0;  
             $procent = $contract->procent ?? 0;  
             
-            // Рассчитываем годовые дивиденды
+           
             $annual_dividends = $sum * ($procent / 100);  
             
-            // Приводим даты к Carbon
+           
             $createDate = $contract->create_date instanceof \Carbon\Carbon 
                 ? $contract->create_date 
                 : \Carbon\Carbon::parse($contract->create_date);
@@ -359,18 +352,17 @@ public function showContracts()
                 ? $contract->deadline
                 : \Carbon\Carbon::parse($contract->deadline);
             
-            // Передаём годовые дивиденды в метод
+           
             return $carry + $this->calculateAccumulatedDividends(
                 $createDate,
                 $deadline,
                 now(),
-                $annual_dividends,  // Передаём годовые дивиденды!
+                $annual_dividends,  
                 $contract->payments,
                 $contract->last_payment_date
             );
         }, 0);
-        // dd($dividends);
-        // Получаем менеджера
+      
         $user_notification = $user->userNotifications()
         ->where('is_read', false)
         ->get()
@@ -389,13 +381,13 @@ public function showContracts()
                     : 'Менеджер не назначен',
                 'managerEmail' => $manager ? $manager->email : '—',
                 'main_sum' => $sum_all_contracts,
-                'dividends' => round($dividends, 2),// Округляем до 2 знаков
+                'dividends' => round($dividends, 2),
             ],
             'notification' => $user_notification,
         ]);
     }
     public function updateNotification(Request $request, Notification $notification){
-        // dd($request->all());
+       
         $request->validate([
            'is_read' => ['required', 'boolean'],
         ]);

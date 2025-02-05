@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
 
-            // Внешний ключ на таблицу contracts
+         
             $table->foreignId('contract_id')->constrained('contracts')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            // Внешний ключ на таблицу users для менеджера
+           
             $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
 
             $table->date('date_transition');
             $table->boolean('status_transition')->default(true);
             $table->string('sourse');
-            // Денежные суммы лучше хранить в формате decimal
+           
             $table->decimal('sum_transition', 10, 2);
 
             $table->timestamps();

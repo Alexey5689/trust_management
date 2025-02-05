@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('token');
             $table->boolean('active')->default(false);
             $table->string('refresh_token');
-            $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('set null'); // Внешний ключ на таблицу ролей
+            $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('set null'); 
             $table->rememberToken();
             $table->timestamps();
         });

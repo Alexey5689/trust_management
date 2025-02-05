@@ -28,7 +28,6 @@ const props = defineProps({
         required: false,
     },
 });
-// created_at
 
 const activeTab = ref('months');
 const yearAccruals = ref([]);
@@ -36,11 +35,10 @@ const monthAccruals = ref([]);
 const weekAccruals = ref([]);
 const dayAccruals = ref([]);
 
-// Храним id выбранного договора
 const openContractId = ref(null);
 
 const contracts = computed(() => props.contracts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
-// При клике устанавливаем (или сбрасываем) id выбранного договора
+
 function handleContractClick(contractId) {
     openContractId.value = props.contracts.find((contract) => contract.id === contractId);
     dayAccruals.value = openContractId.value.dayDividends;
@@ -49,7 +47,6 @@ function handleContractClick(contractId) {
     yearAccruals.value = openContractId.value.anualDividends;
 }
 
-// При монтировании (или сразу в setup) выберем первый договор, если список не пуст
 onMounted(() => {
     if (props.contracts.length > 0) {
         openContractId.value = props.contracts[0];
@@ -78,7 +75,7 @@ onMounted(() => {
             <div v-if="props.contracts.length === 0">
                 <p class="title">Нет договоров</p>
             </div>
-            <!-- Список договоров -->
+
             <div class="contracts_client flex">
                 <div
                     class="contract_item flex flex-column"
@@ -115,7 +112,6 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Единый блок Графика: показываем, если есть выбранный договор -->
             <div class="accruals card" v-if="openContractId && openContractId.agree_with_terms === false">
                 <div class="accruals_title flex justify-between align-center">
                     <h3>График начислений для договора #{{ openContractId.contract_number }}</h3>
@@ -151,7 +147,6 @@ onMounted(() => {
                     </ul>
                 </div>
 
-                <!-- Таб "По годам" -->
                 <div class="accruals_schedule years" v-if="activeTab === 'years'">
                     <div
                         v-for="accrual in yearAccruals"
@@ -171,7 +166,6 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- Таб "По месяцам" -->
                 <div class="accruals_schedule months" v-if="activeTab === 'months'">
                     <div
                         v-for="accrual in monthAccruals"
@@ -191,7 +185,6 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- Таб "По неделям" -->
                 <div class="accruals_schedule weeks" v-if="activeTab === 'weeks'">
                     <div
                         v-for="accrual in weekAccruals"
@@ -211,7 +204,6 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- Таб "По дням" -->
                 <div class="accruals_schedule days" v-if="activeTab === 'days'">
                     <div
                         v-for="accrual in dayAccruals"
@@ -231,7 +223,6 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
-            <!-- /График -->
         </template>
     </AuthenticatedLayout>
 </template>

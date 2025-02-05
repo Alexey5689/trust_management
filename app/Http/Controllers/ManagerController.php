@@ -26,13 +26,13 @@ class ManagerController extends Controller
     {
         $user = Auth::user();
         $role = $user->role->title;
-        // dd($user, $role);
+      
            /** @var User $user */
         $user_notification = $user->userNotifications()
         ->where('is_read', false)
         ->get()
         ->values();
-       // dd($user_notification);
+      
         return Inertia::render('Profile', [
             'user' => [
                 'id' => $user->id,
@@ -48,14 +48,14 @@ class ManagerController extends Controller
 
     public function showClients(): Response
     {
-        // Получаем его роль
+        
         $user = Auth::user();
           /** @var User $user */
-        $role = $user->role->title; // Получаем его роль
+        $role = $user->role->title;
         $clients = $user->managedUsers()
-        //->where('active', true)
+        
         ->with(['userContracts' => function ($query) {
-            $query->where('contract_status', true);  // Загружаем только активные контракты
+            $query->where('contract_status', true);  
         }])
         ->get()
         ->map(function ($client) {
@@ -89,8 +89,8 @@ class ManagerController extends Controller
 
     public function showContracts(){
         $user = Auth::user();
-        $role = $user->role->title; // Получаем его роль
-         // Явно указываем тип переменной $user
+        $role = $user->role->title; 
+        
         /** @var User $user */
         $contracts = $user->managerContracts()->with('user')->get()->map(function ($contract) {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
@@ -116,9 +116,9 @@ class ManagerController extends Controller
         });
 
         $clients = $user->managedUsers()
-            //->where('active', true)
+           
             ->with('userContracts')
-            ->get()  //олучаем коллекцию пользователей
+            ->get() 
             ->map(function ($client) {
             return [
                 'id' => $client->id,
@@ -155,7 +155,7 @@ class ManagerController extends Controller
         ->where('active', true)
         ->with(['userContracts' => function ($query) {
             $query->where('contract_status', true);
-            $query->where('is_aplication', false); // Выбираем только активные договоры
+            $query->where('is_aplication', false); 
         }])
         ->get()
         ->map(function ($client) {
@@ -164,7 +164,7 @@ class ManagerController extends Controller
                 'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,
                 'user_contracts' => $client->userContracts->map(function ($contract) {
                     $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-                    // Рассчитываем дату следующей выплаты
+                   
                     $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
                     $nextPaymentDate = match ($contract->payments) {
                         'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
@@ -179,10 +179,9 @@ class ManagerController extends Controller
                         default => null,
                     };
                     $afterTheExpirationDate = $contract->payments === 'По истечению срока' ? true : false;
-                   // dd($nextPaymentDate);
-                     // Проверяем, истёк ли срок договора
+             
                      $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
-                    //dd($nextPaymentDate);
+                 
                     $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) && now()->lessThanOrEqualTo($nextPaymentDate);
                     return [
                         'id' => $contract->id,
@@ -195,7 +194,7 @@ class ManagerController extends Controller
                         'dividends' => $dividends,
                         'term' => $term,
                         'next_payment_date' => $nextPaymentDate,
-                        'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  // Запретить заявки для истёкших договоров
+                        'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  
                         'is_expired' => $isExpired,
                         'agree_with_terms' => $contract->agree_with_terms
                     ];
@@ -223,7 +222,7 @@ class ManagerController extends Controller
                                 'updated_at' => $application->updated_at
                             ];
                         });
-        //dd($applications);
+       
         $user_notification = $user->userNotifications()
         ->where('is_read', false)
         ->get()
@@ -246,7 +245,7 @@ class ManagerController extends Controller
 
     public function storeClientsByManager(Request $request): RedirectResponse
     {
-        //dd($request->all());
+       
 
         $request->validate([
            'first_name' => ['required','string' ,'max:255', 'min:2'],
@@ -270,11 +269,11 @@ class ManagerController extends Controller
                 'middle_name' => $request->middle_name,
                 'email' => $request->email,
                 'phone_number' => $request->phone_number,
-                'role_id' => 3, // Предполагаем, что 3 — это ID роли клиента
+                'role_id' => 3,
                 'token' => Str::random(60),
                 'refresh_token' => Str::random(60),
             ]);
-             // Логируем событие регистрации
+          
             Log::create([
                 'model_id' => $client->id,
                 'model_type' => User::class,
@@ -282,14 +281,14 @@ class ManagerController extends Controller
                 'action' => 'Регистрация пользователя',
                 'old_value' => null,
                 'new_value' => $client->email,
-                'created_by' => Auth::id(), // ID самого пользователя
+                'created_by' => Auth::id(), 
             ]);
-             // $loggedInUser = Auth::user();
+         
             $loggedInUser = User::with('role')->find(Auth::id());
             $manager_id = $loggedInUser->id;
-             // Записываем менеджера в таблицу user_manager
+     
             $client->managers()->attach($manager_id);
-            // Создание контракта с user_id и manager_id
+           
             $contract = $client->userContracts()->create([
                 'manager_id' => $manager_id,
                 'contract_number' => $request->contract_number,
@@ -310,7 +309,7 @@ class ManagerController extends Controller
                 'action' => 'Создание',
                 'old_value' => null,
                 'new_value' => 'Договор № ' . $contract->contract_number,
-                'created_by' => Auth::id(), // ID самого пользователя
+                'created_by' => Auth::id(), 
             ]);
     
             $client->userTransactions()->create([
@@ -351,7 +350,7 @@ class ManagerController extends Controller
     }
       public function updateClientByManager(Request $request, User $user): RedirectResponse
       {
-        //dd($user);
+       
           $request->validate([
               'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
           ]);
@@ -388,7 +387,7 @@ class ManagerController extends Controller
       }
       public function storeAddContractByManager(Request $request)
       {
-        //dd($request->all());
+        
         $request->validate([
             'user_id' => ['required', 'integer'],
             'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
@@ -439,7 +438,7 @@ class ManagerController extends Controller
                 'action' => 'Создание',
                 'old_value' => null,
                 'new_value' => 'Договор № ' . $contract->contract_number,
-                'created_by' => Auth::id(), // ID самого пользователя
+                'created_by' => Auth::id(), 
             ]);
             DB::commit();
             return redirect()->route('manager.contracts')
@@ -474,7 +473,7 @@ class ManagerController extends Controller
     }
 
     public function updateNotification(Request $request, Notification $notification){
-        // dd($request->all());
+        
         $request->validate([
            'is_read' => ['required', 'boolean'],
         ]);

@@ -54,11 +54,11 @@ const noActiveContract = computed(() => props.contracts.filter((contract) => con
 const getInfo = async (url, contractId) => {
     loading.value = true;
     try {
-        const data = await fetchData(url, { contract: contractId }); // Ожидаем завершения запроса
+        const data = await fetchData(url, { contract: contractId });
         contractData.value = data.contract;
         console.log(contractData);
     } catch (err) {
-        error.value = err; // Сохраняем ошибку
+        error.value = err;
     } finally {
         loading.value = false;
     }
@@ -92,11 +92,11 @@ const form = useForm({
     user_id: '',
     contract_number: null,
     sum: null,
-    deadline: '', // Срок договора
-    procent: null, // Процентная ставка // Для чекбокса
-    create_date: new Date().toISOString().substr(0, 10), // Дата заключения
+    deadline: '',
+    procent: null,
+    create_date: new Date().toISOString().substr(0, 10),
     contract_status: true,
-    payments: '', // Выплаты
+    payments: '',
     agree_with_terms: false,
 });
 
@@ -159,11 +159,11 @@ const createContract = () => {
     loading.value = true;
     form.post(route(`${props.role}.add.contract`), {
         onSuccess: () => {
-            closeModal(); // Закрыть модал при успешной отправке
+            closeModal();
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', form.errors); // Лог ошибок
+            console.error('Ошибка:', form.errors);
             loading.value = false;
         },
     });
@@ -172,11 +172,11 @@ const updateContract = () => {
     loading.value = true;
     form.patch(route('admin.edit.contract', { contract: currentModal.value.contractId }), {
         onSuccess: () => {
-            closeModal(); // Закрыть модал при успешной отправке
+            closeModal();
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', form.errors); // Лог ошибок
+            console.error('Ошибка:', form.errors);
             loading.value = false;
         },
     });

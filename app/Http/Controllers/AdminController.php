@@ -31,7 +31,7 @@ class AdminController extends Controller
         ->where('is_read', false)
         ->get()
         ->values();
-        //dd($user_notification);
+       
         return Inertia::render('Profile', [
             'user' => [
                 'id' => $user->id,
@@ -45,22 +45,22 @@ class AdminController extends Controller
         ]);
     }
     
-    // все пользователи
+   
     public function showAllUsers(){
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
+        $user = Auth::user(); 
+        $role = $user->role->title; 
 
         $clients = User::whereHas('role', function ($query) {
-        $query->where('title', 'client'); // Фильтрация по роли 'client'
+        $query->where('title', 'client');
         })
-        // ->where('active', true)
-        ->with(['userContracts']) // Предзагрузка контрактов
+        
+        ->with(['userContracts']) 
         ->get()
         ->map(function ($client) {
-                // Получаем первый контракт
+               
             $contract = $client->userContracts->first();
 
-            // Получаем данные менеджера, если контракт существует
+          
             $manager = $contract ? $contract->manager : null;
 
             return [
@@ -106,10 +106,10 @@ class AdminController extends Controller
             'status' => session('status'),
         ]);
     }
-    // все договоры
+    
     public function showAllContracts(){
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
+        $user = Auth::user(); 
+        $role = $user->role->title; 
         $contracts = Contract::with(['user'])->get() ->map(function ($contract) {
             $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
             return [
@@ -131,9 +131,9 @@ class AdminController extends Controller
             ];
         });
         $clients = User::whereHas('role', function ($query) {
-            $query->where('title', 'client'); // Фильтрация по роли 'client'
-        })->with('userContracts') // Загружаем контракты для клиентов
-        ->get() // Получаем коллекцию пользователей
+            $query->where('title', 'client'); 
+        })->with('userContracts') 
+        ->get() 
         ->map(function ($client) {
             return [
                 'id' => $client->id,
@@ -143,7 +143,7 @@ class AdminController extends Controller
             ];
         });
         return Inertia::render('Contracts', [
-            'role' => $role, // Передаем роль пользователя в Vue-компонент
+            'role' => $role, 
             'contracts'=> $contracts,
             'clients' => $clients,
             'status' => session('status'),
@@ -155,16 +155,16 @@ class AdminController extends Controller
             ],
         ]);
     }
-    //все заявки
+   
     public function showAllApplications(){
-        $user = Auth::user(); // Получаем текущего пользователя
-        $role = $user->role->title; // Получаем его роль
+        $user = Auth::user(); 
+        $role = $user->role->title; 
         $clients = User::whereHas('role', function($query) {
-            $query->where('title', 'client')->where('active', true); // Фильтрация по роли 'client'
+            $query->where('title', 'client')->where('active', true); 
         })
         ->with(['userContracts' => function ($query) {
             $query->where('contract_status', true);
-            $query->where('is_aplication', false); // Выбираем только активные договоры
+            $query->where('is_aplication', false); 
         }])
         ->get()
         ->map(function ($client) {
@@ -173,7 +173,7 @@ class AdminController extends Controller
                 'full_name' =>  $client->last_name. ' ' .$client->first_name. ' ' .$client->middle_name,               
                 'user_contracts' => $client->userContracts->map(function ($contract) {
                     $term = $this->termOfTheContract($contract->create_date, $contract->deadline);
-                    // Рассчитываем дату следующей выплаты
+                  
                     $lastPaymentDate = $contract->last_payment_date ?? $contract->create_date;
                     $nextPaymentDate = match ($contract->payments) {
                         'Ежеквартально' => Carbon::parse($lastPaymentDate)->addMonths(3),
@@ -181,21 +181,19 @@ class AdminController extends Controller
                         'По истечению срока' => Carbon::parse($contract->deadline),
                         default => null,
                     };
-                   // dd($nextPaymentDate);
+                  
                     $dividends = match ($contract->payments) {
                         'Ежеквартально' => $contract->sum * ($contract->procent / 100) * $term /  $term * 4 ,
                         'Ежегодно' => $contract->sum * ($contract->procent / 100) * $term /  $term * 1 ,
                         'По истечению срока' => null,
                         default => null,
                     };
-                   //dd($nextPaymentDate);
-                     // Проверяем, истёк ли срок договора
+               
                     $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
                     
-                    //dd($nextPaymentDate);
-                   //dd($isExpired);
+                   
                     $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) || now()->lessThanOrEqualTo($nextPaymentDate);
-                    //dd($canRequestPayoutOnTime);
+                  
                     return [
                         'id' => $contract->id,
                         'contract_number' => $contract->contract_number,
@@ -207,7 +205,7 @@ class AdminController extends Controller
                         'dividends' => $dividends,
                         'term' => $term,
                         'next_payment_date' => $nextPaymentDate,
-                        'can_request_payout' => $canRequestPayoutOnTime && !$isExpired,  // Запретить заявки для истёкших договоров
+                        'can_request_payout' => $canRequestPayoutOnTime && !$isExpired, 
                         'is_expired' => $isExpired,
                         'agree_with_terms' => $contract->agree_with_terms
 
@@ -233,7 +231,7 @@ class AdminController extends Controller
             ];
         });
         return Inertia::render('Applications', [
-            'role' => $role, // Передаем роль пользователя в Vue-компонент
+            'role' => $role, 
             'applications'=> $applications,
             'clients' => $clients,
             'status' => session('status'),
@@ -248,7 +246,7 @@ class AdminController extends Controller
 
     public function storeClientsByAdmin(Request $request ):RedirectResponse
     {
-       //dd($request->all());
+       
         $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
@@ -263,7 +261,7 @@ class AdminController extends Controller
             'manager_id' => ['required', 'integer', 'exists:users,id'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
-        //dd($request->all());
+        
         DB::beginTransaction();
         try {
             $user = User::create([
@@ -272,11 +270,11 @@ class AdminController extends Controller
                 'middle_name' => $request->middle_name,
                 'email' => $request->email,
                 'phone_number' => $request->phone_number,
-                'role_id' => 3, // Предполагаем, что 3 — это ID роли клиента
+                'role_id' => 3, 
                 'token' => Str::random(60),
                 'refresh_token' => Str::random(60),
             ]);
-             // Логируем событие регистрации
+          
             Log::create([
                 'model_id' => $user->id,
                 'model_type' => User::class,
@@ -284,13 +282,13 @@ class AdminController extends Controller
                 'action' => 'Регистрация пользователя' ,
                 'old_value' => null,
                 'new_value' =>  $user -> last_name . ' ' . $user -> first_name . ' ' . $user -> middle_name,
-                'created_by' => Auth::id(), // ID самого пользователя
+                'created_by' => Auth::id(), 
             ]);
     
             $manager_id = $request->manager_id;
-            // Записываем менеджера в таблицу user_manager
+            
             $user->managers()->attach($manager_id);
-            // Создание контракта с user_id и manager_id
+    
             $contract = $user->userContracts()->create([
                 'manager_id' => $request->manager_id,
                 'contract_number' => $request->contract_number,
@@ -342,10 +340,10 @@ class AdminController extends Controller
         
     }
 
-     // изменение контактных данных user клиент
+     
      public function editClientByAdmin(User $user)
      {
-        //dd($user);
+       
          $assignedManagerId = $user->userContracts()->first()->manager_id;
          return response()->json([
            'user'=> [
@@ -361,7 +359,7 @@ class AdminController extends Controller
      }
      public function updateClientByAdmin(Request $request, User $user): RedirectResponse
      {
-       //dd($request->all());
+       
         $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
@@ -377,16 +375,16 @@ class AdminController extends Controller
             'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
             'manager_id' => ['required', 'integer', 'exists:users,id'],
          ]);
-         //dd($request->all());
+      
         
         $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
         $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
-         // Логируем изменения
+        
         if ($user->isDirty()) {
             DB::beginTransaction();
             try{
                 $dirtyFields = $user->getDirty();
-                $user->save();  // Сохраняем изменения, но "грязные" поля уже зафиксированы
+                $user->save();  
                 foreach ($dirtyFields as $field => $newValue) {
                     $oldValue =$this->normalizeValue($originalData[$field]);
                     $newValue =$this->normalizeValue($newValue);
@@ -433,7 +431,7 @@ class AdminController extends Controller
                 $user->userContracts()->update([
                     'manager_id' => $request->manager_id,
                 ]);
-                // Логируем смену менеджера
+               
                 Log::create([
                     'model_id' => $user->id,
                     'model_type' => User::class,
@@ -464,7 +462,7 @@ class AdminController extends Controller
 
     public function storeManagersByAdmin(Request $request): RedirectResponse
     {
-        //dd($request->all());
+       
         $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
@@ -484,7 +482,7 @@ class AdminController extends Controller
                 'token' => Str::random(60),
                 'refresh_token' => Str::random(60),
             ]);
-            // Логируем событие регистрации
+         
             Log::create([
                 'model_id' => $user->id,
                 'model_type' => User::class,
@@ -492,7 +490,7 @@ class AdminController extends Controller
                 'action' => 'Регистрация пользователя',
                 'old_value' => null,
                 'new_value' => $user -> last_name . ' ' . $user -> first_name . ' ' . $user -> middle_name,
-                'created_by' => Auth::id(), // ID самого пользователя
+                'created_by' => Auth::id(), 
             ]);
     
     
@@ -516,10 +514,10 @@ class AdminController extends Controller
     }
 
 
-     // изменение контактных данных user менеджер
+   
     public function editManagersByAdmin(User $user)
     {
-        //dd($manager);
+       
         return response()->json([
             'user' =>[
                 'id' => $user->id,
@@ -534,7 +532,7 @@ class AdminController extends Controller
     }
     public function updateManagersByAdmin(Request $request, User $user): RedirectResponse
     {
-        //dd($request->all(), $user);
+       
         $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
@@ -588,7 +586,7 @@ class AdminController extends Controller
     }
       public function storeAddContractByAdmin(Request $request)
       {
-        //dd($request->all());
+      
         $request->validate([
             'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
             'deadline' => ['required', 'date_format:Y-m-d'],
@@ -598,14 +596,13 @@ class AdminController extends Controller
             'user_id' => ['required', 'integer'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
-        //dd($request->all());
-         // Находим клиента по user_id из запроса
+       
         DB::beginTransaction();
         try {
             $client = User::findOrFail($request->user_id);
-            // Получаем ID первого менеджера, закрепленного за клиентом
+          
             $manager_id = optional($client->managers->first())->id;
-            // dd($manager_id);
+          
             $contract = Contract::create([
                 'user_id' => $request->user_id,
                 'manager_id' => $manager_id,
@@ -631,7 +628,7 @@ class AdminController extends Controller
                 'content'=> 'Был создан договор No' . $contract->contract_number,
             ]);
     
-            // Логируем событие регистрации
+           
             Log::create([
                 'model_id' => $contract->user_id,
                 'model_type' => Contract::class,
@@ -639,7 +636,7 @@ class AdminController extends Controller
                 'action' => 'Создание',
                 'old_value' => null,
                 'new_value' => 'Договор No ' . $contract->contract_number,
-                'created_by' => Auth::id(), // ID самого пользователя
+                'created_by' => Auth::id(), 
             ]);
             DB::commit();
             return redirect()->route('admin.contracts')->with('status',  [
@@ -655,10 +652,10 @@ class AdminController extends Controller
        
         
       }
-      //редакция договора
+    
       public function editContractByAdmin(Contract $contract)
       {
-        //dd($contract);
+       
         return response()->json([
             'contract' => $contract,
         ]);
@@ -666,7 +663,7 @@ class AdminController extends Controller
 
       public function updateContractByAdmin(Request $request, Contract $contract)
       {
-       // dd($request->all());
+      
         $request->validate([
             'contract_number' =>['required', 'integer', Rule::unique('contracts', 'contract_number')->ignore($contract->id)],
             'deadline' => ['required', 'date_format:Y-m-d'],
@@ -703,7 +700,7 @@ class AdminController extends Controller
                     'title' => "Изменение договора",
                     'content'=> 'Договор № ' . $contract->contract_number . ' был изменен',
                 ]);
-                // dd($manager_id);
+               
                 
                 return redirect()->route('admin.contracts')->with('status',  [
                     'Успех!',
@@ -768,8 +765,7 @@ public function updateStatusApplication(Request $request, Application $applicati
             'content'=> 'Статус заявки № ' . $application->id . ' был изменен',
         ]);
 
-        // Обновляем статус заявки
-        // $application->update(['status' => $request->status]);
+        
         return redirect()->route('admin.applications')->with('status', ['Успех!', $message] );
 
     }catch(\Exception $e){

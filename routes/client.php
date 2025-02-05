@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\ProfileController;
+
 
 Route::middleware('auth' , 'role:client', 'checkActive')->group(function () {
     Route::prefix('client')->group(function () {

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-//use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -15,7 +15,7 @@ class ManagerSeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = Faker::create('ru_RU'); // Используем русский локализатор
+        $faker = Faker::create('ru_RU'); 
 
         for ($i = 0; $i < 5; $i++) {
             $firstNameCyr = $faker->firstName;
@@ -28,21 +28,19 @@ class ManagerSeeder extends Seeder
             User::create([
                 'last_name' => $lastNameCyr,
                 'first_name' => $firstNameCyr,
-                'middle_name' => $faker->middleName, // Некоторые локализации поддерживают отчество
+                'middle_name' => $faker->middleName, 
                 'email' => $email,
                 'phone_number' => '+7' . $faker->numberBetween(9000000000, 9999999999),
-                'password' => bcrypt('password'), // Хеширование пароля
+                'password' => bcrypt('password'), 
                 'active' => true,
                 'token' => Str::random(60),
                 'refresh_token' => Str::random(60),
-                'role_id' => 2, // Менеджерская роль
+                'role_id' => 2, 
             ]);
         }
     }
 
-    /**
-     * Транслитерация кириллических символов в латиницу
-     */
+    
     private function transliterate($text)
     {
         $cyr = [

@@ -18,9 +18,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            RoleSeeder::class,   // Добавь этот сидер для создания ролей
-            AdminSeeder::class, // Сидер для создания администраторов
-            ManagerSeeder::class, // Сидер для создания менеджеров
+            RoleSeeder::class,   
+            AdminSeeder::class, 
+            ManagerSeeder::class, 
             PermissionSeeder::class,
             RolePermissionSeeder::class,
 

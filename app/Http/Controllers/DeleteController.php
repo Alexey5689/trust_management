@@ -18,15 +18,15 @@ class DeleteController extends Controller
     public function deleteUser(User $user): RedirectResponse
     {
         try {
-            // Деактивируем пользователя
+         
             $user->update([
                 'active' => false,
             ]);
     
-            // Если удаляемый пользователь сейчас в системе — разлогиниваем его
+            
             if (Auth::check() && Auth::id() === $user->id) {
                 Auth::logout();
-                Session::invalidate(); // Очищаем сессию
+                Session::invalidate(); 
                 Session::regenerateToken();
             }
     
@@ -49,7 +49,7 @@ class DeleteController extends Controller
 
       public function deleteContract(Contract $contract): RedirectResponse
       {
-          //dd($contract);
+       
         try {
             $contract->update(['contract_status' => false]);
             $user = User::find($contract->user_id);

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { formatDateNotificztion, formatTimeNotificztion } from '@/helpers.js';
@@ -42,7 +42,7 @@ const isRead = (id) => {
             },
             onFinish: () => form.reset(),
             onError: () => {
-                console.error('Ошибка:', form.errors); // Лог ошибок
+                console.error('Ошибка:', form.errors);
             },
         });
     }

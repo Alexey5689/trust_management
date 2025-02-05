@@ -14,7 +14,7 @@ class ApplicationController extends Controller
 {
     
       public function storeAddApplication(Request $request){
-        //dd($request->all());
+       
         $user = Auth::user();
         $role = $user->role->title;
         /** @var User $user */
@@ -23,18 +23,18 @@ class ApplicationController extends Controller
             'user_id' => ['required', 'integer'],
             'contract_id' => ['required', 'integer'],
             'create_date' => ['required', 'date_format:Y-m-d'],
-            'date_of_payments' => ['required', 'date_format:Y-m-d', 'after_or_equal:create_date'], // Дата платежа не должна быть раньше даты создания
-            'dividends' => [ 'nullable', 'numeric' ], // Сумма должна быть больше 0.01
-            'dividendsAfterExpiration' => [ 'nullable', 'numeric' ], // Сумма должна быть больше 0.01
+            'date_of_payments' => ['required', 'date_format:Y-m-d', 'after_or_equal:create_date'], 
+            'dividends' => [ 'nullable', 'numeric' ], 
+            'dividendsAfterExpiration' => [ 'nullable', 'numeric' ], 
         ]);
         DB::beginTransaction();
         try {
-                // Проверка, что менеджер имеет право работать с пользователем
+                
                 if (!$user->managedUsers()->where('id', $request->user_id)->exists() && $role !== 'admin') {
                     abort(403, 'У вас нет прав для создания заявки на этого пользователя.');
                 }
 
-                // Проверка, что контракт принадлежит менеджеру
+             
                 if (!$user->managerContracts()->where('id', $request->contract_id  )->exists() && $role !== 'admin') {
                     abort(403, 'У вас нет прав для использования этого контракта.');
                 }
@@ -53,7 +53,7 @@ class ApplicationController extends Controller
                     'dividends'=>$request->dividends,
                     'dividendsAfterExpiration'=>$request->dividendsAfterExpiration
                 ]);
-               // dd($application);
+              
                 Log::create([
                     'model_id' => $application->user_id,
                     'model_type' => Application::class,
@@ -76,7 +76,7 @@ class ApplicationController extends Controller
                 $contract->update([
                     'is_aplication' => true
                 ]);
-                // dd($application);
+               
                 $client->userNotifications()->create([
                     'title'=> 'Заявка',
                     'content'=> 'Создана заявка № ' . $application->id . ' на договор № ' . $application->contract->contract_number,
@@ -94,9 +94,9 @@ class ApplicationController extends Controller
     
     
       public function showApplication(Application $application){
-        // dd($application);
+        
         $term = $this->termOfTheContract($application->contract->create_date, $application->contract->deadline);
-        // $dividends = $application->contract->sum * ($application->contract->procent / 100) * $term / $application->contract->number_of_payments;
+        
         $dividends = match ($application->contract->payments) {
             'Ежеквартально' => $application->contract->sum * ($application->contract->procent / 100) * $term /  $term * 4 ,
             'Ежегодно' => $application->contract->sum * ($application->contract->procent / 100) * $term /  $term * 1 ,

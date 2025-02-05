@@ -52,10 +52,10 @@ const modalTitles = {
 const getInfo = async (url, clientId) => {
     loading.value = true;
     try {
-        const data = await fetchData(url, { user: clientId }); // Ожидаем завершения запроса
+        const data = await fetchData(url, { user: clientId });
         clientData.value = data.client;
     } catch (err) {
-        error.value = err; // Сохраняем ошибку
+        error.value = err;
     } finally {
         loading.value = false;
     }
@@ -118,12 +118,12 @@ const form = useForm({
     email: '',
     contract_number: null,
     sum: null,
-    deadline: '', // Срок договора
-    procent: null, // Процентная ставка
-    agree_with_terms: false, // Для чекбокса
-    create_date: new Date().toISOString().substr(0, 10), // Дата заключения
+    deadline: '',
+    procent: null,
+    agree_with_terms: false,
+    create_date: new Date().toISOString().substr(0, 10),
     contract_status: true,
-    payments: '', // Выплаты
+    payments: '',
 });
 watch(
     clientData,
@@ -167,32 +167,31 @@ const handleDateChange = (event) => {
 };
 const addCountryCode = () => {
     if (!form.phone_number.startsWith('+7')) {
-        form.phone_number = '+7'; // Принудительно добавляем код страны
+        form.phone_number = '+7';
     }
 };
 const createUser = () => {
     loading.value = true;
     form.post(route(`manager.registration.client`), {
         onSuccess: () => {
-            closeModal(); // Закрыть модал при успешной отправке
+            closeModal();
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', form.errors); // Лог ошибок
+            console.error('Ошибка:', form.errors);
             loading.value = false;
         },
     });
 };
 const updateUser = () => {
-    // console.log(currentModal.value.userId);
     loading.value = true;
     form.patch(route(`manager.edit.client`, { user: currentModal.value.clientId }), {
         onSuccess: () => {
-            closeModal(); // Закрыть модал при успешной отправке
+            closeModal();
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', form.errors); // Лог ошибок
+            console.error('Ошибка:', form.errors);
             loading.value = false;
         },
     });
@@ -293,19 +292,6 @@ const updateUser = () => {
                             <div class="card-item">
                                 <p class="text">{{ client.user_contracts }}</p>
                             </div>
-                            <!-- <div class="card-item ellipsis">
-                                <Dropdown
-                                    :options="[
-                                        { label: 'Изменить', action: 'edit' },
-                                        { label: 'Сбросить пароль', action: 'resetPassword' },
-                                    ]"
-                                    @select="handleDropdownSelect($event, client.id, 'client')"
-                                >
-                                    <template #trigger>
-                                        <Ellipsis />
-                                    </template>
-                                </Dropdown>
-                            </div> -->
                         </div>
                     </div>
                 </div>

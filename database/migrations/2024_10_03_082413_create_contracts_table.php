@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
-            // Связь с таблицей пользователей (user_id и manager_id)
+           
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('Внешний ключ на таблицу пользователей. Клиент');
             $table->foreignId('manager_id')->constrained('users')->onDelete('cascade')->comment('Внешний ключ на таблицу пользователей. Менеджер');
             $table->integer('contract_number')->unique()->unsigned()->comment('Номер договора');
