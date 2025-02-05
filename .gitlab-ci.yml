@@ -57,13 +57,13 @@ build_prod:
     script:
         #  - ./vendor/bin/phpunit --do-not-cache-result --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
     coverage: '/^\s*Lines:\s*\d+.\d+\%/'
-    # artifacts:
-    #     when: always
-    #     paths:
+    artifacts:
+      when: always
+      paths:
     #         - 'phpunit-report.xml'
-    #     reports:
+     reports:
     #         junit: phpunit-report.xml
-    #         coverage_report:
+            coverage_report:
     #             coverage_format: cobertura
     #             path: phpunit-coverage.xml
 
