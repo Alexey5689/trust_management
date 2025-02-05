@@ -56,7 +56,7 @@ build_prod:
         - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 1; done
     # script:
     #     - ./vendor/bin/phpunit --do-not-cache-result --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
-    coverage: '/^\s*Lines:\s*\d+.\d+\%/'
+    # coverage: '/^\s*Lines:\s*\d+.\d+\%/'
     # artifacts:
     #     when: always
     #     paths:
