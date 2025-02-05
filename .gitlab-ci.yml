@@ -59,13 +59,15 @@ build_prod:
     coverage: '/^\s*Lines:\s*\d+.\d+\%/'
     artifacts:
       when: always
-      paths:
-    #         - 'phpunit-report.xml'
-     reports:
-    #         junit: phpunit-report.xml
+        paths:
+            # - 'phpunit-report.xml'
+        reports:
+            junit: 
+            # phpunit-report.xml
             coverage_report:
-    #             coverage_format: cobertura
-    #             path: phpunit-coverage.xml
+                coverage_format: cobertura
+                path:
+                #  phpunit-coverage.xml
 
 test_prod:
     stage: test
