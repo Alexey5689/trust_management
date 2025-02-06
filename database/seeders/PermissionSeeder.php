@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Permission;
 
@@ -23,6 +23,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['title' => 'view_all_transactions']);
         Permission::create(['title' => 'view_my_client_transactions']);
         Permission::create(['title' => 'view_my_transactions']);
-      
+        // Добавляй сюда другие разрешения по мере необходимости
     }
 }

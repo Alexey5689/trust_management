@@ -42,11 +42,11 @@ public function updateProfile(Request $request)
     $originalData = $user->only(['last_name', 'first_name', 'middle_name']);
 
     $user->fill($request->only(['last_name', 'first_name', 'middle_name']));
-    
+    // Проверка на изменения перед сохранением
     if ($user->isDirty()) {
         try {
             $dirtyFields = $user->getDirty();
-            $user->save();  
+            $user->save();  // Сохраняем изменения, но "грязные" поля уже зафиксированы
             
             foreach ($dirtyFields as $field => $newValue) {
                 Log::create([
@@ -60,7 +60,7 @@ public function updateProfile(Request $request)
                 ]);
             }
     
-        
+            // Уведомление пользователя
             $user->userNotifications()->create([
                 'title' => 'Контактные данные',
                 'content' => 'Ваши контактные данные были изменены',
@@ -75,7 +75,7 @@ public function updateProfile(Request $request)
         }
        
     }
-  
+    // Если изменений нет, просто редиректим без сообщений
     return redirect()->route($role . '.profile')
         ->with('status', ['Информация', 'Данные не изменились']);
 }
@@ -98,20 +98,20 @@ public function updateProfile(Request $request)
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-       
+        // Явно указываем тип переменной $user
         /** @var User $user */
 
         $user = Auth::user();
         $user->password = Hash::make($request->password);
         $user->save();
-      
+        // Логируем изменения
         Log::create([
             'model_id' => $user->id,
             'model_type' => User::class,
             'change' => 'password',
             'action' => 'Изменение пароля',
-            'old_value' => '********', 
-            'new_value' => '********', 
+            'old_value' => '********', // Не указываем старое значение
+            'new_value' => '********', // Указываем сообщение, а не пароль
             'created_by' => $user->id,
         ]);
         $user->userNotifications()->create([
@@ -139,7 +139,7 @@ public function updateProfile(Request $request)
            'email' => ['required','string','email','max:255','min:6', 'unique:users'],
         ]);
 
-        
+        // Явно указываем тип переменной $user
         /** @var User $user */
 
         $user = Auth::user();

@@ -36,10 +36,10 @@ const loading = ref(false);
 const getInfo = async (url) => {
     loading.value = true;
     try {
-        const data = await fetchData(url);
+        const data = await fetchData(url); // Ожидаем завершения запроса
         userData.value = data.user ? data.user : data;
     } catch (err) {
-        error.value = err;
+        error.value = err; // Сохраняем ошибку
         console.log(err);
     } finally {
         loading.value = false;
@@ -91,7 +91,7 @@ const saveChanges = () => {
                 loading.value = false;
             },
             onError: () => {
-                console.error('Ошибка:', form.errors);
+                console.error('Ошибка:', form.errors); // Лог ошибок
                 loading.value = false;
             },
         });
@@ -103,7 +103,7 @@ const saveChanges = () => {
                 loading.value = false;
             },
             onError: () => {
-                console.error('Ошибка:', form.errors);
+                console.error('Ошибка:', form.errors); // Лог ошибок
                 loading.value = false;
             },
         });
@@ -115,7 +115,7 @@ const saveChanges = () => {
                 loading.value = false;
             },
             onError: () => {
-                console.error('Ошибка:', form.errors);
+                console.error('Ошибка:', form.errors); // Лог ошибок
                 loading.value = false;
             },
         });

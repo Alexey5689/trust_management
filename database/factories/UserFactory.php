@@ -30,9 +30,9 @@ class UserFactory extends Factory
             'phone_number' => "8" . rand(1000000000, 9999999999),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
-            'token' => Str::random(60), 
+            'token' => Str::random(60), // Генерация случайного токена
             'refresh_token' => Str::random(60),
-            'role_id' => null, 
+            'role_id' => null, // Добавляем role_id, если это используется
         ];
     }
     /**
@@ -47,7 +47,7 @@ class UserFactory extends Factory
     public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role_id' => 1, 
+            'role_id' => 1, // Предположим, что роль администратора имеет ID = 1
         ]);
     }
 }

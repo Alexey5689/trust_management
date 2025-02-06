@@ -26,21 +26,22 @@ class CreatingPasswordController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-       
+        // Валидация только нового пароля и его подтверждения
          $validated = $request->validate([
             'email' => ['required','string','email'],
-            'password' => [
-                'required',
-                'string',
-                'confirmed',
-                Password::min(8)
-                    ->letters()
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols()
-                    ->uncompromised(),
-            ],
+            'password' => ['required', Password::defaults(), 'confirmed'],
             'token' => 'required',
+            // 'password' => [
+            //     'required',
+            //     'string',
+            //     'confirmed',
+            //     Password::min(8)
+            //         ->letters()
+            //         ->mixedCase()
+            //         ->numbers()
+            //         ->symbols()
+            //         ->uncompromised(),
+            // ],
             
         ]);
 
@@ -57,16 +58,18 @@ class CreatingPasswordController extends Controller
                     'action' => 'Создание пароля пользователем' ,
                     'old_value' => "*******",
                     'new_value' =>  "*******",
-                    'created_by' => $user->id, 
+                    'created_by' => $user->id, // ID самого пользователя
                 ]);
             }
         );
-      
+       
+         // Если сброс пароля прошел успешно
         if ($status === PasswordFacade::PASSWORD_RESET) {
             return redirect(route('login'))->with('status', ['Успех!', 'Пароль успешно установлен']);
-           
+            //return redirect(route('login'))->with('status', 'Пароль успешно установлен');
         }
 
+        // В случае ошибки возвращаем пользователя обратно с сообщением об ошибке
         return back()->withErrors(['email' => [__($status)]]);
         }
 }

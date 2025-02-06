@@ -42,7 +42,7 @@ const isRead = (id) => {
             },
             onFinish: () => form.reset(),
             onError: () => {
-                console.error('Ошибка:', form.errors);
+                console.error('Ошибка:', form.errors); // Лог ошибок
             },
         });
     }

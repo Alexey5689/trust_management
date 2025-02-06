@@ -25,11 +25,11 @@ class ResetPasswordController extends Controller
                 'new_value' => null,
                 'created_by' => Auth::id(),
             ]);
-            
+            // Генерация токена сброса пароля
            $token = Password::createToken($user);
-          
+           // Отправка уведомления с токеном на email менеджера
            $user->notify(new PasswordEmail($token, $user->email));
-       
+           // Flash-сообщение об успешной отправке
            return redirect()->route($role === "admin" ? 'admin.users' : 'manager.clients')->with('status', ['Успех!', 'Ссылка для сброса пароля отправлена на email.']);
         }
         catch (\Exception $e) {

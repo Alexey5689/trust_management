@@ -41,13 +41,15 @@ const props = defineProps({
     },
 });
 
+// Получаем компоненты даты отдельно
 const date = new Date();
 const day = date.getDate();
 const month = date.toLocaleDateString('ru-RU', { month: 'long' });
 const year = date.getFullYear();
 
+// Собираем строку и делаем месяц с заглавной буквы
 const currentDate = `${day} ${month.charAt(0).toUpperCase() + month.slice(1)} ${year}`;
-
+// Вычисление основной суммы
 const sum = computed(() => {
     return props.contracts.length ? props.contracts.reduce((total, contract) => total + contract.sum, 0) : null;
 });

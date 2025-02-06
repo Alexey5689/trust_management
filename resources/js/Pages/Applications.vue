@@ -76,7 +76,7 @@ const applicationStatuses = ref(['В обработке', 'Согласован�
 const getInfo = async (url, applicationId) => {
     loading.value = true;
     try {
-        const data = await fetchData(url, { application: applicationId });
+        const data = await fetchData(url, { application: applicationId }); // Ожидаем завершения запроса
         applicationData.value = data.application;
         userInfo.value = applicationData.value.user ?? '';
         contractInfo.value = applicationData.value.contract ?? '';
@@ -85,7 +85,7 @@ const getInfo = async (url, applicationId) => {
         selectedPartlyOption.value = applicationData.value.type_of_processing ?? '';
         formStatus.status = applicationData.value.status;
     } catch (err) {
-        error.value = err;
+        error.value = err; // Сохраняем ошибку
     } finally {
         loading.value = false;
     }
@@ -216,11 +216,11 @@ const createAplication = () => {
     loading.value = true;
     form.post(route('add.application'), {
         onSuccess: () => {
-            closeModal();
+            closeModal(); // Закрыть модал при успешной отправке
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', form.errors);
+            console.error('Ошибка:', form.errors); // Лог ошибок
             loading.value = false;
         },
     });
@@ -230,11 +230,11 @@ const changeStatus = () => {
     loading.value = true;
     formStatus.patch(route('change.status.application', applicationData.value.id), {
         onSuccess: () => {
-            closeModal();
+            closeModal(); // Закрыть модал при успешной отправке
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', formStatus.errors);
+            console.error('Ошибка:', formStatus.errors); // Лог ошибок
             loading.value = false;
         },
     });

@@ -48,7 +48,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended($roleRedirects[$role]);
         }
 
-    
+    // Если роль не определена или по какой-то причине не подходит, можно вернуть на основной маршрут
         return redirect('/')->with(['status' => 'Роль пользователя не определена.']);
     }
 

@@ -7,7 +7,7 @@ export const formatDate = (date) => {
         return format(parseISO(date), 'd MMMM yyyy', { locale: ru });
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return date;
+        return date; // Возвращаем исходное значение в случае ошибки
     }
 };
 export const formatDateLogs = (date) => {
@@ -15,7 +15,7 @@ export const formatDateLogs = (date) => {
         return format(parseISO(date), 'dd/MM/yyyy, HH:mm:ss');
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return date;
+        return date; // Возвращаем исходное значение в случае ошибки
     }
 };
 export const formatDateClientContract = (date) => {
@@ -23,20 +23,23 @@ export const formatDateClientContract = (date) => {
         return format(parseISO(date), 'dd/MM/yyyy');
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return date;
+        return date; // Возвращаем исходное значение в случае ошибки
     }
 };
 
 export const formatDateClientContractRus = (date) => {
     try {
+        // Преобразуем строку в дату ISO
         const parsedDate = parseISO(date);
 
+        // Форматируем дату как "декабрь 2024"
         const formattedDate = format(parsedDate, 'MMMM yyyy', { locale: ru });
 
+        // Преобразуем первую букву в верхний регистр
         return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return date;
+        return date; // Возвращаем исходное значение в случае ошибки
     }
 };
 export const formatDateNotificztion = (date) => {
@@ -44,7 +47,7 @@ export const formatDateNotificztion = (date) => {
         return format(parseISO(date), 'dd.MM.yyyy');
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return date;
+        return date; // Возвращаем исходное значение в случае ошибки
     }
 };
 export const formatTimeNotificztion = (date) => {
@@ -52,7 +55,7 @@ export const formatTimeNotificztion = (date) => {
         return format(parseISO(date), 'HH:mm');
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return date;
+        return date; // Возвращаем исходное значение в случае ошибки
     }
 };
 
@@ -60,29 +63,35 @@ export const getYearDifference = (startDate, endDate) => {
     try {
         return differenceInYears(parseISO(endDate), parseISO(startDate));
     } catch (error) {
-        return null;
+        return null; // Возвращаем null в случае ошибки
     }
 };
 
 export const calculateDeadlineDate = (years, createDate) => {
     const date = new Date(createDate);
 
+    // Сохраняем день и месяц из даты подписания
     const day = date.getDate();
     const month = date.getMonth();
 
+    // Прибавляем годы
     date.setFullYear(date.getFullYear() + years);
 
+    // Проверяем, чтобы месяц и день совпадали после изменения года
+    // Если дата сместилась (например, 29 февраля в невисокосном году), мы устанавливаем исходный день
     if (date.getMonth() !== month) {
-        date.setDate(0);
+        date.setDate(0); // Устанавливаем последний день предыдущего месяца
     } else {
-        date.setDate(day);
+        date.setDate(day); // Восстанавливаем день
     }
 
-    return date.toISOString().substr(0, 10);
+    return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
 };
 
 export const fetchData = async (router, params = {}) => {
     try {
+        // Проверка на наличие параметра "manager", если его нет, отправляем запрос без параметров
+
         const url = params.user
             ? route(router, { user: params.user })
             : params.contract
@@ -94,10 +103,10 @@ export const fetchData = async (router, params = {}) => {
             : route(router);
         const response = await axios.get(url);
 
-        return response.data;
+        return response.data; // Возвращаем данные
     } catch (error) {
         console.error('Ошибка при выполнении GET запроса:', error);
-        throw error;
+        throw error; // Бросаем ошибку для обработки в другом месте
     }
 };
 export const formatNumber = (num) => {
@@ -110,7 +119,7 @@ export const formatNumber = (num) => {
             .replace(',', '.');
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return num;
+        return num; // Возвращаем исходное значение в случае ошибки
     }
 };
 
@@ -123,7 +132,7 @@ export const formatNumberBalanceTransactions = (num) => {
             .replace(',', '.');
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return num;
+        return num; // Возвращаем исходное значение в случае ошибки
     }
 };
 
@@ -132,6 +141,6 @@ export const formatDateBalanceTransactions = (date) => {
         return format(parseISO(date), 'LLLL yyyy', { locale: ru }).replace(/^./, (str) => str.toUpperCase());
     } catch (error) {
         console.error('Ошибка форматирования даты:', error);
-        return date;
+        return date; // Возвращаем исходное значение в случае ошибки
     }
 };

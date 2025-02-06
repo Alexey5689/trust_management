@@ -54,11 +54,11 @@ const noActiveContract = computed(() => props.contracts.filter((contract) => con
 const getInfo = async (url, contractId) => {
     loading.value = true;
     try {
-        const data = await fetchData(url, { contract: contractId });
+        const data = await fetchData(url, { contract: contractId }); // Ожидаем завершения запроса
         contractData.value = data.contract;
         console.log(contractData);
     } catch (err) {
-        error.value = err;
+        error.value = err; // Сохраняем ошибку
     } finally {
         loading.value = false;
     }
@@ -92,11 +92,11 @@ const form = useForm({
     user_id: '',
     contract_number: null,
     sum: null,
-    deadline: '',
-    procent: null,
-    create_date: new Date().toISOString().substr(0, 10),
+    deadline: '', // Срок договора
+    procent: null, // Процентная ставка // Для чекбокса
+    create_date: new Date().toISOString().substr(0, 10), // Дата заключения
     contract_status: true,
-    payments: '',
+    payments: '', // Выплаты
     agree_with_terms: false,
 });
 
@@ -159,11 +159,11 @@ const createContract = () => {
     loading.value = true;
     form.post(route(`${props.role}.add.contract`), {
         onSuccess: () => {
-            closeModal();
+            closeModal(); // Закрыть модал при успешной отправке
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', form.errors);
+            console.error('Ошибка:', form.errors); // Лог ошибок
             loading.value = false;
         },
     });
@@ -172,11 +172,11 @@ const updateContract = () => {
     loading.value = true;
     form.patch(route('admin.edit.contract', { contract: currentModal.value.contractId }), {
         onSuccess: () => {
-            closeModal();
+            closeModal(); // Закрыть модал при успешной отправке
             loading.value = false;
         },
         onError: () => {
-            console.error('Ошибка:', form.errors);
+            console.error('Ошибка:', form.errors); // Лог ошибок
             loading.value = false;
         },
     });
