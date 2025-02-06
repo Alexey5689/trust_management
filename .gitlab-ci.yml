@@ -54,18 +54,19 @@ build_prod:
         - sed -i "s/DB_HOST=pgsql/DB_HOST=postgres/g" .env
         - php artisan key:generate
         - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 1; done
-    # script:
-    #     - ./vendor/bin/phpunit --do-not-cache-result --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
-    # coverage: '/^\s*Lines:\s*\d+.\d+\%/'
-    # artifacts:
-    #     when: always
-    #     paths:
-    #         - 'phpunit-report.xml'
-    #     reports:
-    #         junit: phpunit-report.xml
-    #         coverage_report:
-    #             coverage_format: cobertura
-    #             path: phpunit-coverage.xml
+    script:
+      - ./vendor/bin/phpunit --do-not-cache-result --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
+    coverage:
+    '/^\s*Lines:\s*\d+.\d+\%/'
+    artifacts:
+        when: always
+        paths:
+            - 'phpunit-report.xml'
+        reports:
+            junit: phpunit-report.xml
+            coverage_report:
+                coverage_format: cobertura
+                path: phpunit-coverage.xml
 
 test_prod:
     stage: test
