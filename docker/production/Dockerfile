@@ -62,6 +62,7 @@ COPY ./docker/production/supervisord.conf /etc/supervisor/conf.d/supervisord.con
 COPY ./docker/production/php.ini /etc/php/8.3/cli/conf.d/99-sail.ini
 
 RUN composer install --no-dev --optimize-autoloader
+RUN npm install && npm run build
 
 COPY ./docker/production/.env .env
 RUN php artisan key:generate
