@@ -28,6 +28,8 @@ build_prod:
     <<: *default
     stage: build
     variables:
+        APP_URL: 'https://api-tm.$K8S_DOMAIN'
+        VITE_APP_URL: $APP_URL
         DOCKERFILE: production/Dockerfile
         DB_DATABASE: tm_api
         DB_HOST: db.pro-technologii.ru
