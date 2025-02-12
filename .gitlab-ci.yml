@@ -40,7 +40,7 @@ build_prod:
     script:
         - sed -i "s,APP_URL=,APP_URL=$APP_URL,g" $CI_PROJECT_DIR/docker/production/.env
         - sed -i "s,DB_PASSWORD=,DB_PASSWORD=$DB_PASSWORD,g" $CI_PROJECT_DIR/docker/production/.env
-        - sed -i "s,VITE_APP_NAME=,VITE_APP_NAME=$APP_NAME,g" $CI_PROJECT_DIR/docker/production/.env
+        - sed -i "s,VITE_APP_NAME=,VITE_APP_NAME=/"$APP_NAME/",g" $CI_PROJECT_DIR/docker/production/.env
         - sed -i "s,VITE_APP_URL=,VITE_APP_URL=$APP_URL,g" $CI_PROJECT_DIR/docker/production/.env
         - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/docker/$DOCKERFILE" --destination "$CI_REGISTRY_IMAGE:latest" --registry-mirror "dockerhub.timeweb.cloud" --registry-mirror "huecker.io"
     <<: *build_rules
