@@ -113,5 +113,6 @@ migrate_prod:
         DB_USERNAME: tm
         DB_PASSWORD: $DB_PASSWORD
     script:
+        - printenv
         - php /var/www/html/artisan migrate --force
     <<: *prod_deploy_rules
