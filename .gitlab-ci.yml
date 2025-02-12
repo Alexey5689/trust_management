@@ -29,7 +29,8 @@ build_prod:
     stage: build
     variables:
         APP_URL: 'https://api-tm.$K8S_DOMAIN'
-        VITE_APP_URL: $APP_URL
+        APP_NAME: "Trust Management API"
+        VITE_APP_URL: 'https://api-tm.$K8S_DOMAIN'
         DOCKERFILE: production/Dockerfile
         DB_DATABASE: tm_api
         DB_HOST: db.pro-technologii.ru
@@ -37,8 +38,10 @@ build_prod:
         DB_USERNAME: tm
         DB_PASSWORD: $DB_PASSWORD
     script:
-        - echo $DB_PASSWORD
+        - sed -i "s,APP_URL=,APP_URL=$APP_URL,g" $CI_PROJECT_DIR/docker/production/.env
         - sed -i "s,DB_PASSWORD=,DB_PASSWORD=$DB_PASSWORD,g" $CI_PROJECT_DIR/docker/production/.env
+        - sed -i "s,VITE_APP_NAME=,VITE_APP_NAME=$APP_NAME,g" $CI_PROJECT_DIR/docker/production/.env
+        - sed -i "s,VITE_APP_URL=,VITE_APP_URL=$APP_URL,g" $CI_PROJECT_DIR/docker/production/.env
         - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/docker/$DOCKERFILE" --destination "$CI_REGISTRY_IMAGE:latest" --registry-mirror "dockerhub.timeweb.cloud" --registry-mirror "huecker.io"
     <<: *build_rules
 
