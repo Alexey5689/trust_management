@@ -36,7 +36,7 @@ build_prod:
         DB_PASSWORD: $DB_PASSWORD
     script:
         - echo $DB_PASSWORD
-        - sed -i "s/DB_PASSWORD=/DB_PASSWORD=$DB_PASSWORD/g" $CI_PROJECT_DIR/docker/production/.env
+        - sed -i "s,DB_PASSWORD=,DB_PASSWORD=$DB_PASSWORD,g" $CI_PROJECT_DIR/docker/production/.env
         - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/docker/$DOCKERFILE" --destination "$CI_REGISTRY_IMAGE:latest" --registry-mirror "dockerhub.timeweb.cloud" --registry-mirror "huecker.io"
     <<: *build_rules
 
