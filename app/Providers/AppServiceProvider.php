@@ -21,9 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (app()->environment('production')) {
-            URL::forceScheme('https');
-        }
+        //if (app()->environment('production')) {
+        //    URL::forceScheme('https');
+        //}
         // Vite::prefetch(concurrency: 3);
         if (app()->environment('production')) {
             Vite::prefetch(concurrency: 5);  // Для production больше параллелизма
