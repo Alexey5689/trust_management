@@ -60,12 +60,10 @@ spec:
           ports:
               - name: http
                 containerPort: 80
-              - name : https # добавил
-                containerPort: 443 # добавил
           readinessProbe:
             httpGet:
               path: /
-              port: https # поменял на https
+              port: http # поменял на https
             periodSeconds: 10
             initialDelaySeconds: 10
           lifecycle:
