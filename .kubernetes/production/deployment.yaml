@@ -63,7 +63,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: https
             periodSeconds: 10
             initialDelaySeconds: 10
           lifecycle:
