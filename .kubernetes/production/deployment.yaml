@@ -29,6 +29,8 @@ spec:
           env:
             - name: APP_ENV
               value: "production"
+            - name: APP_URL
+              value: 'https://api-tm.lb.pro-technologii.ru'
             - name: FRONTEND_URL
               value: "https://tm.lb.pro-technologii.ru"
             - name: TELESCOPE_ENABLED
