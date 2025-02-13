@@ -58,12 +58,14 @@ spec:
               memory: "256Mi"
               cpu: "250m"
           ports:
-            - name: http
-              containerPort: 80
+              - name: http
+                containerPort: 80
+              - name : https # добавил
+                containerPort: 443 # добавил
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: https # поменял на https
             periodSeconds: 10
             initialDelaySeconds: 10
           lifecycle:
