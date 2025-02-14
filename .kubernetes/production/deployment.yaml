@@ -31,6 +31,8 @@ spec:
               value: "production"
             - name: APP_URL
               value: 'https://api-tm.lb.pro-technologii.ru'
+            - name: ASSET_URL
+              value: 'https://api-tm.lb.pro-technologii.ru'
             - name: TELESCOPE_ENABLED
               value: "false"
             - name: APP_NAME
