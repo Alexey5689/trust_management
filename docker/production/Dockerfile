@@ -61,11 +61,12 @@ COPY ./docker/production/start-container /usr/local/bin/start-container
 COPY ./docker/production/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./docker/production/php.ini /etc/php/8.3/cli/conf.d/99-sail.ini
 
-COPY ./docker/production/.env .env
+
 
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 
+COPY ./docker/production/.env .env
 RUN php artisan key:generate
 RUN php artisan cache:clear
 RUN php artisan config:clear
