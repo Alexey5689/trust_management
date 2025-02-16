@@ -5,7 +5,7 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
-import { Ziggy } from '../../vendor/tightenco/ziggy';
+// import { Ziggy } from '../../vendor/tightenco/ziggy';
 
 //import { Ziggy } from '@/ziggy'; // Указываем путь к Ziggy
 Ziggy.url = import.meta.env.VITE_APP_URL || 'https://api-tm.lb.pro-technologii.ru';
@@ -17,7 +17,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         return createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(ZiggyVue, Ziggy)
+            .use(ZiggyVue)
             .mount(el);
     },
     progress: {
