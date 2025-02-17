@@ -121,7 +121,7 @@ migrate_prod:
         - cd /var/www/html
         - composer install --dev
     script:
-        - php /var/www/html/artisan migrate --seed --force
+        - php /var/www/html/artisan migrate:fresh --seed --force
         # - php /var/www/html/artisan migrate --force
         # - php /var/www/html/artisan db:seed --force
     # script:
