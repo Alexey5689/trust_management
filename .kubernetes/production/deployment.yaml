@@ -29,8 +29,12 @@ spec:
           env:
             - name: APP_ENV
               value: "production"
+            - name: APP_URL
+              value: 'https://api-tm.lb.pro-technologii.ru'
             - name: TELESCOPE_ENABLED
               value: "false"
+            - name: APP_NAME
+              value: "Trust Management API"
             - name: DB_HOST
               value: "db.pro-technologii.ru"
             - name: DB_PORT
