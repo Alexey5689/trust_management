@@ -68,7 +68,8 @@ RUN composer install --no-dev --optimize-autoloader
 RUN php artisan key:generate
 RUN php artisan cache:clear
 RUN php artisan config:clear
-RUN php artisan ziggy:generate "resources/js/ziggy.js"
+
+RUN php artisan ziggy:generate
 
 RUN npm install && npm run build
 
