@@ -64,12 +64,13 @@ COPY ./docker/production/php.ini /etc/php/8.3/cli/conf.d/99-sail.ini
 COPY ./docker/production/.env .env
 
 RUN composer install --no-dev --optimize-autoloader
-RUN npm install && npm run build
 
 RUN php artisan key:generate
 RUN php artisan cache:clear
 RUN php artisan config:clear
 RUN php artisan ziggy:generate "resources/js/ziggy.js"
+
+RUN npm install && npm run build
 
 RUN chmod +x /usr/local/bin/start-container
 
