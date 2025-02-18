@@ -44,11 +44,8 @@ class AuthenticatedSessionController extends Controller
 
         $role = $loggedInUser->role->title ?? null;
 
-        // if (isset($roleRedirects[$role])) {
-        //     return redirect()->intended($roleRedirects[$role]);
-        // }
         if (isset($roleRedirects[$role])) {
-            return Inertia::location($roleRedirects[$role]); // ✅ Inertia выполнит редирект
+            return redirect()->intended($roleRedirects[$role]);
         }
 
     // Если роль не определена или по какой-то причине не подходит, можно вернуть на основной маршрут
