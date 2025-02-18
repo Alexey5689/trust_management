@@ -33,8 +33,6 @@ spec:
               value: 'https://api-tm.lb.pro-technologii.ru'
             # - name: ASSET_URL
             #   value: 'https://api-tm.lb.pro-technologii.ru'
-            - name: FRONTEND_URL
-              value: "https://tm.lb.pro-technologii.ru"
             - name: TELESCOPE_ENABLED
               value: "false"
             - name: APP_NAME
