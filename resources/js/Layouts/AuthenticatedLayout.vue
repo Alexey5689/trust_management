@@ -136,9 +136,9 @@ const toggleModal = () => {
                             <p>{{ props.userInfo?.main_sum }} ₽</p>
                         </div>
                     </div>
-                    
-                    <button 
-                        v-if="props.userRole === 'admin' || props.userRole === 'manager'" 
+
+                    <button
+                        v-if="props.userRole === 'admin' || props.userRole === 'manager'"
                         class="flex align-center justify-center keyboard"
                         :style="props.userRole === 'manager' ? { marginRight: '16px' } : {}"
                         @click="toggleModal"
@@ -146,7 +146,7 @@ const toggleModal = () => {
                         <Icon_keyboarf />
                         Горячие клавиши
                     </button>
-                    
+
                     <div class="toast flex flex-column" v-if="toastMessage">
                         <h3>{{ props.toast[0] }}</h3>
                         <p>{{ props.toast[1] }}</p>
@@ -160,8 +160,12 @@ const toggleModal = () => {
                         </div>
                         <Icon_notifications />
                     </NavLink>
-                    <ResponsiveNavLink :href="route('logout')" @click="remote()" method="post" as="button"
-                        class="flex align-center justify-center btn">
+                    <ResponsiveNavLink
+                        :href="route('logout')"
+                        method="post"
+                        as="button"
+                        class="flex align-center justify-center btn"
+                    >
                         <Icon_exit />
                         Выйти
                     </ResponsiveNavLink>
@@ -176,8 +180,8 @@ const toggleModal = () => {
             </main>
         </div>
     </div>
-    <BaseModal 
-        :isOpen="isModalOpen" 
+    <BaseModal
+        :isOpen="isModalOpen"
         title="Горячие клавиши"
         @close="toggleModal"
     >
