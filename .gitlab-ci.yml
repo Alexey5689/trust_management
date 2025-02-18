@@ -118,7 +118,7 @@ migrate_prod:
         DB_USERNAME: tm
         DB_PASSWORD: $DB_PASSWORD
     before_script:
-        - cd /var/www/html
+        # - cd /var/www/html
         - composer install --dev
     script:
         - php /var/www/html/artisan migrate --seed --force
