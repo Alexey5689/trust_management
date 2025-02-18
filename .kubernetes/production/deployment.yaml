@@ -69,4 +69,5 @@ spec:
           lifecycle:
             postStart:
               exec:
-                command: [ "/bin/sh", "-c", "php /var/www/html/artisan config:cache" ]
+                # command: [ "/bin/sh", "-c", "php /var/www/html/artisan config:cache" ]
+                command: [ "/bin/sh", "-c", "php /var/www/html/artisan config:clear && php /var/www/html/artisan config:cache" ]
