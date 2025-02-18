@@ -1,9 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { formatDateNotificztion, formatTimeNotificztion } from '@/helpers.js';
 import { useForm } from '@inertiajs/vue3';
+
+const route = inject('route');
 
 const props = defineProps({
     role: {

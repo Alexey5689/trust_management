@@ -5,6 +5,10 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
 import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
+import { inject } from "vue";
+
+const route = inject('route');
+
 const page = usePage();
 const props = defineProps({
     canResetPassword: {

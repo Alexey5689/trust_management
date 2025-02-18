@@ -4,7 +4,9 @@ import InputError from '@/Components/InputError.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Icon_logo from '@/Components/Icon/Logo.vue';
 import Icon_logo_name from '@/Components/Icon/LogoName.vue';
-import { ref, watch } from 'vue';
+import { ref, watch, inject } from 'vue';
+
+const route = inject('route');
 
 const props = defineProps({
     canResetPassword: {

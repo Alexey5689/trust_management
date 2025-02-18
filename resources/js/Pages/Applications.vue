@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, inject } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { formatDate } from '@/helpers.js';
@@ -9,6 +9,8 @@ import Dropdown from '@/Components/Modal/Dropdown.vue';
 import InputError from '@/Components/InputError.vue';
 import { fetchData } from '@/helpers';
 import Loader from '@/Components/Loader.vue';
+
+const route = inject('route');
 
 const props = defineProps({
     role: {
