@@ -69,6 +69,7 @@ RUN npm install && npm run build
 RUN php artisan key:generate
 RUN php artisan cache:clear
 RUN php artisan config:clear
+RUN php artisan ziggy:generate "resources/js/ziggy.js"
 
 RUN chmod +x /usr/local/bin/start-container
 
