@@ -49,4 +49,8 @@ require __DIR__ . '/delete.php';
 require __DIR__ . '/application.php';
 require __DIR__ . '/edit.php';
 
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 
