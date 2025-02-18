@@ -119,5 +119,4 @@ migrate_prod:
         DB_PASSWORD: $DB_PASSWORD
     script:
         - php /var/www/html/artisan migrate --force
-        - php /var/www/html/artisan db:seed --force
     <<: *prod_deploy_rules
