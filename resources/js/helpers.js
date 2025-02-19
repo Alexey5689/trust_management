@@ -104,9 +104,6 @@ export const fetchData = async (router, params = {}) => {
             : route(router, {}, false, Ziggy);
         const response = await axios.get(url);
 
-        console.log(url)
-        console.log(response.data)
-
         return response.data; // Возвращаем данные
     } catch (error) {
         console.error('Ошибка при выполнении GET запроса:', error);
