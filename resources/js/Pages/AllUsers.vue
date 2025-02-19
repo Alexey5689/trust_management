@@ -367,7 +367,10 @@ const updateUser = () => {
                             </div>
                             <div class="card-item ellipsis">
                                 <Dropdown
-                                    :options="[{ label: 'Восстановить менеджера', action: 'resetPassword' }]"
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.manager' },
+                                        { label: 'Восстановить менеджера', action: 'resetPassword' }
+                                        ]"
                                     @select="handleDropdownSelect($event, manager.id, 'manager')"
                                 >
                                     <template #trigger>
@@ -408,7 +411,10 @@ const updateUser = () => {
                             </div>
                             <div class="card-item ellipsis">
                                 <Dropdown
-                                    :options="[{ label: 'Восстановить клиента', action: 'resetPassword' }]"
+                                    :options="[
+                                        { label: 'Изменить', action: 'edit', url: 'admin.edit.client' },
+                                        { label: 'Восстановить клиента', action: 'resetPassword' }
+                                        ]"
                                     @select="handleDropdownSelect($event, client.id, 'client')"
                                 >
                                     <template #trigger>
