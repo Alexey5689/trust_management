@@ -1,6 +1,8 @@
 import { parseISO, differenceInYears, format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import axios from 'axios';
+import { route } from "ziggy-js";
+import { Ziggy } from "@/ziggy.js";
 
 export const formatDate = (date) => {
     try {
@@ -92,15 +94,18 @@ export const fetchData = async (router, params = {}) => {
     try {
         // Проверка на наличие параметра "manager", если его нет, отправляем запрос без параметров
         const url = params.user
-            ? route(router, { user: params.user })
+            ? route(router, { user: params.user }, false, Ziggy)
             : params.contract
-            ? route(router, { contract: params.contract })
+            ? route(router, { contract: params.contract }, false, Ziggy)
             : params.client
-            ? route(router, { client: params.client })
+            ? route(router, { client: params.client }, false, Ziggy)
             : params.application
-            ? route(router, { application: params.application })
-            : route(router);
+            ? route(router, { application: params.application }, false, Ziggy)
+            : route(router, {}, false, Ziggy);
         const response = await axios.get(url);
+
+        console.log(url)
+        console.log(response.data)
 
         return response.data; // Возвращаем данные
     } catch (error) {

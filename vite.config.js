@@ -20,7 +20,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            'ziggy-js': resolve('vendor/tightenco/ziggy'),
+            'ziggy-js': resolve('vendor/tightenco/ziggy/dist'),
         },
     },
 });
