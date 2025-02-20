@@ -200,7 +200,7 @@ const handleDateChange = (event) => {
 </script>
 
 <template>
-    <Head title="Contracts" />
+    <Head title="Договоры" />
     <AuthenticatedLayout
         :userInfo="props.user"
         :userRole="role"

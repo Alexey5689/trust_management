@@ -52,7 +52,7 @@ const isRead = (id) => {
 </script>
 
 <template>
-    <Head title="Notifications" />
+    <Head title="Уведомления" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="role" :notifications="props.notification">
         <template #header>
             <div class="flex align-center justify-between title">

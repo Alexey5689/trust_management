@@ -128,7 +128,7 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
 </script>
 
 <template>
-    <Head title="Profile" />
+    <Head title="Личный кабинет" />
     <AuthenticatedLayout
         :userInfo="props.user"
         :userRole="props.role"

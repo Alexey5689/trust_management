@@ -21,7 +21,7 @@ const props = defineProps({
 const logs = computed(() => props.logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
 </script>
 <template>
-    <Head title="Logs" />
+    <Head title="Логи" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="props.role">
         <template #header>
             <h2 class="title">Логи</h2>

@@ -36,7 +36,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Creating Password" />
+        <Head title="Создание пароля" />
         <div class="login-container">
             <h1>Создание пароля</h1>
             <form @submit.prevent="submit">

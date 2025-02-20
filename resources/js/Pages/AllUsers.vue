@@ -232,7 +232,7 @@ const updateUser = () => {
 </script>
 
 <template>
-    <Head title="All Users" />
+    <Head title="Все пользователи" />
     <AuthenticatedLayout :userInfo="props.user" :userRole="role" :toast="props.status">
         <template #header>
             <div class="flex align-center justify-between title">

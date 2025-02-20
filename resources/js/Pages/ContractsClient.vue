@@ -62,7 +62,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head title="ContractsClient" />
+    <Head title="Договоры" />
     <AuthenticatedLayout
         :userInfo="props.user"
         :userRole="role"

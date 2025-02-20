@@ -201,7 +201,7 @@ const updateUser = () => {
 };
 </script>
 <template>
-    <Head title="Clients" />
+    <Head title="Клиенты" />
     <AuthenticatedLayout
         :userInfo="props.user"
         :userRole="role"

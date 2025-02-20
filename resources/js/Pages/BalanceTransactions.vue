@@ -56,7 +56,7 @@ const sum = computed(() => {
 </script>
 
 <template>
-    <Head title="Transaction" />
+    <Head title="Баланс и транзакции" />
     <AuthenticatedLayout
         :userInfo="props.user"
         :userRole="props.role"

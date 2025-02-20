@@ -250,7 +250,7 @@ const validateDividends = () => {
 </script>
 
 <template>
-    <Head title="Applications" />
+    <Head title="Заявки" />
     <AuthenticatedLayout
         :userInfo="props.user"
         :userRole="role"
