@@ -95,6 +95,7 @@ deploy_prod:
         - sed -i -e "s,<IMAGE>,$CI_REGISTRY_IMAGE:latest,g" .kubernetes/production/deployment.yaml
         - sed -i -e "s,<K8S_NAMESPACE>,$K8S_NAMESPACE,g" .kubernetes/production/deployment.yaml
         - sed -i -e "s,<K8S_NAMESPACE>,$K8S_NAMESPACE,g" .kubernetes/production/service.yaml
+        - sed -i -e "s,<K8S_NAMESPACE>,$K8S_NAMESPACE,g" .kubernetes/production/schedule-cronjob.yaml
         - sed -i -e "s,<IMAGE>,$CI_REGISTRY_IMAGE:latest,g" .kubernetes/production/schedule-cronjob.yaml
         - kubectl apply -f .kubernetes/production/
         - kubectl rollout restart deployment/tm-api
