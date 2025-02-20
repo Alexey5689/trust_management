@@ -1,15 +1,75 @@
-apiVersion: batch/v1
-kind: CronJob
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: tm-schedule
+  name: tm-scheduler
+  namespace: <K8S_NAMESPACE>
 spec:
-  schedule: "* * * * *"
-  jobTemplate:
+  replicas: 1
+  revisionHistoryLimit: 1  # Храним только 1 старых ReplicaSet
+  progressDeadlineSeconds: 120
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: tm-scheduler
+  template:
+    metadata:
+      labels:
+        app: tm-scheduler
     spec:
-      template:
-        spec:
-          containers:
-            - name: tm-schedule
-              image: <IMAGE>
-              command: ["php", "artisan", "schedule:run"]
-          restartPolicy: OnFailure
+      imagePullSecrets:
+        - name: tm-image-pull-1
+      containers:
+        - name: tm-scheduler
+          image: <IMAGE>
+          imagePullPolicy: Always
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - while true; do php /var/www/html/artisan schedule:run; sleep 60; done
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: APP_URL
+              value: 'https://api-tm.lb.pro-technologii.ru'
+            - name: TELESCOPE_ENABLED
+              value: "false"
+            - name: APP_NAME
+              value: "Trust Management API"
+            - name: DB_HOST
+              value: "db.pro-technologii.ru"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USERNAME
+              value: "tm"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tm-api
+                  key: "db-password"
+            - name: DB_DATABASE
+              value: "tm_api"
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            periodSeconds: 10
+            initialDelaySeconds: 10
+          lifecycle:
+            postStart:
+              exec:
+                command: [ "/bin/sh", "-c", "php /var/www/html/artisan config:cache" ]
+
