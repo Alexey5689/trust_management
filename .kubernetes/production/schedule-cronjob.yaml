@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: tm-schedule
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: tm-schedule
+              image: <IMAGE>
+              command: ["php", "artisan", "schedule:run"]
+          restartPolicy: OnFailure
