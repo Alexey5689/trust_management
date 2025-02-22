@@ -71,6 +71,7 @@ export const getYearDifference = (startDate, endDate) => {
 
 export const calculateDeadlineDate = (years, createDate) => {
     const date = new Date(createDate);
+    // console.log('Дата ебать', date);
 
     // Сохраняем день и месяц из даты подписания
     const day = date.getDate();
@@ -79,16 +80,17 @@ export const calculateDeadlineDate = (years, createDate) => {
     // Прибавляем годы
     date.setFullYear(date.getFullYear() + years);
 
-    // Проверяем, чтобы месяц и день совпадали после изменения года
-    // Если дата сместилась (например, 29 февраля в невисокосном году), мы устанавливаем исходный день
-    if (date.getMonth() !== month) {
-        date.setDate(0); // Устанавливаем последний день предыдущего месяца
+    if (date.getMonth() !== month && month === 1 && day === 29) {
+        date.setMonth(2);  // Устанавливаем март
+        date.setDate(1);   // Устанавливаем 1 марта
     } else {
-        date.setDate(day); // Восстанавливаем день
+        date.setDate(day); // Иначе возвращаем исходный день
     }
 
     return date.toISOString().substr(0, 10); // Преобразуем в формат yyyy-mm-dd
 };
+
+
 
 export const fetchData = async (router, params = {}) => {
     try {
@@ -145,3 +147,10 @@ export const formatDateBalanceTransactions = (date) => {
         return date; // Возвращаем исходное значение в случае ошибки
     }
 };
+
+export const filterNegativeNumbers = (event) => {
+    if(event.data === '-'){
+        event.target.value = null;
+    }
+}
+

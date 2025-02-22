@@ -193,7 +193,7 @@ class AdminController extends Controller
                     $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
                     
                    
-                    $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) || now()->lessThanOrEqualTo($nextPaymentDate);
+                    $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) && now()->lessThanOrEqualTo($nextPaymentDate);
                     
                     return [
                         'id' => $contract->id,

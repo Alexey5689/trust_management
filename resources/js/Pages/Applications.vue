@@ -7,7 +7,7 @@ import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
 import InputError from '@/Components/InputError.vue';
-import { fetchData } from '@/helpers';
+import { fetchData, filterNegativeNumbers } from '@/helpers';
 import Loader from '@/Components/Loader.vue';
 
 const route = inject('route');
@@ -242,11 +242,14 @@ const changeStatus = () => {
     });
 };
 
-const validateDividends = () => {
-    if (form.dividends > dividends.value) {
+const validateDividends = (event) => {
+    if(event.data === '-'){
+        event.target.value = null;
+    } else if (form.dividends > dividends.value) {
         form.dividends = null;
     }
 };
+
 </script>
 
 <template>
@@ -503,11 +506,11 @@ const validateDividends = () => {
                             <div v-if="agree_with_terms" class="contract_sum contract_sum_checkbox">
                                 <div class="input flex flex-column">
                                     <label for="dividends_partly">Дивиденты*</label>
-                                    <input type="number" id="dividends_partly" v-model="dividendsAfterExpiration" />
+                                    <input type="number" @input="filterNegativeNumbers" min="1"  id="dividends_partly" v-model="dividendsAfterExpiration" />
                                 </div>
                                 <p class="warning" style="margin-top: 8px">Комиссия фонда, 20%</p>
                                 <p class="warning" style="margin-top: 4px">
-                                    {{ dividendsAfterExpiration ? dividendsAfterExpiration * 0.2 + '₽' : '' }}
+                                    {{ dividendsAfterExpiration ? parseFloat(dividendsAfterExpiration * 0.2).toFixed(2) + '₽' : '' }}
                                 </p>
                             </div>
                             <div v-else class="contract_sum">
@@ -602,6 +605,7 @@ const validateDividends = () => {
                                     <input
                                         type="number"
                                         id="dividends_partly"
+                                        min="1"
                                         @input="validateDividends"
                                         v-model="form.dividends"
                                     />

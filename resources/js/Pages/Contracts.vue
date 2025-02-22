@@ -6,7 +6,7 @@ import { formatDate, getYearDifference, calculateDeadlineDate } from '@/helpers.
 import BaseModal from '@/Components/Modal/BaseModal.vue';
 import Ellipsis from '@/Components/Icon/Ellipsis.vue';
 import Dropdown from '@/Components/Modal/Dropdown.vue';
-import { fetchData } from '@/helpers';
+import { fetchData, filterNegativeNumbers } from '@/helpers';
 import InputError from '@/Components/InputError.vue';
 import Loader from '@/Components/Loader.vue';
 
@@ -350,7 +350,7 @@ const handleDateChange = (event) => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="first_name">Номер договора*</label>
-                            <input type="number" id="first_name" v-model.trim="form.contract_number" />
+                            <input type="number" @input="filterNegativeNumbers" min="1" id="first_name" v-model.trim="form.contract_number" />
                             <InputError :message="form.errors.contract_number" />
                         </div>
                         <div class="input flex flex-column">
@@ -363,7 +363,7 @@ const handleDateChange = (event) => {
                     <div class="flex c-gap">
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
-                            <input type="number" id="bank" v-model.trim="form.procent" />
+                            <input type="number" @input="filterNegativeNumbers" min="1" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex align-center checkbox">
@@ -399,7 +399,7 @@ const handleDateChange = (event) => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="sum">Сумма*</label>
-                            <input type="number" min="0" id="sum" v-model.trim="form.sum" />
+                            <input type="number" @input="filterNegativeNumbers" min="1" id="sum" v-model.trim="form.sum" />
                             <InputError :message="form.errors.sum" />
                         </div>
                     </div>
@@ -419,7 +419,7 @@ const handleDateChange = (event) => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="first_name">Номер договора*</label>
-                            <input type="text" id="first_name" v-model.trim="form.contract_number" />
+                            <input type="number" @input="filterNegativeNumbers" min="1" id="first_name" v-model.trim="form.contract_number" />
                             <InputError :message="form.errors.contract_number" />
                         </div>
                         <div class="input flex flex-column">
@@ -431,7 +431,7 @@ const handleDateChange = (event) => {
                     <div class="flex c-gap">
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
-                            <input type="text" id="bank" v-model.trim="form.procent" />
+                            <input type="number" @input="filterNegativeNumbers" min="1" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex align-center checkbox">
@@ -469,7 +469,7 @@ const handleDateChange = (event) => {
                     <div class="flex c-gap">
                         <div class="input flex flex-column">
                             <label for="sum">Сумма*</label>
-                            <input type="number" min="0" id="sum" v-model.trim="form.sum" />
+                            <input type="number" @input="filterNegativeNumbers" min="1" id="sum" v-model.trim="form.sum" />
                             <InputError :message="form.errors.sum" />
                         </div>
                     </div>

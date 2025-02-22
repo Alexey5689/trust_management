@@ -542,6 +542,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
                         'create_date'=> $isExpired ? $contract->deadline : $contract->create_date,
                         'deadline' => Carbon::parse($contract->deadline)->addYear($term),
                         'last_payment_date' => null,
+                        'is_aplication' => false,
                     ]);
                     Log::create([
                         'model_id' => $contract->user_id,
