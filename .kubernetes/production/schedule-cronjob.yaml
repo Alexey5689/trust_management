@@ -61,13 +61,6 @@ spec:
           ports:
             - name: http
               containerPort: 80
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-              scheme: HTTP
-            periodSeconds: 10
-            initialDelaySeconds: 10
           lifecycle:
             postStart:
               exec:
