@@ -8,6 +8,7 @@ export const formatDate = (date) => {
     try {
         return format(parseISO(date), 'd MMMM yyyy', { locale: ru });
     } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
         return date; // Возвращаем исходное значение в случае ошибки
     }
 };
@@ -64,6 +65,7 @@ export const getYearDifference = (startDate, endDate) => {
     try {
         return differenceInYears(parseISO(endDate), parseISO(startDate));
     } catch (error) {
+        console.error('Ошибка форматирования даты:', error);
         return null; // Возвращаем null в случае ошибки
     }
 };
