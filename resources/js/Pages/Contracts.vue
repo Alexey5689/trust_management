@@ -58,7 +58,6 @@ const getInfo = async (url, contractId) => {
     try {
         const data = await fetchData(url, { contract: contractId }); // Ожидаем завершения запроса
         contractData.value = data.contract;
-        console.log(contractData);
     } catch (err) {
         error.value = err; // Сохраняем ошибку
     } finally {
@@ -157,7 +156,6 @@ const handleDeadlineChange = (event) => {
 };
 
 const createContract = () => {
-    console.log(form);
     loading.value = true;
     form.post(route(`${props.role}.add.contract`), {
         onSuccess: () => {

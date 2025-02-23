@@ -42,7 +42,6 @@ const getInfo = async (url) => {
         userData.value = data.user ? data.user : data;
     } catch (err) {
         error.value = err; // Сохраняем ошибку
-        console.log(err);
     } finally {
         loading.value = false;
     }

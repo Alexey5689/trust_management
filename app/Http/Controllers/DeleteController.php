@@ -57,14 +57,14 @@ class DeleteController extends Controller
                 'model_id' => $contract->user_id,
                 'model_type' => Contract::class,
                 'change' => "Смена статуса договора ",
-                'action' => 'Удаление договора No ' . $contract->contract_number,
+                'action' => 'Удаление договора № ' . $contract->contract_number,
                 'old_value' => 'Активный',
                 'new_value' => 'Деактивирован',
                 'created_by' => Auth::id(),
             ]);
             $user->userNotifications()->create([
                 'title' => 'Договор',
-                'content' => 'Договор No ' . $contract->contract_number . ' удален',
+                'content' => 'Договор  ' . $contract->contract_number . ' удален',
             ]);
           return redirect(route('admin.contracts'))->with('success', ['успех', 'Договор успешно деактивирован'] );
         }catch (\Exception $e) {

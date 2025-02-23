@@ -699,7 +699,7 @@ const validateDividends = (event) => {
                         </div>
                         <div class="contract_sum">
                             <label>Дивиденды</label>
-                            <p>{{ parseFloat(contractInfo.dividends).toFixed(2) }}₽</p>
+                            <p>{{ contractInfo.dividends ? parseFloat(contractInfo.dividends).toFixed(2)+'₽': '' }} </p>
                         </div>
                     </div>
                 </div>

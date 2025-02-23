@@ -307,7 +307,7 @@ class AdminController extends Controller
                 'change' => 'Добавление договора',
                 'action' => 'Создание',
                 'old_value' => null,
-                'new_value' => 'Договор No'.$contract->contract_number,
+                'new_value' => 'Договор № '.$contract->contract_number,
                 'created_by' => Auth::id(), // ID самого пользователя
             ]);
             $manager = User::find($manager_id);
@@ -393,7 +393,7 @@ class AdminController extends Controller
                         Log::create([
                             'model_id' => $user->id,
                             'model_type' => User::class,
-                            'change' => 'Изменено поле' . $field,
+                            'change' => 'Изменено поле ' . $field,
                             'action' => 'Обновление данных',
                             'old_value' => $originalData[$field],
                             'new_value' => $newValue,
@@ -556,7 +556,7 @@ class AdminController extends Controller
                         Log::create([
                             'model_id' => $user->id,
                             'model_type' => User::class,
-                            'change' => 'Изменено поле' . $field,
+                            'change' => 'Изменено поле ' . $field,
                             'action' => 'Обновление данных',
                             'old_value' => $originalData[$field],
                             'new_value' => $newValue,
@@ -627,7 +627,7 @@ class AdminController extends Controller
             ]);
             $client->userNotifications()->create([
                 'title' => "Новый договор",
-                'content'=> 'Был создан договор No' . $contract->contract_number,
+                'content'=> 'Был создан договор № ' . $contract->contract_number,
             ]);
     
             // Логируем событие регистрации
@@ -637,7 +637,7 @@ class AdminController extends Controller
                 'change' =>  'Добавление договора',
                 'action' => 'Создание',
                 'old_value' => null,
-                'new_value' => 'Договор No ' . $contract->contract_number,
+                'new_value' => 'Договор № ' . $contract->contract_number,
                 'created_by' => Auth::id(), // ID самого пользователя
             ]);
             DB::commit();

@@ -104,10 +104,15 @@ const isRead = (id) => {
 
 .card_title {
     font-weight: 500;
+    text-align: start;
 }
 
 .card_date {
     color: #969ba0;
+}
+
+.card_body {
+    text-align: start;
 }
 
 .bold {

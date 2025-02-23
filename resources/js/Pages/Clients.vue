@@ -186,7 +186,6 @@ const createUser = () => {
     });
 };
 const updateUser = () => {
-    // console.log(currentModal.value.userId);
     loading.value = true;
     form.patch(route(`manager.edit.client`, { user: currentModal.value.clientId }), {
         onSuccess: () => {
