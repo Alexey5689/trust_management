@@ -98,8 +98,8 @@ class ApplicationController extends Controller
         $term = $this->termOfTheContract($application->contract->create_date, $application->contract->deadline);
        
         $dividends = match ($application->contract->payments) {
-            'Ежеквартально' => $application->contract->sum * ($application->contract->procent / 100) * $term /  $term * 4 ,
-            'Ежегодно' => $application->contract->sum * ($application->contract->procent / 100) * $term /  $term * 1 ,
+            'Ежеквартально' => $application->contract->sum * ($application->contract->procent / 100) / 4 ,
+            'Ежегодно' => $application->contract->sum * ($application->contract->procent / 100),
             'По истечению срока' => $application->dividends,
             default => null,
         };

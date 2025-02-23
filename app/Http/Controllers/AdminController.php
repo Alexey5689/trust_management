@@ -183,8 +183,8 @@ class AdminController extends Controller
                     };
                   
                     $dividends = match ($contract->payments) {
-                        'Ежеквартально' => $contract->sum * ($contract->procent / 100) * $term /  $term * 4 ,
-                        'Ежегодно' => $contract->sum * ($contract->procent / 100) * $term /  $term * 1 ,
+                        'Ежеквартально' => $contract->sum * ($contract->procent / 100) / 4 ,
+                        'Ежегодно' => $contract->sum * ($contract->procent / 100),
                         'По истечению срока' => null,
                         default => null,
                     };

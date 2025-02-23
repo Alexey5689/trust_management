@@ -82,7 +82,7 @@ const getInfo = async (url, applicationId) => {
         applicationData.value = data.application;
         userInfo.value = applicationData.value.user ?? '';
         contractInfo.value = applicationData.value.contract ?? '';
-        modalTitles.value.information = formatDate(applicationData.value.create_date) ?? '';
+        modalTitles.value.information = applicationData.value.create_date ? formatDate(applicationData.value.create_date) : '';
         selectedOffTime.value = applicationData.value.condition ?? '';
         selectedPartlyOption.value = applicationData.value.type_of_processing ?? '';
         formStatus.status = applicationData.value.status;

@@ -326,7 +326,7 @@ function calculateAnnualDividendsContracts($contractStartDate, $contractEndDate,
 
         // Обновляем статус заявки
         $application->update(['status' => $newStatus]);
-
+        $message = 'Статус заявки успешно изменен!';
         // Если заявка переходит в "Исполнена", обрабатываем транзакцию и договор
         if ($newStatus === 'Исполнена') {
             DB::beginTransaction();
