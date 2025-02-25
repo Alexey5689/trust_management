@@ -31,7 +31,6 @@ class AdminController extends Controller
         ->where('is_read', false)
         ->get()
         ->values();
-       
         return Inertia::render('Profile', [
             'user' => [
                 'id' => $user->id,
@@ -181,18 +180,15 @@ class AdminController extends Controller
                         'По истечению срока' => Carbon::parse($contract->deadline),
                         default => null,
                     };
-                  
                     $dividends = match ($contract->payments) {
                         'Ежеквартально' => $contract->sum * ($contract->procent / 100) / 4 ,
                         'Ежегодно' => $contract->sum * ($contract->procent / 100),
                         'По истечению срока' => null,
                         default => null,
                     };
-                 
                      // Проверяем, истёк ли срок договора
                     $isExpired = now()->greaterThanOrEqualTo(Carbon::parse($contract->deadline)->endOfDay());
                     
-                   
                     $canRequestPayoutOnTime = now()->greaterThanOrEqualTo($nextPaymentDate->copy()->subDays(7)) && now()->lessThanOrEqualTo($nextPaymentDate);
                     
                     return [
@@ -247,7 +243,6 @@ class AdminController extends Controller
 
     public function storeClientsByAdmin(Request $request ):RedirectResponse
     {
-     
         $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
@@ -322,7 +317,6 @@ class AdminController extends Controller
                 'sum_transition' => $request->sum,
                 'sourse' =>'Договор'
             ]);
-           
             $token = Password::createToken($user);
             $user->notify(new PasswordEmail($token, $user->email));
     
@@ -332,7 +326,6 @@ class AdminController extends Controller
                 'Успех!',
                 'Клиент успешно зарегистрирован'
             ]);
-           
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('admin.users')
@@ -342,30 +335,28 @@ class AdminController extends Controller
     }
 
      // изменение контактных данных user клиент
-     public function editClientByAdmin(User $user)
-     {
-      
-         $assignedManagerId = $user->userContracts()->first()->manager_id;
-         return response()->json([
-           'user'=> [
-                'id' => $user->id,
-                'last_name' => $user->last_name,
-                'first_name' => $user->first_name,
-                'middle_name' => $user->middle_name,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number,
-                'manager_id' => $assignedManagerId
+    public function editClientByAdmin(User $user)
+    {
+        $assignedManagerId = $user->userContracts()->first()->manager_id;
+        return response()->json([
+        'user'=> [
+            'id' => $user->id,
+            'last_name' => $user->last_name,
+            'first_name' => $user->first_name,
+            'middle_name' => $user->middle_name,
+            'email' => $user->email,
+            'phone_number' => $user->phone_number,
+            'manager_id' => $assignedManagerId
             ],
         ]);
-     }
-     public function updateClientByAdmin(Request $request, User $user): RedirectResponse
-     {
-     
+    }
+    public function updateClientByAdmin(Request $request, User $user): RedirectResponse
+    {
         $request->validate([
             'first_name' => ['required','string' ,'max:255', 'min:2'],
             'last_name' => ['required','string','max:255', 'min:2'],
             'middle_name' => ['required','string','max:255', 'min:2'],
-             'email' => [
+            'email' => [
                 'required',
                 'string',
                 'email',
@@ -375,8 +366,7 @@ class AdminController extends Controller
             ],
             'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
             'manager_id' => ['required', 'integer', 'exists:users,id'],
-         ]);
-         
+        ]);
         
         $originalData = $user->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']);
         $user->fill($request->only(['last_name', 'first_name', 'middle_name', 'email', 'phone_number']));
@@ -424,12 +414,28 @@ class AdminController extends Controller
         if ($currentManager->id !== $newManager->id) {
             DB::beginTransaction();
             try {
+                // Обновляем связь c менеджером
                 $user->managers()->sync([$request->manager_id]);
                 $user->userNotifications()->create([
                     'title' => "Менеджер",
                     'content'=> 'Ваш менеджер был изменен',
                 ]);
+                // Обновляем связь c контрактами
                 $user->userContracts()->update([
+                    'manager_id' => $request->manager_id,
+                ]);
+                // Уведомление о смене менеджера
+                $currentManager->userNotifications()->create([
+                    'title' => 'Клиент',
+                    'content'=> 'Ваш клиент: '.$user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name . ' был передан другому менеджеру',
+                ]);
+                // Уведомление о новом клиенте
+                $newManager->userNotifications()->create([
+                    'title' => 'Новый клиент',
+                    'content'=> 'У вас появился новый клиент: '.$user->last_name . ' ' . $user->first_name . ' ' . $user->middle_name,
+                ]);
+                // Обновляем связь c заявками
+                $user->userApplications()->update([
                     'manager_id' => $request->manager_id,
                 ]);
                 // Логируем смену менеджера
@@ -455,9 +461,8 @@ class AdminController extends Controller
             }
                             
         }
-       
         return redirect()->route('admin.users') ->with('status', ['Информация', 'Данные не изменились']);
-     }
+    }
 
 
 
@@ -518,7 +523,6 @@ class AdminController extends Controller
      // изменение контактных данных user менеджер
     public function editManagersByAdmin(User $user)
     {
-      
         return response()->json([
             'user' =>[
                 'id' => $user->id,
@@ -585,9 +589,8 @@ class AdminController extends Controller
         }
         return redirect()->route('admin.users') ->with('status', ['Информация', 'Данные не изменились']);
     }
-      public function storeAddContractByAdmin(Request $request)
-      {
-     
+    public function storeAddContractByAdmin(Request $request)
+    {
         $request->validate([
             'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
             'deadline' => ['required', 'date_format:Y-m-d'],
@@ -604,7 +607,6 @@ class AdminController extends Controller
             $client = User::findOrFail($request->user_id);
             // Получаем ID первого менеджера, закрепленного за клиентом
             $manager_id = optional($client->managers->first())->id;
-           
             $contract = Contract::create([
                 'user_id' => $request->user_id,
                 'manager_id' => $manager_id,
@@ -651,21 +653,18 @@ class AdminController extends Controller
             return redirect()->route('admin.contracts')
             ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
         }
-       
         
-      }
+    }
       //редакция договора
-      public function editContractByAdmin(Contract $contract)
-      {
-      
+    public function editContractByAdmin(Contract $contract)
+    {
         return response()->json([
             'contract' => $contract,
         ]);
-      }
+    }
 
-      public function updateContractByAdmin(Request $request, Contract $contract)
-      {
-       
+    public function updateContractByAdmin(Request $request, Contract $contract)
+    {
         $request->validate([
             'contract_number' =>['required', 'integer', Rule::unique('contracts', 'contract_number')->ignore($contract->id)],
             'deadline' => ['required', 'date_format:Y-m-d'],
@@ -675,7 +674,6 @@ class AdminController extends Controller
             'user_id' => ['required', 'integer'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
-       
         $originalData = $contract->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status', 'dividends']);
         $contract->fill($request->only(['user_id', 'contract_number', 'create_date', 'sum', 'deadline', 'procent', 'payments', 'agree_with_terms', 'contract_status', 'dividends']));
         if ($contract->isDirty()) {
@@ -702,7 +700,6 @@ class AdminController extends Controller
                     'title' => "Изменение договора",
                     'content'=> 'Договор № ' . $contract->contract_number . ' был изменен',
                 ]);
-               
                 
                 return redirect()->route('admin.contracts')->with('status',  [
                     'Успех!',
@@ -719,8 +716,7 @@ class AdminController extends Controller
         }
         return redirect()->route('admin.contracts')
         ->with('status', ['Информация', 'Данные не изменились']);
-       
-      }
+    }
 
     public function changeStatusApplication(Application $application){
         $user = Auth::user();

@@ -203,7 +203,7 @@ class ManagerController extends Controller
             ];
         });
        
-        $applications = $user ->managerApplications()
+        $applications = $user->managerApplications()
                         ->with('user',  'contract')
                         ->get()
                         ->map(function ($application) {
@@ -338,27 +338,25 @@ class ManagerController extends Controller
     public function editClientByManager(User $user) {
         return response()->json([
             'client'=> [
-                 'id' => $user->id,
-                 'last_name' => $user->last_name,
-                 'first_name' => $user->first_name,
-                 'middle_name' => $user->middle_name,
-                 'email' => $user->email,
-                 'phone_number' => $user->phone_number,
-             ],
-         ]);
-       
-
+                'id' => $user->id,
+                'last_name' => $user->last_name,
+                'first_name' => $user->first_name,
+                'middle_name' => $user->middle_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+            ],
+        ]);
     }
-      public function updateClientByManager(Request $request, User $user): RedirectResponse
-      {
+    public function updateClientByManager(Request $request, User $user): RedirectResponse
+    {
         
-          $request->validate([
-              'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
-          ]);
-          $oldPhone = $this->normalizeValue($user->phone_number);
-          $newPhone = $this->normalizeValue($request->phone_number);
-         
-          if($oldPhone !== $newPhone){
+        $request->validate([
+            'phone_number' => ['required', 'string', 'max:12', 'min:6', Rule::unique('users', 'phone_number')->ignore($user->id)],
+        ]);
+        $oldPhone = $this->normalizeValue($user->phone_number);
+        $newPhone = $this->normalizeValue($request->phone_number);
+        
+        if($oldPhone !== $newPhone){
             DB::beginTransaction();
             try{
                 $user->update($request->only(['phone_number']));
@@ -385,10 +383,9 @@ class ManagerController extends Controller
             
         }
         return redirect()->route('manager.clients') ->with('status', ['Информация', 'Данные не изменились']); 
-      }
-      public function storeAddContractByManager(Request $request)
-      {
-       
+    }
+    public function storeAddContractByManager(Request $request)
+    {
         $request->validate([
             'user_id' => ['required', 'integer'],
             'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
@@ -448,9 +445,8 @@ class ManagerController extends Controller
             return redirect()->route('admin.contracts')
             ->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
         }
-      }
-      
-      public function showNotifications(){
+    }
+    public function showNotifications(){
         $user = Auth::user();
         $role = $user->role->title;
          /** @var User $user */
@@ -475,9 +471,7 @@ class ManagerController extends Controller
 
     public function updateNotification(Request $request, Notification $notification){
         
-        $request->validate([
-           'is_read' => ['required', 'boolean'],
-        ]);
+        $request->validate(['is_read' => ['required', 'boolean'],]);
         $notification->update($request->all());
         return redirect()->route('manager.notification');
     }
