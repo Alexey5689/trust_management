@@ -53,6 +53,8 @@ const currentDate = `${day} ${month.charAt(0).toUpperCase() + month.slice(1)} ${
 const sum = computed(() => {
     return props.contracts.length ? props.contracts.reduce((total, contract) => total + contract.sum, 0) : null;
 });
+
+const transactions = computed(() => props.transactions.sort((a, b) => new Date(b.date_transition) - new Date(a.date_transition)));
 </script>
 
 <template>
