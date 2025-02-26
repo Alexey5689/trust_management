@@ -39,7 +39,7 @@ const dayAccruals = ref([]);
 // Храним id выбранного договора
 const openContractId = ref(null);
 
-const contracts = computed(() => props.contracts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+const contracts = computed(() => props.contracts.sort((a, b) => new Date(b.contract_number) - new Date(a.contract_number)));
 // При клике устанавливаем (или сбрасываем) id выбранного договора
 function handleContractClick(contractId) {
     openContractId.value = props.contracts.find((contract) => contract.id === contractId);

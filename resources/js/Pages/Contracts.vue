@@ -49,9 +49,9 @@ const activeClient = computed(() => props.clients.filter((client) => client.acti
 const activeContract = computed(() =>
     props.contracts
         .filter((contract) => contract.contract_status === true)
-        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)),
+        .sort((a, b) => new Date(b.contract_number) - new Date(a.contract_number)),
 );
-const noActiveContract = computed(() => props.contracts.filter((contract) => contract.contract_status === false));
+const noActiveContract = computed(() => props.contracts.filter((contract) => contract.contract_status === false).sort((a, b) => new Date(b.contract_number) - new Date(a.contract_number)),);
 
 const getInfo = async (url, contractId) => {
     loading.value = true;

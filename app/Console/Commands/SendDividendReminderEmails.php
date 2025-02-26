@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Console\Commands;
-use App\Models\User;
-use App\Models\Log;
+use App\Models\Log as LogModel;
 use Illuminate\Console\Command;
-use App\Models\Contract;
+use App\Models\Contract as ContractModel;
 use Carbon\Carbon;
 use App\Notifications\DividendNotification;
+use Illuminate\Support\Facades\Log;
 
 class SendDividendReminderEmails extends Command
 {
@@ -17,21 +17,18 @@ class SendDividendReminderEmails extends Command
     {
         $today = Carbon::now();
         
-        $contracts = Contract::where('contract_status', true)
+        $contracts = ContractModel::where('contract_status', true)
         ->with(['user', 'manager'])
         ->get();
 
-       
         foreach ($contracts as $contract) {
             $nextPaymentDate = $this->calculateNextPaymentDate($contract);
-        
             if ($nextPaymentDate) {
                 // Если дата следующего платежа через 7 дней
                 if ($nextPaymentDate->isSameDay($today->copy()->addDays(7))) {
                     $this->sendDividendNotification($contract, $contract->manager, 'менеджеру', $nextPaymentDate);
                 }
-        
-                // Если дата следующего платежа через 14 дней
+                // Если дата следующего платежа через 2 дней
                 if ($nextPaymentDate->isSameDay($today->copy()->addDays(2))) {
                     $this->sendDividendNotification($contract, $contract->user, 'клиенту', $nextPaymentDate);
                 }
@@ -70,7 +67,6 @@ class SendDividendReminderEmails extends Command
         $lastPaymentDate = $contract->last_payment_date 
             ? Carbon::parse($contract->last_payment_date) 
             : Carbon::parse($contract->create_date);
-
         return match ($contract->payments) {
             'Ежеквартально' => $lastPaymentDate->addMonths(3),
             'Ежегодно' => $lastPaymentDate->addYear(),
@@ -85,14 +81,15 @@ class SendDividendReminderEmails extends Command
             'content' => 'К вам на почту отправлено письмо о выплате дивидендов',
         ]);
 
-        Log::create([
+        LogModel::create([
             'model_id' => $user->id,
-            'model_type' => Contract::class,
+            'model_type' => ContractModel::class,
             'change' => 'Письмо о выплате дивидендов',
             'action' => 'Отправлено на почту ' . $recipientType,
             'old_value' => null,
-            'new_value' => 'Договор No' . $contract->contract_number,
+            'new_value' => 'Договор №' . $contract->contract_number,
             'created_by' => 1, // ID системного пользователя
         ]);
     }
 }
+
