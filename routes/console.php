@@ -14,4 +14,4 @@ Artisan::command('notify:dividends', function () {
     $this->comment('✅ Уведомления успешно отправлены!');
 })->purpose('Отправить уведомления о выплатах дивидендов');
 
-app(Schedule::class)->command('notify:dividends')->dailyAt('00:00'); // Выполнять каждый день в 00:00
+//app(Schedule::class)->command('notify:dividends')->dailyAt('00:00'); // Выполнять каждый день в 00:00
