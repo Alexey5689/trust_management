@@ -8,4 +8,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-Schedule::command('notify:dividends')->everyMinute();
+Schedule::command('notify:dividends')->dailyAt('00:00');
