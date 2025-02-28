@@ -36,10 +36,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })
-    ->booted(function (Application $app) {
-        // Добавляем задачу в расписание
-        $schedule = $app->make(Schedule::class);
-        $schedule->command('notify:dividends')->everyMinute();
-    })
     ->create();
    // ->dailyAt('00:00')
