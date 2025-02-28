@@ -39,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->booted(function (Application $app) {
         // Добавляем задачу в расписание
         $schedule = $app->make(Schedule::class);
-        $schedule->command('notify:dividends')->dailyAt('00:00');
+        $schedule->command('notify:dividends')->everyMinute();
     })
     ->create();
+   // ->dailyAt('00:00')
