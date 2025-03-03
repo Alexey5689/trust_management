@@ -39,7 +39,7 @@ protected function calculateAccumulatedDividends($contractStartDate, $contractDe
 
     return match ($paymentFrequency) {
       
-        'Ежеквартально'   => $this->calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate ),
+        'Ежеквартально' => $this->calculateQuarterlyDividends($contractStartDate, $currentDate, $paymentAmount, $lastPaymentDate ),
         'Ежегодно' => $this->calculateAnnualDividends($contractStartDate,$contractDeadline, $currentDate, $paymentAmount, $lastPaymentDate),
         default => 0,
     };

@@ -37,4 +37,3 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->create();
-   // ->dailyAt('00:00')

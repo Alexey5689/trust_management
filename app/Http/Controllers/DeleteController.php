@@ -43,7 +43,7 @@ class DeleteController extends Controller
             return redirect(route('admin.users'))->with('status', ['Успех!', 'Аккаунт пользователя успешно деактивирован']);
     
         } catch (\Exception $e) {
-            return redirect(route('admin.users'))->with('status', ['Ошибка!', 'Попробуйте снова позже.']);
+            return redirect(route('admin.users'))->with('status', ['Неуспех:(', 'Что то пошло не так, повторите попытку снова. Если после второй попытки ничего не получилось, повторите позже']);
         }
     }
 

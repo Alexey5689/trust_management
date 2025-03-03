@@ -32,6 +32,7 @@ const submit = () => {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
+const passwordPattern = 'Минимум 8 символов в верхнем и нижнем регистре, 1 заглавная буква, 1 цифра, 1 спецсимвол(!@#$%^&*)';
 </script>
 
 <template>
@@ -42,7 +43,7 @@ const submit = () => {
             <form @submit.prevent="submit">
                 <div class="flex flex-column">
                     <label for="password">Пароль</label>
-                    <input id="password" type="password" v-model="form.password" required autofocus />
+                    <input id="password" type="password" v-bind:title="passwordPattern" v-model="form.password" required autofocus />
                     <InputError :message="form.errors.password" />
                 </div>
                 <div class="flex flex-column">

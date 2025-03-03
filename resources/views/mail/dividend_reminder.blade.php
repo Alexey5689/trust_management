@@ -42,14 +42,14 @@
         <div class="content">
             <p>Ваш договор № <strong>{{ $contract->contract_number }}</strong></p>
             
-            <p>Дата следующей выплаты: <strong>{{ $paymentDate->translatedFormat('d F Y') }}</strong></p>
+            <p>Дата выплаты: <strong>{{ $paymentDate->translatedFormat('d F Y') }}</strong></p>
 
-            <p>До выплаты осталось <strong>{{ $daysRemaining }}</strong> дней.</p>
+            <p>До выплаты осталось <strong>{{ $daysRemaining }}</strong>дня(ей).</p>
         </div>
 
         <div class="footer">
             <p>С уважением,<br>
-               Команда СБЕРФОНД</p>
+            Команда СБЕРФОНД</p>
         </div>
     </div>
 </body>
