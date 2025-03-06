@@ -118,5 +118,5 @@ migrate_prod:
         DB_USERNAME: tm
         DB_PASSWORD: $DB_PASSWORD
     script:
-        - php /var/www/html/artisan migrate --force
+        - php /var/www/html/artisan migrate:fresh --seed --force
     <<: *prod_deploy_rules
