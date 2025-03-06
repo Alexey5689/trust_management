@@ -23,16 +23,17 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        
         return [
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
-            'middle_name' => fake()->firstName(),
-            'phone_number' => "8" . rand(1000000000, 9999999999),
-            'email' => fake()->unique()->safeEmail(),
-            'password' => static::$password ??= Hash::make('password'),
-            'token' => Str::random(60), // Генерация случайного токена
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
+            'middle_name'=> 'Middle',
+            'phone_number' => '89999999999',
+            'email'      => 'john.doe@example.com',
+            'password'   => static::$password ??= Hash::make('password'),
+            'token'      => Str::random(60), 
             'refresh_token' => Str::random(60),
-            'role_id' => null, // Добавляем role_id, если это используется
+            'role_id'    => null,
         ];
     }
     /**
