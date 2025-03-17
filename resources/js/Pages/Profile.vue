@@ -122,7 +122,7 @@ const saveChanges = () => {
         });
     }
 };
-
+const passwordPattern = 'Минимум 8 символов в верхнем и нижнем регистре, 1 заглавная буква, 1 цифра, 1 спецсимвол(!, @, #, *)';
 const isGridRole = computed(() => props.role === 'manager' || props.role === 'client');
 </script>
 
@@ -212,7 +212,7 @@ const isGridRole = computed(() => props.role === 'manager' || props.role === 'cl
                 <form class="flex">
                     <div class="input flex flex-column">
                         <label for="password">Новый пароль</label>
-                        <input type="password" id="password" v-model="form.password" />
+                        <input type="password" id="password" v-bind:title="passwordPattern" v-model="form.password" />
                         <InputError :message="form.errors.password" />
                     </div>
                     <div class="input flex flex-column">

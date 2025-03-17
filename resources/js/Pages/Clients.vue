@@ -387,7 +387,7 @@ const updateUser = () => {
                             </div>
                             <div class="input flex flex-column">
                                 <label for="email">Email*</label>
-                                <input type="email" id="email" v-model.trim="form.email" />
+                                <input type="email" id="email" @input="form.email = $event.target.value.toLowerCase()" v-model.trim="form.email" />
                                 <InputError :message="form.errors.email" />
                                 <p class="warning">На эту почту придет письмо c ссылкой на создание пароля</p>
                             </div>
@@ -413,7 +413,7 @@ const updateUser = () => {
                         <div class="flex c-gap">
                             <div v-if="!form.agree_with_terms" class="input flex flex-column">
                                 <label for="bank">Ставка, %*</label>
-                                <input type="number" @input="filterNegativeNumbers" min="1" id="bank" v-model.trim.number="form.procent" />
+                                <input type="number" @input="filterNegativeNumbers" min="1" max="100" id="bank" v-model.trim.number="form.procent" />
                                 <InputError :message="form.errors.procent" />
                             </div>
                             <div class="input flex align-center checkbox">

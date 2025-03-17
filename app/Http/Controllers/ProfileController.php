@@ -95,7 +95,17 @@ public function updateProfile(Request $request)
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+            ],
         ]);
 
         // Явно указываем тип переменной $user

@@ -149,7 +149,7 @@ export const formatDateBalanceTransactions = (date) => {
 
 export const filterNegativeNumbers = (event) => {
     if(event.data === '-'){
-        event.target.value = null;
+        event.target.value = 1;
     }
 }
 

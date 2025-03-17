@@ -361,7 +361,7 @@ const handleDateChange = (event) => {
                     <div class="flex c-gap">
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
-                            <input type="number" @input="filterNegativeNumbers" min="1" id="bank" v-model.trim="form.procent" />
+                            <input type="number" @input="filterNegativeNumbers" min="1" max="100" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex align-center checkbox">
@@ -429,7 +429,7 @@ const handleDateChange = (event) => {
                     <div class="flex c-gap">
                         <div v-if="!form.agree_with_terms" class="input flex flex-column">
                             <label for="bank">Ставка, %*</label>
-                            <input type="number" @input="filterNegativeNumbers" min="1" id="bank" v-model.trim="form.procent" />
+                            <input type="number" @input="filterNegativeNumbers" min="1" max="100" id="bank" v-model.trim="form.procent" />
                             <InputError :message="form.errors.procent" />
                         </div>
                         <div class="input flex align-center checkbox">

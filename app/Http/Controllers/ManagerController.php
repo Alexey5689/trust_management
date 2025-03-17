@@ -254,11 +254,11 @@ class ManagerController extends Controller
             'middle_name' => ['required','string','max:255', 'min:2'],
             'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
             'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number'],
-            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
+            'contract_number' =>['required', 'integer', 'min:1','unique:contracts,contract_number'],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
-            'sum' => ['required', 'integer'],
-            'procent' => ['required', 'integer', 'min:0', 'max:100'],
+            'sum' => ['required', 'integer', 'min:1'],
+            'procent' => ['required', 'integer', 'min:1', 'max:100'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
 
@@ -388,11 +388,11 @@ class ManagerController extends Controller
     {
         $request->validate([
             'user_id' => ['required', 'integer'],
-            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
+            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number', 'min:1'],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
-            'sum' => ['required', 'integer'],
-            'procent' => ['required', 'integer', 'min:0', 'max:100'],
+            'sum' => ['required', 'integer', 'min:1'],
+            'procent' => ['required', 'integer', 'min:1', 'max:100'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
         DB::beginTransaction();

@@ -128,7 +128,7 @@ const toggleModal = () => {
                         {{ noRead }}
                         <Icon_balance />
                         <div style="margin-right: 40px">
-                            <p class="fw">Дивиденты</p>
+                            <p class="fw">Дивиденды</p>
                             <p>{{ props.userInfo?.dividends }} ₽</p>
                         </div>
                         <div style="margin-right: 20px">

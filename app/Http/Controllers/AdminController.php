@@ -249,11 +249,11 @@ class AdminController extends Controller
             'middle_name' => ['required','string','max:255', 'min:2'],
             'email' => ['required','string','email','max:255','min:6', 'unique:users,email'],
             'phone_number' => ['required', 'string', 'max:12', 'min:6', 'unique:users,phone_number'],
-            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
+            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number', 'min:1'],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
-            'sum' => ['required', 'integer'],
-            'procent' => ['required', 'integer', 'min:0', 'max:100'],
+            'sum' => ['required', 'integer', 'min:1'],
+            'procent' => ['required', 'integer', 'min:1', 'max:100'],
             'manager_id' => ['required', 'integer', 'exists:users,id'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
@@ -592,11 +592,11 @@ class AdminController extends Controller
     public function storeAddContractByAdmin(Request $request)
     {
         $request->validate([
-            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number'],
+            'contract_number' =>['required', 'integer', 'unique:contracts,contract_number', 'min:1'],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
-            'sum' => ['required', 'integer'],
-            'procent' => ['required', 'integer', 'min:0', 'max:100'],
+            'sum' => ['required', 'integer', 'min:1'],
+            'procent' => ['required', 'integer', 'min:1', 'max:100'],
             'user_id' => ['required', 'integer'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);
@@ -666,11 +666,11 @@ class AdminController extends Controller
     public function updateContractByAdmin(Request $request, Contract $contract)
     {
         $request->validate([
-            'contract_number' =>['required', 'integer', Rule::unique('contracts', 'contract_number')->ignore($contract->id)],
+            'contract_number' =>['required', 'integer', 'min:1', Rule::unique('contracts', 'contract_number')->ignore($contract->id)],
             'deadline' => ['required', 'date_format:Y-m-d'],
             'create_date' => ['required', 'date_format:Y-m-d'],
-            'sum' => ['required', 'integer'],
-            'procent' => ['required', 'integer', 'min:0', 'max:100'],
+            'sum' => ['required', 'integer', 'min:1'],
+            'procent' => ['required', 'integer', 'min:1', 'max:100'],
             'user_id' => ['required', 'integer'],
             'payments' => ['required', 'string', 'in:Ежеквартально,Ежегодно,По истечению срока'],
         ]);

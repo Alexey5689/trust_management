@@ -32,7 +32,7 @@ const submit = () => {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
-const passwordPattern = 'Минимум 8 символов в верхнем и нижнем регистре, 1 заглавная буква, 1 цифра, 1 спецсимвол(!@#$%^&*)';
+const passwordPattern = 'Минимум 8 символов в верхнем и нижнем регистре, 1 заглавная буква, 1 цифра, 1 спецсимвол(!, @, #, *)';
 </script>
 
 <template>

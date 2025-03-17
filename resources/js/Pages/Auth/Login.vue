@@ -51,7 +51,7 @@ const submit = () => {
             <form @submit.prevent="submit">
                 <div class="flex flex-column">
                     <label for="login">Логин</label>
-                    <input id="login" type="email" v-model="form.email" required autofocus autocomplete="username" />
+                    <input id="login" type="email" @input="form.email = $event.target.value.toLowerCase()" v-model="form.email" required autofocus autocomplete="username" />
                     <InputError :message="form.errors.email" />
                 </div>
                 <div class="flex flex-column">
