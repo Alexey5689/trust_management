@@ -45,7 +45,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
+        <Head title="Авторизация" />
         <div class="login-container">
             <h1>Авторизация</h1>
             <form @submit.prevent="submit">
